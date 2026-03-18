@@ -9,32 +9,45 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
+import { NavGroup, type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Building2, Calendar, Folder, LayoutGrid, Menu, Search, Settings, Settings2 } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
+import { NavMain2 } from './NavMain2';
 
-const mainNavItems: NavItem[] = [
+
+const mainNavItems: NavGroup[] = [
     {
-        title: 'Dashboard',
-        url: '/dashboard',
+        title: 'Dasboard',
+        href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Settings',
+        icon: Settings,
+        children: [
+            {
+                title: 'Offices',
+                href: '/events',
+                icon: Building2,
+            },
+            {
+                title: 'Attendance Logs',
+                href: '/attendance-logs',
+                icon: Calendar,
+            },
+            {
+                title: 'DTR',
+                href: '/dtr',
+                icon: Calendar,
+            },
+        ],
+    },
+
 ];
 
-const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
-];
+
 
 const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
@@ -66,26 +79,25 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <div className="mt-6 flex h-full flex-1 flex-col space-y-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-4">
-                                            {mainNavItems.map((item) => (
-                                                <Link key={item.title} href={item.url} className="flex items-center space-x-2 font-medium">
-                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
-                                                </Link>
-                                            ))}
-                                        </div>
+                                            {mainNavItems.map((group) => (
+                                                <div key={group.title}>
+                                                    <p className="px-2 text-xs font-semibold text-muted-foreground">
+                                                        {group.title}
+                                                    </p>
 
-                                        <div className="flex flex-col space-y-4">
-                                            {rightNavItems.map((item) => (
-                                                <a
-                                                    key={item.title}
-                                                    href={item.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center space-x-2 font-medium"
-                                                >
-                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
-                                                </a>
+                                                    {group.children?.map((item) => (
+                                                        <Link
+                                                            key={item.title}
+                                                            href={item.href}
+                                                            className="flex items-center space-x-2 px-2 py-1 font-medium"
+                                                        >
+                                                            {item.icon && (
+                                                                <Icon iconNode={item.icon} className="h-5 w-5" />
+                                                            )}
+                                                            <span>{item.title}</span>
+                                                        </Link>
+                                                    ))}
+                                                </div>
                                             ))}
                                         </div>
                                     </div>
@@ -102,24 +114,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
                         <NavigationMenu className="flex h-full items-stretch">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2">
-                                {mainNavItems.map((item, index) => (
-                                    <NavigationMenuItem key={index} className="relative flex h-full items-center">
-                                        <Link
-                                            href={item.url}
-                                            className={cn(
-                                                navigationMenuTriggerStyle(),
-                                                page.url === item.url && activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
-                                            )}
-                                        >
-                                            {item.icon && <Icon iconNode={item.icon} className="mr-2 h-4 w-4" />}
-                                            {item.title}
-                                        </Link>
-                                        {page.url === item.url && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
-                                        )}
-                                    </NavigationMenuItem>
-                                ))}
+                                <NavMain2 items={mainNavItems} />
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>
@@ -129,28 +124,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <Button variant="ghost" size="icon" className="group h-9 w-9 cursor-pointer">
                                 <Search className="!size-5 opacity-80 group-hover:opacity-100" />
                             </Button>
-                            <div className="hidden lg:flex">
-                                {rightNavItems.map((item) => (
-                                    <TooltipProvider key={item.title} delayDuration={0}>
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <a
-                                                    href={item.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="group text-accent-foreground ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                                                >
-                                                    <span className="sr-only">{item.title}</span>
-                                                    {item.icon && <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />}
-                                                </a>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{item.title}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                ))}
-                            </div>
+
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

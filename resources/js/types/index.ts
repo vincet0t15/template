@@ -1,5 +1,5 @@
 import { LucideIcon } from 'lucide-react';
-
+import type { InertiaLinkProps } from '@inertiajs/react';
 export interface Auth {
     user: User;
 }
@@ -9,17 +9,25 @@ export interface BreadcrumbItem {
     href: string;
 }
 
-export interface NavGroup {
-    title: string;
-    items: NavItem[];
-}
+// export interface NavGroup {
+//     title: string;
+//     items: NavItem[];
+// }
 
-export interface NavItem {
+export type NavItem = {
     title: string;
-    url: string;
+    href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
-}
+};
+
+export type NavGroup = {
+    title: string;
+    href?: NonNullable<InertiaLinkProps['href']>;
+    icon?: LucideIcon | null;
+    isActive?: boolean;
+    children?: NavItem[];
+};
 
 export interface SharedData {
     name: string;
