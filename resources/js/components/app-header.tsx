@@ -76,7 +76,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         </div>
                                         <div className="min-w-0">
                                             <p className="text-sm font-semibold leading-tight text-foreground">Laravel Starter Kit</p>
-                                            <p className="text-xs text-muted-foreground leading-tight">Navigation</p>
                                         </div>
                                     </div>
                                 </SheetHeader>
