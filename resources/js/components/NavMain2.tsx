@@ -25,7 +25,7 @@ export function NavMain2({ items = [] }: { items: NavGroup[] }) {
                     group.children?.length ? (
                         //  WITH CHILDREN (Dropdown)
                         <NavigationMenuItem key={group.title}>
-                            <NavigationMenuTrigger className="flex items-center gap-2">
+                            <NavigationMenuTrigger className="flex items-center gap-2 ml-2">
                                 {group.icon && (
                                     <group.icon className="h-4 w-4" />
                                 )}
