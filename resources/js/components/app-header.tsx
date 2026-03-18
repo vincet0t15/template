@@ -80,22 +80,18 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     </div>
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col">
-                                    <div className="px-4 pb-3">
-                                        <div className="relative">
-                                            <Input placeholder="Search…" className="pl-9 h-10 rounded-md bg-background" />
-                                            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                                        </div>
-                                    </div>
-                                    <Separator className="bg-sidebar-border" />
                                     <nav className="flex flex-1 flex-col gap-2 p-2 text-sm">
-                                        <Link
-                                            href="/dashboard"
-                                            prefetch
-                                            className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                                        >
-                                            <LayoutGrid className="h-5 w-5" />
-                                            <span className="font-medium">Dashboard</span>
-                                        </Link>
+                                        <div>
+                                            <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">General</p>
+                                            <Link
+                                                href="/dashboard"
+                                                prefetch
+                                                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                            >
+                                                <LayoutGrid className="h-5 w-5" />
+                                                <span className="font-medium">Dashboard</span>
+                                            </Link>
+                                        </div>
                                         <div className="mt-1">
                                             <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">Settings</p>
                                             <div className="flex flex-col gap-1">
