@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OfficeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -11,7 +12,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    // OFFICES
+    Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
 });
 
-require __DIR__ . '/settings.php';
+// require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

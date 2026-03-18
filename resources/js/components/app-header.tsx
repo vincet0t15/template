@@ -28,7 +28,7 @@ const mainNavItems: NavGroup[] = [
         children: [
             {
                 title: 'Offices',
-                href: '/events',
+                href: offices,
                 icon: Building2,
             },
             {
