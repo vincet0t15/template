@@ -9,6 +9,6 @@ class OfficeController extends Controller
 {
     public function index()
     {
-        return Inertia::render('offices/index');
+        return Inertia::render('settings/offices/index');
     }
 }

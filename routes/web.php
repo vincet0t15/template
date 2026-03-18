@@ -14,7 +14,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // OFFICES
-    Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
+    Route::prefix('settings')->group(function () {
+        Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
+    });
 });
 
 // require __DIR__ . '/settings.php';
