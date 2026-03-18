@@ -55,7 +55,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-sidebar-border/80 border-b bg-sidebar">
+            <div className="border-sidebar-border/80 border-b">
                 <div className="mx-auto flex h-16 items-center px-4 ">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -103,12 +103,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="relative flex items-center flex-1">
 
                         {/* Left: Logo */}
-                        <Link href="/dashboard" prefetch className="flex items-center space-x-2 z-10">
-                            <AppLogo />
-                        </Link>
+                        <div className="flex items-center">
+                            <Link href="/dashboard" prefetch className="flex items-center space-x-2">
+                                <AppLogo />
+                            </Link>
+                        </div>
 
-                        {/* Center: Navigation (TRUE CENTER) */}
-                        <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex">
+                        {/* Center: Navigation */}
+                        <div className="hidden lg:flex flex-1 justify-center">
                             <NavigationMenu>
                                 <NavigationMenuList className="flex items-center space-x-2">
                                     <NavMain2 items={mainNavItems} />
@@ -117,26 +119,28 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </div>
 
                         {/* Right: Actions */}
-                        <div className="ml-auto flex items-center space-x-2 z-10">
+                        <div className="flex items-center space-x-2 ml-auto">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="size-10 rounded-full p-1">
-                                        <Avatar className="size-8">
-                                            <AvatarImage src={auth.user.avatar} />
+                                        <Avatar className="size-8 overflow-hidden rounded-full">
+                                            <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
                                             <AvatarFallback>
                                                 {getInitials(auth.user.name)}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent className="w-56" align="end">
                                     <UserMenuContent user={auth.user} />
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
+
                     </div>
                 </div>
             </div>
+
         </>
     );
 }
