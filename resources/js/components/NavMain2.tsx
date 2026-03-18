@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 
 export function NavMain2({ items = [] }: { items: NavGroup[] }) {
     const page = usePage()
+    const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
     return (
         <NavigationMenu>
@@ -32,16 +33,15 @@ export function NavMain2({ items = [] }: { items: NavGroup[] }) {
                             </NavigationMenuTrigger>
 
                             <NavigationMenuContent>
-                                <ul className=" w-[200px] gap-2 p-2">
+                                <ul className=" w-[200px] gap-2">
                                     {group.children.map((item) => (
                                         <li key={item.title}>
                                             <NavigationMenuLink asChild>
                                                 <Link
                                                     href={item.href}
                                                     className={cn(
-                                                        "flex items-center gap-2 rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground",
-                                                        page.url.startsWith(item.href) &&
-                                                        "bg-accent text-accent-foreground"
+                                                        "flex items-center gap-2 rounded-md  text-sm hover:bg-accent hover:text-accent-foreground",
+                                                        page.url.startsWith(item.href)
                                                     )}
                                                 >
                                                     {item.icon && (
@@ -69,7 +69,8 @@ export function NavMain2({ items = [] }: { items: NavGroup[] }) {
                                         {
                                             "bg-accent text-accent-foreground":
                                                 page.url.startsWith(group.href ?? ""),
-                                        }
+                                        },
+
                                     )}
                                 >
                                     {group.icon && (
