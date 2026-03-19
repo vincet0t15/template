@@ -39,7 +39,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         existingPhotoUrl ?? null,
     );
 
-    const { data, setData, post, errors } = useForm<EmployeeCreateRequest>({
+    const { data, setData, put, errors } = useForm<EmployeeCreateRequest>({
         first_name: employee.first_name,
         middle_name: employee.middle_name,
         last_name: employee.last_name,
@@ -79,8 +79,8 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-
-        post(route('employees.store'), {
+        console.log(data);
+        put(route('employees.update', employee.id), {
             forceFormData: true,
             onSuccess: (response: { props: FlashProps }) => {
                 toast.success(response.props.flash?.success);
@@ -304,12 +304,12 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
                                 <div className="flex flex-col gap-1">
                                     <Label>PERA</Label>
-                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} defaultValue={employee.pera} />
+                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} defaultValue={employee.pera} disabled={data.employment_status_id !== '1'} />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>RATA</Label>
-                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} defaultValue={employee.rata} />
+                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} defaultValue={employee.rata} disabled={data.employment_status_id !== '1'} />
                                 </div>
                             </div>
 
