@@ -59,7 +59,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
 
             const queryString = data.search ? { search: data.search } : undefined;
 
-            router.get('offices.index', queryString, {
+            router.get(route('offices.index'), queryString, {
                 preserveState: true,
                 preserveScroll: true,
             });
