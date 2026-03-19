@@ -75,7 +75,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             <AppLogoIcon className="h-5 w-5 fill-current text-white dark:text-black" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-semibold leading-tight text-foreground">Laravel Starter Kit</p>
+                                            <p className="text-sm font-semibold leading-tight text-foreground">Employee & Supplier Expense System</p>
                                         </div>
                                     </div>
                                 </SheetHeader>

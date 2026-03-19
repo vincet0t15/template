@@ -18,11 +18,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-
 import { useState } from 'react';
 import { CreateOfficeDialog } from './create';
 import { EditOfficeDialog } from './edit';
 import { DeleteOfficeDialog } from './delete';
+import Pagination from '@/components/paginationData';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -162,7 +162,9 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                         </TableBody>
                     </Table>
                 </div>
-
+                <div>
+                    <Pagination data={offices} />
+                </div>
                 {openCreateDialog && (
                     <CreateOfficeDialog
                         isOpen={openCreateDialog}
