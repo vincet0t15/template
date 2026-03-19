@@ -39,7 +39,8 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         existingPhotoUrl ?? null,
     );
 
-    const { data, setData, put, errors } = useForm<EmployeeCreateRequest>({
+    const { data, setData, post, errors } = useForm<EmployeeCreateRequest>({
+        _method: 'put',
         first_name: employee.first_name,
         middle_name: employee.middle_name,
         last_name: employee.last_name,
@@ -79,7 +80,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-        put(route('employees.update', employee.id), {
+        post(route('employees.update', employee.id), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: (response: { props: FlashProps }) => {
