@@ -15,8 +15,12 @@ class Employee extends Model
         'middle_name',
         'last_name',
         'suffix',
-        'contact_number',
+        'salary',
+        'rata',
+        'pera',
+        'position',
         'employment_status_id',
+        'office_id',
         'created_by',
     ];
 

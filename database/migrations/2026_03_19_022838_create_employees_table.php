@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('suffix')->nullable();
-            $table->string('contact_number')->unique();
+            $table->string('salary')->nullable();
+            $table->string('rata')->nullable();
+            $table->string('pera')->nullable();
+            $table->string('position')->nullable();
             $table->string('image_path')->nullable();
             $table->foreignId('employment_status_id')->constrained('employment_statuses')->onDelete('cascade');
             $table->foreignId('office_id')->constrained('offices')->onDelete('cascade');

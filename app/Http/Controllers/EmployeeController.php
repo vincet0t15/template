@@ -43,4 +43,41 @@ class EmployeeController extends Controller
             'offices' => $offices,
         ]);
     }
+
+    public function store(Request $request)
+    {
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:255',
+            'salary' => 'nullable|string|max:255',
+            'rata' => 'nullable|string|max:255',
+            'pera' => 'nullable|string|max:255',
+            'employment_status_id' => 'required|exists:employment_statuses,id',
+            'office_id' => 'required|exists:offices,id',
+            'photo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
+        ]);
+
+        $path = $request->hasFile('photo')
+            ? $request->file('photo')->store('employees', 'public')
+            : null;
+
+        Employee::create([
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'],
+            'last_name' => $validated['last_name'],
+            'suffix' => $validated['suffix'],
+            'salary' => $validated['salary'],
+            'rata' => $validated['rata'],
+            'pera' => $validated['pera'],
+            'employment_status_id' => $validated['employment_status_id'],
+            'office_id' => $validated['office_id'],
+            'image_path' => $path,
+        ]);
+
+
+        return redirect()->route('employees.index')->with('success', 'Employee created successfully');
+    }
 }
