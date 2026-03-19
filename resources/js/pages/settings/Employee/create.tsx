@@ -16,6 +16,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { Office } from '@/types/office';
+import { CustomComboBox } from '@/components/CustomComboBox';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -25,9 +27,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 
 interface EmployeeProps {
-    employmentStatuses: EmploymentStatus[]
+    employmentStatuses: EmploymentStatus[];
+    offices: Office[];
 }
-export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
+export default function CreateEmployee({ employmentStatuses, offices }: EmployeeProps) {
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
     const photoPreviewUrlRef = useRef<string | null>(null);
 
@@ -58,6 +61,11 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
 
         setData('photo', file);
     };
+
+    const officeOptions = offices.map((office) => ({
+        value: String(office.id),
+        label: office.name,
+    }));
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -207,7 +215,7 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
 
                             <div className="flex flex-col gap-1">
                                 <Label>Office</Label>
-                                <Input />
+                                <CustomComboBox items={officeOptions} placeholder="Office" />
                             </div>
 
                             <div className="flex flex-col gap-1">

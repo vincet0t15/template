@@ -9,24 +9,20 @@ import {
     ComboboxList,
 } from "@/components/ui/combobox"
 
-const frameworks = [
-    "Next.js",
-    "SvelteKit",
-    "Nuxt.js",
-    "Remix",
-    "Astro",
-] as const
-
-export function ComboboxBasic() {
+interface CustomComboBoxProps {
+    items: { value: string; label: string }[];
+    placeholder: string;
+}
+export function CustomComboBox({ items, placeholder }: CustomComboBoxProps) {
     return (
-        <Combobox items={frameworks}>
-            <ComboboxInput placeholder="Select a framework" />
+        <Combobox items={items} itemToStringValue={(item: { value: string; label: string }) => item.label}>
+            <ComboboxInput placeholder={placeholder} />
             <ComboboxContent>
                 <ComboboxEmpty>No items found.</ComboboxEmpty>
                 <ComboboxList>
                     {(item) => (
-                        <ComboboxItem key={item} value={item}>
-                            {item}
+                        <ComboboxItem key={item.value} value={item}>
+                            {item.label}
                         </ComboboxItem>
                     )}
                 </ComboboxList>
