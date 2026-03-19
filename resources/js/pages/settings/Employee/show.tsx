@@ -2,9 +2,11 @@ import { CardDescription, CardTitle } from "@/components/ui/card"
 import {
     Dialog,
     DialogContent,
+    DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import type { Employee } from "@/types/employee"
+import { Description } from "@radix-ui/react-dialog"
 
 interface EmployeeShowProps {
     isOpen: boolean
@@ -16,6 +18,12 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="w-[400px] p-2 bg-background border-none shadow-none">
+                <DialogTitle hidden>
+                    {employee.first_name} {employee.last_name}
+                </DialogTitle>
+                <Description hidden className="text-center">
+                    {employee.first_name} {employee.last_name}
+                </Description>
                 <div className="flex items-center justify-center">
                     {employee.image_path ? (
                         <img
