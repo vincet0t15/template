@@ -160,9 +160,7 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                                 <Input
                                     id="first_name"
                                     value={data.first_name}
-                                    onChange={(e) =>
-                                        setData('first_name', e.target.value)
-                                    }
+                                    placeholder='First Name'
                                 />
                             </div>
 
@@ -171,9 +169,7 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                                 <Input
                                     id="middle_name"
                                     value={data.middle_name}
-                                    onChange={(e) =>
-                                        setData('middle_name', e.target.value)
-                                    }
+                                    placeholder='Middle Name'
                                 />
                             </div>
 
@@ -182,9 +178,7 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                                 <Input
                                     id="last_name"
                                     value={data.last_name}
-                                    onChange={(e) =>
-                                        setData('last_name', e.target.value)
-                                    }
+                                    placeholder='Last Name'
                                 />
                             </div>
 
@@ -208,7 +202,7 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <div className="flex flex-col gap-1">
                                 <Label>Position</Label>
-                                <Input />
+                                <Input placeholder='Position' />
                             </div>
 
                             <div className="flex flex-col gap-1">
@@ -239,17 +233,17 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <div className="flex flex-col gap-1">
                                 <Label>Salary</Label>
-                                <Input />
+                                <Input placeholder='Salary' />
                             </div>
 
                             <div className="flex flex-col gap-1">
                                 <Label>PERA</Label>
-                                <Input />
+                                <Input placeholder='PERA' />
                             </div>
 
                             <div className="flex flex-col gap-1">
                                 <Label>RATA</Label>
-                                <Input />
+                                <Input placeholder='RATA' />
                             </div>
                         </div>
 
@@ -258,7 +252,6 @@ export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
                             <Button variant="outline">Cancel</Button>
                             <Button type="submit">Save Employee</Button>
                         </div>
-
                     </div>
                 </div>
             </div>
