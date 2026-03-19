@@ -60,6 +60,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
             URL.revokeObjectURL(photoPreviewUrlRef.current);
             photoPreviewUrlRef.current = null;
         }
+
         if (file) {
             const url = URL.createObjectURL(file);
             photoPreviewUrlRef.current = url;
@@ -67,6 +68,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         } else {
             setPhotoPreviewUrl(null);
         }
+
         setData('photo', file);
     };
 
@@ -77,7 +79,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-
         put(route('employees.update', employee.id), {
             forceFormData: true,
             preserveScroll: true,
@@ -94,7 +95,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
-
 
         if (['salary', 'pera', 'rata'].includes(name)) {
             let numericValue = value.replace(/[^\d.]/g, '');
@@ -115,6 +115,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
             setData({ ...data, [name]: value });
         }
     };
+
     const handleSuffixChange = (value: string | null) => {
         setData('suffix', value ?? '');
     }
