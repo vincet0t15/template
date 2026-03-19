@@ -114,6 +114,170 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Employee" />
+            <div className="w-full max-w-5xl mx-auto">
+                <div className="bg-background shadow rounded-xl p-6">
+                    <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        {/* LEFT SIDE - PHOTO */}
+                        <div className="md:col-span-1 space-y-4 flex flex-col items-center">
+                            <input
+                                id="photo"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                onChange={handlePhotoChange}
+                            />
+
+                            <button
+                                type="button"
+                                className="relative flex aspect-square w-full max-w-xs cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-background"
+                                onClick={() => document.getElementById('photo')?.click()}
+                            >
+                                {photoPreviewUrl ? (
+                                    <img src={photoPreviewUrl} alt="Preview" className="h-full w-full object-cover" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center gap-2 text-center">
+                                        <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                                            <UploadIcon className="size-5 text-muted-foreground" />
+                                        </div>
+                                        <div className="text-sm font-semibold">Upload Photo</div>
+                                        <div className="text-xs text-muted-foreground">Click to browse</div>
+                                    </div>
+                                )}
+                            </button>
+
+                            <div className="flex flex-wrap gap-2 justify-center">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => document.getElementById('photo')?.click()}
+                                >
+                                    <UploadIcon className="size-4 mr-1" />
+                                    {photoPreviewUrl ? 'Change' : 'Choose'}
+                                </Button>
+
+                                {photoPreviewUrl && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (photoPreviewUrlRef.current) {
+                                                URL.revokeObjectURL(photoPreviewUrlRef.current);
+                                                photoPreviewUrlRef.current = null;
+                                            }
+                                            setPhotoPreviewUrl(null);
+                                            setData('photo', null);
+                                        }}
+                                    >
+                                        <XIcon className="size-4 mr-1" />
+                                        Remove
+                                    </Button>
+                                )}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground text-center">
+                                jpeg, jpg, png, webp (max 2MB)
+                            </p>
+                        </div>
+
+                        {/* RIGHT SIDE - FORM */}
+                        <div className="md:col-span-2 space-y-4">
+
+                            {/* NAME */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>First Name</Label>
+                                    <Input name="first_name" value={data.first_name} onChange={handleInputChange} />
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Middle Name</Label>
+                                    <Input name="middle_name" value={data.middle_name} onChange={handleInputChange} />
+                                </div>
+
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Last Name</Label>
+                                    <Input name="last_name" value={data.last_name} onChange={handleInputChange} />
+                                </div>
+                                <div className="w-full">
+                                    <Label>Suffix</Label>
+                                    <Select onValueChange={handleSuffixChange} >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Suffix" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Jr.">Jr.</SelectItem>
+                                            <SelectItem value="Sr.">Sr.</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            {/* POSITION / OFFICE / STATUS */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1   gap-3">
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Position</Label>
+                                    <Input name="position" onChange={handleInputChange} />
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Office</Label>
+                                    <CustomComboBox
+                                        items={officeOptions}
+                                        placeholder="Office"
+                                        onSelect={(value) => setData('office_id', value ?? '')}
+                                    />
+                                </div>
+
+
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Employment Status</Label>
+                                    <Select onValueChange={handleEmploymentStatusChange} >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Employment Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {employmentStatuses.map((status) => (
+                                                <SelectItem key={status.id} value={String(status.id)}>
+                                                    {status.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                    <Label>Employment Status</Label>
+                                    <Select onValueChange={handleEmploymentStatusChange} >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Employment Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {employmentStatuses.map((status) => (
+                                                <SelectItem key={status.id} value={String(status.id)}>
+                                                    {status.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div className="flex justify-end gap-2 pt-4">
+                                <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">Save Employee</Button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="w-full max-w-5xl mx-auto">
                     <div className="bg-background shadow rounded-xl p-6 space-y-6">
