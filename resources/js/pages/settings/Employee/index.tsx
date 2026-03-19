@@ -19,16 +19,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    Card,
-    CardAction,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { EmployeeShow } from './show';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -41,7 +34,13 @@ interface EmployeeProps {
     filters: FilterProps
 }
 export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
-    console.log(employees)
+    const [openShow, setOpenShow] = useState(false)
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+
+    const handleClickShow = (employee: Employee) => {
+        setSelectedEmployee(employee)
+        setOpenShow(true)
+    }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
@@ -94,8 +93,8 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                         key={employee.id}
                                         className="text-sm hover:bg-muted/30 items-center"
                                     >
-                                        <TableCell className="text-sm">
-                                            <div className="flex items-center gap-2">
+                                        <TableCell className="text-sm cursor-pointer" onClick={() => handleClickShow(employee)}>
+                                            <div className="flex items-center gap-2 cursor-pointer">
                                                 <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
                                                     {employee.image_path ? (
                                                         <AvatarImage
@@ -154,7 +153,13 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                 <div>
                     <Pagination data={employees} />
                 </div>
-
+                {openShow && selectedEmployee && (
+                    <EmployeeShow
+                        employee={selectedEmployee}
+                        onClose={() => setOpenShow(false)}
+                        isOpen={openShow}
+                    />
+                )}
 
             </div>
         </AppLayout>
