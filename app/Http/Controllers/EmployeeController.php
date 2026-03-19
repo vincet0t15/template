@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class EmployeeController extends Controller
@@ -117,9 +118,12 @@ class EmployeeController extends Controller
             'photo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
         ]);
 
-        $path = $request->hasFile('photo')
-            ? $request->file('photo')->store('employees', 'public')
-            : $employee->image_path;
+        if ($request->hasFile('photo')) {
+            if ($employee->image_path) {
+                Storage::disk('public')->delete($employee->image_path);
+            }
+            $employee->image_path = $request->file('photo')->store('employees', 'public');
+        }
 
         if ($validated['employment_status_id'] == 1) {
             $validated['rata'] = null;
@@ -136,7 +140,6 @@ class EmployeeController extends Controller
             'pera' => $validated['pera'],
             'employment_status_id' => $validated['employment_status_id'],
             'office_id' => $validated['office_id'],
-            'image_path' => $path,
             'position' => $validated['position'],
         ]);
 
