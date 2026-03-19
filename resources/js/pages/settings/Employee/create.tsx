@@ -168,6 +168,9 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                 <Input
                                     id="first_name"
                                     value={data.first_name}
+                                    onChange={(e) =>
+                                        setData('first_name', e.target.value)
+                                    }
                                     placeholder='First Name'
                                 />
                             </div>
@@ -177,6 +180,9 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                 <Input
                                     id="middle_name"
                                     value={data.middle_name}
+                                    onChange={(e) =>
+                                        setData('middle_name', e.target.value)
+                                    }
                                     placeholder='Middle Name'
                                 />
                             </div>
@@ -186,6 +192,9 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                 <Input
                                     id="last_name"
                                     value={data.last_name}
+                                    onChange={(e) =>
+                                        setData('last_name', e.target.value)
+                                    }
                                     placeholder='Last Name'
                                 />
                             </div>
@@ -215,7 +224,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
 
                             <div className="flex flex-col gap-1">
                                 <Label>Office</Label>
-                                <CustomComboBox items={officeOptions} placeholder="Office" />
+                                <CustomComboBox items={officeOptions} placeholder="Office" onSelect={(value) => console.log(value)} />
                             </div>
 
                             <div className="flex flex-col gap-1">
