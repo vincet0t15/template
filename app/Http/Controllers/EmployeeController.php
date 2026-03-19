@@ -56,6 +56,7 @@ class EmployeeController extends Controller
             'salary' => 'nullable|string|max:255',
             'rata' => 'nullable|string|max:255',
             'pera' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
             'employment_status_id' => 'required|exists:employment_statuses,id',
             'office_id' => 'required|exists:offices,id',
             'photo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
@@ -76,6 +77,7 @@ class EmployeeController extends Controller
             'employment_status_id' => $validated['employment_status_id'],
             'office_id' => $validated['office_id'],
             'image_path' => $path,
+            'position' => $validated['position'],
         ]);
 
 
