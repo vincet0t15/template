@@ -1,7 +1,7 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Search } from 'lucide-react';
 import Heading from '@/components/heading';
@@ -21,6 +21,8 @@ import {
 
 import { useState } from 'react';
 import { CreateOfficeDialog } from './create';
+import { EditOfficeDialog } from './edit';
+import { DeleteOfficeDialog } from './delete';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -33,7 +35,36 @@ interface IndexProps {
     filters: FilterProps;
 }
 export default function Dashboard({ offices, filters }: IndexProps) {
+    const { data, setData } = useForm({
+        search: filters.search || '',
+    });
+
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
+    const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+    const handleEditClick = (office: Office) => {
+        setSelectedOffice(office);
+        setOpenEditDialog(true);
+    };
+    const handleDeleteClick = (office: Office) => {
+        setSelectedOffice(office);
+        setOpenDeleteDialog(true);
+    };
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            const queryString = data.search ? { search: data.search } : undefined;
+
+            router.get('offices.index', queryString, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        }
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -46,7 +77,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
 
                     <Button onClick={() => setOpenCreateDialog(true)}>
                         <PlusIcon className="h-4 w-4" />
-                        Add Office
+                        Create Office
                     </Button>
 
                     <div className="flex w-full sm:w-auto items-center gap-2">
@@ -58,6 +89,9 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                                 id="search"
                                 placeholder="Search the offices..."
                                 className="pl-8 w-full"
+                                value={data.search}
+                                onChange={(e) => setData({ search: e.target.value })}
+                                onKeyDown={handleSearchKeyDown}
                             />
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                         </div>
@@ -76,7 +110,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                                     Code
                                 </TableHead>
 
-                                <TableHead className="font-bold text-primary">
+                                <TableHead className="font-bold text-primary text-right">
                                     Action
                                 </TableHead>
                             </TableRow>
@@ -99,7 +133,20 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                                             )}
                                         </TableCell>
 
-
+                                        <TableCell className="text-sm flex items-center gap-2 justify-end">
+                                            <span
+                                                onClick={() => handleEditClick(office)}
+                                                className="text-teal-600 cursor-pointer hover:underline"
+                                            >
+                                                Edit
+                                            </span>
+                                            <span
+                                                onClick={() => handleDeleteClick(office)}
+                                                className="text-orange-600 cursor-pointer hover:underline"
+                                            >
+                                                Delete
+                                            </span>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -120,6 +167,22 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                     <CreateOfficeDialog
                         isOpen={openCreateDialog}
                         onClose={() => setOpenCreateDialog(false)}
+                    />
+                )}
+
+                {openEditDialog && selectedOffice && (
+                    <EditOfficeDialog
+                        isOpen={openEditDialog}
+                        onClose={() => setOpenEditDialog(false)}
+                        office={selectedOffice}
+                    />
+                )}
+
+                {openDeleteDialog && selectedOffice && (
+                    <DeleteOfficeDialog
+                        isOpen={openDeleteDialog}
+                        onClose={() => setOpenDeleteDialog(false)}
+                        office={selectedOffice}
                     />
                 )}
             </div>

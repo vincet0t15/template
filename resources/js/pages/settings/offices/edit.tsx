@@ -12,19 +12,20 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import type { OfficeCreateRequest } from "@/types/office"
+import type { Office, OfficeCreateRequest } from "@/types/office"
 import { useForm } from "@inertiajs/react"
 import type { ChangeEventHandler, FormEventHandler } from "react"
 import { toast } from "sonner"
 
-interface CreateOfficeDialogProps {
+interface EditOfficeDialogProps {
     isOpen: boolean;
     onClose: () => void;
+    office: Office
 }
-export function CreateOfficeDialog({ isOpen, onClose }: CreateOfficeDialogProps) {
-    const { data, setData, post, reset, errors, processing } = useForm<OfficeCreateRequest>({
-        name: '',
-        code: '',
+export function EditOfficeDialog({ isOpen, onClose, office }: EditOfficeDialogProps) {
+    const { data, setData, put, reset, errors, processing } = useForm<OfficeCreateRequest>({
+        name: office.name,
+        code: office.code,
     })
 
     const onChangeInput: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -33,7 +34,7 @@ export function CreateOfficeDialog({ isOpen, onClose }: CreateOfficeDialogProps)
 
     const onSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('offices.store'), {
+        put(route('offices.update', office.id), {
             onSuccess: (response: { props: FlashProps }) => {
                 toast.success(response.props.flash?.success);
                 onClose();
@@ -46,20 +47,20 @@ export function CreateOfficeDialog({ isOpen, onClose }: CreateOfficeDialogProps)
             <DialogContent className="sm:max-w-sm rounded-md">
                 <form onSubmit={onSubmit} >
                     <DialogHeader className="mb-4">
-                        <DialogTitle>Create Office</DialogTitle>
+                        <DialogTitle>Edit Office</DialogTitle>
                         <DialogDescription className="text-xs">
-                            Add a new office by providing the required details. This will be included in the system records.
+                            Update the office details by providing the required information. This will update the system records.
                         </DialogDescription>
                     </DialogHeader>
                     <div>
                         <Field>
                             <Label htmlFor="name-1">Name</Label>
-                            <Input name="name" placeholder="e.g. Office of the Municipal Mayor" onChange={onChangeInput} />
+                            <Input name="name" placeholder="e.g. Office of the Municipal Mayor" onChange={onChangeInput} value={data.name} />
                             <span className="text-orange-600">{errors.name}</span>
                         </Field>
                         <Field>
                             <Label htmlFor="username-1">Code</Label>
-                            <Input name="code" placeholder="e.g. MO" onChange={onChangeInput} />
+                            <Input name="code" placeholder="e.g. MO" onChange={onChangeInput} value={data.code} />
                             <span className="text-orange-600">{errors.code}</span>
                         </Field>
                     </div>
@@ -67,7 +68,7 @@ export function CreateOfficeDialog({ isOpen, onClose }: CreateOfficeDialogProps)
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Create Office</Button>
+                        <Button type="submit">Update Office</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

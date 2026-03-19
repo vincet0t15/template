@@ -36,8 +36,25 @@ class OfficeController extends Controller
 
         Office::create($validated);
 
-        return redirect()->route('offices.index')->with('flash', [
-            'success' => 'Office created successfully.',
+        return redirect()->back()->withSuccess('Office created successfully.');
+    }
+
+    public function update(Request $request, Office $office)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:offices,name,' . $office->id,
+            'code' => 'required|string|max:255|unique:offices,code,' . $office->id,
         ]);
+
+        $office->update($validated);
+
+        return redirect()->back()->withSuccess('Office updated successfully.');
+    }
+
+    public function destroy(Request $request, Office $office)
+    {
+        $office->delete();
+
+        return redirect()->back()->withSuccess('Office deleted successfully.');
     }
 }
