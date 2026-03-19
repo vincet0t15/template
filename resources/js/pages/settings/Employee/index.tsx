@@ -48,17 +48,6 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
         setOpenShow(true)
     }
 
-    // const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    //     if (e.key === 'Enter') {
-    //         router.get(route('employees.index', {
-    //             ...filters,
-    //             search: data.search,
-    //              preserveState: true,
-    //             preserveScroll: true,
-    //         }))
-    //     }
-    // }
-
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
