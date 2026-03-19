@@ -66,6 +66,10 @@ class EmployeeController extends Controller
             ? $request->file('photo')->store('employees', 'public')
             : null;
 
+        if ($validated['employment_status_id'] == 1) {
+            $validated['rata'] = null;
+            $validated['pera'] = null;
+        }
         Employee::create([
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],

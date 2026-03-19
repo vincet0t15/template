@@ -300,12 +300,12 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
 
                                 <div className="flex flex-col gap-1">
                                     <Label>PERA</Label>
-                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} />
+                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>RATA</Label>
-                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} />
+                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
                                 </div>
                             </div>
 
