@@ -60,7 +60,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
             URL.revokeObjectURL(photoPreviewUrlRef.current);
             photoPreviewUrlRef.current = null;
         }
-
         if (file) {
             const url = URL.createObjectURL(file);
             photoPreviewUrlRef.current = url;
@@ -68,7 +67,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         } else {
             setPhotoPreviewUrl(null);
         }
-
         setData('photo', file);
     };
 
@@ -79,9 +77,10 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-        console.log(data);
+
         put(route('employees.update', employee.id), {
             forceFormData: true,
+            preserveScroll: true,
             onSuccess: (response: { props: FlashProps }) => {
                 toast.success(response.props.flash?.success);
             },
@@ -94,9 +93,28 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
     }
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-        setData({ ...data, [e.target.name]: e.target.value });
-    }
+        const { name, value } = e.target;
 
+
+        if (['salary', 'pera', 'rata'].includes(name)) {
+            let numericValue = value.replace(/[^\d.]/g, '');
+            const parts = numericValue.split('.');
+            if (parts.length > 2) return;
+
+            const integerPart = parts[0];
+            const decimalPart = parts[1] ?? '';
+
+            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            const formattedValue = decimalPart
+                ? `${formattedInteger}.${decimalPart}`
+                : formattedInteger;
+
+            setData({ ...data, [name]: formattedValue });
+        } else {
+            setData({ ...data, [name]: value });
+        }
+    };
     const handleSuffixChange = (value: string | null) => {
         setData('suffix', value ?? '');
     }
@@ -300,16 +318,25 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
                                 <div className="flex flex-col gap-1">
                                     <Label>Salary</Label>
                                     <Input placeholder='Salary' name="salary" onChange={handleInputChange} defaultValue={employee.salary} />
+                                    <span className="text-red-500 text-xs">
+                                        {errors.salary}
+                                    </span>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>PERA</Label>
                                     <Input placeholder='PERA' name="pera" onChange={handleInputChange} defaultValue={employee.pera} disabled={data.employment_status_id !== '1'} />
+                                    <span className="text-red-500 text-xs">
+                                        {errors.pera}
+                                    </span>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>RATA</Label>
                                     <Input placeholder='RATA' name="rata" onChange={handleInputChange} defaultValue={employee.rata} disabled={data.employment_status_id !== '1'} />
+                                    <span className="text-red-500 text-xs">
+                                        {errors.rata}
+                                    </span>
                                 </div>
                             </div>
 

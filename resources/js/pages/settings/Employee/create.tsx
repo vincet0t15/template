@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { UploadIcon, XIcon } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
 
-        // Format currency inputs
+
         if (['salary', 'pera', 'rata'].includes(name)) {
             let numericValue = value.replace(/[^\d.]/g, '');
             const parts = numericValue.split('.');
@@ -312,7 +312,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
 
                             {/* ACTIONS */}
                             <div className="flex justify-end gap-2 pt-4">
-                                <Button variant="outline">Cancel</Button>
+                                <Button onClick={() => router.get(route('employees.index'))} type="button" variant="outline">Cancel</Button>
                                 <Button type="submit">Save Employee</Button>
                             </div>
                         </form>
