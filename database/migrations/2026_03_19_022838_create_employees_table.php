@@ -18,8 +18,9 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('suffix')->nullable();
             $table->string('contact_number')->unique();
-            $table->string('image')->nullable();
+            $table->string('image_path')->nullable();
             $table->foreignId('employment_status_id')->constrained('employment_statuses')->onDelete('cascade');
+            $table->foreignId('office_id')->constrained('offices')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
