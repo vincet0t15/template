@@ -20,8 +20,7 @@ class EmployeeController extends Controller
                 $query->where('first_name', 'like', "%{$search}%")
                     ->orWhere('middle_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('suffix', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('suffix', 'like', "%{$search}%");
             })
             ->orderBy('last_name', 'asc')
             ->with(['employmentStatus', 'office'])

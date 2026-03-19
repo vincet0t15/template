@@ -1,7 +1,7 @@
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Search, User } from 'lucide-react';
@@ -35,6 +35,10 @@ interface EmployeeProps {
     filters: FilterProps
 }
 export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
+    const { data, setData } = useForm({
+        search: filters.search || "",
+    })
+
     const [openShow, setOpenShow] = useState(false)
     const [openEdit, setOpenEdit] = useState(false)
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
@@ -44,10 +48,29 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
         setOpenShow(true)
     }
 
-    const handleClickEdit = (employee: Employee) => {
-        setSelectedEmployee(employee)
-        setOpenEdit(true)
+    // const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    //     if (e.key === 'Enter') {
+    //         router.get(route('employees.index', {
+    //             ...filters,
+    //             search: data.search,
+    //              preserveState: true,
+    //             preserveScroll: true,
+    //         }))
+    //     }
+    // }
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const queryString = data.search ? { search: data.search } : {};
+
+            router.get(route('employees.index'), queryString, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        }
     }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
@@ -73,7 +96,9 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                 id="search"
                                 placeholder="Search the employee..."
                                 className="pl-8 w-full"
-
+                                value={data.search}
+                                onChange={(e) => setData({ search: e.target.value })}
+                                onKeyDown={handleSearchKeyDown}
                             />
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                         </div>

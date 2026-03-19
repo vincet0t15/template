@@ -3,7 +3,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
-import { UploadIcon, XIcon } from 'lucide-react';
+import { ArrowLeftCircle, UploadIcon, XIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import type { Employee, EmployeeCreateRequest } from '@/types/employee';
 import { Input } from '@/components/ui/input';
@@ -132,7 +132,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="w-full max-w-5xl mx-auto">
                     <div className="bg-background shadow rounded-xl p-6 space-y-6">
