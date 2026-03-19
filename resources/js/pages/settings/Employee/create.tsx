@@ -77,6 +77,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
         e.preventDefault();
 
         post(route('employees.store'), {
+            forceFormData: true,
             onSuccess: (response: { props: FlashProps }) => {
                 toast.success(response.props.flash?.success);
             },

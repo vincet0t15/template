@@ -4,7 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Search } from 'lucide-react';
+import { PlusIcon, Search, User } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import type { PaginatedDataResponse } from '@/types/pagination';
@@ -20,6 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -32,7 +33,6 @@ interface EmployeeProps {
     filters: FilterProps
 }
 export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
-    const [openCreateDialog, setOpenCreateDialog] = useState(false);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
@@ -84,7 +84,26 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                         className="text-sm hover:bg-muted/30"
                                     >
                                         <TableCell className="text-sm">
-                                            {employee.first_name} {employee.middle_name} {employee.last_name} {employee.suffix}
+                                            <div className="flex items-center gap-2"    >
+                                                <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
+                                                    {employee.image_path ? (
+                                                        <AvatarImage
+                                                            src={
+                                                                employee.image_path ??
+                                                                undefined
+                                                            }
+                                                            alt={
+                                                                employee.first_name + ' ' + employee.middle_name + ' ' + employee.last_name
+                                                            }
+                                                            className="object-cover"
+                                                        />
+                                                    ) : null}
+                                                    <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
+                                                        <User className="h-6 w-6 text-slate-400" />
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                {employee.first_name} {employee.middle_name} {employee.last_name} {employee.suffix}
+                                            </div>
                                         </TableCell>
 
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class Employee extends Model
 {
@@ -42,5 +43,10 @@ class Employee extends Model
         self::creating(function ($employee) {
             $employee->created_by = Auth::id();
         });
+    }
+
+    public function getImagePathAttribute($value)
+    {
+        return $value ? Storage::url($value) : null;
     }
 }
