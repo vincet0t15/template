@@ -130,13 +130,13 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                                 </Avatar>
 
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold">
+                                                    <span className="font-bold uppercase">
                                                         {employee.last_name},  {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
                                                     <span className="text-xs text-muted-foreground italic">
                                                         {employee.office?.name}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground">
+                                                    <span className="text-xs text-muted-foreground italic">
                                                         {employee.employment_status?.name}
                                                     </span>
                                                 </div>

@@ -54,9 +54,6 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         middle_name: employee.middle_name,
         last_name: employee.last_name,
         suffix: employee.suffix,
-        salary: employee.salary,
-        rata: employee.rata,
-        pera: employee.pera,
         position: employee.position,
         office_id: employee.office_id,
         employment_status_id: employee.employment_status_id,
@@ -327,7 +324,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 <div className="flex flex-col gap-1">
                                     <Label>Salary</Label>
-                                    <Input placeholder='Salary' name="salary" onChange={handleInputChange} defaultValue={employee.salary} />
+                                    <Input placeholder='Salary' name="salary" onChange={handleInputChange} />
                                     <span className="text-red-500 text-xs">
                                         {errors.salary}
                                     </span>
@@ -335,7 +332,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
                                 <div className="flex flex-col gap-1">
                                     <Label>PERA</Label>
-                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} defaultValue={employee.pera} disabled={data.employment_status_id !== '1'} />
+                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
                                     <span className="text-red-500 text-xs">
                                         {errors.pera}
                                     </span>
@@ -343,7 +340,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
 
                                 <div className="flex flex-col gap-1">
                                     <Label>RATA</Label>
-                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} defaultValue={employee.rata} disabled={data.employment_status_id !== '1'} />
+                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
                                     <span className="text-red-500 text-xs">
                                         {errors.rata}
                                     </span>

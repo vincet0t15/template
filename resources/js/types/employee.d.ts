@@ -7,9 +7,6 @@ export interface Employee {
     middle_name: string;
     last_name: string;
     suffix: string;
-    salary: string;
-    rata: string;
-    pera: string;
     image_path?: string;
     photo?: File | null;
     position: string;

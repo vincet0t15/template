@@ -19,77 +19,6 @@ interface EmployeeShowProps {
 export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            {/* <DialogContent className="w-[400px] p-2 bg-background border-none shadow-none">
-                <DialogTitle hidden>
-                    {employee.first_name} {employee.last_name}
-                </DialogTitle>
-                <Description hidden className="text-center">
-                    {employee.first_name} {employee.last_name}
-                </Description>
-                <div className="flex items-center justify-center">
-                    {employee.image_path ? (
-                        <img
-                            src={employee.image_path}
-                            alt={`${employee.first_name} ${employee.last_name}`}
-                            className="max-h-[60vh] w-auto rounded-lg object-contain"
-                        />
-                    ) : (
-                        <div className="flex h-60 w-full items-center justify-center rounded-lg bg-muted">
-                            <span className="text-sm text-muted-foreground">
-                                No image available
-                            </span>
-                        </div>
-                    )}
-                </div>
-                <div className="flex flex-col items-center text-center gap-1">
-                    <span className="text-sm font-semibold">
-                        {employee.first_name} {employee.last_name}
-                    </span>
-
-                    <span className="text-xs text-muted-foreground">
-                        {employee.office?.name}
-                    </span>
-
-                    <span className="text-xs text-muted-foreground">
-                        {employee.employment_status?.name}
-                    </span>
-
-                    <span className="text-xs text-muted-foreground">
-                        {employee.position}
-                    </span>
-                    <div className="flex">
-                        <span className="text-xs text-muted-foreground flex items-center">
-                            <Label className="text-xs">Salary</Label>
-                            <span className="ml-1">
-                                {new Intl.NumberFormat('en-PH', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                }).format(Number(employee.salary))}
-                            </span>
-                        </span>
-                        |
-                        <span className="text-xs text-muted-foreground flex items-center">
-                            <Label className="text-xs">RATA</Label>
-                            <span className="ml-1">
-                                {new Intl.NumberFormat('en-PH', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                }).format(Number(employee.rata))}
-                            </span>
-                        </span>
-                        |
-                        <span className="text-xs text-muted-foreground flex items-center">
-                            <Label className="text-xs">PERA</Label>
-                            <span className="ml-1">
-                                {new Intl.NumberFormat('en-PH', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                }).format(Number(employee.pera))}
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </DialogContent> */}
             <DialogContent className="w-[400px] p-1 bg-background border-none shadow-none rounded-md">
                 <CardHeader className="flex flex-col items-center gap-3 pt-8">
                     <Avatar className="h-24 w-24 ring-4 ring-muted shadow-md">
@@ -136,10 +65,10 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
                                 Salary
                             </span>
                             <span className="font-medium text-right  truncate uppercase">
-                                {new Intl.NumberFormat('en-PH', {
+                                {/* {new Intl.NumberFormat('en-PH', {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
-                                }).format(Number(employee.salary))}
+                                }).format(Number(employee.salary))} */}
                             </span>
                         </div>
                         <div className="flex items-center justify-between text-sm border-b pb-2 last:border-none">
@@ -147,10 +76,10 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
                                 PERA
                             </span>
                             <span className="font-medium text-right  truncate uppercase">
-                                {new Intl.NumberFormat('en-PH', {
+                                {/* {new Intl.NumberFormat('en-PH', {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
-                                }).format(Number(employee.pera))}
+                                }).format(Number(employee.pera))} */}
                             </span>
                         </div>
                         <div className="flex items-center justify-between text-sm border-b pb-2 last:border-none">
@@ -158,10 +87,10 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
                                 RATA
                             </span>
                             <span className="font-medium text-right  truncate uppercase">
-                                {new Intl.NumberFormat('en-PH', {
+                                {/* {new Intl.NumberFormat('en-PH', {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
-                                }).format(Number(employee.rata))}
+                                }).format(Number(employee.rata))} */}
                             </span>
                         </div>
                     </div>

@@ -54,9 +54,6 @@ class EmployeeController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
-            'salary' => 'nullable|string|max:255',
-            'rata' => 'nullable|string|max:255',
-            'pera' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
             'employment_status_id' => 'required|exists:employment_statuses,id',
             'office_id' => 'required|exists:offices,id',
@@ -67,18 +64,15 @@ class EmployeeController extends Controller
             ? $request->file('photo')->store('employees', 'public')
             : null;
 
-        if ($validated['employment_status_id'] == 1) {
-            $validated['rata'] = null;
-            $validated['pera'] = null;
-        }
+        // if ($validated['employment_status_id'] == 1) {
+        //     $validated['rata'] = null;
+        //     $validated['pera'] = null;
+        // }
         Employee::create([
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
             'last_name' => $validated['last_name'],
             'suffix' => $validated['suffix'],
-            'salary' => $validated['salary'],
-            'rata' => $validated['rata'],
-            'pera' => $validated['pera'],
             'employment_status_id' => $validated['employment_status_id'],
             'office_id' => $validated['office_id'],
             'image_path' => $path,
@@ -109,9 +103,6 @@ class EmployeeController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
-            'salary' => 'nullable|string|max:255',
-            'rata' => 'nullable|string|max:255',
-            'pera' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
             'employment_status_id' => 'required|exists:employment_statuses,id',
             'office_id' => 'required|exists:offices,id',
@@ -125,23 +116,12 @@ class EmployeeController extends Controller
             $employee->image_path = $request->file('photo')->store('employees', 'public');
         }
 
-        if ($validated['employment_status_id'] == 1) {
-            $validated['rata'] = null;
-            $validated['pera'] = null;
-        }
+        // if ($validated['employment_status_id'] == 1) {
+        //     $validated['rata'] = null;
+        //     $validated['pera'] = null;
+        // }
 
-        $employee->update([
-            'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'],
-            'last_name' => $validated['last_name'],
-            'suffix' => $validated['suffix'],
-            'salary' => $validated['salary'],
-            'rata' => $validated['rata'],
-            'pera' => $validated['pera'],
-            'employment_status_id' => $validated['employment_status_id'],
-            'office_id' => $validated['office_id'],
-            'position' => $validated['position'],
-        ]);
+        $employee->update($validated);
 
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully');
     }

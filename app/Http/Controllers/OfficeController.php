@@ -16,7 +16,7 @@ class OfficeController extends Controller
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%");
             })
-            ->paginate(10)
+            ->paginate(50)
             ->withQueryString();
 
         return Inertia::render('settings/offices/index', [
