@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\EmploymentStatus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -33,6 +34,10 @@ class EmployeeController extends Controller
 
     public function create(Request $request)
     {
-        return Inertia::render('settings/Employee/create');
+        $employmentStatuses = EmploymentStatus::all();
+
+        return Inertia::render('settings/Employee/create', [
+            'employmentStatuses' => $employmentStatuses,
+        ]);
     }
 }

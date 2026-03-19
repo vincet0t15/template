@@ -7,7 +7,15 @@ import { UploadIcon, XIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import type { EmployeeCreateRequest } from '@/types/employee';
 import { Input } from '@/components/ui/input';
-
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import type { EmploymentStatus } from '@/types/employmentStatuses';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -15,7 +23,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+
+interface EmployeeProps {
+    employmentStatuses: EmploymentStatus[]
+}
+export default function CreateEmployee({ employmentStatuses }: EmployeeProps) {
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
     const photoPreviewUrlRef = useRef<string | null>(null);
 
@@ -178,13 +190,17 @@ export default function Dashboard() {
 
                             <div className="flex flex-col gap-1">
                                 <Label htmlFor="suffix">Suffix</Label>
-                                <Input
-                                    id="suffix"
-                                    value={data.suffix}
-                                    onChange={(e) =>
-                                        setData('suffix', e.target.value)
-                                    }
-                                />
+                                <Select>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Suffix" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="light">Jr.</SelectItem>
+                                            <SelectItem value="dark">Sr.</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
@@ -202,7 +218,20 @@ export default function Dashboard() {
 
                             <div className="flex flex-col gap-1">
                                 <Label>Employment Status</Label>
-                                <Input />
+                                <Select>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Employment Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {employmentStatuses.map((status) => (
+                                                <SelectItem key={status.id} value={String(status.id)}>
+                                                    {status.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
@@ -227,7 +256,7 @@ export default function Dashboard() {
                         {/* ACTIONS */}
                         <div className="flex justify-end gap-2 pt-4">
                             <Button variant="outline">Cancel</Button>
-                            <Button type="submit">Save</Button>
+                            <Button type="submit">Save Employee</Button>
                         </div>
 
                     </div>
