@@ -1,3 +1,6 @@
+import type { EmploymentStatus } from "./employmentStatuses";
+import type { Office } from "./office";
+
 export interface Employee {
     id: number;
     first_name: string;
@@ -10,9 +13,11 @@ export interface Employee {
     image_path?: string;
     photo?: File | null;
     position: string;
+    employment_status: EmploymentStatus;
+    office: Office;
 }
 
-export type EmployeeCreateRequest = Omit<Employee, 'id'> & {
+export type EmployeeCreateRequest = Omit<Employee, 'id', 'employment_status', 'office'> & {
     office_id: string;
     employment_status_id: string;
 }

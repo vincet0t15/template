@@ -31,6 +31,11 @@ class Employee extends Model
         return $this->belongsTo(EmploymentStatus::class);
     }
 
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

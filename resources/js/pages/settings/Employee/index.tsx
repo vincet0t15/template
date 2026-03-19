@@ -19,8 +19,16 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { useState } from 'react';
+import {
+    Card,
+    CardAction,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -33,6 +41,7 @@ interface EmployeeProps {
     filters: FilterProps
 }
 export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
+    console.log(employees)
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
@@ -64,6 +73,7 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                         </div>
                     </div>
                 </div>
+
                 <div className="w-full overflow-hidden rounded-sm border shadow-sm">
                     <Table>
                         <TableHeader className="bg-muted/50">
@@ -71,30 +81,26 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                 <TableHead className="font-bold text-primary">
                                     Name
                                 </TableHead>
-                                <TableHead className="font-bold text-primary text-right">
+
+                                <TableHead className="font-bold text-primary w-[100px] text-center">
                                     Action
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody>
+                        <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
                             {employees.data.length > 0 ? (
                                 employees.data.map((employee) => (
                                     <TableRow
                                         key={employee.id}
-                                        className="text-sm hover:bg-muted/30"
+                                        className="text-sm hover:bg-muted/30 items-center"
                                     >
                                         <TableCell className="text-sm">
-                                            <div className="flex items-center gap-2"    >
+                                            <div className="flex items-center gap-2">
                                                 <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
                                                     {employee.image_path ? (
                                                         <AvatarImage
-                                                            src={
-                                                                employee.image_path ??
-                                                                undefined
-                                                            }
-                                                            alt={
-                                                                employee.first_name + ' ' + employee.middle_name + ' ' + employee.last_name
-                                                            }
+                                                            src={employee.image_path ?? undefined}
+                                                            alt={`${employee.first_name} ${employee.middle_name} ${employee.last_name}`}
                                                             className="object-cover"
                                                         />
                                                     ) : null}
@@ -102,24 +108,33 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                                         <User className="h-6 w-6 text-slate-400" />
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                {employee.first_name} {employee.middle_name} {employee.last_name} {employee.suffix}
+
+                                                <div className="flex flex-col">
+                                                    {/* Name */}
+                                                    <span className="font-medium">
+                                                        {employee.first_name} {employee.middle_name} {employee.last_name} {employee.suffix}
+                                                    </span>
+
+                                                    {/* Office (below name) */}
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {employee.office?.name}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {employee.employment_status?.name}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </TableCell>
 
-
-                                        <TableCell className="text-sm flex items-center gap-2 justify-end">
-                                            <span
-
-                                                className="text-teal-600 cursor-pointer hover:underline"
-                                            >
-                                                Edit
-                                            </span>
-                                            <span
-
-                                                className="text-orange-600 cursor-pointer hover:underline"
-                                            >
-                                                Delete
-                                            </span>
+                                        <TableCell className="text-sm text-center">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span className="text-teal-600 cursor-pointer hover:underline">
+                                                    Edit
+                                                </span>
+                                                <span className="text-orange-600 cursor-pointer hover:underline">
+                                                    Delete
+                                                </span>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

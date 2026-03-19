@@ -22,6 +22,7 @@ class EmployeeController extends Controller
                     ->orWhere('suffix', 'like', "%{$search}%")
                     ->orWhere('contact_number', 'like', "%{$search}%");
             })
+            ->with(['employmentStatus', 'office'])
             ->paginate(50)
             ->withQueryString();
 
