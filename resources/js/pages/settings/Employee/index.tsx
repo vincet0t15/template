@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 import { EmployeeShow } from './show';
 import EditEmployee from './edit';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -63,7 +64,6 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employees" />
-
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading
                     title="Employee List"
