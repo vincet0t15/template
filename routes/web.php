@@ -16,6 +16,7 @@ Route::middleware(['auth'])->group(function () {
     // OFFICES
     Route::prefix('settings')->group(function () {
         Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
+        Route::post('offices', [OfficeController::class, 'store'])->name('offices.store');
     });
 });
 

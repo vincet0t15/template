@@ -1,6 +1,7 @@
 // import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import { type BreadcrumbItem } from '@/types';
 import AppLayoutTemplate from '@/layouts/app/app-header-layout';
+import { Toaster } from '@/components/ui/sonner';
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -10,5 +11,6 @@ interface AppLayoutProps {
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
     <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
         {children}
+        <Toaster richColors position="top-right" />
     </AppLayoutTemplate>
 );

@@ -3,7 +3,24 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { PlusIcon, Search } from 'lucide-react';
+import Heading from '@/components/heading';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { PaginatedDataResponse } from '@/types/pagination';
+import type { Office } from '@/types/office';
+import type { FilterProps } from '@/types/filter';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 
+import { useState } from 'react';
+import { CreateOfficeDialog } from './create';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -11,25 +28,100 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
+interface IndexProps {
+    offices: PaginatedDataResponse<Office>;
+    filters: FilterProps;
+}
+export default function Dashboard({ offices, filters }: IndexProps) {
+    const [openCreateDialog, setOpenCreateDialog] = useState(false);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+            <div className="flex h-full flex-1 flex-col rounded-xl p-4 gap-4">
+                <Heading
+                    title="Office Management"
+                    description="Overview and maintenance of all office entries."
+                />
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                    <Button onClick={() => setOpenCreateDialog(true)}>
+                        <PlusIcon className="h-4 w-4" />
+                        Add Office
+                    </Button>
+
+                    <div className="flex w-full sm:w-auto items-center gap-2">
+                        <div className="relative w-full sm:w-[250px]">
+                            <Label htmlFor="search" className="sr-only">
+                                Search
+                            </Label>
+                            <Input
+                                id="search"
+                                placeholder="Search the offices..."
+                                className="pl-8 w-full"
+                            />
+                            <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
+                        </div>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow>
+                                <TableHead className="font-bold text-primary">
+                                    Name
+                                </TableHead>
+                                <TableHead className="font-bold text-primary">
+                                    Code
+                                </TableHead>
+
+                                <TableHead className="font-bold text-primary">
+                                    Action
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {offices.data.length > 0 ? (
+                                offices.data.map((office) => (
+                                    <TableRow
+                                        key={office.id}
+                                        className="text-sm hover:bg-muted/30"
+                                    >
+                                        <TableCell className="text-sm">
+                                            {office.name}
+                                        </TableCell>
+                                        <TableCell className="text-sm">
+                                            {office.code ?? (
+                                                <span className="text-muted-foreground">
+                                                    —
+                                                </span>
+                                            )}
+                                        </TableCell>
+
+
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={4}
+                                        className="py-3 text-center text-gray-500"
+                                    >
+                                        No data available.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </div>
+
+                {openCreateDialog && (
+                    <CreateOfficeDialog
+                        isOpen={openCreateDialog}
+                        onClose={() => setOpenCreateDialog(false)}
+                    />
+                )}
             </div>
         </AppLayout>
     );
