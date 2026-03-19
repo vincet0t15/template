@@ -67,7 +67,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
     };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Offices" />
             <div className="flex h-full flex-1 flex-col rounded-xl p-4 gap-4">
                 <Heading
                     title="Office Management"

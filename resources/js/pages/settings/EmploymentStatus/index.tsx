@@ -64,7 +64,7 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Employment Status" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading
                     title="Employment Status"

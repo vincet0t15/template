@@ -37,8 +37,8 @@ const mainNavItems: NavGroup[] = [
                 icon: UserRoundPen,
             },
             {
-                title: 'DTR',
-                href: '/dtr',
+                title: 'Employees',
+                href: '/settings/employees',
                 icon: Calendar,
             },
         ],
