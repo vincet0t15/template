@@ -83,4 +83,16 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully');
     }
+
+    public function show(Request $request, Employee $employee)
+    {
+        $employmentStatuses = EmploymentStatus::all();
+        $offices = Office::all();
+
+        return Inertia::render('settings/Employee/edit', [
+            'employee' => $employee,
+            'employmentStatuses' => $employmentStatuses,
+            'offices' => $offices,
+        ]);
+    }
 }

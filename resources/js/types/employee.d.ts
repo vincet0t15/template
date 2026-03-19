@@ -13,6 +13,8 @@ export interface Employee {
     image_path?: string;
     photo?: File | null;
     position: string;
+    office_id: number;
+    employment_status_id: number;
     employment_status: EmploymentStatus;
     office: Office;
 }

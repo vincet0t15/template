@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 import { EmployeeShow } from './show';
+import EditEmployee from './edit';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -35,11 +36,17 @@ interface EmployeeProps {
 }
 export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
     const [openShow, setOpenShow] = useState(false)
+    const [openEdit, setOpenEdit] = useState(false)
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
 
     const handleClickShow = (employee: Employee) => {
         setSelectedEmployee(employee)
         setOpenShow(true)
+    }
+
+    const handleClickEdit = (employee: Employee) => {
+        setSelectedEmployee(employee)
+        setOpenEdit(true)
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -124,7 +131,7 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
 
                                         <TableCell className="text-sm text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <span className="text-teal-600 cursor-pointer hover:underline">
+                                                <span onClick={() => router.get(route('employees.show', employee.id))} className="text-teal-600 cursor-pointer hover:underline">
                                                     Edit
                                                 </span>
                                                 <span className="text-orange-600 cursor-pointer hover:underline">
@@ -157,6 +164,8 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                         isOpen={openShow}
                     />
                 )}
+
+
 
             </div>
         </AppLayout>
