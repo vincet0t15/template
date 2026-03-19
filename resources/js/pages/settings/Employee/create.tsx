@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { useRef, useState, type FormEventHandler } from 'react';
+import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { UploadIcon, XIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import type { EmployeeCreateRequest } from '@/types/employee';
@@ -87,6 +87,14 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
 
     const handleEmploymentStatusChange = (value: string | null) => {
         setData('employment_status_id', value ?? '');
+    }
+
+    const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        setData({ ...data, [e.target.name]: e.target.value });
+    }
+
+    const handleSuffixChange = (value: string | null) => {
+        setData('suffix', value ?? '');
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -189,9 +197,8 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                     <Input
                                         id="first_name"
                                         value={data.first_name}
-                                        onChange={(e) =>
-                                            setData('first_name', e.target.value)
-                                        }
+                                        name="first_name"
+                                        onChange={handleInputChange}
                                         placeholder='First Name'
                                     />
                                     <span className="text-red-500 text-xs">
@@ -204,9 +211,9 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                     <Input
                                         id="middle_name"
                                         value={data.middle_name}
-                                        onChange={(e) =>
-                                            setData('middle_name', e.target.value)
-                                        }
+                                        name="middle_name"
+                                        onChange={handleInputChange}
+
                                         placeholder='Middle Name'
                                     />
                                     <span className="text-red-500 text-xs">
@@ -219,9 +226,8 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                     <Input
                                         id="last_name"
                                         value={data.last_name}
-                                        onChange={(e) =>
-                                            setData('last_name', e.target.value)
-                                        }
+                                        name="last_name"
+                                        onChange={handleInputChange}
                                         placeholder='Last Name'
                                     />
                                     <span className="text-red-500 text-xs">
@@ -231,7 +237,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
 
                                 <div className="flex flex-col gap-1">
                                     <Label htmlFor="suffix">Suffix</Label>
-                                    <Select>
+                                    <Select name="suffix" onValueChange={handleSuffixChange}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Suffix" />
                                         </SelectTrigger>
@@ -242,7 +248,6 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-
                                 </div>
                             </div>
 
@@ -250,7 +255,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 <div className="flex flex-col gap-1">
                                     <Label>Position</Label>
-                                    <Input placeholder='Position' />
+                                    <Input placeholder='Position' name="position" onChange={handleInputChange} />
                                     <span className="text-red-500 text-xs">
                                         {errors.position}
                                     </span>
@@ -290,17 +295,17 @@ export default function CreateEmployee({ employmentStatuses, offices }: Employee
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 <div className="flex flex-col gap-1">
                                     <Label>Salary</Label>
-                                    <Input placeholder='Salary' />
+                                    <Input placeholder='Salary' name="salary" onChange={handleInputChange} />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>PERA</Label>
-                                    <Input placeholder='PERA' />
+                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <Label>RATA</Label>
-                                    <Input placeholder='RATA' />
+                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} />
                                 </div>
                             </div>
 
