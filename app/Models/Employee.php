@@ -22,6 +22,7 @@ class Employee extends Model
         'employment_status_id',
         'office_id',
         'created_by',
+        'image_path'
     ];
 
     public function employmentStatus()
