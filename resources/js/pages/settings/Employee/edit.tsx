@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
+import { useEffect, useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { UploadIcon, XIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import type { Employee, EmployeeCreateRequest } from '@/types/employee';
@@ -38,6 +38,15 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(
         existingPhotoUrl ?? null,
     );
+
+    useEffect(() => {
+        return () => {
+            if (photoPreviewUrlRef.current) {
+                URL.revokeObjectURL(photoPreviewUrlRef.current);
+                photoPreviewUrlRef.current = null;
+            }
+        };
+    }, []);
 
     const { data, setData, post, errors } = useForm<EmployeeCreateRequest>({
         _method: 'put',
