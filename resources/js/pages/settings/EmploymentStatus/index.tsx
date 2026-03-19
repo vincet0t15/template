@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search } from 'lucide-react';
 import { useState } from 'react';
 import { EditEmploymentStatusDialog } from './edit';
@@ -22,6 +22,7 @@ import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
 import Pagination from '@/components/paginationData';
 import { DeleteEmploymentStatusDialog } from './delete';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -34,6 +35,9 @@ interface EmploymentStatusProps {
     filters: FilterProps
 }
 export default function EmploymentStatusIndex({ employmentStatuses, filters }: EmploymentStatusProps) {
+    const { data, setData } = useForm({
+        search: filters.search || '',
+    });
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -46,6 +50,17 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
     const onDeleteClick = (employmentStatus: EmploymentStatus) => {
         setSelectedEmploymentStatus(employmentStatus);
         setOpenDeleteDialog(true);
+    }
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const queryString = data.search ? { search: data.search } : {};
+
+            router.get(route('employment-statuses.index'), queryString, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        }
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -71,7 +86,9 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                                 id="search"
                                 placeholder="Search the employment status..."
                                 className="pl-8 w-full"
-
+                                value={data.search}
+                                onChange={(e) => setData('search', e.target.value)}
+                                onKeyDown={handleSearchKeyDown}
                             />
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                         </div>
