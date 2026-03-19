@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\OfficeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,6 +16,13 @@ Route::middleware(['auth'])->group(function () {
 
     // OFFICES
     Route::prefix('settings')->group(function () {
+        // EMPLOYMENT STATUS
+        Route::get('employment-statuses', [EmploymentStatusController::class, 'index'])->name('employment-statuses.index');
+        Route::post('employment-statuses', [EmploymentStatusController::class, 'store'])->name('employment-statuses.store');
+        Route::put('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'update'])->name('employment-statuses.update');
+        Route::delete('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'destroy'])->name('employment-statuses.destroy');
+
+        // OFFICES
         Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
         Route::post('offices', [OfficeController::class, 'store'])->name('offices.store');
         Route::put('offices/{office}', [OfficeController::class, 'update'])->name('offices.update');

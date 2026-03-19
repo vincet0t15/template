@@ -11,7 +11,7 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { NavGroup, type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Building2, Calendar, LayoutGrid, Menu, Search, Settings, } from 'lucide-react';
+import { Building2, Calendar, LayoutGrid, Menu, Search, Settings, UserRoundPen, } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { NavMain2 } from './NavMain2';
@@ -32,9 +32,9 @@ const mainNavItems: NavGroup[] = [
                 icon: Building2,
             },
             {
-                title: 'Attendance Logs',
-                href: '/attendance-logs',
-                icon: Calendar,
+                title: 'Employment Statuses',
+                href: '/settings/employment-statuses',
+                icon: UserRoundPen,
             },
             {
                 title: 'DTR',
