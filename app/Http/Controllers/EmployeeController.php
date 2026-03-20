@@ -27,8 +27,13 @@ class EmployeeController extends Controller
             ->paginate(50)
             ->withQueryString();
 
+        $employmentStatuses = EmploymentStatus::all();
+        $offices = Office::all();
+
         return Inertia::render('settings/Employee/index', [
             'employees' => $employees,
+            'employmentStatuses' => $employmentStatuses,
+            'offices' => $offices,
             'filters' => [
                 'search' => $search,
             ],

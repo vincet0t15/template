@@ -24,6 +24,9 @@ import { useState } from 'react';
 import { EmployeeShow } from './show';
 import EditEmployee from './edit';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { CreateEmployeeDialog } from './createv1';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { Office } from '@/types/office';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -34,12 +37,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface EmployeeProps {
     employees: PaginatedDataResponse<Employee>
     filters: FilterProps
+    employmentStatuses: EmploymentStatus[]
+    offices: Office[]
 }
-export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
+export default function EmployeesIndex({ employees, filters, employmentStatuses, offices }: EmployeeProps) {
     const { data, setData } = useForm({
         search: filters.search || "",
     })
-
+    const [openCreate, setOpenCreate] = useState(false)
     const [openShow, setOpenShow] = useState(false)
     const [openEdit, setOpenEdit] = useState(false)
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
@@ -72,6 +77,10 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
                     <Button onClick={() => router.get(route('employees.create'))}>
+                        <PlusIcon className="h-4 w-4" />
+                        Employee
+                    </Button>
+                    <Button onClick={() => setOpenCreate(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Employee
                     </Button>
@@ -180,7 +189,14 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                 )}
 
 
-
+                {openCreate && (
+                    <CreateEmployeeDialog
+                        employmentStatuses={employmentStatuses}
+                        offices={offices}
+                        isOpen={openCreate}
+                        onOpenChange={setOpenCreate}
+                    />
+                )}
             </div>
         </AppLayout>
     );
