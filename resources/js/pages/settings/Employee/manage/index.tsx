@@ -3,10 +3,14 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { LayoutDashboard, FileText, PieChart, Settings } from "lucide-react"
+import { LayoutDashboard, FileText, PieChart, Settings, CoinsIcon } from "lucide-react"
+import { Compensation } from './compensation';
+import Overview from './overview';
+import { RateTable } from './rata';
+import { PeraTable } from './pera';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -23,7 +27,7 @@ export default function Dashboard() {
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="flex items-center gap-5">
                         <Avatar className="h-24 w-24 rounded-2xl border-4 border-background shadow-xl">
-                            <AvatarImage src="/path-to-your-image.png" alt="Juan Dela Cruz" className="object-cover" />
+                            <AvatarImage src="" alt="Juan Dela Cruz" className="object-cover" />
                             <AvatarFallback className="rounded-2xl bg-slate-100 text-xl">JD</AvatarFallback>
                         </Avatar>
 
@@ -54,8 +58,8 @@ export default function Dashboard() {
                             <TabsTrigger value="overview" >
                                 <LayoutDashboard className="h-4 w-4" /> Overview
                             </TabsTrigger>
-                            <TabsTrigger value="analytics" >
-                                <PieChart className="h-4 w-4" /> Analytics
+                            <TabsTrigger value="Compensation" >
+                                <CoinsIcon className="h-4 w-4" /> Compensation
                             </TabsTrigger>
                             <TabsTrigger value="reports" >
                                 <FileText className="h-4 w-4" /> Reports
@@ -67,29 +71,10 @@ export default function Dashboard() {
                     </div>
 
                     <TabsContent value="overview" className="mt-0 outline-none">
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <Card className="shadow-sm border-slate-200/60">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Monthly Progress</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">12 Projects</div>
-                                    <p className="text-xs text-muted-foreground">+2 since last week</p>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="col-span-full lg:col-span-2 shadow-sm border-slate-200/60">
-                                <CardHeader>
-                                    <CardTitle>Welcome back, Juan</CardTitle>
-                                    <CardDescription>
-                                        You have 3 pending tasks that require your attention today.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="h-[200px] flex items-center justify-center border-t border-dashed mt-2">
-                                    <p className="text-slate-400 italic">Project Activity Feed Placeholder</p>
-                                </CardContent>
-                            </Card>
-                        </div>
+                        <Overview />
+                    </TabsContent>
+                    <TabsContent value="Compensation" className="mt-0 outline-none">
+                        <Compensation />
                     </TabsContent>
                 </Tabs>
             </div>
