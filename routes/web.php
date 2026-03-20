@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeManage;
 use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\OfficeController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
         Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
         Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+
+        // EMPLOYEE MANAGE
+        Route::get('employees/manage/{employee}', [EmployeeManage::class, 'show'])->name('employees.manage.show');
     });
 });
 
