@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->date('effective_date');
             $table->date('end_date')->nullable();
+            $table->string('remarks')->nullable();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();

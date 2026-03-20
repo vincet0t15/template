@@ -39,7 +39,7 @@ const salaries = [
     {
         salary: "31000",
         effectiveDate: "2026-01-01",
-        endDate: null, // Current active salary
+        endDate: null,
         remarks: "Market rate adjustment and loyalty increment",
     },
 ];

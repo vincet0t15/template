@@ -11,6 +11,8 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { PlusCircle } from "lucide-react";
+import { useState } from "react";
+import { CreateSalary } from "./salary/create";
 
 const salaries = [
     {
@@ -46,11 +48,12 @@ const salaries = [
 ];
 
 export function SalaryTable() {
+    const [openCreateSalary, setOpenCreateSalary] = useState(false);
     return (
         <div>
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Compensation History</h3>
-                <Button size="sm">
+                <h3 className="text-lg font-semibold">Salary History</h3>
+                <Button onClick={() => setOpenCreateSalary(true)} >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Salary
                 </Button>
@@ -80,6 +83,7 @@ export function SalaryTable() {
                     </TableBody>
                 </Table>
             </div>
+            {openCreateSalary && <CreateSalary open={openCreateSalary} onClose={() => setOpenCreateSalary(false)} />}
         </div>
     )
 }
