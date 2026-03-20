@@ -21,7 +21,7 @@ export default function Dashboard() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
-            <div className="flex flex-col gap-8 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
 
                 {/* --- PROFESSIONAL HEADER SECTION --- */}
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
