@@ -1,26 +1,66 @@
-import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Icon } from '@/components/icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
+import { NavigationMenu, NavigationMenuList } from '@/components/ui/navigation-menu';
+import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
-import { NavGroup, type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
+import { NavGroup, type BreadcrumbItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Building2, Calendar, LayoutGrid, Menu, Search, Settings, UserRoundPen, } from 'lucide-react';
+import { Banknote, Building2, Calculator, Calendar, DollarSign, LayoutGrid, Menu, Receipt, Settings, Tag, UserRoundPen, Wallet } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { NavMain2 } from './NavMain2';
 
 const mainNavItems: NavGroup[] = [
     {
-        title: 'Dasboard',
+        title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Payroll',
+        icon: Calculator,
+        children: [
+            {
+                title: 'Payroll Summary',
+                href: '/payroll',
+                icon: Wallet,
+            },
+            {
+                title: 'Employee Deductions',
+                href: '/employee-deductions',
+                icon: Receipt,
+            },
+            {
+                title: 'Deduction Types',
+                href: '/deduction-types',
+                icon: Tag,
+            },
+        ],
+    },
+    {
+        title: 'Compensation',
+        icon: DollarSign,
+        children: [
+            {
+                title: 'Salaries',
+                href: '/salaries',
+                icon: Banknote,
+            },
+            {
+                title: 'PERA',
+                href: '/peras',
+                icon: DollarSign,
+            },
+            {
+                title: 'RATA',
+                href: '/ratas',
+                icon: Calculator,
+            },
+        ],
     },
     {
         title: 'Settings',
@@ -43,9 +83,7 @@ const mainNavItems: NavGroup[] = [
             },
         ],
     },
-
 ];
-
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -67,57 +105,95 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar">
+                            <SheetContent side="left" className="bg-sidebar flex h-full w-64 flex-col items-stretch justify-between">
                                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                                <SheetHeader className="flex justify-start text-left p-4">
+                                <SheetHeader className="flex justify-start p-4 text-left">
                                     <div className="flex w-full items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+                                        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-9 w-9 items-center justify-center rounded-md">
                                             <AppLogoIcon className="h-5 w-5 fill-current text-white dark:text-black" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-semibold leading-tight text-foreground">Employee & Supplier Expense System</p>
+                                            <p className="text-foreground text-sm leading-tight font-semibold">Employee & Supplier Expense System</p>
                                         </div>
                                     </div>
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col">
                                     <nav className="flex flex-1 flex-col gap-2 p-2 text-sm">
                                         <div>
-                                            <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">General</p>
+                                            <p className="text-muted-foreground px-3 pb-1 text-xs font-semibold">General</p>
                                             <Link
                                                 href="/dashboard"
                                                 prefetch
-                                                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                                className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-2 rounded-md px-3 py-2"
                                             >
                                                 <LayoutGrid className="h-5 w-5" />
                                                 <span className="font-medium">Dashboard</span>
                                             </Link>
                                         </div>
                                         <div className="mt-1">
-                                            <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">Settings</p>
+                                            <p className="text-muted-foreground px-3 pb-1 text-xs font-semibold">Payroll</p>
                                             <div className="flex flex-col gap-1">
-                                                {mainNavItems.find((g) => g.title === 'Settings')?.children?.map((item) => (
-                                                    <Link
-                                                        key={item.title}
-                                                        href={item.href}
-                                                        prefetch
-                                                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                                                    >
-                                                        {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                        <span>{item.title}</span>
-                                                    </Link>
-                                                ))}
+                                                {mainNavItems
+                                                    .find((g) => g.title === 'Payroll')
+                                                    ?.children?.map((item) => (
+                                                        <Link
+                                                            key={item.title}
+                                                            href={item.href}
+                                                            prefetch
+                                                            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-2 rounded-md px-3 py-2"
+                                                        >
+                                                            {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
+                                                            <span>{item.title}</span>
+                                                        </Link>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                        <div className="mt-1">
+                                            <p className="text-muted-foreground px-3 pb-1 text-xs font-semibold">Compensation</p>
+                                            <div className="flex flex-col gap-1">
+                                                {mainNavItems
+                                                    .find((g) => g.title === 'Compensation')
+                                                    ?.children?.map((item) => (
+                                                        <Link
+                                                            key={item.title}
+                                                            href={item.href}
+                                                            prefetch
+                                                            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-2 rounded-md px-3 py-2"
+                                                        >
+                                                            {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
+                                                            <span>{item.title}</span>
+                                                        </Link>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                        <div className="mt-1">
+                                            <p className="text-muted-foreground px-3 pb-1 text-xs font-semibold">Settings</p>
+                                            <div className="flex flex-col gap-1">
+                                                {mainNavItems
+                                                    .find((g) => g.title === 'Settings')
+                                                    ?.children?.map((item) => (
+                                                        <Link
+                                                            key={item.title}
+                                                            href={item.href}
+                                                            prefetch
+                                                            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex items-center gap-2 rounded-md px-3 py-2"
+                                                        >
+                                                            {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
+                                                            <span>{item.title}</span>
+                                                        </Link>
+                                                    ))}
                                             </div>
                                         </div>
                                     </nav>
-                                    <Separator className="mt-auto bg-sidebar-border" />
+                                    <Separator className="bg-sidebar-border mt-auto" />
                                     <div className="flex items-center gap-3 p-4">
                                         <Avatar className="size-9 rounded-full">
                                             <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
                                             <AvatarFallback>{getInitials(auth.user.name)}</AvatarFallback>
                                         </Avatar>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium leading-tight">{auth.user.name}</p>
-                                            <p className="text-xs text-muted-foreground leading-tight">{auth.user.email}</p>
+                                            <p className="text-sm leading-tight font-medium">{auth.user.name}</p>
+                                            <p className="text-muted-foreground text-xs leading-tight">{auth.user.email}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -126,7 +202,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <div className="relative contents">
-
                         {/* Left: Logo */}
                         <div className="flex items-center justify-self-start">
                             <Link href="/dashboard" prefetch className="flex items-center space-x-2">
@@ -135,7 +210,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </div>
 
                         {/* Center: Navigation */}
-                        <div className="hidden lg:flex justify-self-center">
+                        <div className="hidden justify-self-center lg:flex">
                             <NavigationMenu>
                                 <NavigationMenuList className="flex items-center space-x-2">
                                     <NavMain2 items={mainNavItems} />
@@ -150,9 +225,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <Button variant="ghost" className="size-10 rounded-full p-1">
                                         <Avatar className="size-8 overflow-hidden rounded-full">
                                             <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
-                                            <AvatarFallback>
-                                                {getInitials(auth.user.name)}
-                                            </AvatarFallback>
+                                            <AvatarFallback>{getInitials(auth.user.name)}</AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
