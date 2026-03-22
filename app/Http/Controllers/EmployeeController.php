@@ -51,6 +51,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
+            'is_rata_eligible' => 'boolean',
             'employment_status_id' => 'required|exists:employment_statuses,id',
             'office_id' => 'required|exists:offices,id',
             'photo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
@@ -60,10 +61,6 @@ class EmployeeController extends Controller
             ? $request->file('photo')->store('employees', 'public')
             : null;
 
-        // if ($validated['employment_status_id'] == 1) {
-        //     $validated['rata'] = null;
-        //     $validated['pera'] = null;
-        // }
         Employee::create([
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
@@ -73,6 +70,7 @@ class EmployeeController extends Controller
             'office_id' => $validated['office_id'],
             'image_path' => $path,
             'position' => $validated['position'],
+            'is_rata_eligible' => $validated['is_rata_eligible'] ?? false,
         ]);
 
 
@@ -100,6 +98,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
+            'is_rata_eligible' => 'boolean',
             'employment_status_id' => 'required|exists:employment_statuses,id',
             'office_id' => 'required|exists:offices,id',
             'photo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,webp'],
@@ -111,11 +110,6 @@ class EmployeeController extends Controller
             }
             $employee->image_path = $request->file('photo')->store('employees', 'public');
         }
-
-        // if ($validated['employment_status_id'] == 1) {
-        //     $validated['rata'] = null;
-        //     $validated['pera'] = null;
-        // }
 
         $employee->update($validated);
 

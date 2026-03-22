@@ -7,6 +7,7 @@ import { ArrowLeftCircle, UploadIcon, XIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import type { Employee, EmployeeCreateRequest } from '@/types/employee';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
     Select,
     SelectContent,
@@ -55,6 +56,7 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
         last_name: employee.last_name,
         suffix: employee.suffix,
         position: employee.position,
+        is_rata_eligible: employee.is_rata_eligible,
         office_id: employee.office_id,
         employment_status_id: employee.employment_status_id,
         photo: null,
@@ -320,30 +322,23 @@ export default function EditEmployee({ employmentStatuses, offices, employee }: 
                                 </div>
                             </div>
 
-                            {/* SALARY */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {/* RATA ELIGIBILITY */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
                                 <div className="flex flex-col gap-1">
-                                    <Label>Salary</Label>
-                                    <Input placeholder='Salary' name="salary" onChange={handleInputChange} />
-                                    <span className="text-red-500 text-xs">
-                                        {errors.salary}
-                                    </span>
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <Label>PERA</Label>
-                                    <Input placeholder='PERA' name="pera" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
-                                    <span className="text-red-500 text-xs">
-                                        {errors.pera}
-                                    </span>
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <Label>RATA</Label>
-                                    <Input placeholder='RATA' name="rata" onChange={handleInputChange} disabled={data.employment_status_id !== '1'} />
-                                    <span className="text-red-500 text-xs">
-                                        {errors.rata}
-                                    </span>
+                                    <Label className="mb-2">RATA Eligible</Label>
+                                    <div className="flex items-center gap-2">
+                                        <Switch
+                                            id="is_rata_eligible"
+                                            checked={data.is_rata_eligible}
+                                            onCheckedChange={(checked: boolean) => setData('is_rata_eligible', checked)}
+                                        />
+                                        <Label htmlFor="is_rata_eligible" className="font-normal">
+                                            {data.is_rata_eligible ? 'Yes' : 'No'}
+                                        </Label>
+                                    </div>
+                                    <p className="text-muted-foreground text-xs">
+                                        Check if employee is eligible for RATA (e.g., Department Heads)
+                                    </p>
                                 </div>
                             </div>
 

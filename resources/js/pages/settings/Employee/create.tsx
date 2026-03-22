@@ -1,36 +1,21 @@
-import { CustomComboBox } from "@/components/CustomComboBox"
-import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Field, FieldGroup } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import type { EmployeeCreateRequest } from "@/types/employee"
-import type { EmploymentStatus } from "@/types/employmentStatuses"
-import type { Office } from "@/types/office"
-import { router, useForm } from "@inertiajs/react"
-import { UploadIcon, XIcon } from "lucide-react"
-import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from "react"
-import { toast } from "sonner"
+import { CustomComboBox } from '@/components/CustomComboBox';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FieldGroup } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import type { EmployeeCreateRequest } from '@/types/employee';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { Office } from '@/types/office';
+import { useForm } from '@inertiajs/react';
+import { UploadIcon, XIcon } from 'lucide-react';
+import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
+import { toast } from 'sonner';
 interface CreateEmployeeDialogProps {
-    isOpen: boolean
-    onOpenChange: (isOpen: boolean) => void
+    isOpen: boolean;
+    onOpenChange: (isOpen: boolean) => void;
     employmentStatuses: EmploymentStatus[];
     offices: Office[];
 }
@@ -43,6 +28,7 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
         last_name: '',
         suffix: '',
         position: '',
+        is_rata_eligible: false,
         office_id: '',
         employment_status_id: '',
         photo: null,
@@ -66,10 +52,8 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
         setData('photo', file);
     };
 
-
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
-
 
         if (['salary', 'pera', 'rata'].includes(name)) {
             let numericValue = value.replace(/[^\d.]/g, '');
@@ -81,9 +65,7 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
 
             const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-            const formattedValue = decimalPart
-                ? `${formattedInteger}.${decimalPart}`
-                : formattedInteger;
+            const formattedValue = decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
 
             setData({ ...data, [name]: formattedValue });
         } else {
@@ -121,17 +103,12 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                 <DialogContent className="sm:max-w-[725px]">
                     <DialogHeader>
                         <DialogTitle>Edit profile</DialogTitle>
-                        <DialogDescription>
-                            Make changes to your profile here. Click save when you&apos;re
-                            done.
-                        </DialogDescription>
+                        <DialogDescription>Make changes to your profile here. Click save when you&apos;re done.</DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
-
-                        <form className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+                        <form className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             {/* LEFT SIDE - PHOTO */}
-                            <div className="md:col-span-1 space-y-4 flex flex-col items-center">
+                            <div className="flex flex-col items-center space-y-4 md:col-span-1">
                                 <input
                                     id="photo"
                                     type="file"
@@ -142,30 +119,25 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
 
                                 <button
                                     type="button"
-                                    className="relative flex aspect-square w-full max-w-xs cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-background"
+                                    className="bg-background relative flex aspect-square w-full max-w-xs cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed"
                                     onClick={() => document.getElementById('photo')?.click()}
                                 >
                                     {photoPreviewUrl ? (
                                         <img src={photoPreviewUrl} alt="Preview" className="h-full w-full object-cover" />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center gap-2 text-center">
-                                            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                                                <UploadIcon className="size-5 text-muted-foreground" />
+                                            <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+                                                <UploadIcon className="text-muted-foreground size-5" />
                                             </div>
                                             <div className="text-sm font-semibold">Upload Photo</div>
-                                            <div className="text-xs text-muted-foreground">Click to browse</div>
+                                            <div className="text-muted-foreground text-xs">Click to browse</div>
                                         </div>
                                     )}
                                 </button>
 
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => document.getElementById('photo')?.click()}
-                                    >
-                                        <UploadIcon className="size-4 mr-1" />
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('photo')?.click()}>
+                                        <UploadIcon className="mr-1 size-4" />
                                         {photoPreviewUrl ? 'Change' : 'Choose'}
                                     </Button>
 
@@ -183,41 +155,37 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                                 setData('photo', null);
                                             }}
                                         >
-                                            <XIcon className="size-4 mr-1" />
+                                            <XIcon className="mr-1 size-4" />
                                             Remove
                                         </Button>
                                     )}
                                 </div>
 
-                                <p className="text-xs text-muted-foreground text-center">
-                                    jpeg, jpg, png, webp (max 2MB)
-                                </p>
+                                <p className="text-muted-foreground text-center text-xs">jpeg, jpg, png, webp (max 2MB)</p>
                             </div>
 
                             {/* RIGHT SIDE - FORM */}
-                            <div className="md:col-span-2 space-y-4">
-
+                            <div className="space-y-4 md:col-span-2">
                                 {/* NAME */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
-                                    <div className="w-full flex flex-col gap-1">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>First Name</Label>
                                         <Input name="first_name" value={data.first_name} onChange={handleInputChange} />
                                     </div>
-                                    <div className="w-full flex flex-col gap-1">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Middle Name</Label>
                                         <Input name="middle_name" value={data.middle_name} onChange={handleInputChange} />
                                     </div>
-
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
-                                    <div className="w-full flex flex-col gap-1">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Last Name</Label>
                                         <Input name="last_name" value={data.last_name} onChange={handleInputChange} />
                                     </div>
                                     <div className="w-full">
                                         <Label>Suffix</Label>
-                                        <Select onValueChange={handleSuffixChange} >
+                                        <Select onValueChange={handleSuffixChange}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Suffix" />
                                             </SelectTrigger>
@@ -229,12 +197,12 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                     </div>
                                 </div>
                                 {/* POSITION / OFFICE / STATUS */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1   gap-3">
-                                    <div className="w-full flex flex-col gap-1">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Position</Label>
                                         <Input name="position" onChange={handleInputChange} />
                                     </div>
-                                    <div className="w-full flex flex-col gap-1">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Office</Label>
                                         <CustomComboBox
                                             items={officeOptions}
@@ -242,14 +210,12 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                             onSelect={(value) => setData('office_id', value ?? '')}
                                         />
                                     </div>
-
-
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3">
-                                    <div className="w-full flex flex-col gap-1">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Employment Status</Label>
-                                        <Select onValueChange={handleEmploymentStatusChange} >
+                                        <Select onValueChange={handleEmploymentStatusChange}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Employment Status" />
                                             </SelectTrigger>
@@ -262,20 +228,21 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="w-full flex flex-col gap-1">
-                                        <Label>Employment Status</Label>
-                                        <Select onValueChange={handleEmploymentStatusChange} >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Employment Status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {employmentStatuses.map((status) => (
-                                                    <SelectItem key={status.id} value={String(status.id)}>
-                                                        {status.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                    <div className="flex w-full flex-col gap-1">
+                                        <Label className="mb-2">RATA Eligible</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Switch
+                                                id="is_rata_eligible"
+                                                checked={data.is_rata_eligible}
+                                                onCheckedChange={(checked: boolean) => setData('is_rata_eligible', checked)}
+                                            />
+                                            <Label htmlFor="is_rata_eligible" className="font-normal">
+                                                {data.is_rata_eligible ? 'Yes' : 'No'}
+                                            </Label>
+                                        </div>
+                                        <p className="text-muted-foreground text-xs">
+                                            Check if employee is eligible for RATA (e.g., Department Heads)
+                                        </p>
                                     </div>
                                 </div>
 
@@ -288,7 +255,6 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                         </div> */}
                             </div>
                         </form>
-
                     </FieldGroup>
                     <DialogFooter>
                         <DialogClose asChild>
@@ -299,5 +265,5 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                 </DialogContent>
             </form>
         </Dialog>
-    )
+    );
 }
