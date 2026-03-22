@@ -82,7 +82,7 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
             e.preventDefault();
             const queryString = data.search ? { search: data.search } : {};
 
-            router.get(route('employees.index'), queryString, {
+            router.get(route('employees.settings.index'), queryString, {
                 preserveState: true,
                 preserveScroll: true,
             });

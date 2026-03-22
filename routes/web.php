@@ -4,6 +4,7 @@ use App\Http\Controllers\DeductionTypeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeManage;
+use App\Http\Controllers\EmployeeSettingController;
 use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PayrollController;
@@ -68,6 +69,17 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
     });
 
+    // EMPLOYEES
+    Route::prefix('employees')->group(function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::get('create', [EmployeeController::class, 'create'])->name('employees.create');
+        Route::post('/', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::put('{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::delete('{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+        Route::get('{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+    });
+
+
     // OFFICES
     Route::prefix('settings')->group(function () {
         // EMPLOYMENT STATUS
@@ -83,12 +95,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('offices/{office}', [OfficeController::class, 'destroy'])->name('offices.destroy');
 
         // EMPLOYEES
-        Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
-        Route::get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
-        Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
-        Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
-        Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
-        Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+        Route::get('employees', [EmployeeSettingController::class, 'index'])->name('employees.settings.index');
+        Route::get('employees/create', [EmployeeSettingController::class, 'create'])->name('employees.settings.create');
+        Route::post('employees', [EmployeeSettingController::class, 'store'])->name('employees.settings.store');
+        Route::put('employees/{employee}', [EmployeeSettingController::class, 'update'])->name('employees.settings.update');
+        Route::delete('employees/{employee}', [EmployeeSettingController::class, 'destroy'])->name('employees.settings.destroy');
+        Route::get('employees/{employee}', [EmployeeSettingController::class, 'show'])->name('employees.settings.show');
 
         // EMPLOYEE MANAGE
         Route::get('employees/manage/{employee}', [EmployeeManage::class, 'show'])->name('employees.manage.show');

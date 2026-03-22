@@ -2,6 +2,7 @@
 
 <cite>
 **Referenced Files in This Document**
+- [app-header.tsx](file://resources/js/components/app-header.tsx)
 - [nav-main.tsx](file://resources/js/components/nav-main.tsx)
 - [nav-footer.tsx](file://resources/js/components/nav-footer.tsx)
 - [nav-user.tsx](file://resources/js/components/nav-user.tsx)
@@ -13,12 +14,20 @@
 - [appearance-tabs.tsx](file://resources/js/components/appearance-tabs.tsx)
 - [use-appearance.tsx](file://resources/js/hooks/use-appearance.tsx)
 - [sidebar.tsx](file://resources/js/components/ui/sidebar.tsx)
-- [app-header.tsx](file://resources/js/components/app-header.tsx)
 - [NavMain2.tsx](file://resources/js/components/NavMain2.tsx)
 - [app-shell.tsx](file://resources/js/components/app-shell.tsx)
 - [use-mobile-navigation.ts](file://resources/js/hooks/use-mobile-navigation.ts)
 - [index.ts](file://resources/js/types/index.ts)
+- [employees/index.tsx](file://resources/js/pages/employees/index.tsx)
+- [web.php](file://routes/web.php)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added documentation for the new 'Employees' menu item in the main navigation
+- Updated the main navigation menu section to include the new Employees entry
+- Added information about the UserRoundPen icon usage and routing integration
+- Updated component analysis to reflect the enhanced navigation structure
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -33,8 +42,8 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document explains the navigation components and user interface elements used across the application’s header and sidebar. It covers:
-- Main navigation menu and nested menu structures
+This document explains the navigation components and user interface elements used across the application's header and sidebar. It covers:
+- Main navigation menu and nested menu structures including the new Employees section
 - Footer navigation
 - User profile menu and logout flow
 - Breadcrumb component
@@ -116,7 +125,7 @@ UA --> AT
 - [use-appearance.tsx:29-46](file://resources/js/hooks/use-appearance.tsx#L29-L46)
 
 ## Core Components
-- Main navigation (sidebar): renders top-level items with active state tracking via the current page URL.
+- Main navigation (sidebar): renders top-level items with active state tracking via the current page URL, including the new Employees section.
 - Nested navigation (header): horizontal menu with dropdowns for grouped items and active highlighting based on URL prefixes.
 - Footer navigation: external links styled consistently with the sidebar.
 - User menu: dropdown with user info and logout action; placement adapts to mobile and collapsed sidebar states.
@@ -169,9 +178,9 @@ AH->>AH : Recompute active state
 ## Detailed Component Analysis
 
 ### Main Navigation Menu (Sidebar)
-- Purpose: Renders primary navigation items inside a sidebar group.
+- Purpose: Renders primary navigation items inside a sidebar group, including the new Employees section.
 - Active tracking: Uses the current page URL to mark the active item.
-- Icons: Optional icon rendering per item.
+- Icons: Optional icon rendering per item, including UserRoundPen for the Employees section.
 - Integration: Consumed by the sidebar layout.
 
 ```mermaid
@@ -190,6 +199,20 @@ Icon --> End(["Render"])
 **Section sources**
 - [nav-main.tsx:5-24](file://resources/js/components/nav-main.tsx#L5-L24)
 - [app-sidebar.tsx:47-47](file://resources/js/components/app-sidebar.tsx#L47-L47)
+
+### Enhanced Main Navigation Structure
+The main navigation now includes a dedicated 'Employees' section with proper routing integration:
+
+- **Dashboard**: Primary landing page with LayoutGrid icon
+- **Employees**: New section with UserRoundPen icon, routing to `/employees` URL
+- **Payroll**: Grouped submenu with Payroll Summary, Employee Deductions, and Deduction Types
+- **Compensation**: Grouped submenu with Salaries, PERA, and RATA
+- **Settings**: Grouped submenu with Offices, Employment Statuses, and Employees
+
+**Updated** Added the new 'Employees' menu item with UserRoundPen icon and proper routing configuration.
+
+**Section sources**
+- [app-header.tsx:17-91](file://resources/js/components/app-header.tsx#L17-L91)
 
 ### Footer Navigation
 - Purpose: Provides external links in the sidebar footer area.
@@ -397,14 +420,18 @@ AT["AppearanceToggleTab"] --> UA
 
 ## Troubleshooting Guide
 - Active item not highlighted:
-  - Verify the current page URL matches the item’s href or URL prefix.
+  - Verify the current page URL matches the item's href or URL prefix.
   - Ensure the active comparison logic uses the correct property (full URL vs prefix).
 - Dropdowns misaligned on mobile:
-  - Confirm the user menu’s side calculation accounts for collapsed state and device type.
+  - Confirm the user menu's side calculation accounts for collapsed state and device type.
 - Theme not applying:
   - Check local storage persistence and system preference observer registration.
 - Sidebar not remembering state:
   - Confirm cookie and localStorage keys are present and not blocked by browser settings.
+- New Employees menu item not appearing:
+  - Verify the Employees route exists in the routing configuration.
+  - Check that the UserRoundPen icon is properly imported from lucide-react.
+  - Ensure the navigation item has the correct href property set to '/employees'.
 
 **Section sources**
 - [nav-main.tsx:13-13](file://resources/js/components/nav-main.tsx#L13-L13)
@@ -412,9 +439,10 @@ AT["AppearanceToggleTab"] --> UA
 - [nav-user.tsx:28-28](file://resources/js/components/nav-user.tsx#L28-L28)
 - [use-appearance.tsx:32-36](file://resources/js/hooks/use-appearance.tsx#L32-L36)
 - [app-shell.tsx:10-18](file://resources/js/components/app-shell.tsx#L10-L18)
+- [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
 
 ## Conclusion
-The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension.
+The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. The addition of the new Employees section with UserRoundPen icon enhances the navigation capabilities while maintaining seamless integration with the existing structure. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension.
 
 ## Appendices
 
@@ -431,13 +459,25 @@ The navigation system combines a responsive sidebar and a desktop header menu wi
 
 ### Integration with Routing Systems
 - Active item detection uses the current page URL from the routing context.
-- Links are wrapped with the application’s router to enable client-side navigation.
+- Links are wrapped with the application's router to enable client-side navigation.
+- The new Employees menu item routes to '/employees' URL with proper icon integration.
 
 **Section sources**
 - [nav-main.tsx:6-6](file://resources/js/components/nav-main.tsx#L6-L6)
 - [NavMain2.tsx:18-18](file://resources/js/components/NavMain2.tsx#L18-L18)
+- [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
 
 ### Permission-Based Visibility
 - The provided components do not enforce permission checks. To gate visibility, wrap navigation items with conditional rendering logic based on user roles or permissions.
 
-[No sources needed since this section provides general guidance]
+### New Employees Menu Item Details
+The navigation system now includes a dedicated 'Employees' section with the following characteristics:
+- **Icon**: UserRoundPen from lucide-react
+- **Route**: '/employees'
+- **URL**: Direct navigation to the employees page
+- **Integration**: Seamlessly integrated into the main navigation structure alongside other primary sections
+
+**Section sources**
+- [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
+- [employees/index.tsx:1-36](file://resources/js/pages/employees/index.tsx#L1-L36)
+- [web.php:85-95](file://routes/web.php#L85-L95)
