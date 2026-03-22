@@ -12,6 +12,8 @@ import { FilterProps } from '@/types/filter';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search, User } from 'lucide-react';
+import { useState } from 'react';
+import { EmployeeShow } from './show';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -27,6 +29,8 @@ export default function Employees({ employees, filters }: Props) {
     const { data, setData } = useForm({
         search: filters.search || '',
     });
+    const [openShow, setOpenShow] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -38,6 +42,11 @@ export default function Employees({ employees, filters }: Props) {
                 preserveScroll: true,
             });
         }
+    };
+
+    const handleClickShow = (employee: Employee) => {
+        setSelectedEmployee(employee);
+        setOpenShow(true);
     };
 
     return (
@@ -83,7 +92,7 @@ export default function Employees({ employees, filters }: Props) {
                             {employees.data.length > 0 ? (
                                 employees.data.map((employee) => (
                                     <TableRow key={employee.id} className="hover:bg-muted/30 items-center text-sm">
-                                        <TableCell className="cursor-pointer text-sm">
+                                        <TableCell className="cursor-pointer text-sm" onClick={() => handleClickShow(employee)}>
                                             <div className="flex cursor-pointer items-center gap-2">
                                                 <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
                                                     {employee.image_path ? (
@@ -122,6 +131,8 @@ export default function Employees({ employees, filters }: Props) {
                 <div>
                     <Pagination data={employees} />
                 </div>
+
+                {openShow && selectedEmployee && <EmployeeShow employee={selectedEmployee} onClose={() => setOpenShow(false)} isOpen={openShow} />}
             </div>
         </AppLayout>
     );

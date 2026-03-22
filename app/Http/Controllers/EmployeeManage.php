@@ -32,7 +32,7 @@ class EmployeeManage extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
 
-        return Inertia::render('settings/Employee/manage/index', [
+        return Inertia::render('Employees/Manage/Manage', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
