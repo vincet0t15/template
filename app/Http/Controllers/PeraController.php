@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Models\Salary;
+use App\Models\Pera;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class SalaryController extends Controller
+class PeraController extends Controller
 {
     public function index(Request $request)
     {
@@ -20,12 +20,12 @@ class SalaryController extends Controller
                     ->orWhere('middle_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%");
             })
-            ->with(['employmentStatus', 'office', 'latestSalary'])
+            ->with(['employmentStatus', 'office', 'latestPera'])
             ->orderBy('last_name', 'asc')
             ->paginate(50)
             ->withQueryString();
 
-        return Inertia::render('salaries/index', [
+        return Inertia::render('peras/index', [
             'employees' => $employees,
             'filters' => [
                 'search' => $search,
@@ -35,14 +35,14 @@ class SalaryController extends Controller
 
     public function history(Request $request, Employee $employee)
     {
-        $salaries = $employee->salaries()
+        $peras = $employee->peras()
             ->with('createdBy')
             ->orderBy('effective_date', 'desc')
             ->get();
 
-        return Inertia::render('salaries/history', [
+        return Inertia::render('peras/history', [
             'employee' => $employee->load(['employmentStatus', 'office']),
-            'salaries' => $salaries,
+            'peras' => $peras,
         ]);
     }
 
@@ -54,20 +54,20 @@ class SalaryController extends Controller
             'effective_date' => 'required|date',
         ]);
 
-        Salary::create([
+        Pera::create([
             'employee_id' => $validated['employee_id'],
             'amount' => $validated['amount'],
             'effective_date' => $validated['effective_date'],
             'created_by' => Auth::id(),
         ]);
 
-        return redirect()->back()->with('success', 'Salary added successfully');
+        return redirect()->back()->with('success', 'PERA added successfully');
     }
 
-    public function destroy(Salary $salary)
+    public function destroy(Pera $pera)
     {
-        $salary->delete();
+        $pera->delete();
 
-        return redirect()->back()->with('success', 'Salary record deleted successfully');
+        return redirect()->back()->with('success', 'PERA record deleted successfully');
     }
 }

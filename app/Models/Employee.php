@@ -17,10 +17,15 @@ class Employee extends Model
         'last_name',
         'suffix',
         'position',
+        'is_rata_eligible',
         'employment_status_id',
         'office_id',
         'created_by',
         'image_path'
+    ];
+
+    protected $casts = [
+        'is_rata_eligible' => 'boolean',
     ];
 
     public function employmentStatus()
@@ -36,6 +41,50 @@ class Employee extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function salaries()
+    {
+        return $this->hasMany(Salary::class);
+    }
+
+    public function peras()
+    {
+        return $this->hasMany(Pera::class);
+    }
+
+    public function ratas()
+    {
+        return $this->hasMany(Rata::class);
+    }
+
+    public function deductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class);
+    }
+
+    /**
+     * Get the latest salary record
+     */
+    public function latestSalary()
+    {
+        return $this->salaries()->latest('effective_date');
+    }
+
+    /**
+     * Get the latest PERA record
+     */
+    public function latestPera()
+    {
+        return $this->peras()->latest('effective_date');
+    }
+
+    /**
+     * Get the latest RATA record
+     */
+    public function latestRata()
+    {
+        return $this->ratas()->latest('effective_date');
     }
 
     public static function boot()

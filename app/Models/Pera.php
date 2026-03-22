@@ -3,24 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
-class Salary extends Model
+class Pera extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'employee_id',
         'amount',
         'effective_date',
-        'end_date',
         'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'effective_date' => 'date',
-        'end_date' => 'date',
     ];
 
     public function employee()
@@ -31,5 +27,14 @@ class Salary extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function ($pera) {
+            $pera->created_by = Auth::id();
+        });
     }
 }
