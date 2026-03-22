@@ -2,13 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use App\Models\EmploymentStatus;
+use App\Models\Office;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EmployeeManage extends Controller
 {
-    public function show(Request $request)
+    public function show(Request $request, Employee $employee)
     {
-        return Inertia::render('settings/Employee/manage/index');
+        $employee->load([
+            'office',
+            'employmentStatus',
+            'latestSalary',
+            'latestPera',
+            'latestRata',
+            'salaries' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'peras' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'ratas' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+        ]);
+
+        $employmentStatuses = EmploymentStatus::all();
+        $offices = Office::all();
+
+        return Inertia::render('settings/Employee/manage/index', [
+            'employee' => $employee,
+            'employmentStatuses' => $employmentStatuses,
+            'offices' => $offices,
+        ]);
     }
 }

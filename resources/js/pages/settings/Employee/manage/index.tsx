@@ -1,49 +1,79 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Head, router } from '@inertiajs/react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { LayoutDashboard, FileText, PieChart, Settings, CoinsIcon } from "lucide-react"
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Employee } from '@/types/employee';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { Office } from '@/types/office';
+import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Settings } from 'lucide-react';
 import { Compensation } from './compensation';
 import Overview from './overview';
-import { RateTable } from './rata';
-import { PeraTable } from './pera';
+import { EmployeeSettings } from './settings';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-];
+interface EmployeeManageProps {
+    employee: Employee;
+    employmentStatuses: EmploymentStatus[];
+    offices: Office[];
+}
 
-export default function Dashboard() {
+export default function EmployeeManagePage({ employee, employmentStatuses, offices }: EmployeeManageProps) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Employees', href: '/settings/employees' },
+        { title: `${employee.last_name}, ${employee.first_name}`, href: `/settings/employees/manage/${employee.id}` },
+    ];
+
+    const formatCurrency = (amount: number | undefined) => {
+        if (!amount) return '₱0.00';
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            minimumFractionDigits: 2,
+        }).format(amount);
+    };
+
+    const getInitials = () => {
+        return `${employee.first_name.charAt(0)}${employee.last_name.charAt(0)}`;
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title={`${employee.last_name}, ${employee.first_name}`} />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                {/* Back Button */}
+                <Button variant="outline" size="sm" className="w-fit" onClick={() => router.get(route('employees.index'))}>
+                    <ArrowLeft className="mr-1 h-4 w-4" />
+                    Back to Employees
+                </Button>
 
                 {/* --- PROFESSIONAL HEADER SECTION --- */}
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                     <div className="flex items-center gap-5">
-                        <Avatar className="h-24 w-24 rounded-2xl border-4 border-background shadow-xl">
-                            <AvatarImage src="" alt="Juan Dela Cruz" className="object-cover" />
-                            <AvatarFallback className="rounded-2xl bg-slate-100 text-xl">JD</AvatarFallback>
+                        <Avatar className="border-background h-24 w-24 rounded-2xl border-4 shadow-xl">
+                            <AvatarImage src={employee.image_path} alt={employee.last_name} className="object-cover" />
+                            <AvatarFallback className="rounded-2xl bg-slate-100 text-xl">{getInitials()}</AvatarFallback>
                         </Avatar>
 
                         <div className="space-y-1">
                             <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-bold tracking-tight text-slate-900">Juan Dela Cruz</h1>
-                                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                                    Active
+                                <h1 className="text-3xl font-bold tracking-tight text-slate-900 uppercase">
+                                    {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
+                                </h1>
+                                <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">
+                                    {employee.employment_status?.name}
                                 </Badge>
                             </div>
-                            <p className="text-slate-500 font-medium flex items-center gap-2">
-                                Permanent Employee <span className="text-slate-300">•</span> ID: #10293
+                            <p className="flex items-center gap-2 font-medium text-slate-500">
+                                {employee.position} <span className="text-slate-300">•</span> {employee.office?.name}
                             </p>
                             <div className="pt-1">
-                                <span className="text-2xl font-bold text-slate-900">₱ 25,000</span>
-                                <span className="text-slate-500 text-sm ml-1">/ month</span>
+                                <span className="text-2xl font-bold text-slate-900">{formatCurrency(employee.latest_salary?.amount)}</span>
+                                <span className="ml-1 text-sm text-slate-500">/ month</span>
                             </div>
                         </div>
                     </div>
@@ -54,27 +84,30 @@ export default function Dashboard() {
                 {/* --- TABS SECTION --- */}
                 <Tabs defaultValue="overview" className="space-y-6">
                     <div className="flex items-center justify-between overflow-x-auto pb-1">
-                        <TabsList >
-                            <TabsTrigger value="overview" >
+                        <TabsList>
+                            <TabsTrigger value="overview">
                                 <LayoutDashboard className="h-4 w-4" /> Overview
                             </TabsTrigger>
-                            <TabsTrigger value="Compensation" >
+                            <TabsTrigger value="compensation">
                                 <CoinsIcon className="h-4 w-4" /> Compensation
                             </TabsTrigger>
-                            <TabsTrigger value="reports" >
+                            <TabsTrigger value="reports">
                                 <FileText className="h-4 w-4" /> Reports
                             </TabsTrigger>
-                            <TabsTrigger value="settings" >
+                            <TabsTrigger value="settings">
                                 <Settings className="h-4 w-4" /> Settings
                             </TabsTrigger>
                         </TabsList>
                     </div>
 
                     <TabsContent value="overview" className="mt-0 outline-none">
-                        <Overview />
+                        <Overview employee={employee} />
                     </TabsContent>
-                    <TabsContent value="Compensation" className="mt-0 outline-none">
-                        <Compensation />
+                    <TabsContent value="compensation" className="mt-0 outline-none">
+                        <Compensation employee={employee} />
+                    </TabsContent>
+                    <TabsContent value="settings" className="mt-0 outline-none">
+                        <EmployeeSettings employee={employee} employmentStatuses={employmentStatuses} offices={offices} />
                     </TabsContent>
                 </Tabs>
             </div>

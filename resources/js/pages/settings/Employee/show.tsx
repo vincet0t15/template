@@ -1,13 +1,4 @@
 import {
-    Dialog,
-    DialogContent,
-} from "@/components/ui/dialog"
-import type { Employee } from "@/types/employee"
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
-import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -16,13 +7,19 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import type { Employee } from '@/types/employee';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface EmployeeShowProps {
-    isOpen: boolean
-    onClose: () => void
-    employee: Employee
+    isOpen: boolean;
+    onClose: () => void;
+    employee: Employee;
 }
 
 export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
@@ -54,76 +51,59 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="w-[400px] p-0 bg-background border shadow-lg rounded-lg overflow-hidden">
+                <DialogContent className="bg-background w-[400px] overflow-hidden rounded-lg border p-0 shadow-lg">
                     {/* Header with Avatar */}
-                    <div className="flex flex-col items-center gap-3 pt-8 pb-4 bg-muted/30">
-                        <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
-                            <AvatarImage
-                                src={employee.image_path}
-                                alt="Employee"
-                            />
+                    <div className="bg-muted/30 flex flex-col items-center gap-3 pt-8 pb-4">
+                        <Avatar className="ring-background h-24 w-24 shadow-lg ring-4">
+                            <AvatarImage src={employee.image_path} alt="Employee" />
                             <AvatarFallback className="text-lg font-semibold">
-                                {employee.first_name.charAt(0)}{employee.last_name.charAt(0)}
+                                {employee.first_name.charAt(0)}
+                                {employee.last_name.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
 
-                        <div className="text-center space-y-1">
-                            <h2 className="text-xl font-semibold tracking-tight text-foreground uppercase">
+                        <div className="space-y-1 text-center">
+                            <h2 className="text-foreground text-xl font-semibold tracking-tight uppercase">
                                 {employee.last_name}, {employee.first_name} {employee.middle_name?.charAt(0)}. {employee.suffix}
                             </h2>
-                            <p className="text-sm text-muted-foreground">
-                                {employee.position}
-                            </p>
+                            <p className="text-muted-foreground text-sm">{employee.position}</p>
                         </div>
                     </div>
 
                     {/* Content */}
-                    <div className="px-6 py-4 space-y-4">
+                    <div className="space-y-4 px-6 py-4">
                         {/* Info Section */}
                         <div className="space-y-1">
-                            <div className="flex items-center justify-between text-sm border-b py-2">
+                            <div className="flex items-center justify-between border-b py-2 text-sm">
                                 <span className="text-muted-foreground">Department</span>
-                                <span className="font-medium text-right truncate uppercase">
-                                    {employee.office?.code}
-                                </span>
+                                <span className="truncate text-right font-medium uppercase">{employee.office?.code}</span>
                             </div>
-                            <div className="flex items-center justify-between text-sm border-b py-2">
+                            <div className="flex items-center justify-between border-b py-2 text-sm">
                                 <span className="text-muted-foreground">Status</span>
-                                <span className="font-medium text-right truncate uppercase">
-                                    {employee.employment_status?.name}
-                                </span>
+                                <span className="truncate text-right font-medium uppercase">{employee.employment_status?.name}</span>
                             </div>
-                            <div className="flex items-center justify-between text-sm border-b py-2">
+                            <div className="flex items-center justify-between border-b py-2 text-sm">
                                 <span className="text-muted-foreground">RATA Eligible</span>
-                                <span className={`font-medium text-right ${employee.is_rata_eligible ? 'text-green-600' : 'text-gray-500'}`}>
+                                <span className={`text-right font-medium ${employee.is_rata_eligible ? 'text-green-600' : 'text-gray-500'}`}>
                                     {employee.is_rata_eligible ? 'Yes' : 'No'}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between text-sm py-2">
+                            <div className="flex items-center justify-between py-2 text-sm">
                                 <span className="text-muted-foreground">Salary</span>
-                                <span className="font-medium text-right">
+                                <span className="text-right font-medium">
                                     {employee.latest_salary
                                         ? `₱${new Intl.NumberFormat('en-PH', { minimumFractionDigits: 2 }).format(Number(employee.latest_salary.amount))}`
-                                        : 'Not set'
-                                    }
+                                        : 'Not set'}
                                 </span>
                             </div>
                         </div>
 
                         {/* Buttons */}
                         <div className="flex gap-2 pt-2">
-                            <Button
-                                variant="destructive"
-                                className="flex-1"
-                                onClick={() => setShowDeleteDialog(true)}
-                            >
+                            <Button variant="destructive" className="flex-1" onClick={() => setShowDeleteDialog(true)}>
                                 Delete
                             </Button>
-                            <Button
-                                variant="default"
-                                className="flex-1"
-                                onClick={handleManage}
-                            >
+                            <Button variant="default" className="flex-1" onClick={handleManage}>
                                 Manage
                             </Button>
                         </div>
@@ -137,7 +117,11 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete Employee</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete <strong>{employee.first_name} {employee.last_name}</strong>? This action cannot be undone.
+                            Are you sure you want to delete{' '}
+                            <strong>
+                                {employee.first_name} {employee.last_name}
+                            </strong>
+                            ? This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -153,5 +137,5 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
                 </AlertDialogContent>
             </AlertDialog>
         </>
-    )
+    );
 }

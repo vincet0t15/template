@@ -1,10 +1,5 @@
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,7 +9,12 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
@@ -169,10 +169,10 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                                         <TableCell className="text-center text-sm">
                                             <div className="flex items-center justify-center gap-2">
                                                 <span
-                                                    onClick={() => router.get(route('employees.show', employee.id))}
+                                                    onClick={() => router.get(route('employees.manage.show', employee.id))}
                                                     className="cursor-pointer text-teal-600 hover:underline"
                                                 >
-                                                    Edit
+                                                    Manage
                                                 </span>
                                                 <span
                                                     onClick={() => handleDeleteClick(employee)}
@@ -205,7 +205,11 @@ export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Delete Employee</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Are you sure you want to delete <strong>{employeeToDelete?.first_name} {employeeToDelete?.last_name}</strong>? This action cannot be undone.
+                                Are you sure you want to delete{' '}
+                                <strong>
+                                    {employeeToDelete?.first_name} {employeeToDelete?.last_name}
+                                </strong>
+                                ? This action cannot be undone.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
