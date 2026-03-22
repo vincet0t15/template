@@ -21,6 +21,11 @@ const mainNavItems: NavGroup[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Employees',
+        href: '/employees',
+        icon: UserRoundPen,
+    },
+    {
         title: 'Payroll',
         icon: Calculator,
         children: [

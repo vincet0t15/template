@@ -68,7 +68,7 @@ class Employee extends Model
      */
     public function latestSalary()
     {
-        return $this->salaries()->latest('effective_date');
+        return $this->hasOne(Salary::class)->latestOfMany('effective_date');
     }
 
     /**
@@ -76,7 +76,7 @@ class Employee extends Model
      */
     public function latestPera()
     {
-        return $this->peras()->latest('effective_date');
+        return $this->hasOne(Pera::class)->latestOfMany('effective_date');
     }
 
     /**
@@ -84,7 +84,7 @@ class Employee extends Model
      */
     public function latestRata()
     {
-        return $this->ratas()->latest('effective_date');
+        return $this->hasOne(Rata::class)->latestOfMany('effective_date');
     }
 
     public static function boot()
