@@ -12,7 +12,6 @@ import { Link, usePage } from '@inertiajs/react';
 import { Banknote, Building2, Calculator, Calendar, DollarSign, LayoutGrid, Menu, Receipt, Settings, Tag, UserRoundPen, Wallet } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
-import { NavMain2 } from './NavMain2';
 import { NavMenu } from './NavMenu';
 
 const mainNavItems: NavGroup[] = [
@@ -219,8 +218,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         <div className="hidden justify-self-center lg:flex">
                             <NavigationMenu>
                                 <NavigationMenuList className="flex items-center space-x-2">
-                                    <NavMain2 items={mainNavItems} />
-                                    <NavMenu />
+                                    {/* <NavMain2 items={mainNavItems} /> */}
+                                    <NavMenu items={mainNavItems} />
                                 </NavigationMenuList>
                             </NavigationMenu>
                         </div>

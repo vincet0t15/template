@@ -11,6 +11,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { NavGroup } from '@/types';
 import { Link } from '@inertiajs/react';
 
 const components: { title: string; href: string; description: string }[] = [
@@ -46,43 +47,36 @@ const components: { title: string; href: string; description: string }[] = [
     },
 ];
 
-export function NavMenu() {
+export function NavMenu({ items = [] }: { items: NavGroup[] }) {
     return (
         <NavigationMenu>
             <NavigationMenuList>
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="w-96">
-                            <ListItem href="/docs" title="Introduction">
-                                Re-usable components built with Tailwind CSS.
-                            </ListItem>
-                            <ListItem href="/docs/installation" title="Installation">
-                                How to install dependencies and structure your app.
-                            </ListItem>
-                            <ListItem href="/docs/primitives/typography" title="Typography">
-                                Styles for headings, paragraphs, lists...etc
-                            </ListItem>
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="hidden md:flex">
-                    <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                            {components.map((component) => (
-                                <ListItem key={component.title} title={component.title} href={component.href}>
-                                    {component.description}
-                                </ListItem>
-                            ))}
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                        <Link href="/docs">Docs</Link>
-                    </NavigationMenuLink>
-                </NavigationMenuItem>
+                {items.map((group) =>
+                    group.children?.length ? (
+                        <NavigationMenuItem className="right-auto left-0">
+                            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                            <NavigationMenuContent className="right-0 left-auto">
+                                <ul className="w-96">
+                                    <ListItem href="/docs" title="Introduction">
+                                        Re-usable components built with Tailwind CSS.
+                                    </ListItem>
+                                    <ListItem href="/docs/installation" title="Installation">
+                                        How to install dependencies and structure your app.
+                                    </ListItem>
+                                    <ListItem href="/docs/primitives/typography" title="Typography">
+                                        Styles for headings, paragraphs, lists...etc
+                                    </ListItem>
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    ) : (
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                                <Link href="/docs">Docs</Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    ),
+                )}
             </NavigationMenuList>
         </NavigationMenu>
     );

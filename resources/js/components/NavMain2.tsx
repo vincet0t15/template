@@ -15,7 +15,6 @@ import { Link, usePage } from '@inertiajs/react';
 
 export function NavMain2({ items = [] }: { items: NavGroup[] }) {
     const page = usePage();
-    const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
     return (
         <NavigationMenu>
