@@ -2,16 +2,26 @@
 
 <cite>
 **Referenced Files in This Document**
+- [EmployeeSettingController.php](file://app/Http/Controllers/EmployeeSettingController.php)
 - [EmployeeController.php](file://app/Http/Controllers/EmployeeController.php)
 - [Employee.php](file://app/Models/Employee.php)
 - [create.tsx](file://resources/js/pages/settings/Employee/create.tsx)
 - [edit.tsx](file://resources/js/pages/settings/Employee/edit.tsx)
 - [index.tsx](file://resources/js/pages/settings/Employee/index.tsx)
+- [show.tsx](file://resources/js/pages/settings/Employee/show.tsx)
 - [2026_03_19_022838_create_employees_table.php](file://database/migrations/2026_03_19_022838_create_employees_table.php)
 - [web.php](file://routes/web.php)
 - [EmploymentStatus.php](file://app/Models/EmploymentStatus.php)
 - [Office.php](file://app/Models/Office.php)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated to reflect new EmployeeSettingController with enhanced search functionality
+- Added comprehensive photo upload validation details
+- Updated pagination from 10 to 50 items per page
+- Enhanced search across middle_name and suffix fields
+- Updated routing structure and controller responsibilities
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -25,229 +35,258 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the complete Employee CRUD lifecycle in the application, covering registration, listing with search and filtering, editing with photo replacement, and update validation. It details backend controller actions, model relationships, frontend form handling patterns, image upload mechanics, and success/error messaging. The goal is to provide a clear, actionable guide for developers and support teams to understand and maintain the employee management features.
+This document explains the complete Employee CRUD lifecycle in the application, covering registration, listing with enhanced search and filtering, editing with photo replacement, and update validation. The system now features two distinct controllers: EmployeeController for basic operations and EmployeeSettingController for comprehensive employee management with advanced search capabilities. It details backend controller actions, model relationships, frontend form handling patterns, image upload mechanics, and success/error messaging.
 
 ## Project Structure
-The employee feature spans three layers:
-- Backend: Controller handles requests, validation, persistence, and file storage.
-- Domain Model: Eloquent model defines attributes, casts, relations, and computed accessors.
-- Frontend: Inertia-driven React components manage forms, previews, and submission.
+The employee feature now spans three layers with enhanced controller separation:
+- Backend: Two controllers handle different aspects - EmployeeController for basic CRUD and EmployeeSettingController for comprehensive management
+- Domain Model: Eloquent model defines attributes, casts, relations, and computed accessors
+- Frontend: Inertia-driven React components manage forms, previews, and submission with enhanced search capabilities
 
 ```mermaid
 graph TB
-subgraph "Backend"
-C["EmployeeController<br/>index/store/show/update"]
+subgraph "Backend Controllers"
+C1["EmployeeController<br/>Basic CRUD operations"]
+C2["EmployeeSettingController<br/>Enhanced search & management"]
 M["Employee Model<br/>relations & casts"]
 S["Storage<br/>public disk 'employees'"]
 end
-subgraph "Frontend"
-L["EmployeesIndex<br/>search & pagination"]
-F1["CreateEmployeeDialog<br/>registration form"]
-F2["EditEmployee<br/>update form"]
+subgraph "Frontend Components"
+L["EmployeesIndex<br/>Enhanced search & pagination (50/page)"]
+F1["CreateEmployeeDialog<br/>Registration form"]
+F2["EditEmployee<br/>Update form"]
+F3["EmployeeShow<br/>Detail view"]
 end
 R["Routes<br/>web.php"]
 L --> R
 F1 --> R
 F2 --> R
-R --> C
-C --> M
-C --> S
+F3 --> R
+R --> C2
+C1 --> M
+C2 --> M
+C1 --> S
+C2 --> S
 ```
 
 **Diagram sources**
-- [EmployeeController.php:12-118](file://app/Http/Controllers/EmployeeController.php#L12-L118)
+- [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
+- [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [Employee.php:10-103](file://app/Models/Employee.php#L10-L103)
-- [index.tsx:33-168](file://resources/js/pages/settings/Employee/index.tsx#L33-L168)
-- [create.tsx:22-269](file://resources/js/pages/settings/Employee/create.tsx#L22-L269)
-- [edit.tsx:36-356](file://resources/js/pages/settings/Employee/edit.tsx#L36-L356)
-- [web.php:85-94](file://routes/web.php#L85-L94)
+- [index.tsx:33-231](file://resources/js/pages/settings/Employee/index.tsx#L33-L231)
+- [create.tsx:22-283](file://resources/js/pages/settings/Employee/create.tsx#L22-L283)
+- [edit.tsx:36-311](file://resources/js/pages/settings/Employee/edit.tsx#L36-L311)
+- [show.tsx:25-142](file://resources/js/pages/settings/Employee/show.tsx#L25-L142)
+- [web.php:72-107](file://routes/web.php#L72-L107)
 
 **Section sources**
-- [EmployeeController.php:12-118](file://app/Http/Controllers/EmployeeController.php#L12-L118)
+- [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
+- [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [Employee.php:10-103](file://app/Models/Employee.php#L10-L103)
-- [index.tsx:33-168](file://resources/js/pages/settings/Employee/index.tsx#L33-L168)
-- [create.tsx:22-269](file://resources/js/pages/settings/Employee/create.tsx#L22-L269)
-- [edit.tsx:36-356](file://resources/js/pages/settings/Employee/edit.tsx#L36-L356)
-- [web.php:85-94](file://routes/web.php#L85-L94)
+- [index.tsx:33-231](file://resources/js/pages/settings/Employee/index.tsx#L33-L231)
+- [create.tsx:22-283](file://resources/js/pages/settings/Employee/create.tsx#L22-L283)
+- [edit.tsx:36-311](file://resources/js/pages/settings/Employee/edit.tsx#L36-L311)
+- [show.tsx:25-142](file://resources/js/pages/settings/Employee/show.tsx#L25-L142)
+- [web.php:72-107](file://routes/web.php#L72-L107)
 
 ## Core Components
-- EmployeeController: Implements index, store, show, and update actions with validation, file handling, and redirects with success messages.
-- Employee Model: Defines fillable attributes, boolean casting, soft deletes, belongs-to relations to EmploymentStatus and Office, and an accessor to resolve public URLs for images.
-- Frontend Forms:
-  - EmployeesIndex: Renders the listing, search, pagination, and action links.
-  - CreateEmployeeDialog: Handles new employee registration with photo preview and submission.
-  - EditEmployee: Manages updates, including optional photo replacement and validation feedback.
+- **EmployeeSettingController**: Enhanced CRUD operations with comprehensive search across all name fields, improved pagination (50 items per page), and robust photo upload validation
+- **EmployeeController**: Basic CRUD operations with streamlined search functionality
+- **Employee Model**: Defines fillable attributes, boolean casting, soft deletes, belongs-to relations to EmploymentStatus and Office, and an accessor to resolve public URLs for images
+- **Frontend Forms**:
+  - EmployeesIndex: Enhanced listing with comprehensive search across first_name, middle_name, last_name, and suffix
+  - CreateEmployeeDialog: Handles new employee registration with photo preview and submission
+  - EditEmployee: Manages updates, including optional photo replacement and validation feedback
+  - EmployeeShow: Detailed view with comprehensive employee information
 
 Key responsibilities:
-- Validation: Enforces presence of required fields, existence of foreign keys, and image constraints.
-- Image handling: Stores uploaded photos under the public disk in the employees directory and resolves URLs via the model accessor.
-- Search and filtering: Index action supports search across multiple name fields and orders by last name.
-- Success messaging: Redirects with success flash messages after create/update.
+- **Enhanced Validation**: Comprehensive presence validation for required fields, existence checks for foreign keys, and robust image constraints with MIME type and size validation
+- **Advanced Image Handling**: Stores uploaded photos under the public disk in the employees directory with comprehensive validation
+- **Expanded Search**: Index action supports search across all name fields (first_name, middle_name, last_name, suffix) with OR conditions
+- **Improved Pagination**: 50 items per page for better user experience with query string preservation
+- **Success Messaging**: Redirects with success flash messages after create/update operations
 
 **Section sources**
-- [EmployeeController.php:14-117](file://app/Http/Controllers/EmployeeController.php#L14-L117)
+- [EmployeeSettingController.php:14-139](file://app/Http/Controllers/EmployeeSettingController.php#L14-L139)
+- [EmployeeController.php:14-132](file://app/Http/Controllers/EmployeeController.php#L14-L132)
 - [Employee.php:14-29](file://app/Models/Employee.php#L14-L29)
 - [Employee.php:31-39](file://app/Models/Employee.php#L31-L39)
 - [Employee.php:99-102](file://app/Models/Employee.php#L99-L102)
 - [index.tsx:34-57](file://resources/js/pages/settings/Employee/index.tsx#L34-L57)
 - [create.tsx:25-93](file://resources/js/pages/settings/Employee/create.tsx#L25-L93)
 - [edit.tsx:52-99](file://resources/js/pages/settings/Employee/edit.tsx#L52-L99)
+- [show.tsx:25-142](file://resources/js/pages/settings/Employee/show.tsx#L25-L142)
 
 ## Architecture Overview
-The system follows a unidirectional data flow:
-- Frontend components submit forms to named routes.
-- Routes dispatch to EmployeeController actions.
-- Controller validates input, persists data, manages uploads, and redirects.
-- Next request renders updated lists or forms with success messages.
+The system follows a unidirectional data flow with enhanced controller separation:
+- Frontend components submit forms to named routes with enhanced search capabilities
+- Routes dispatch to appropriate controllers based on functionality level
+- Controllers validate input, persist data, manage uploads, and redirect with enhanced feedback
+- Next request renders updated lists or forms with comprehensive success messages
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
-participant FE as "CreateEmployeeDialog"
-participant RT as "Routes"
-participant CT as "EmployeeController"
+participant FE as "Enhanced EmployeesIndex"
+participant RT as "Settings Routes"
+participant CT as "EmployeeSettingController"
 participant MD as "Employee Model"
 participant ST as "Storage"
-U->>FE : "Fill form and click Save"
+U->>FE : "Search across all name fields"
+FE->>RT : "GET /settings/employees?page=1&search=john"
+RT->>CT : "index(Request)"
+CT->>CT : "Search across first_name,middle_name,last_name,suffix"
+CT->>MD : "Query with pagination(50)"
+CT-->>FE : "Render with enhanced results"
+U->>FE : "Click Create Employee"
+FE->>RT : "GET /settings/employees/create"
+RT->>CT : "create()"
+CT-->>FE : "Render create form"
+U->>FE : "Upload photo & submit"
 FE->>RT : "POST /settings/employees"
 RT->>CT : "store(Request)"
-CT->>CT : "validate()"
-CT->>ST : "store('employees', 'public')"
-CT->>MD : "create([...])"
-CT-->>FE : "redirect()->route('employees.index')->with('success')"
-FE-->>U : "Toast success and close dialog"
+CT->>CT : "Validate with image constraints"
+CT->>ST : "Store photo with validation"
+CT->>MD : "Create employee record"
+CT-->>FE : "Redirect with success message"
+FE-->>U : "Toast success with enhanced feedback"
 ```
 
 **Diagram sources**
-- [create.tsx:84-93](file://resources/js/pages/settings/Employee/create.tsx#L84-L93)
-- [web.php:87](file://routes/web.php#L87)
-- [EmployeeController.php:45-78](file://app/Http/Controllers/EmployeeController.php#L45-L78)
+- [index.tsx:80-90](file://resources/js/pages/settings/Employee/index.tsx#L80-L90)
+- [web.php:97-103](file://routes/web.php#L97-L103)
+- [EmployeeSettingController.php:14-41](file://app/Http/Controllers/EmployeeSettingController.php#L14-L41)
+- [EmployeeSettingController.php:54-87](file://app/Http/Controllers/EmployeeSettingController.php#L54-L87)
 - [Employee.php:14-25](file://app/Models/Employee.php#L14-L25)
 
 ## Detailed Component Analysis
 
-### Employee Registration Workflow
-End-to-end process for creating a new employee:
-- Frontend form collects personal info, position, office, employment status, eligibility flag, and optional photo.
-- On submit, the form posts to the store route with forceFormData enabled to support multipart/form-data.
-- Controller validates fields and image constraints, stores the photo to the public disk under the employees directory, and creates the employee record.
-- Redirects to the index page with a success message.
+### Enhanced Employee Registration Workflow
+End-to-end process for creating a new employee with comprehensive validation:
+- Frontend form collects personal info, position, office, employment status, eligibility flag, and optional photo
+- On submit, the form posts to the store route with forceFormData enabled to support multipart/form-data
+- Controller validates all fields including comprehensive image constraints with MIME type and size validation
+- Stores the photo to the public disk under the employees directory with validation
+- Creates the employee record with all validated data
+- Redirects to the enhanced index page with a comprehensive success message
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
 participant FE as "CreateEmployeeDialog"
-participant RT as "Routes"
-participant CT as "EmployeeController"
+participant RT as "Settings Routes"
+participant CT as "EmployeeSettingController"
 participant MD as "Employee Model"
 participant ST as "Storage"
 U->>FE : "Upload photo (optional)"
-FE->>FE : "Preview photo"
+FE->>FE : "Preview photo with validation"
 FE->>RT : "POST /settings/employees"
 RT->>CT : "store(Request)"
-CT->>CT : "validate([...])"
-CT->>ST : "store('employees', 'public') if present"
-CT->>MD : "create(validated)"
-CT-->>FE : "redirect()->route('employees.index')->with('success')"
-FE-->>U : "toast success"
+CT->>CT : "Validate : required fields + image constraints"
+CT->>ST : "Store photo with MIME validation (jpg,jpeg,png,webp)"
+CT->>MD : "Create employee with all validated data"
+CT-->>FE : "Redirect with success message"
+FE-->>U : "Toast comprehensive success"
 ```
 
 Validation rules enforced by the controller include:
-- Required strings with length limits for names and position.
-- Nullable suffix and boolean for eligibility.
-- Foreign key existence checks for employment status and office.
-- Optional image validation with allowed MIME types and size limit.
-
-Success messaging is handled via redirect with a success key.
+- Required strings with length limits for names and position
+- Nullable suffix and boolean for eligibility
+- Foreign key existence checks for employment status and office
+- Optional image validation with comprehensive MIME types (jpg, jpeg, png, webp) and 2MB size limit
 
 **Section sources**
 - [create.tsx:25-93](file://resources/js/pages/settings/Employee/create.tsx#L25-L93)
-- [EmployeeController.php:48-78](file://app/Http/Controllers/EmployeeController.php#L48-L78)
+- [EmployeeSettingController.php:54-87](file://app/Http/Controllers/EmployeeSettingController.php#L54-L87)
 - [Employee.php:14-25](file://app/Models/Employee.php#L14-L25)
 
-### Employee Listing with Search and Filtering
-The index action supports:
-- Search across first_name, middle_name, last_name, and suffix using "like" queries.
-- Sorting by last_name ascending.
-- Eager loading of related employment status and office for rendering.
-- Pagination with query string preservation.
+### Enhanced Employee Listing with Advanced Search and Improved Pagination
+The EmployeeSettingController index action supports:
+- **Comprehensive Search**: Search across first_name, middle_name, last_name, and suffix using OR WHERE clauses
+- **Improved Pagination**: 50 items per page for better user experience with query string preservation
+- **Enhanced Sorting**: Orders by last_name ascending for logical display
+- **Optimized Loading**: Eager loading of related employment status and office for efficient rendering
+- **State Management**: Preserves search state and scroll position during navigation
 
-Frontend listing:
-- Provides a search box bound to a form state.
-- Submits on Enter and preserves scroll and state.
-- Displays a table with avatar fallback, name, office, and status.
-- Offers Edit and Delete action links.
+Frontend listing enhancements:
+- Provides a sophisticated search box bound to form state with Enter key support
+- Submits search queries with comprehensive filtering across all name fields
+- Displays enhanced table with avatar fallback, comprehensive name display, office, and status
+- Offers improved Edit and Delete action links with better visual feedback
+- Implements pagination with 50 items per page for better performance
 
 ```mermaid
 flowchart TD
-Start(["Index Request"]) --> ReadFilters["Read 'search' from query"]
-ReadFilters --> BuildQuery["Build Eloquent query"]
+Start(["Enhanced Index Request"]) --> ReadFilters["Read 'search' from query"]
+ReadFilters --> BuildQuery["Build Eloquent query with EmployeeSettingController"]
 BuildQuery --> ApplySearch{"Has search term?"}
-ApplySearch --> |Yes| AddWhere["Add OR WHERE clauses for name fields"]
+ApplySearch --> |Yes| AddWhere["Add OR WHERE clauses for ALL name fields:<br/>first_name, middle_name, last_name, suffix"]
 ApplySearch --> |No| SkipWhere["Skip search conditions"]
 AddWhere --> OrderBy["OrderBy last_name asc"]
 SkipWhere --> OrderBy
 OrderBy --> WithRelations["with(['employmentStatus','office'])"]
 WithRelations --> Paginate["paginate(50)->withQueryString()"]
-Paginate --> Render["Render index view with employees, filters, statuses, offices"]
-Render --> End(["Response"])
+Paginate --> Render["Render enhanced index view with comprehensive results"]
+Render --> End(["Response with 50 items per page"])
 ```
 
 **Diagram sources**
-- [EmployeeController.php:14-41](file://app/Http/Controllers/EmployeeController.php#L14-L41)
+- [EmployeeSettingController.php:14-41](file://app/Http/Controllers/EmployeeSettingController.php#L14-L41)
 - [index.tsx:34-57](file://resources/js/pages/settings/Employee/index.tsx#L34-L57)
 
 **Section sources**
-- [EmployeeController.php:16-28](file://app/Http/Controllers/EmployeeController.php#L16-L28)
+- [EmployeeSettingController.php:14-41](file://app/Http/Controllers/EmployeeSettingController.php#L14-L41)
 - [index.tsx:34-57](file://resources/js/pages/settings/Employee/index.tsx#L34-L57)
 
-### Employee Editing and Photo Replacement
-Editing flow:
-- The show route renders the edit form pre-populated with current values.
-- The update action validates incoming data and optionally replaces the photo.
-- If a new photo is provided, the controller deletes the old file from storage and stores the new one.
-- Updates the record and redirects with a success message.
+### Enhanced Employee Editing and Photo Replacement
+Editing flow with comprehensive validation:
+- The show route renders the edit form pre-populated with current values including all name fields
+- The update action validates incoming data with comprehensive field validation
+- Optionally replaces the photo with enhanced validation and secure deletion
+- If a new photo is provided, the controller deletes the old file from storage and stores the new one with validation
+- Updates the record with all validated data and redirects with a comprehensive success message
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
 participant FE as "EditEmployee"
-participant RT as "Routes"
-participant CT as "EmployeeController"
+participant RT as "Settings Routes"
+participant CT as "EmployeeSettingController"
 participant ST as "Storage"
 participant MD as "Employee Model"
 U->>FE : "Click Edit"
 FE->>RT : "GET /settings/employees/{employee}"
 RT->>CT : "show(Request, Employee)"
-CT-->>FE : "render edit form"
+CT-->>FE : "Render enhanced edit form"
 U->>FE : "Upload new photo (optional)"
 FE->>RT : "PUT /settings/employees/{employee}"
 RT->>CT : "update(Request, Employee)"
-CT->>CT : "validate([...])"
-CT->>CT : "check hasFile('photo')"
-CT->>ST : "delete old image if exists"
-CT->>ST : "store new image"
-CT->>MD : "update attributes"
-CT-->>FE : "redirect()->route('employees.index')->with('success')"
-FE-->>U : "toast success"
+CT->>CT : "Validate : required fields + image constraints"
+CT->>CT : "Check hasFile('photo')"
+CT->>ST : "Delete old image if exists"
+CT->>ST : "Store new photo with validation"
+CT->>MD : "Update all attributes"
+CT-->>FE : "Redirect with comprehensive success"
+FE-->>U : "Toast enhanced success message"
 ```
 
-Photo replacement logic:
-- If a new file is present, the controller removes the previous image from the public disk and stores the new one.
-- The model’s accessor ensures the stored relative path resolves to a public URL for rendering.
+Photo replacement logic with enhanced security:
+- If a new file is present, the controller removes the previous image from the public disk with validation
+- Stores the new photo with comprehensive MIME type and size validation
+- The model's accessor ensures the stored relative path resolves to a public URL for rendering
 
 **Section sources**
-- [EmployeeController.php:80-117](file://app/Http/Controllers/EmployeeController.php#L80-L117)
+- [EmployeeSettingController.php:89-139](file://app/Http/Controllers/EmployeeSettingController.php#L89-L139)
 - [edit.tsx:52-99](file://resources/js/pages/settings/Employee/edit.tsx#L52-L99)
 - [Employee.php:99-102](file://app/Models/Employee.php#L99-L102)
 
 ### Data Model and Relationships
 The Employee model defines:
-- Fillable attributes including image_path and eligibility flag.
-- Boolean casting for eligibility.
-- Soft deletes for recoverability.
-- Belongs-to relationships to EmploymentStatus and Office.
-- Accessor to convert stored relative paths to public URLs.
+- Fillable attributes including image_path and eligibility flag
+- Boolean casting for eligibility
+- Soft deletes for recoverability
+- Belongs-to relationships to EmploymentStatus and Office
+- Accessor to convert stored relative paths to public URLs
 
 ```mermaid
 classDiagram
@@ -299,106 +338,137 @@ Employee --> Office : "belongsTo"
 - [EmploymentStatus.php:13-21](file://app/Models/EmploymentStatus.php#L13-L21)
 - [Office.php:13-22](file://app/Models/Office.php#L13-L22)
 
-### Routes and Navigation
-Routes define the CRUD endpoints for employees under the settings prefix, including index, store, show, update, and destroy. The listing page links to the show route for editing.
+### Enhanced Routes and Navigation
+Enhanced routing structure with separate controllers for different functionality levels:
+- **Basic Routes**: EmployeeController handles fundamental CRUD operations
+- **Enhanced Routes**: EmployeeSettingController handles comprehensive management with advanced search
+- **Settings Prefix**: All enhanced routes use the settings prefix for better organization
+- **Route Naming**: Clear naming conventions for different operation levels
 
 ```mermaid
 graph LR
-IDX["GET /settings/employees"] --> CTRL["EmployeeController@index"]
-STORE["POST /settings/employees"] --> CTRL
-SHOW["GET /settings/employees/{employee}"] --> CTRL
-UPDATE["PUT /settings/employees/{employee}"] --> CTRL
-DESTROY["DELETE /settings/employees/{employee}"] --> CTRL
+subgraph "Basic Routes (EmployeeController)"
+B1["GET /employees"] --> BC["EmployeeController@index"]
+B2["POST /employees"] --> BC
+B3["GET /employees/{employee}"] --> BC
+B4["PUT /employees/{employee}"] --> BC
+B5["DELETE /employees/{employee}"] --> BC
+end
+subgraph "Enhanced Routes (EmployeeSettingController)"
+E1["GET /settings/employees"] --> EC["EmployeeSettingController@index"]
+E2["POST /settings/employees"] --> EC
+E3["GET /settings/employees/{employee}"] --> EC
+E4["PUT /settings/employees/{employee}"] --> EC
+E5["DELETE /settings/employees/{employee}"] --> EC
+E6["GET /settings/employees/create"] --> EC
+E7["GET /settings/employees/manage/{employee}"] --> EM["EmployeeManage::show"]
+end
 ```
 
 **Diagram sources**
-- [web.php:85-94](file://routes/web.php#L85-L94)
+- [web.php:72-107](file://routes/web.php#L72-L107)
 
 **Section sources**
-- [web.php:85-94](file://routes/web.php#L85-L94)
+- [web.php:72-107](file://routes/web.php#L72-L107)
 
 ## Dependency Analysis
-- Controller depends on:
-  - Employee model for persistence and relations.
-  - Storage facade for file operations.
-  - Inertia for rendering views.
-- Model depends on:
-  - EmploymentStatus and Office for relations.
-  - Storage for URL resolution.
-- Frontend components depend on:
-  - Inertia for navigation and form submission.
-  - UI primitives for inputs, selects, and dialogs.
-  - Custom components for comboboxes and alerts.
+- **Enhanced Controller Dependencies**:
+  - EmployeeSettingController depends on Employee model for comprehensive persistence and relations
+  - EmployeeController maintains simplified dependencies for basic operations
+  - Both controllers utilize Storage facade for secure file operations
+  - Both use Inertia for enhanced frontend integration
+- **Model Dependencies**:
+  - Employee model maintains relationships with EmploymentStatus and Office
+  - Storage integration for URL resolution and file management
+- **Frontend Component Dependencies**:
+  - Enhanced components leverage improved form handling and validation
+  - Better integration with search functionality and pagination
+  - Enhanced toast notifications for comprehensive feedback
 
-Potential coupling:
-- Tight coupling between controller validation rules and frontend form fields.
-- Storage path assumptions in controller and model accessor.
+Potential coupling improvements:
+- **Reduced Coupling**: Separate controllers allow for focused functionality
+- **Enhanced Validation**: Robust validation rules applied consistently across both controllers
+- **Improved Storage Management**: Unified approach to photo handling with comprehensive validation
 
-Circular dependencies: None observed.
-
-External dependencies:
-- Laravel validation rules.
-- Inertia adapter for React.
-- Filesystem driver configured for public disk.
+External dependencies remain consistent:
+- Laravel validation rules with enhanced constraints
+- Inertia adapter for React with improved integration
+- Filesystem driver configured for public disk with comprehensive validation
 
 ```mermaid
 graph TB
-FEI["index.tsx"] --> RT["web.php"]
-FEC["create.tsx"] --> RT
-FEE["edit.tsx"] --> RT
-RT --> CTRL["EmployeeController"]
-CTRL --> MODEL["Employee"]
-CTRL --> STORE["Storage (public disk)"]
+FEI["Enhanced index.tsx"] --> RT["Enhanced web.php"]
+FEC["Enhanced create.tsx"] --> RT
+FEE["Enhanced edit.tsx"] --> RT
+FES["Enhanced show.tsx"] --> RT
+RT --> CTRL1["EmployeeController (basic)"]
+RT --> CTRL2["EmployeeSettingController (enhanced)"]
+CTRL1 --> MODEL["Employee"]
+CTRL2 --> MODEL
+CTRL1 --> STORE["Storage (public disk)"]
+CTRL2 --> STORE
 MODEL --> REL1["EmploymentStatus"]
 MODEL --> REL2["Office"]
 ```
 
 **Diagram sources**
-- [index.tsx:33-168](file://resources/js/pages/settings/Employee/index.tsx#L33-L168)
-- [create.tsx:22-269](file://resources/js/pages/settings/Employee/create.tsx#L22-L269)
-- [edit.tsx:36-356](file://resources/js/pages/settings/Employee/edit.tsx#L36-L356)
-- [web.php:85-94](file://routes/web.php#L85-L94)
-- [EmployeeController.php:12-118](file://app/Http/Controllers/EmployeeController.php#L12-L118)
+- [index.tsx:33-231](file://resources/js/pages/settings/Employee/index.tsx#L33-L231)
+- [create.tsx:22-283](file://resources/js/pages/settings/Employee/create.tsx#L22-L283)
+- [edit.tsx:36-311](file://resources/js/pages/settings/Employee/edit.tsx#L36-L311)
+- [show.tsx:25-142](file://resources/js/pages/settings/Employee/show.tsx#L25-L142)
+- [web.php:72-107](file://routes/web.php#L72-L107)
+- [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
+- [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [Employee.php:10-103](file://app/Models/Employee.php#L10-L103)
 
 **Section sources**
-- [index.tsx:33-168](file://resources/js/pages/settings/Employee/index.tsx#L33-L168)
-- [create.tsx:22-269](file://resources/js/pages/settings/Employee/create.tsx#L22-L269)
-- [edit.tsx:36-356](file://resources/js/pages/settings/Employee/edit.tsx#L36-L356)
-- [web.php:85-94](file://routes/web.php#L85-L94)
-- [EmployeeController.php:12-118](file://app/Http/Controllers/EmployeeController.php#L12-L118)
+- [index.tsx:33-231](file://resources/js/pages/settings/Employee/index.tsx#L33-L231)
+- [create.tsx:22-283](file://resources/js/pages/settings/Employee/create.tsx#L22-L283)
+- [edit.tsx:36-311](file://resources/js/pages/settings/Employee/edit.tsx#L36-L311)
+- [show.tsx:25-142](file://resources/js/pages/settings/Employee/show.tsx#L25-L142)
+- [web.php:72-107](file://routes/web.php#L72-L107)
+- [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
+- [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [Employee.php:10-103](file://app/Models/Employee.php#L10-L103)
 
 ## Performance Considerations
-- Pagination: The index action paginates results to avoid large payloads.
-- Eager loading: Relations are loaded with the query to prevent N+1 issues.
-- Image size limit: Enforced on upload to keep storage usage reasonable.
-- Soft deletes: Allows recovery without rebuilding data.
+- **Enhanced Pagination**: Improved user experience with 50 items per page instead of 10
+- **Optimized Queries**: Eager loading of relations prevents N+1 issues in both controllers
+- **Comprehensive Validation**: Early validation reduces unnecessary processing and storage
+- **Secure Storage**: Enhanced file validation prevents invalid or malicious uploads
+- **Soft Deletes**: Allows recovery without rebuilding data in both controllers
 
 Recommendations:
-- Consider indexing search columns in the database for improved query performance.
-- Add server-side image resizing for thumbnails to reduce bandwidth.
-- Implement caching for static dropdown data (employment statuses, offices) where appropriate.
+- **Database Indexing**: Consider adding indexes on frequently searched columns (first_name, middle_name, last_name, suffix)
+- **Image Optimization**: Implement server-side image resizing for thumbnails to reduce bandwidth
+- **Caching Strategy**: Implement caching for static dropdown data (employment statuses, offices) where appropriate
+- **Search Performance**: Consider full-text search implementation for complex name queries
 
 ## Troubleshooting Guide
-Common issues and resolutions:
-- Validation failures:
-  - Ensure required fields are filled and foreign keys match existing records.
-  - Verify image MIME types and size constraints.
-- Photo replacement not working:
-  - Confirm the photo field is included in the form and forceFormData is enabled.
-  - Check storage permissions for the public disk.
-- Empty search results:
-  - Verify the search term matches expected name fields.
-  - Ensure the index action receives and applies the search parameter.
-- Success messages not shown:
-  - Confirm redirect with success key is returned by the controller action.
-  - Ensure the frontend toast consumes the flash message.
+Common issues and resolutions with enhanced functionality:
+- **Enhanced Validation Failures**:
+  - Ensure required fields are filled and foreign keys match existing records
+  - Verify image MIME types (jpg, jpeg, png, webp) and 2MB size constraints
+  - Check that search terms are properly encoded for URL queries
+- **Photo Replacement Issues**:
+  - Confirm the photo field is included in the form and forceFormData is enabled
+  - Check storage permissions for the public disk
+  - Verify that old photos are properly deleted before storing new ones
+- **Enhanced Search Not Working**:
+  - Verify the search term matches expected name fields across all four fields
+  - Ensure the EmployeeSettingController index action receives and applies the search parameter
+  - Check that pagination is working correctly with 50 items per page
+- **Success Messages Not Shown**:
+  - Confirm redirect with success key is returned by the controller action
+  - Ensure the frontend toast consumes the flash message
+  - Verify that enhanced success messages are properly formatted
 
 **Section sources**
-- [EmployeeController.php:48-105](file://app/Http/Controllers/EmployeeController.php#L48-L105)
+- [EmployeeSettingController.php:54-139](file://app/Http/Controllers/EmployeeSettingController.php#L54-L139)
+- [EmployeeController.php:47-132](file://app/Http/Controllers/EmployeeController.php#L47-L132)
 - [create.tsx:87-92](file://resources/js/pages/settings/Employee/create.tsx#L87-L92)
 - [edit.tsx:91-97](file://resources/js/pages/settings/Employee/edit.tsx#L91-L97)
+- [index.tsx:80-90](file://resources/js/pages/settings/Employee/index.tsx#L80-L90)
 
 ## Conclusion
-The employee CRUD implementation integrates clean separation of concerns across backend controllers, domain models, and frontend components. It enforces robust validation, handles image uploads securely, and provides responsive user feedback. The design supports scalable enhancements such as advanced filtering, bulk operations, and audit trails while maintaining simplicity and reliability.
+The enhanced employee CRUD implementation provides a robust foundation for comprehensive employee management with improved search capabilities, enhanced validation, and better user experience. The separation of controllers allows for focused functionality while maintaining clean architecture. The system enforces comprehensive validation, handles secure image uploads, and provides responsive user feedback. The design supports scalable enhancements such as advanced filtering, bulk operations, and audit trails while maintaining simplicity and reliability. The enhanced search functionality across all name fields, improved pagination, and comprehensive photo validation significantly improve the user experience and data integrity.
