@@ -40,16 +40,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function create(Request $request)
-    {
-        $employmentStatuses = EmploymentStatus::all();
-        $offices = Office::all();
 
-        return Inertia::render('settings/Employee/create', [
-            'employmentStatuses' => $employmentStatuses,
-            'offices' => $offices,
-        ]);
-    }
 
     public function store(Request $request)
     {

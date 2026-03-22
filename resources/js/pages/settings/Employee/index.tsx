@@ -1,32 +1,22 @@
-
+import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { PlusIcon, Search, User } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import type { PaginatedDataResponse } from '@/types/pagination';
 import type { Employee } from '@/types/employee';
-import type { FilterProps } from '@/types/filter';
-import Pagination from '@/components/paginationData';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useState } from 'react';
-import { EmployeeShow } from './show';
-import EditEmployee from './edit';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreateEmployeeDialog } from './createv1';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
+import type { PaginatedDataResponse } from '@/types/pagination';
+import { Head, router, useForm } from '@inertiajs/react';
+import { PlusIcon, Search, User } from 'lucide-react';
+import { useState } from 'react';
+import { CreateEmployeeDialog } from './create';
+import { EmployeeShow } from './show';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -35,24 +25,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface EmployeeProps {
-    employees: PaginatedDataResponse<Employee>
-    filters: FilterProps
-    employmentStatuses: EmploymentStatus[]
-    offices: Office[]
+    employees: PaginatedDataResponse<Employee>;
+    filters: FilterProps;
+    employmentStatuses: EmploymentStatus[];
+    offices: Office[];
 }
 export default function EmployeesIndex({ employees, filters, employmentStatuses, offices }: EmployeeProps) {
     const { data, setData } = useForm({
-        search: filters.search || "",
-    })
-    const [openCreate, setOpenCreate] = useState(false)
-    const [openShow, setOpenShow] = useState(false)
-    const [openEdit, setOpenEdit] = useState(false)
-    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+        search: filters.search || '',
+    });
+    const [openCreate, setOpenCreate] = useState(false);
+    const [openShow, setOpenShow] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
     const handleClickShow = (employee: Employee) => {
-        setSelectedEmployee(employee)
-        setOpenShow(true)
-    }
+        setSelectedEmployee(employee);
+        setOpenShow(true);
+    };
 
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -64,7 +54,7 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                 preserveScroll: true,
             });
         }
-    }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -75,17 +65,12 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                     description="Manage all employees, with options to view, edit, or delete records and track their employment statuses."
                 />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-
-                    <Button onClick={() => router.get(route('employees.create'))}>
-                        <PlusIcon className="h-4 w-4" />
-                        Employee
-                    </Button>
                     <Button onClick={() => setOpenCreate(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Employee
                     </Button>
 
-                    <div className="flex w-full sm:w-auto items-center gap-2">
+                    <div className="flex w-full items-center gap-2 sm:w-auto">
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
@@ -93,7 +78,7 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                             <Input
                                 id="search"
                                 placeholder="Search the employee..."
-                                className="pl-8 w-full"
+                                className="w-full pl-8"
                                 value={data.search}
                                 onChange={(e) => setData({ search: e.target.value })}
                                 onKeyDown={handleSearchKeyDown}
@@ -107,24 +92,17 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="font-bold text-primary">
-                                    Name
-                                </TableHead>
+                                <TableHead className="text-primary font-bold">Name</TableHead>
 
-                                <TableHead className="font-bold text-primary w-[100px] text-center">
-                                    Action
-                                </TableHead>
+                                <TableHead className="text-primary w-[100px] text-center font-bold">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
                             {employees.data.length > 0 ? (
                                 employees.data.map((employee) => (
-                                    <TableRow
-                                        key={employee.id}
-                                        className="text-sm hover:bg-muted/30 items-center"
-                                    >
-                                        <TableCell className="text-sm cursor-pointer" onClick={() => handleClickShow(employee)}>
-                                            <div className="flex items-center gap-2 cursor-pointer">
+                                    <TableRow key={employee.id} className="hover:bg-muted/30 items-center text-sm">
+                                        <TableCell className="cursor-pointer text-sm" onClick={() => handleClickShow(employee)}>
+                                            <div className="flex cursor-pointer items-center gap-2">
                                                 <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
                                                     {employee.image_path ? (
                                                         <AvatarImage
@@ -140,36 +118,30 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
 
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
-                                                        {employee.last_name},  {employee.first_name} {employee.middle_name} {employee.suffix}
+                                                        {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground italic">
-                                                        {employee.office?.name}
-                                                    </span>
-                                                    <span className="text-xs text-muted-foreground italic">
-                                                        {employee.employment_status?.name}
-                                                    </span>
+                                                    <span className="text-muted-foreground text-xs italic">{employee.office?.name}</span>
+                                                    <span className="text-muted-foreground text-xs italic">{employee.employment_status?.name}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
 
-                                        <TableCell className="text-sm text-center">
+                                        <TableCell className="text-center text-sm">
                                             <div className="flex items-center justify-center gap-2">
-                                                <span onClick={() => router.get(route('employees.show', employee.id))} className="text-teal-600 cursor-pointer hover:underline">
+                                                <span
+                                                    onClick={() => router.get(route('employees.show', employee.id))}
+                                                    className="cursor-pointer text-teal-600 hover:underline"
+                                                >
                                                     Edit
                                                 </span>
-                                                <span className="text-orange-600 cursor-pointer hover:underline">
-                                                    Delete
-                                                </span>
+                                                <span className="cursor-pointer text-orange-600 hover:underline">Delete</span>
                                             </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={4}
-                                        className="py-3 text-center text-gray-500"
-                                    >
+                                    <TableCell colSpan={4} className="py-3 text-center text-gray-500">
                                         No data available.
                                     </TableCell>
                                 </TableRow>
@@ -180,14 +152,7 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                 <div>
                     <Pagination data={employees} />
                 </div>
-                {openShow && selectedEmployee && (
-                    <EmployeeShow
-                        employee={selectedEmployee}
-                        onClose={() => setOpenShow(false)}
-                        isOpen={openShow}
-                    />
-                )}
-
+                {openShow && selectedEmployee && <EmployeeShow employee={selectedEmployee} onClose={() => setOpenShow(false)} isOpen={openShow} />}
 
                 {openCreate && (
                     <CreateEmployeeDialog
