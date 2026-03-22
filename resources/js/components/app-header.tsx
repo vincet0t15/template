@@ -13,6 +13,7 @@ import { Banknote, Building2, Calculator, Calendar, DollarSign, LayoutGrid, Menu
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { NavMain2 } from './NavMain2';
+import { NavMenu } from './NavMenu';
 
 const mainNavItems: NavGroup[] = [
     {
@@ -219,6 +220,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <NavigationMenu>
                                 <NavigationMenuList className="flex items-center space-x-2">
                                     <NavMain2 items={mainNavItems} />
+                                    <NavMenu />
                                 </NavigationMenuList>
                             </NavigationMenu>
                         </div>
