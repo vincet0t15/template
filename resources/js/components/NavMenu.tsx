@@ -11,7 +11,7 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { Link } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 const components: { title: string; href: string; description: string }[] = [
     {
