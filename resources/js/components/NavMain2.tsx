@@ -29,25 +29,22 @@ export function NavMain2({ items = [] }: { items: NavGroup[] }) {
                                 {group.title}
                             </NavigationMenuTrigger>
 
-                            <NavigationMenuContent className="absolute top-full left-0">
-                                <ul className="w-[220px] p-2">
+                            <NavigationMenuContent>
+                                <div className="bg-popover text-popover-foreground w-[220px] p-2 shadow-md">
                                     {group.children.map((item) => (
-                                        <li key={item.title}>
-                                            <NavigationMenuLink asChild>
-                                                <Link
-                                                    href={item.href}
-                                                    className={cn(
-                                                        'hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm',
-                                                        page.url.startsWith(item.href),
-                                                    )}
-                                                >
-                                                    {item.icon && <item.icon className="h-4 w-4" />}
-                                                    <span>{item.title}</span>
-                                                </Link>
-                                            </NavigationMenuLink>
-                                        </li>
+                                        <Link
+                                            key={item.title}
+                                            href={item.href}
+                                            className={cn(
+                                                'hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm',
+                                                page.url.startsWith(item.href) && 'bg-accent text-accent-foreground',
+                                            )}
+                                        >
+                                            {item.icon && <item.icon className="h-4 w-4" />}
+                                            <span>{item.title}</span>
+                                        </Link>
                                     ))}
-                                </ul>
+                                </div>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                     ) : (
