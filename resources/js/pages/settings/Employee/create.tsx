@@ -1,27 +1,39 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FieldGroup } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 import type { EmployeeCreateRequest } from '@/types/employee';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
-import { useForm } from '@inertiajs/react';
-import { UploadIcon, XIcon } from 'lucide-react';
-import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { ArrowLeft, UploadIcon, XIcon } from 'lucide-react';
+import { useEffect, useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
-interface CreateEmployeeDialogProps {
-    isOpen: boolean;
-    onOpenChange: (isOpen: boolean) => void;
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Employees',
+        href: '/settings/employees',
+    },
+    {
+        title: 'Create',
+        href: '/settings/employees/create',
+    },
+];
+
+interface CreateEmployeeProps {
     employmentStatuses: EmploymentStatus[];
     offices: Office[];
 }
-export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses, offices }: CreateEmployeeDialogProps) {
+
+export default function CreateEmployee({ employmentStatuses, offices }: CreateEmployeeProps) {
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
     const photoPreviewUrlRef = useRef<string | null>(null);
+
     const { data, setData, post, errors } = useForm<EmployeeCreateRequest>({
         first_name: '',
         middle_name: '',
@@ -33,6 +45,16 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
         employment_status_id: '',
         photo: null,
     });
+
+    useEffect(() => {
+        return () => {
+            if (photoPreviewUrlRef.current) {
+                URL.revokeObjectURL(photoPreviewUrlRef.current);
+                photoPreviewUrlRef.current = null;
+            }
+        };
+    }, []);
+
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
 
@@ -54,31 +76,15 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
 
     const handleInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const { name, value } = e.target;
-
-        if (['salary', 'pera', 'rata'].includes(name)) {
-            let numericValue = value.replace(/[^\d.]/g, '');
-            const parts = numericValue.split('.');
-            if (parts.length > 2) return;
-
-            const integerPart = parts[0];
-            const decimalPart = parts[1] ?? '';
-
-            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-            const formattedValue = decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
-
-            setData({ ...data, [name]: formattedValue });
-        } else {
-            setData({ ...data, [name]: value });
-        }
+        setData(name as keyof EmployeeCreateRequest, value);
     };
 
-    const handleSuffixChange = (value: string | null) => {
-        setData('suffix', value ?? '');
+    const handleSuffixChange = (value: string) => {
+        setData('suffix', value);
     };
 
-    const handleEmploymentStatusChange = (value: string | null) => {
-        setData('employment_status_id', value ?? '');
+    const handleEmploymentStatusChange = (value: string) => {
+        setData('employment_status_id', value as string | number);
     };
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -98,15 +104,19 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
     }));
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <form>
-                <DialogContent className="sm:max-w-[725px]">
-                    <DialogHeader>
-                        <DialogTitle>Edit profile</DialogTitle>
-                        <DialogDescription>Make changes to your profile here. Click save when you&apos;re done.</DialogDescription>
-                    </DialogHeader>
-                    <FieldGroup>
-                        <form className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Create Employee" />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                <div className="flex items-center gap-4">
+                    <Button variant="outline" size="icon" onClick={() => router.get(route('employees.index'))}>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <h1 className="text-2xl font-bold">Create Employee</h1>
+                </div>
+
+                <form onSubmit={onSubmit} className="space-y-6">
+                    <div className="bg-background rounded-xl p-6 shadow">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             {/* LEFT SIDE - PHOTO */}
                             <div className="flex flex-col items-center space-y-4 md:col-span-1">
                                 <input
@@ -171,6 +181,7 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>First Name</Label>
                                         <Input name="first_name" value={data.first_name} onChange={handleInputChange} />
+                                        {errors.first_name && <p className="text-destructive text-xs">{errors.first_name}</p>}
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Middle Name</Label>
@@ -182,42 +193,49 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Last Name</Label>
                                         <Input name="last_name" value={data.last_name} onChange={handleInputChange} />
+                                        {errors.last_name && <p className="text-destructive text-xs">{errors.last_name}</p>}
                                     </div>
-                                    <div className="w-full">
+                                    <div className="flex w-full flex-col gap-1">
                                         <Label>Suffix</Label>
-                                        <Select onValueChange={handleSuffixChange}>
+                                        <Select value={data.suffix} onValueChange={handleSuffixChange}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Suffix" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="Jr.">Jr.</SelectItem>
                                                 <SelectItem value="Sr.">Sr.</SelectItem>
+                                                <SelectItem value="II">II</SelectItem>
+                                                <SelectItem value="III">III</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
-                                {/* POSITION / OFFICE / STATUS */}
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1">
+
+                                {/* POSITION / OFFICE */}
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Position</Label>
-                                        <Input name="position" onChange={handleInputChange} />
+                                        <Input name="position" value={data.position} onChange={handleInputChange} />
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Office</Label>
                                         <CustomComboBox
                                             items={officeOptions}
-                                            placeholder="Office"
-                                            onSelect={(value) => setData('office_id', value ?? '')}
+                                            placeholder="Select Office"
+                                            onSelect={(value) => setData('office_id', (value ?? '') as string | number)}
+                                            value={String(data.office_id)}
                                         />
+                                        {errors.office_id && <p className="text-destructive text-xs">{errors.office_id}</p>}
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
+                                {/* EMPLOYMENT STATUS / RATA */}
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Employment Status</Label>
-                                        <Select onValueChange={handleEmploymentStatusChange}>
+                                        <Select value={String(data.employment_status_id)} onValueChange={handleEmploymentStatusChange}>
                                             <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Employment Status" />
+                                                <SelectValue placeholder="Select Status" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {employmentStatuses.map((status) => (
@@ -227,6 +245,7 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        {errors.employment_status_id && <p className="text-destructive text-xs">{errors.employment_status_id}</p>}
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label className="mb-2">RATA Eligible</Label>
@@ -245,25 +264,19 @@ export function CreateEmployeeDialog({ isOpen, onOpenChange, employmentStatuses,
                                         </p>
                                     </div>
                                 </div>
-
-                                {/* ACTIONS */}
-                                {/* <div className="flex justify-end gap-2 pt-4">
-                                            <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
-                                                Cancel
-                                            </Button>
-                                            <Button type="submit">Save Employee</Button>
-                                        </div> */}
                             </div>
-                        </form>
-                    </FieldGroup>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit">Save changes</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </form>
-        </Dialog>
+                        </div>
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
+                            Cancel
+                        </Button>
+                        <Button type="submit">Create Employee</Button>
+                    </div>
+                </form>
+            </div>
+        </AppLayout>
     );
 }

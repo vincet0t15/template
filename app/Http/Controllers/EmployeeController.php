@@ -40,7 +40,16 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        $employmentStatuses = EmploymentStatus::all();
+        $offices = Office::all();
 
+        return Inertia::render('settings/Employee/create', [
+            'employmentStatuses' => $employmentStatuses,
+            'offices' => $offices,
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -114,5 +123,16 @@ class EmployeeController extends Controller
         $employee->update($validated);
 
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully');
+    }
+
+    public function destroy(Employee $employee)
+    {
+        if ($employee->image_path) {
+            Storage::disk('public')->delete($employee->image_path);
+        }
+
+        $employee->delete();
+
+        return redirect()->route('employees.index')->with('success', 'Employee deleted successfully');
     }
 }

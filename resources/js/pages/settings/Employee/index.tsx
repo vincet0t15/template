@@ -5,43 +5,76 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
-import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
-import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search, User } from 'lucide-react';
 import { useState } from 'react';
-import { CreateEmployeeDialog } from './create';
+import { toast } from 'sonner';
 import { EmployeeShow } from './show';
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Employees',
+        href: '/settings/employees',
     },
 ];
 
 interface EmployeeProps {
     employees: PaginatedDataResponse<Employee>;
     filters: FilterProps;
-    employmentStatuses: EmploymentStatus[];
-    offices: Office[];
 }
-export default function EmployeesIndex({ employees, filters, employmentStatuses, offices }: EmployeeProps) {
+
+export default function EmployeesIndex({ employees, filters }: EmployeeProps) {
     const { data, setData } = useForm({
         search: filters.search || '',
     });
-    const [openCreate, setOpenCreate] = useState(false);
     const [openShow, setOpenShow] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleClickShow = (employee: Employee) => {
         setSelectedEmployee(employee);
         setOpenShow(true);
+    };
+
+    const handleDeleteClick = (employee: Employee) => {
+        setEmployeeToDelete(employee);
+        setShowDeleteDialog(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        if (!employeeToDelete) return;
+
+        setIsDeleting(true);
+        router.delete(route('employees.destroy', employeeToDelete.id), {
+            onSuccess: () => {
+                toast.success('Employee deleted successfully');
+                setShowDeleteDialog(false);
+                setEmployeeToDelete(null);
+            },
+            onError: () => {
+                toast.error('Failed to delete employee');
+            },
+            onFinish: () => {
+                setIsDeleting(false);
+            },
+        });
     };
 
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,9 +98,9 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                     description="Manage all employees, with options to view, edit, or delete records and track their employment statuses."
                 />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <Button onClick={() => setOpenCreate(true)}>
+                    <Button onClick={() => router.get(route('employees.create'))}>
                         <PlusIcon className="h-4 w-4" />
-                        Employee
+                        Add Employee
                     </Button>
 
                     <div className="flex w-full items-center gap-2 sm:w-auto">
@@ -93,7 +126,7 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Name</TableHead>
-
+                                <TableHead className="text-primary font-bold">RATA</TableHead>
                                 <TableHead className="text-primary w-[100px] text-center font-bold">Action</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -125,6 +158,13 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                                                 </div>
                                             </div>
                                         </TableCell>
+                                        <TableCell>
+                                            <span
+                                                className={`rounded-full px-2 py-1 text-xs ${employee.is_rata_eligible ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
+                                            >
+                                                {employee.is_rata_eligible ? 'Eligible' : 'Not Eligible'}
+                                            </span>
+                                        </TableCell>
 
                                         <TableCell className="text-center text-sm">
                                             <div className="flex items-center justify-center gap-2">
@@ -134,14 +174,19 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                                                 >
                                                     Edit
                                                 </span>
-                                                <span className="cursor-pointer text-orange-600 hover:underline">Delete</span>
+                                                <span
+                                                    onClick={() => handleDeleteClick(employee)}
+                                                    className="cursor-pointer text-red-600 hover:underline"
+                                                >
+                                                    Delete
+                                                </span>
                                             </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="py-3 text-center text-gray-500">
+                                    <TableCell colSpan={3} className="py-3 text-center text-gray-500">
                                         No data available.
                                     </TableCell>
                                 </TableRow>
@@ -154,14 +199,27 @@ export default function EmployeesIndex({ employees, filters, employmentStatuses,
                 </div>
                 {openShow && selectedEmployee && <EmployeeShow employee={selectedEmployee} onClose={() => setOpenShow(false)} isOpen={openShow} />}
 
-                {openCreate && (
-                    <CreateEmployeeDialog
-                        employmentStatuses={employmentStatuses}
-                        offices={offices}
-                        isOpen={openCreate}
-                        onOpenChange={setOpenCreate}
-                    />
-                )}
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Employee</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to delete <strong>{employeeToDelete?.first_name} {employeeToDelete?.last_name}</strong>? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteConfirm}
+                                disabled={isDeleting}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </AppLayout>
     );

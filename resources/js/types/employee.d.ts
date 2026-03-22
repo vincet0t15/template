@@ -28,8 +28,15 @@ export interface Employee {
     latest_rata?: Rata;
 }
 
-export type EmployeeCreateRequest = Omit<Employee, 'id' | 'employment_status' | 'office' | 'salaries' | 'peras' | 'ratas' | 'deductions' | 'latest_salary' | 'latest_pera' | 'latest_rata'> & {
+export type EmployeeCreateRequest = {
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    suffix: string;
+    position: string;
+    is_rata_eligible: boolean;
     office_id: string | number;
     employment_status_id: string | number;
-    is_rata_eligible: boolean;
+    photo: File | null;
+    _method?: string;
 }
