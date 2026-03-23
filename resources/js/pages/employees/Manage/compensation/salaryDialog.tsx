@@ -71,8 +71,8 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <form onSubmit={onSubmit}>
-                <DialogContent className="max-h-[95vh] min-w-2xl overflow-y-auto">
+            <DialogContent className="max-h-[95vh] min-w-2xl overflow-y-auto">
+                <form onSubmit={onSubmit}>
                     <DialogHeader>
                         <DialogTitle>Salary Deductions</DialogTitle>
                         <DialogDescription>
@@ -81,7 +81,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                     </DialogHeader>
 
                     {/* Pay Period */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="mt-4 grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Label>Month</Label>
                             <Select value={data.pay_period_month} onValueChange={(v) => setData('pay_period_month', v)}>
@@ -115,7 +115,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                     </div>
 
                     {/* Deduction Fields */}
-                    <div className="mt-2">
+                    <div className="mt-4">
                         <h4 className="mb-3 text-sm font-semibold">Deduction Amounts</h4>
                         <div className="grid grid-cols-2 gap-4">
                             {deductionTypes.map((deductionType, index) => (
@@ -138,7 +138,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="mt-6">
                         <DialogClose asChild>
                             <Button type="button" variant="outline">
                                 Cancel
@@ -148,8 +148,8 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                             {processing ? 'Saving...' : 'Save Deductions'}
                         </Button>
                     </DialogFooter>
-                </DialogContent>
-            </form>
+                </form>
+            </DialogContent>
         </Dialog>
     );
 }
