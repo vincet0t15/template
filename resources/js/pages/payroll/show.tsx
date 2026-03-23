@@ -90,10 +90,10 @@ export default function PayrollShow({ employee, salaryHistory, peraHistory, rata
         return MONTHS.find((m) => m.value === month)?.label || '';
     };
 
-    const currentSalary = salaryHistory[0]?.amount || 0;
-    const currentPera = peraHistory[0]?.amount || 0;
-    const currentRata = rataHistory[0]?.amount || 0;
-    const totalDeductions = deductions.reduce((sum, d) => sum + d.amount, 0);
+    const currentSalary = Number(salaryHistory[0]?.amount) || 0;
+    const currentPera = Number(peraHistory[0]?.amount) || 0;
+    const currentRata = Number(rataHistory[0]?.amount) || 0;
+    const totalDeductions = deductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const grossPay = currentSalary + currentPera + currentRata;
     const netPay = grossPay - totalDeductions;
 

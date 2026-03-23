@@ -21,15 +21,17 @@
 - [index.ts](file://resources/js/types/index.ts)
 - [employees/index.tsx](file://resources/js/pages/employees/index.tsx)
 - [web.php](file://routes/web.php)
+- [utils.ts](file://resources/js/lib/utils.ts)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Updated documentation to reflect the replacement of NavMain2 direct import with enhanced NavMenu component in AppHeader
-- Added comprehensive documentation for the new NavMenu component with improved styling consistency and dynamic items prop acceptance
-- Updated component analysis to include NavMenu's enhanced architectural improvements
-- Revised navigation structure documentation to reflect the current implementation using NavMenu
-- Enhanced styling consistency documentation for both NavMain2 and NavMenu components
+- Updated documentation to reflect the enhanced NavMenu component with dynamic icon support and improved active state detection
+- Added comprehensive documentation for the new dynamic icon rendering capabilities using LucideIcon types
+- Updated component analysis to include the usePage() hook integration for better active state tracking
+- Revised navigation structure documentation to reflect the current implementation using NavMenu with cn utility function
+- Enhanced styling consistency documentation for NavMenu component with proper class merging
+- Added details about the cn utility function and its role in the enhanced styling system
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -60,7 +62,7 @@ The navigation system is composed of reusable UI components and layout shells:
 - Sidebar with main and footer navigation, plus a user menu
 - Breadcrumb component for page hierarchy
 - Appearance controls for light/dark/system themes
-- Type definitions for navigation items and groups
+- Type definitions for navigation items and groups with enhanced icon support
 
 ```mermaid
 graph TB
@@ -88,6 +90,10 @@ AD["AppearanceToggleDropdown"]
 AT["AppearanceToggleTab"]
 UA["useAppearance"]
 end
+subgraph "Utilities"
+CN["cn utility function"]
+UTILS["utils.ts"]
+end
 AH --> NM
 NM --> NM2
 AS --> SM
@@ -103,6 +109,8 @@ UI_NM --> NM
 UI_SB --> AS
 UA --> AD
 UA --> AT
+CN --> NM
+UTILS --> CN
 ```
 
 **Diagram sources**
@@ -116,6 +124,7 @@ UA --> AT
 - [appearance-dropdown.tsx:7-53](file://resources/js/components/appearance-dropdown.tsx#L7-L53)
 - [appearance-tabs.tsx:6-34](file://resources/js/components/appearance-tabs.tsx#L6-L34)
 - [use-appearance.tsx:29-46](file://resources/js/hooks/use-appearance.tsx#L29-L46)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 **Section sources**
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
@@ -126,10 +135,11 @@ UA --> AT
 - [appearance-dropdown.tsx:7-53](file://resources/js/components/appearance-dropdown.tsx#L7-L53)
 - [appearance-tabs.tsx:6-34](file://resources/js/components/appearance-tabs.tsx#L6-L34)
 - [use-appearance.tsx:29-46](file://resources/js/hooks/use-appearance.tsx#L29-L46)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ## Core Components
 - Main navigation (sidebar): renders top-level items with active state tracking via the current page URL, including the new Employees section.
-- Enhanced nested navigation (header): horizontal menu with dropdowns for grouped items using the improved NavMenu component, featuring dynamic items prop acceptance and styling consistency.
+- Enhanced nested navigation (header): horizontal menu with dropdowns for grouped items using the enhanced NavMenu component, featuring dynamic items prop acceptance, improved active state detection with usePage() hook, and enhanced conditional rendering for icons.
 - Footer navigation: external links styled consistently with the sidebar.
 - User menu: dropdown with user info and logout action; placement adapts to mobile and collapsed sidebar states.
 - Breadcrumb: renders a navigable trail with the last item as non-clickable.
@@ -149,8 +159,8 @@ UA --> AT
 
 ## Architecture Overview
 The navigation stack integrates React components, UI primitives, and state hooks:
-- Active item tracking uses the current page URL from the routing context.
-- Enhanced nested menus utilize the NavMenu component with improved styling consistency and dynamic items prop acceptance.
+- Active item tracking uses the current page URL from the routing context with improved precision using the usePage() hook.
+- Enhanced nested menus utilize the NavMenu component with dynamic icon support, improved styling consistency using the cn utility function, and enhanced conditional rendering for icons.
 - Sidebar state is managed centrally and persisted across sessions.
 - Appearance state is stored locally and synchronized with system preference observers.
 
@@ -160,25 +170,29 @@ participant U as "User"
 participant AH as "AppHeader.NavMenu"
 participant NM as "NavigationMenu"
 participant UI as "ui/navigation-menu.tsx"
-participant R as "Routing Context"
+participant R as "usePage Hook"
 U->>AH : Click menu item
 AH->>NM : Render trigger/content with enhanced styling
 NM->>UI : Apply consistent styles and motion
-AH->>R : Navigate to href
-R-->>AH : Update page.url
-AH->>AH : Recompute active state with improved consistency
+AH->>R : Get page.url via usePage()
+R-->>AH : Return current URL
+AH->>AH : Compare page.url.startsWith(item.href) for active state
+AH->>AH : Apply cn utility for class merging
+AH->>AH : Render with dynamic icon support
 ```
 
 **Diagram sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 **Section sources**
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ## Detailed Component Analysis
 
@@ -220,32 +234,36 @@ The main navigation now includes a dedicated 'Employees' section with proper rou
 - [app-header.tsx:17-91](file://resources/js/components/app-header.tsx#L17-L91)
 
 ### Enhanced NavMenu Component
-The NavMenu component has been significantly enhanced with improved styling consistency and dynamic items prop acceptance:
+The NavMenu component has been significantly enhanced with dynamic icon support, improved active state detection, and enhanced conditional rendering:
 
-- **Dynamic Items Prop**: Accepts NavGroup[] items array via props for flexible menu configuration
-- **Enhanced Styling**: Improved styling consistency with proper spacing, typography, and interactive states
-- **Conditional Rendering**: Supports both grouped items with children and direct link items
+- **Dynamic Icon Support**: Accepts LucideIcon types via the NavGroup interface, enabling dynamic icon rendering with proper TypeScript support
+- **Improved Active State Detection**: Uses `usePage()` hook with `page.url.startsWith()` for precise active state tracking
+- **Enhanced Conditional Rendering**: Supports both grouped items with children and direct link items with proper icon handling
+- **Proper Styling with cn Utility**: Utilizes the cn utility function for intelligent class merging and Tailwind CSS optimization
 - **Responsive Design**: Adapts to different screen sizes with proper spacing and alignment
 - **Accessibility**: Maintains proper ARIA attributes and keyboard navigation support
 
 ```mermaid
 flowchart TD
-StartNM(["Render NavMenu"]) --> Props["Accept items prop"]
-Props --> Iterate["Iterate NavGroup items"]
+StartNM(["Render NavMenu"]) --> Props["Accept items prop with NavGroup[]"]
+Props --> UsePage["Import and use usePage() hook"]
+UsePage --> Iterate["Iterate NavGroup items"]
 Iterate --> HasChildren{"Has children?"}
-HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with enhanced styling"]
-Trigger --> Content["Render NavigationMenuContent with consistent padding"]
-Content --> Children["Map children to styled NavigationMenuLink"]
-HasChildren --> |No| Direct["Render direct NavigationMenuLink with navigationMenuTriggerStyle"]
+HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with dynamic icon"]
+Trigger --> Content["Render NavigationMenuContent with cn utility"]
+Content --> Children["Map children with cn class merging and icon support"]
+HasChildren --> |No| Direct["Render direct NavigationMenuLink with cn utility"]
 Children --> EndNM(["Render"])
 Direct --> EndNM
 ```
 
 **Diagram sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 **Section sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ### Enhanced NavMain2 Component
 The NavMain2 component has been enhanced with improved styling consistency and architectural improvements:
@@ -348,18 +366,18 @@ Loop --> EndB
 - [breadcrumbs.tsx:5-31](file://resources/js/components/breadcrumbs.tsx#L5-L31)
 
 ### Enhanced Nested Menu Structures (Header)
-- Purpose: Horizontal navigation with dropdowns for grouped items using the improved NavMenu component.
-- Active tracking: Highlights items whose URL matches the current route prefix.
-- Rendering: Conditional rendering for items with children vs direct links.
-- Styling consistency: Improved styling consistency across all menu items and dropdowns.
+- Purpose: Horizontal navigation with dropdowns for grouped items using the enhanced NavMenu component.
+- Active tracking: Highlights items whose URL matches the current route prefix using the usePage() hook.
+- Rendering: Conditional rendering for items with children vs direct links with dynamic icon support.
+- Styling consistency: Improved styling consistency across all menu items and dropdowns using the cn utility function.
 
 ```mermaid
 flowchart TD
 StartN(["Render NavMenu"]) --> Iterate["Iterate NavGroup items"]
 Iterate --> HasChildren{"Has children?"}
-HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with enhanced styling"]
-Trigger --> Content["Render NavigationMenuContent with consistent padding"]
-Content --> Children["Map children to NavigationMenuLink with improved hover states"]
+HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with dynamic icon"]
+Trigger --> Content["Render NavigationMenuContent with cn utility"]
+Content --> Children["Map children to NavigationMenuLink with cn class merging"]
 HasChildren --> |No| Direct["Render direct NavigationMenuLink with navigationMenuTriggerStyle"]
 Children --> EndN(["Render"])
 Direct --> EndN
@@ -368,10 +386,12 @@ Direct --> EndN
 **Diagram sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 **Section sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [app-header.tsx:17-86](file://resources/js/components/app-header.tsx#L17-L86)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ### Appearance Settings and Theme Switching
 - Purpose: Allow users to switch between light, dark, and system themes.
@@ -431,10 +451,11 @@ Sheet --> EndS
 - [app-header.tsx:100-202](file://resources/js/components/app-header.tsx#L100-L202)
 
 ## Dependency Analysis
-- Data structures: Navigation items and groups are defined in shared types.
-- Active state: Both NavMenu and NavMain2 components rely on the current page URL to compute active items.
+- Data structures: Navigation items and groups are defined in shared types with enhanced LucideIcon support.
+- Active state: Both NavMenu and NavMain2 components rely on the current page URL to compute active items, with NavMenu using the more precise usePage() hook.
 - UI primitives: Navigation menus and sidebar components depend on UI library primitives.
 - State management: Sidebar state and appearance state are isolated but influence UI rendering.
+- Utility functions: The cn utility function provides intelligent class merging for enhanced styling consistency.
 
 ```mermaid
 graph LR
@@ -450,6 +471,8 @@ AS --> NU["NavUser"]
 AH --> BC["breadcrumbs.tsx"]
 AD["AppearanceToggleDropdown"] --> UA["use-appearance.tsx"]
 AT["AppearanceToggleTab"] --> UA
+CN["utils.ts"] --> NM
+UTILS["lib/utils.ts"] --> CN
 ```
 
 **Diagram sources**
@@ -466,6 +489,7 @@ AT["AppearanceToggleTab"] --> UA
 - [appearance-dropdown.tsx:7-53](file://resources/js/components/appearance-dropdown.tsx#L7-L53)
 - [appearance-tabs.tsx:6-34](file://resources/js/components/appearance-tabs.tsx#L6-L34)
 - [use-appearance.tsx:29-46](file://resources/js/hooks/use-appearance.tsx#L29-L46)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 **Section sources**
 - [index.ts:17-30](file://resources/js/types/index.ts#L17-L30)
@@ -476,19 +500,22 @@ AT["AppearanceToggleTab"] --> UA
 - [appearance-dropdown.tsx:7-53](file://resources/js/components/appearance-dropdown.tsx#L7-L53)
 - [appearance-tabs.tsx:6-34](file://resources/js/components/appearance-tabs.tsx#L6-L34)
 - [use-appearance.tsx:29-46](file://resources/js/hooks/use-appearance.tsx#L29-L46)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ## Performance Considerations
 - Prefer lazy loading icons and avoid unnecessary re-renders by keeping item lists static or memoized.
 - Minimize DOM nodes in nested menus; collapse inactive branches when possible.
 - Use CSS transitions sparingly; leverage UI library animations rather than custom ones.
 - Persist and hydrate state efficiently to avoid layout shifts during initial render.
-- The enhanced NavMenu component provides better performance through improved styling consistency and reduced re-render cycles.
+- The enhanced NavMenu component provides better performance through improved styling consistency, cn utility function optimization, and precise active state detection using the usePage() hook.
+- Dynamic icon rendering is optimized through proper TypeScript typing and conditional rendering logic.
 
 ## Troubleshooting Guide
 - Active item not highlighted:
-  - Verify the current page URL matches the item's href or URL prefix.
+  - Verify the current page URL matches the item's href or URL prefix using `page.url.startsWith()`.
   - Ensure the active comparison logic uses the correct property (full URL vs prefix).
   - Check that NavMenu and NavMain2 components are receiving the correct items prop.
+  - Confirm the usePage() hook is properly imported and functioning.
 - Dropdowns misaligned on mobile:
   - Confirm the user menu's side calculation accounts for collapsed state and device type.
 - Theme not applying:
@@ -503,6 +530,14 @@ AT["AppearanceToggleTab"] --> UA
   - Verify that the NavMenu component is properly imported in AppHeader.
   - Check that the items prop is being passed correctly to NavMenu.
   - Ensure NavGroup type definition matches the expected structure.
+  - Confirm LucideIcon types are properly imported and typed.
+- Dynamic icons not displaying:
+  - Verify that the icon property in NavGroup is properly typed as LucideIcon.
+  - Check that icons are imported from lucide-react correctly.
+  - Ensure conditional rendering logic `{item.icon && <item.icon className="h-4 w-4" />}` is functioning.
+- cn utility function errors:
+  - Verify that the cn function is properly imported from lib/utils.ts.
+  - Check that Tailwind CSS and clsx dependencies are installed correctly.
 
 **Section sources**
 - [nav-main.tsx:13-13](file://resources/js/components/nav-main.tsx#L13-L13)
@@ -512,9 +547,10 @@ AT["AppearanceToggleTab"] --> UA
 - [use-appearance.tsx:32-36](file://resources/js/hooks/use-appearance.tsx#L32-L36)
 - [app-shell.tsx:10-18](file://resources/js/components/app-shell.tsx#L10-L18)
 - [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ## Conclusion
-The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. The enhanced NavMenu and NavMain2 components provide improved styling consistency, dynamic items prop acceptance, and architectural improvements. The addition of the new Employees section with UserRoundPen icon enhances the navigation capabilities while maintaining seamless integration with the existing structure. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension with the latest architectural improvements.
+The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. The enhanced NavMenu component provides improved styling consistency, dynamic icon support with LucideIcon types, precise active state detection using the usePage() hook, and architectural improvements with cn utility function integration. The addition of the new Employees section with UserRoundPen icon enhances the navigation capabilities while maintaining seamless integration with the existing structure. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension with the latest architectural improvements, including intelligent class merging and dynamic icon rendering.
 
 ## Appendices
 
@@ -530,10 +566,10 @@ The navigation system combines a responsive sidebar and a desktop header menu wi
 - [nav-user.tsx:28-28](file://resources/js/components/nav-user.tsx#L28-L28)
 
 ### Integration with Routing Systems
-- Active item detection uses the current page URL from the routing context.
+- Active item detection uses the current page URL from the routing context via the usePage() hook for improved precision.
 - Links are wrapped with the application's router to enable client-side navigation.
 - The new Employees menu item routes to '/employees' URL with proper icon integration.
-- NavMenu component accepts dynamic items prop for flexible routing configuration.
+- NavMenu component accepts dynamic items prop for flexible routing configuration with enhanced icon support.
 
 **Section sources**
 - [nav-main.tsx:6-6](file://resources/js/components/nav-main.tsx#L6-L6)
@@ -546,19 +582,21 @@ The navigation system combines a responsive sidebar and a desktop header menu wi
 
 ### Enhanced NavMenu Component Details
 The NavMenu component has been significantly enhanced with the following characteristics:
-- **Dynamic Items Prop**: Accepts NavGroup[] items array via props for flexible menu configuration
-- **Enhanced Styling**: Improved styling consistency with proper spacing, typography, and interactive states
-- **Conditional Rendering**: Supports both grouped items with children and direct link items
+- **Dynamic Icon Support**: Accepts LucideIcon types via NavGroup interface for proper TypeScript support and dynamic icon rendering
+- **Improved Active State Detection**: Uses `usePage()` hook with `page.url.startsWith()` for precise URL matching
+- **Enhanced Styling**: Improved styling consistency with cn utility function for intelligent class merging
+- **Conditional Rendering**: Supports both grouped items with children and direct link items with proper icon handling
 - **Responsive Design**: Adapts to different screen sizes with proper spacing and alignment
 - **Accessibility**: Maintains proper ARIA attributes and keyboard navigation support
 
 **Section sources**
 - [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [app-header.tsx:221-223](file://resources/js/components/app-header.tsx#L221-L223)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 
 ### New Employees Menu Item Details
 The navigation system now includes a dedicated 'Employees' section with the following characteristics:
-- **Icon**: UserRoundPen from lucide-react
+- **Icon**: UserRoundPen from lucide-react with proper TypeScript typing
 - **Route**: '/employees'
 - **URL**: Direct navigation to the employees page
 - **Integration**: Seamlessly integrated into the main navigation structure alongside other primary sections
@@ -567,3 +605,15 @@ The navigation system now includes a dedicated 'Employees' section with the foll
 - [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
 - [employees/index.tsx:1-36](file://resources/js/pages/employees/index.tsx#L1-L36)
 - [web.php:85-95](file://routes/web.php#L85-L95)
+
+### cn Utility Function Details
+The cn utility function provides intelligent class merging and Tailwind CSS optimization:
+- **Purpose**: Combines multiple class names and merges conflicting Tailwind CSS classes intelligently
+- **Implementation**: Uses clsx for class concatenation and twMerge for conflict resolution
+- **Benefits**: Prevents duplicate classes, resolves specificity conflicts, and optimizes final class string
+- **Usage**: Applied throughout NavMenu component for consistent styling and active state management
+
+**Section sources**
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
+- [NavMenu.tsx:70-73](file://resources/js/components/NavMenu.tsx#L70-L73)
+- [NavMenu.tsx:87-89](file://resources/js/components/NavMenu.tsx#L87-L89)

@@ -52,13 +52,13 @@ class PayrollController extends Controller
             $rata = $employee->ratas->first();
             $deductions = $employee->deductions;
 
-            $totalDeductions = $deductions->sum('amount');
-            $grossPay = ($salary->amount ?? 0) + ($pera->amount ?? 0) + ($rata->amount ?? 0);
+            $totalDeductions = (float) $deductions->sum('amount');
+            $grossPay = (float) ($salary->amount ?? 0) + (float) ($pera->amount ?? 0) + (float) ($rata->amount ?? 0);
             $netPay = $grossPay - $totalDeductions;
 
-            $employee->current_salary = $salary->amount ?? 0;
-            $employee->current_pera = $pera->amount ?? 0;
-            $employee->current_rata = $rata->amount ?? 0;
+            $employee->current_salary = (float) ($salary->amount ?? 0);
+            $employee->current_pera = (float) ($pera->amount ?? 0);
+            $employee->current_rata = (float) ($rata->amount ?? 0);
             $employee->total_deductions = $totalDeductions;
             $employee->gross_pay = $grossPay;
             $employee->net_pay = $netPay;
