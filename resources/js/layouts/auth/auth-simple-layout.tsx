@@ -1,5 +1,5 @@
-import AppLogoIcon from '@/components/app-logo-icon';
 import { Link } from '@inertiajs/react';
+import { Building2 } from 'lucide-react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -14,15 +14,18 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">
-                        <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
+                        <Link href={route('home')} className="flex flex-col items-center gap-3 font-medium">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 shadow-md dark:bg-white">
+                                <Building2 className="h-6 w-6 text-white dark:text-slate-900" />
                             </div>
-                            <span className="sr-only">{title}</span>
+                            <div className="text-center">
+                                <p className="text-sm leading-none font-bold text-slate-900 dark:text-white">ECMS</p>
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Employee Compensation Management System</p>
+                            </div>
                         </Link>
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
+                        <div className="space-y-1.5 text-center">
+                            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">{title}</h1>
                             <p className="text-muted-foreground text-center text-sm">{description}</p>
                         </div>
                     </div>

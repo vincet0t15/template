@@ -1,6 +1,6 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
@@ -107,39 +107,19 @@ export function CompensationDeductions({
         <div className="space-y-4">
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-                <Select
-                    value={filters.deduction_month || 'all'}
-                    onValueChange={(value) => applyFilter(value === 'all' ? undefined : value, filters.deduction_year)}
-                >
-                    <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Months</SelectItem>
-                        {MONTHS.map((month, index) => (
-                            <SelectItem key={month} value={String(index + 1)}>
-                                {month}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <CustomComboBox
+                    items={MONTHS.map((month, index) => ({ value: String(index + 1), label: month }))}
+                    placeholder="All Months"
+                    value={filters.deduction_month ?? null}
+                    onSelect={(value) => applyFilter(value ?? undefined, filters.deduction_year)}
+                />
 
-                <Select
-                    value={filters.deduction_year || 'all'}
-                    onValueChange={(value) => applyFilter(filters.deduction_month, value === 'all' ? undefined : value)}
-                >
-                    <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Years</SelectItem>
-                        {availableYears.map((year) => (
-                            <SelectItem key={year} value={String(year)}>
-                                {year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <CustomComboBox
+                    items={availableYears.map((year) => ({ value: String(year), label: String(year) }))}
+                    placeholder="All Years"
+                    value={filters.deduction_year ?? null}
+                    onSelect={(value) => applyFilter(filters.deduction_month, value ?? undefined)}
+                />
 
                 {(filters.deduction_month || filters.deduction_year) && (
                     <Button variant="ghost" size="sm" onClick={clearFilters}>

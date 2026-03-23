@@ -198,7 +198,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         </Avatar>
                                         <div className="min-w-0">
                                             <p className="text-sm leading-tight font-medium">{auth.user.name}</p>
-                                            <p className="text-muted-foreground text-xs leading-tight">{auth.user.email}</p>
+                                            <p className="text-muted-foreground text-xs leading-tight">{auth.user.username}</p>
                                         </div>
                                     </div>
                                 </div>
