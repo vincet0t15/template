@@ -39,7 +39,16 @@ interface SalaryDialogProps {
     takenPeriods: string[];
 }
 
-export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultMonth, defaultYear, existingDeductions, takenPeriods }: SalaryDialogProps) {
+export function SalaryDialog({
+    open,
+    onClose,
+    employee,
+    deductionTypes,
+    defaultMonth,
+    defaultYear,
+    existingDeductions,
+    takenPeriods,
+}: SalaryDialogProps) {
     const isEditing = existingDeductions.length > 0;
 
     const { data, setData, post, processing, reset } = useForm<{
@@ -138,8 +147,11 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultM
                     {/* Period conflict warning */}
                     {isPeriodTaken && (
                         <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
-                            Deductions for <strong>{MONTHS.find((m) => m.value === data.pay_period_month)?.label} {data.pay_period_year}</strong> already exist.
-                            Close this dialog and use the <strong>Edit</strong> button on that period to update it.
+                            Deductions for{' '}
+                            <strong>
+                                {MONTHS.find((m) => m.value === data.pay_period_month)?.label} {data.pay_period_year}
+                            </strong>{' '}
+                            already exist. Close this dialog and use the <strong>Edit</strong> button on that period to update it.
                         </div>
                     )}
 
