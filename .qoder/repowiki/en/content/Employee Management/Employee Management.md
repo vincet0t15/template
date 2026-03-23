@@ -29,9 +29,13 @@
 - [employee.d.ts](file://resources/js/types/employee.d.ts)
 - [employmentStatuses.d.ts](file://resources/js/types/employmentStatuses.d.ts)
 - [claim.ts](file://resources/js/types/claim.ts)
+- [claimType.ts](file://resources/js/types/claimType.ts)
 - [CustomComboBox.tsx](file://resources/js/components/CustomComboBox.tsx)
 - [Employees/Index.tsx](file://resources/js/pages/Employees/Index.tsx)
 - [Employees/Manage/Manage.tsx](file://resources/js/pages/Employees/Manage/Manage.tsx)
+- [Employees/Manage/claims/index.tsx](file://resources/js/pages/Employees/Manage/claims/index.tsx)
+- [Employees/Manage/claims/create.tsx](file://resources/js/pages/Employees/Manage/claims/create.tsx)
+- [Employees/Manage/claims/edit.tsx](file://resources/js/pages/Employees/Manage/claims/edit.tsx)
 - [payroll/index.tsx](file://resources/js/pages/payroll/index.tsx)
 - [employee-deductions/index.tsx](file://resources/js/pages/employee-deductions/index.tsx)
 - [salaries/index.tsx](file://resources/js/pages/salaries/index.tsx)
@@ -49,6 +53,8 @@
 - **Claims Data Models**: Introduced Claim and ClaimType models with foreign key relationships and validation
 - **Claims CRUD Operations**: Added full create, read, update, delete functionality for employee claims
 - **Claims Reporting**: Integrated claims data into overview and reports sections with total claims calculation
+- **Enhanced UI Components**: Improved CustomComboBox with better value handling and selection logic
+- **Modernized Employee Interfaces**: Updated employee management interfaces with enhanced filtering and claims integration
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -112,6 +118,9 @@ P_Manage["Page: Employees/Manage/Manage"]
 P_Overview["Page: Employees/Manage/Overview"]
 P_Compensation["Page: Employees/Manage/Compensation"]
 P_Claims["Page: Employees/Manage/Claims"]
+P_ClaimsIndex["Page: Employees/Manage/claims/index"]
+P_ClaimsCreate["Page: Employees/Manage/claims/create"]
+P_ClaimsEdit["Page: Employees/Manage/claims/edit"]
 P_Settings["Page: Employees/Manage/Settings"]
 P_Deductions["Page: Employees/Manage/compensation/deductions"]
 P_Salary["Page: Employees/Manage/compensation/salary"]
@@ -161,6 +170,9 @@ P_Payroll --> C_Payroll
 P_EmpDed --> C_Deduction
 P_DedType --> C_DeductionType
 P_Claims --> C_Claim
+P_ClaimsIndex --> C_Claim
+P_ClaimsCreate --> C_Claim
+P_ClaimsEdit --> C_Claim
 P_ClaimType --> C_ClaimType
 R_Manage --> C_ManageEmployee
 R_Settings --> C_EmployeeSetting
@@ -175,7 +187,7 @@ R_ClaimTypes --> C_ClaimType
 ```
 
 **Diagram sources**
-- [ManageEmployeeController.php:14-86](file://app/Http/Controllers/ManageEmployeeController.php#L14-L86)
+- [ManageEmployeeController.php:16-176](file://app/Http/Controllers/ManageEmployeeController.php#L16-L176)
 - [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
 - [ClaimController.php:11-98](file://app/Http/Controllers/ClaimController.php#L11-L98)
@@ -187,7 +199,7 @@ R_ClaimTypes --> C_ClaimType
 - [routes/web.php:77-105](file://routes/web.php#L77-L105)
 
 **Section sources**
-- [ManageEmployeeController.php:14-86](file://app/Http/Controllers/ManageEmployeeController.php#L14-L86)
+- [ManageEmployeeController.php:16-176](file://app/Http/Controllers/ManageEmployeeController.php#L16-L176)
 - [routes/web.php:77-105](file://routes/web.php#L77-L105)
 
 ## Core Components
@@ -642,9 +654,16 @@ SettingsQuery --> Order["Order by last_name asc"]
 LegacyQuery --> Order
 ClaimsQuery --> FilterClaims["Apply month/year/type filters"]
 FilterClaims --> Paginate["Paginate with 20 items"]
-Order --> WithRelations["Eager load employment_status and office"]
-Paginate --> Render["Render Inertia response"]
-WithRelations --> Render
+Paginate --> Display["Display Claims List"]
+Display --> Actions["Perform Actions"]
+Actions --> Create["Create Claim"]
+Actions --> Edit["Edit Claim"]
+Actions --> Delete["Delete Claim"]
+Create --> Success["Success Response"]
+Edit --> Success
+Delete --> Success
+Success --> Refresh["Refresh Claims List"]
+Refresh --> LoadFilters
 ```
 
 **Diagram sources**
@@ -718,6 +737,7 @@ The enhanced interface provides sophisticated administrative controls with impro
 - **Claims Deletion**: Confirmation dialog for deleting claims
 - **Claims History**: Complete claims history with date, type, amount, and purpose
 - **Claims Summary**: Total claims calculation and summary statistics
+- **Claims Filtering**: Dynamic filtering by month, year, and type with query string preservation
 
 #### Type Safety and Contracts
 - **TypeScript Types**: Strong typing for Employee, EmployeeDeduction, Claim, and related entities
@@ -731,6 +751,7 @@ The enhanced interface provides sophisticated administrative controls with impro
 - [Employees/Manage/Settings.tsx:21-265](file://resources/js/pages/Employees/Manage/Settings.tsx#L21-L265)
 - [employee.d.ts:8-43](file://resources/js/types/employee.d.ts#L8-L43)
 - [claim.ts:3-31](file://resources/js/types/claim.ts#L3-L31)
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)
 
 ## Administrative Management Interface
 The new unified administrative interface provides comprehensive employee management through a sophisticated tabbed navigation system with enhanced filtering capabilities and integrated claims management:
@@ -738,7 +759,7 @@ The new unified administrative interface provides comprehensive employee managem
 ### Unified Tabbed Navigation Structure
 The interface features five main tabs providing different aspects of employee management:
 - **Overview Tab**: Displays consolidated employee information including current salary, allowance status, deduction summary, claims summary, and compensation summary
-- **Compensation Tab**: Manages salary, RATA, PERA allowances, and comprehensive deduction tracking with detailed history
+- **Compensation Tab**: Manages salary, RATA, PERA allowances, and comprehensive deduction tracking
 - **Claims Tab**: Manages all employee claims with creation, editing, deletion, and comprehensive filtering
 - **Reports Tab**: Provides comprehensive reporting capabilities and analytics including claims data
 - **Settings Tab**: Handles employee profile configuration and administrative settings
@@ -984,7 +1005,7 @@ The system now provides extensive filtering capabilities across multiple interfa
 
 ### Filter Implementation Details
 **Enhanced Filter System** providing consistent filtering across interfaces:
-- **CustomComboBox Integration**: Standardized combox component for dropdown selections
+- **CustomComboBox Integration**: Standardized combobox component for dropdown selections
 - **Value Handling**: Proper handling of string values and null selections
 - **Query String Preservation**: Maintains filter state across page navigation
 - **Real-time Application**: Immediate filter application with dynamic updates
@@ -1119,14 +1140,14 @@ end
 ```
 
 **Diagram sources**
-- [ManageEmployeeController.php:14-86](file://app/Http/Controllers/ManageEmployeeController.php#L14-L86)
+- [ManageEmployeeController.php:16-176](file://app/Http/Controllers/ManageEmployeeController.php#L16-L176)
 - [EmployeeSettingController.php:12-139](file://app/Http/Controllers/EmployeeSettingController.php#L12-L139)
 - [EmployeeController.php:12-132](file://app/Http/Controllers/EmployeeController.php#L12-L132)
 - [ClaimController.php:11-98](file://app/Http/Controllers/ClaimController.php#L11-L98)
 - [routes/web.php:77-105](file://routes/web.php#L77-L105)
 
 **Section sources**
-- [ManageEmployeeController.php:14-86](file://app/Http/Controllers/ManageEmployeeController.php#L14-L86)
+- [ManageEmployeeController.php:16-176](file://app/Http/Controllers/ManageEmployeeController.php#L16-L176)
 - [routes/web.php:77-105](file://routes/web.php#L77-L105)
 
 ## Performance Considerations
@@ -1257,3 +1278,4 @@ The enhanced interface supports both operational efficiency and administrative o
 - [ClaimType.php:8-28](file://app/Models/ClaimType.php#L8-L28)
 - [ClaimController.php:13-98](file://app/Http/Controllers/ClaimController.php#L13-L98)
 - [claim.ts:3-31](file://resources/js/types/claim.ts#L3-L31)
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)

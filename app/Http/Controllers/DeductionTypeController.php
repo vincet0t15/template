@@ -8,12 +8,23 @@ use Inertia\Inertia;
 
 class DeductionTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $deductionTypes = DeductionType::orderBy('name', 'asc')->get();
+        $search = $request->query('search');
+        $deductionTypes = DeductionType::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('code', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name', 'asc')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('deduction-types/index', [
             'deductionTypes' => $deductionTypes,
+            'filters' => [
+                'search' => $search,
+            ]
         ]);
     }
 

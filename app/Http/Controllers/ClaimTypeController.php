@@ -8,12 +8,23 @@ use Inertia\Inertia;
 
 class ClaimTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $claimTypes = ClaimType::orderBy('name')->get();
+        $search = $request->query('search');
+        $claimTypes = ClaimType::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('code', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('claim-types/index', [
             'claimTypes' => $claimTypes,
+            'filters' => [
+                'search' => $search,
+            ]
         ]);
     }
 

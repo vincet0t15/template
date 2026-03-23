@@ -2,11 +2,11 @@
 
 <cite>
 **Referenced Files in This Document**
-- [Overview.tsx](file://resources\js\pages\Employees\Manage\Overview.tsx)
-- [Manage.tsx](file://resources\js\pages\Employees\Manage\Manage.tsx)
-- [ManageEmployeeController.php](file://app\Http\Controllers\ManageEmployeeController.php)
+- [dashboard.tsx](file://resources/js/pages/dashboard.tsx)
 - [DashboardController.php](file://app\Http\Controllers\DashboardController.php)
-- [dashboard.tsx](file://resources\js\pages\dashboard.tsx)
+- [Manage.tsx](file://resources\js\pages\Employees\Manage\Manage.tsx)
+- [Overview.tsx](file://resources\js\pages\Employees\Manage\Overview.tsx)
+- [ManageEmployeeController.php](file://app\Http\Controllers\ManageEmployeeController.php)
 - [web.php](file://routes\web.php)
 - [Employee.php](file://app\Models\Employee.php)
 - [Salary.php](file://app\Models\Salary.php)
@@ -14,318 +14,262 @@
 - [Rata.php](file://app\Models\Rata.php)
 - [employee.d.ts](file://resources\js\types\employee.d.ts)
 - [employeeDeduction.d.ts](file://resources\js\types\employeeDeduction.d.ts)
+- [office.d.ts](file://resources\js\types\office.d.ts)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Complete replacement of basic dashboard with comprehensive employee Overview dashboard system
-- Added new Overview component with current compensation cards, monthly activity statistics, all-time summaries, employment details, and enhanced financial analytics
-- Implemented sophisticated real-time compensation metrics with currency formatting and effective date tracking
-- Enhanced ManageEmployeeController with comprehensive data aggregation for employee profiles
-- Integrated tabbed interface with Overview, Compensation, Deductions, Claims, Reports, and Settings sections
-- Added sophisticated financial analytics including gross pay calculation, net income estimation, and historical data tracking
+- Removed 'Employees by Office' section from the main dashboard interface
+- Streamlined dashboard layout with simplified navigation and reduced complexity
+- Updated dashboard data structure to focus on core deduction analytics
+- Enhanced quick action buttons for improved user workflow
+- Simplified statistical overview to essential metrics only
 
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [System Architecture](#system-architecture)
-3. [Overview Dashboard Components](#overview-dashboard-components)
-4. [Compensation Analytics System](#compensation-analytics-system)
-5. [Financial Metrics and Calculations](#financial-metrics-and-calculations)
-6. [Activity Tracking and Reporting](#activity-tracking-and-reporting)
-7. [Employment Information Management](#employment-information-management)
-8. [Tabbed Interface Integration](#tabbed-interface-integration)
-9. [Performance Optimization](#performance-optimization)
-10. [Data Aggregation and Processing](#data-aggregation-and-processing)
-11. [Troubleshooting Guide](#troubleshooting-guide)
-12. [Conclusion](#conclusion)
+3. [Dashboard Components](#dashboard-components)
+4. [Statistical Overview](#statistical-overview)
+5. [Deduction Analytics](#deduction-analytics)
+6. [Employee Activity Tracking](#employee-activity-tracking)
+7. [Quick Action Integration](#quick-action-integration)
+8. [Performance Optimization](#performance-optimization)
+9. [Data Aggregation and Processing](#data-aggregation-and-processing)
+10. [Troubleshooting Guide](#troubleshooting-guide)
+11. [Conclusion](#conclusion)
 
 ## Introduction
-The Employee Overview Dashboard has been completely transformed into a sophisticated comprehensive employee management system featuring a detailed Overview component that provides real-time compensation metrics, monthly activity statistics, all-time summaries, employment details, and enhanced financial analytics. This system replaces the previous basic dashboard with a feature-rich interface designed for payroll administrators and HR professionals managing employee compensation and benefits.
+The Employee Overview Dashboard has been streamlined to focus on core deduction analytics and employee management workflows. The system now emphasizes essential metrics and simplified navigation, removing the 'Employees by Office' section to create a more focused and efficient user experience for payroll administrators and HR professionals.
 
-The new Overview component delivers sophisticated financial insights through four main compensation cards, interactive monthly activity tracking, comprehensive employment information display, and detailed historical analytics. The system leverages Laravel's backend architecture with React frontend components to deliver a modern Single Page Application (SPA) experience with real-time data visualization, responsive design principles, and comprehensive analytics capabilities.
+The updated dashboard provides comprehensive statistical overview, deduction analytics, and quick action integration while maintaining the sophisticated financial insights previously available through the Overview component. The system leverages Laravel's backend architecture with React frontend components to deliver a modern Single Page Application (SPA) experience with real-time data visualization and responsive design principles.
 
-**Updated** The dashboard now focuses specifically on individual employee compensation overview, featuring current compensation cards with effective dates, monthly activity statistics with currency formatting, all-time financial summaries, employment details, and recent deduction tracking with sophisticated financial calculations.
+**Updated** The dashboard now features a simplified layout focusing on essential metrics including total employees, office counts, deduction types, and monthly deduction statistics. The interface has been streamlined to reduce complexity while maintaining comprehensive analytics capabilities for payroll management.
 
 ## System Architecture
-The dashboard system implements a modern client-server architecture with React frontend components communicating with Laravel backend services through Inertia.js for seamless page transitions and state management. The system now includes a comprehensive tabbed interface with the Overview component as the primary dashboard view.
+The dashboard system implements a modern client-server architecture with React frontend components communicating with Laravel backend services through Inertia.js. The system maintains efficient data loading through optimized database queries and relationship eager loading, focusing on core deduction analytics rather than comprehensive office distribution metrics.
 
 ```mermaid
 graph TB
 subgraph "Frontend Layer"
-A[Overview Component] --> B[Compensation Cards]
-A --> C[Monthly Activity Stats]
-A --> D[All-time Summary]
-A --> E[Employment Details]
-B --> F[Basic Salary Card]
-B --> G[PERA Card]
-B --> H[RATA Card]
-B --> I[Gross Pay Card]
-C --> J[Deductions This Month]
-C --> K[Claims This Month]
-C --> L[Net Income Estimation]
-D --> M[Total Deductions All-time]
-D --> N[Total Claims All-time]
-E --> O[Position Information]
-E --> P[Office Assignment]
-E --> Q[Employment Status]
-E --> R[RATA Eligibility]
+A[Dashboard Component] --> B[Stat Cards]
+A --> C[Top Deduction Types]
+A --> D[Recent Employees]
+A --> E[Quick Actions]
+B --> F[Total Employees]
+B --> G[Total Offices]
+B --> H[Deduction Types]
+B --> I[Monthly Deductions]
+C --> J[Amount Analysis]
+C --> K[Entry Counting]
+D --> L[Recent Activity]
+D --> M[Total Deductions]
+E --> N[Navigation Buttons]
+E --> O[Task Shortcuts]
 end
 subgraph "Backend Layer"
-S[ManageEmployeeController] --> T[Employee Data Aggregation]
-T --> U[Latest Compensation Records]
-T --> V[Historical Deduction Tracking]
-T --> W[Claims Analysis]
-S --> X[Data Relationships]
-X --> Y[Employee-Deduction Relations]
-X --> Z[Employee-Claim Relations]
+P[DashboardController] --> Q[Core Statistics]
+Q --> R[Employee Counts]
+Q --> S[Office Counts]
+Q --> T[Monthly Analytics]
+P --> U[Quick Actions]
+U --> V[Route Navigation]
 end
 subgraph "Database Layer"
-AA[Employee Table] --> AB[Salary Records]
-AA --> AC[Pera Records]
-AA --> AD[Rata Records]
-AE[EmployeeDeduction Table] --> AF[Salary Relations]
-AE --> AG[Pera Relations]
-AE --> AH[Rata Relations]
-AI[Claim Table] --> AJ[Employee Relations]
-AK[Office Table] --> AA
-AL[EmploymentStatus Table] --> AA
+W[Employee Table] --> X[EmployeeDeduction Table]
+W --> Y[Office Table]
+Z[DeductionType Table] --> X
+AA[Claim Table] --> X
 ```
 
 **Diagram sources**
-- [Overview.tsx:48-258](file://resources\js\pages\Employees\Manage\Overview.tsx#L48-L258)
-- [ManageEmployeeController.php:18-176](file://app\Http\Controllers\ManageEmployeeController.php#L18-L176)
+- [dashboard.tsx:49-255](file://resources\js\pages\dashboard.tsx#L49-L255)
+- [DashboardController.php:14-89](file://app\Http\Controllers\DashboardController.php#L14-L89)
 
-The architecture ensures efficient data loading through optimized database queries and relationship eager loading, reducing server response times while providing comprehensive analytics data for individual employees.
-
-**Section sources**
-- [ManageEmployeeController.php:18-176](file://app\Http\Controllers\ManageEmployeeController.php#L18-L176)
-- [Overview.tsx:29-259](file://resources\js\pages\Employees\Manage\Overview.tsx#L29-L259)
-
-## Overview Dashboard Components
-The Overview component consists of four primary sections that provide comprehensive employee compensation and activity insights. Each section features sophisticated design elements including colored cards, descriptive text, currency formatting, and effective date tracking for financial data presentation.
-
-### Compensation Summary Cards
-**Updated** The four main compensation cards provide essential metrics for payroll administration:
-
-1. **Basic Salary Card**: Displays current basic salary with user icon, effective date tracking, and currency formatting
-2. **PERA Card**: Shows current PERA allowance with credit card icon, effective date tracking, and financial metrics
-3. **RATA Card**: Presents current RATA benefit with conditional display based on eligibility, credit card icon, and effective date tracking
-4. **Estimated Gross Pay Card**: Calculates and displays total estimated monthly compensation combining salary, PERA, and optional RATA
-
-### Monthly Activity Statistics
-**Updated** The monthly activity section provides current period financial insights:
-
-- **Deductions This Month**: Real-time calculation of current month's total deduction amount with count tracking
-- **Claims This Month**: Current month's total claim amount with entry count
-- **Estimated Net This Month**: Gross pay minus current month's deductions with clear financial breakdown
-
-### All-time Financial Summary
-**Updated** Comprehensive historical financial tracking:
-
-- **Total Deductions All-time**: Lifetime deduction amount across all pay periods
-- **Total Claims All-time**: Complete lifetime claim amount for the employee
-- **Consistent Currency Formatting**: Philippine Peso localization with proper decimal formatting
-
-### Employment Information Display
-**Updated** Detailed employment context information:
-
-- **Position Details**: Current job title and role information
-- **Office Assignment**: Department or location assignment with building icon
-- **Employment Status**: Current employment classification with status badges
-- **RATA Eligibility**: Boolean indicator with conditional styling based on eligibility status
+The architecture ensures efficient data loading through optimized database queries, focusing on essential metrics rather than comprehensive office distribution analysis.
 
 **Section sources**
-- [Overview.tsx:50-107](file://resources\js\pages\Employees\Manage\Overview.tsx#L50-L107)
-- [Overview.tsx:109-152](file://resources\js\pages\Employees\Manage\Overview.tsx#L109-L152)
-- [Overview.tsx:154-221](file://resources\js\pages\Employees\Manage\Overview.tsx#L154-L221)
+- [DashboardController.php:14-89](file://app\Http\Controllers\DashboardController.php#L14-L89)
+- [dashboard.tsx:49-255](file://resources\js\pages\dashboard.tsx#L49-L255)
 
-## Compensation Analytics System
-The Overview component implements sophisticated compensation analytics through optimized data processing and real-time calculations. The system processes employee compensation data including salary, PERA, and optional RATA benefits with effective date tracking.
+## Dashboard Components
+The streamlined dashboard consists of essential components that provide core payroll analytics and navigation functionality. The system focuses on four main statistical overview cards, deduction analytics, recent employee activity, and quick action integration.
 
-### Compensation Data Processing
-**Updated** The component performs comprehensive compensation analysis:
+### Statistical Overview Cards
+**Updated** The four main statistical cards provide essential metrics for payroll administration:
 
-- **Latest Compensation Retrieval**: Automatic fetching of most recent salary, PERA, and RATA records
-- **Effective Date Tracking**: Display of effective dates for all compensation components
-- **Conditional RATA Processing**: Eligibility-based display of RATA benefits with appropriate messaging
-- **Gross Pay Calculation**: Real-time summation of basic salary, PERA, and optional RATA components
+1. **Total Employees Card**: Displays registered employee count with user icon and descriptive text
+2. **Total Offices Card**: Shows department or location count with building icon and context
+3. **Deduction Types Card**: Presents active deduction categories with document icon and classification
+4. **Monthly Deductions Card**: Provides current month's deduction statistics with currency formatting and employee count
 
-### Financial Metric Calculations
-**Updated** Advanced financial calculations include:
+### Deduction Analytics Section
+**Updated** The deduction analytics section focuses on top deduction categories by amount:
 
-- **Monthly Deduction Analysis**: Current month's deduction total with entry counting
-- **Monthly Claim Analysis**: Current month's claim total with entry counting  
-- **Net Income Estimation**: Gross pay minus current month's deductions
-- **Historical Data Aggregation**: Lifetime totals for deductions and claims
+- **Top Deduction Types**: Lists highest deduction categories with amount totals and entry counts
+- **Category Visualization**: Uses trending icons and color-coded presentation
+- **Monthly Context**: Clearly indicates current month analysis period
+- **Empty State Handling**: Provides appropriate messaging when no deductions are recorded
+
+### Employee Activity Tracking
+**Updated** The recent employee activity section displays current month's deduction activity:
+
+- **Recent Employees**: Shows employees with deductions for the current month
+- **Activity Visualization**: Uses avatar images and clear name formatting
+- **Office Context**: Displays employee office assignments for organizational context
+- **Total Deductions**: Shows monthly deduction totals with currency formatting
+
+### Quick Action Integration
+**Updated** The quick action section provides direct navigation to common payroll tasks:
+
+- **View Deductions**: Direct access to all deduction management
+- **Employees**: Navigation to employee directory
+- **Deduction Types**: Access to deduction category management
+- **Add Employee**: Quick creation of new employee records
+
+**Section sources**
+- [dashboard.tsx:50-255](file://resources\js\pages\dashboard.tsx#L50-L255)
+
+## Statistical Overview
+The dashboard provides essential statistical metrics through four core overview cards that deliver immediate insights into organizational payroll metrics. The system focuses on fundamental business intelligence rather than comprehensive analytical reporting.
+
+### Core Statistical Metrics
+**Updated** The four main statistical cards present essential organizational metrics:
+
+- **Total Employees**: Real-time count of all registered employees with user icon representation
+- **Total Offices**: Current count of departments or locations with building icon context
+- **Deduction Types**: Active deduction categories with document icon and classification
+- **Monthly Deductions**: Current month's deduction statistics including total amount and employee participation
+
+### Statistical Data Processing
+**Updated** The system processes essential statistical data efficiently:
+
+- **Employee Counting**: Simple count operations for registered employee metrics
+- **Office Aggregation**: Basic counting of office assignments
+- **Deduction Type Filtering**: Active deduction type identification
+- **Monthly Analytics**: Current period calculation with date-based filtering
 
 ### Data Formatting and Presentation
-**Updated** Sophisticated data formatting ensures consistent financial presentation:
+**Updated** Statistical data presentation ensures clarity and consistency:
 
-- **Philippine Peso Localization**: 'en-PH' locale with PHP currency code and two decimal places
-- **Effective Date Formatting**: Localized date display with comprehensive date information
-- **Conditional Display Logic**: Appropriate messaging for non-RATA eligible employees
-- **Responsive Typography**: Clear visual hierarchy with bold metrics and supporting text
-
-**Section sources**
-- [Overview.tsx:19-27](file://resources\js\pages\Employees\Manage\Overview.tsx#L19-L27)
-- [Overview.tsx:42-46](file://resources\js\pages\Employees\Manage\Overview.tsx#L42-L46)
-- [Overview.tsx:30-40](file://resources\js\pages\Employees\Manage\Overview.tsx#L30-L40)
-
-## Financial Metrics and Calculations
-The Overview component implements sophisticated financial analytics that provide real-time insights into employee compensation and deduction patterns. The system processes complex calculations while maintaining performance through efficient data structures and algorithms.
-
-### Real-time Financial Calculations
-**Updated** The component performs dynamic financial computations:
-
-- **Gross Pay Determination**: Summation of basic salary, PERA, and optional RATA with decimal precision
-- **Monthly Deduction Aggregation**: Real-time calculation of current period deduction totals
-- **Monthly Claim Processing**: Current period claim amount calculation with entry counting
-- **Net Income Estimation**: Gross pay minus current month's deductions with clear breakdown
-
-### Historical Data Analysis
-**Updated** Comprehensive historical tracking includes:
-
-- **Lifetime Deduction Analysis**: Complete historical deduction amount across all pay periods
-- **Lifetime Claim Tracking**: Full historical claim amount for employee compensation
-- **Period-based Grouping**: Deduction records organized by pay period for detailed analysis
-- **Total Amount Calculation**: Summation of all historical compensation-related transactions
-
-### Currency and Date Formatting
-**Updated** Sophisticated formatting systems ensure consistent presentation:
-
-- **Currency Localization**: Philippine Peso formatting with proper locale settings
-- **Decimal Precision**: Two decimal places for all financial amounts
-- **Date Localization**: Comprehensive date formatting with localized month names
-- **Conditional Formatting**: Appropriate display formatting based on data availability
+- **Currency Formatting**: Philippine Peso localization for monetary values
+- **Count Formatting**: Appropriate numerical formatting for all counts
+- **Icon Integration**: Consistent icon usage for visual context
+- **Color Coding**: Strategic color schemes for different metric types
 
 **Section sources**
-- [Overview.tsx:19-27](file://resources\js\pages\Employees\Manage\Overview.tsx#L19-L27)
-- [ManageEmployeeController.php:128-141](file://app\Http\Controllers\ManageEmployeeController.php#L128-L141)
+- [dashboard.tsx:17-79](file://resources\js\pages\dashboard.tsx#L17-L79)
+- [DashboardController.php:16-37](file://app\Http\Controllers\DashboardController.php#L16-L37)
 
-## Activity Tracking and Reporting
-The Overview component implements comprehensive activity tracking that provides insights into employee compensation activities across different time periods. The system processes monthly and historical data to deliver meaningful financial insights.
+## Deduction Analytics
+The deduction analytics section provides comprehensive analysis of deduction patterns and categories for the current month. The system processes monthly deduction data to identify top categories and their contribution to overall payroll deductions.
 
-### Monthly Activity Monitoring
-**Updated** Current period activity tracking includes:
+### Monthly Deduction Analysis
+**Updated** The system analyzes current month's deduction patterns:
 
-- **Current Month Identification**: Automatic detection of current month and year for temporal filtering
-- **Deduction Activity Analysis**: Current month's total deduction amount with entry counting
-- **Claim Activity Tracking**: Current month's total claim amount with transaction counting
-- **Activity Period Display**: Clear indication of current reporting period with localized month names
+- **Top Categories**: Identification of highest deduction categories by total amount
+- **Amount Calculation**: Summation of deduction amounts for each category
+- **Entry Counting**: Tracking of deduction entries per category
+- **Category Details**: Display of deduction type names and descriptions
 
-### Historical Activity Analysis
-**Updated** Long-term activity tracking encompasses:
+### Deduction Category Processing
+**Updated** The system processes deduction category data efficiently:
 
-- **Complete Deduction History**: Full historical deduction record for comprehensive analysis
-- **Full Claim History**: Complete lifetime claim record for benefit tracking
-- **Period-based Organization**: Deduction records grouped by pay period for detailed analysis
-- **Total Amount Aggregation**: Summation of all historical compensation-related activities
+- **Monthly Filtering**: Current period-based deduction filtering
+- **Aggregation Operations**: Summation and counting operations per category
+- **Sorting Logic**: Descending order by total amount for priority display
+- **Limiting Results**: Top 5 categories for focused analysis
 
-### Recent Activity Display
-**Updated** Recent activity presentation includes:
+### Data Visualization
+**Updated** Deduction analytics presentation includes:
 
-- **Latest Deduction Period**: Display of most recent pay period with comprehensive breakdown
-- **Individual Deduction Items**: Line-item display of all deductions for the latest period
-- **Period Total Calculation**: Automatic calculation of period totals with proper formatting
-- **Conditional Display Logic**: Appropriate handling when no deduction records exist
-
-**Section sources**
-- [Overview.tsx:30-40](file://resources\js\pages\Employees\Manage\Overview.tsx#L30-L40)
-- [Overview.tsx:223-256](file://resources\js\pages\Employees\Manage\Overview.tsx#L223-L256)
-- [ManageEmployeeController.php:128-141](file://app\Http\Controllers\ManageEmployeeController.php#L128-L141)
-
-## Employment Information Management
-The Overview component provides comprehensive employment information display that presents contextual data about employee positions, assignments, and status classifications. The system integrates with the broader employee management ecosystem to provide complete personnel information.
-
-### Position and Role Information
-**Updated** Position-related information includes:
-
-- **Job Title Display**: Current position or job title with clear presentation
-- **Role Classification**: Job classification or role description for organizational context
-- **Professional Context**: Combined position and office information for comprehensive display
-- **Status Indicators**: Employment status badges with appropriate styling and color coding
-
-### Office and Department Assignment
-**Updated** Location-based information includes:
-
-- **Office Name Display**: Current office or department assignment
-- **Location Context**: Building or facility information for geographic context
-- **Department Classification**: Organizational department or division assignment
-- **Assignment Details**: Complete office assignment with code and name information
-
-### Employment Status and Classification
-**Updated** Status-related information encompasses:
-
-- **Employment Classification**: Current employment status or classification
-- **Eligibility Indicators**: Boolean indicators for special eligibility programs
-- **Status Validation**: Active/inactive status indicators with appropriate visual feedback
-- **Classification Details**: Complete employment status information with proper formatting
-
-### RATA Eligibility Tracking
-**Updated** Special benefit eligibility tracking includes:
-
-- **Eligibility Status**: Boolean indicator for RATA benefit eligibility
-- **Conditional Display**: Appropriate messaging and styling based on eligibility status
-- **Benefit Information**: Clear indication of benefit status with visual cues
-- **Policy Compliance**: Proper display of eligibility requirements and status
+- **Category Icons**: Trending icons for visual category identification
+- **Amount Formatting**: Currency formatting with Philippine Peso localization
+- **Entry Count Display**: Clear indication of category activity levels
+- **Progressive Enhancement**: Color-coded presentation for better readability
 
 **Section sources**
-- [Overview.tsx:180-221](file://resources\js\pages\Employees\Manage\Overview.tsx#L180-L221)
-- [Employee.php:31-88](file://app\Models\Employee.php#L31-L88)
+- [dashboard.tsx:113-146](file://resources\js\pages\dashboard.tsx#L113-L146)
+- [DashboardController.php:59-67](file://app\Http\Controllers\DashboardController.php#L59-L67)
 
-## Tabbed Interface Integration
-The Overview component integrates seamlessly with a comprehensive tabbed interface that provides access to multiple employee management sections. The system uses React's Tab component system with Inertia.js for seamless navigation between different functional areas.
+## Employee Activity Tracking
+The employee activity tracking section monitors recent employee deduction activity for the current month. The system identifies employees who have received deductions and displays their recent activity with relevant context.
 
-### Tabbed Interface Architecture
-**Updated** The tabbed interface provides structured access to different management areas:
+### Recent Employee Analysis
+**Updated** The system tracks current month's employee deduction activity:
 
-- **Overview Tab**: Primary dashboard view with compensation and activity metrics
-- **Compensation Tab**: Detailed compensation management and history
-- **Deductions Tab**: Comprehensive deduction management and analysis
-- **Claims Tab**: Claim management and historical tracking
-- **Reports Tab**: Detailed reporting and analytics
-- **Settings Tab**: Employee profile and configuration management
+- **Employee Identification**: Employees with deductions for current month
+- **Activity Filtering**: Date-based filtering for current period analysis
+- **Office Context**: Integration with office assignments for organizational context
+- **Deduction Totals**: Summation of monthly deduction amounts per employee
+
+### Employee Data Processing
+**Updated** The system processes employee activity data:
+
+- **Recent Activity**: Latest employees with current month deductions
+- **Deduction Aggregation**: Monthly total calculation per employee
+- **Office Integration**: Employee office assignment data
+- **Employment Status**: Employment status context for employees
+
+### Activity Presentation
+**Updated** Employee activity presentation includes:
+
+- **Avatar Display**: Employee images or initials for visual identification
+- **Name Formatting**: Last name, first name formatting for clarity
+- **Office Information**: Employee office assignments with context
+- **Total Deductions**: Monthly deduction totals with currency formatting
+
+**Section sources**
+- [dashboard.tsx:148-187](file://resources\js\pages\dashboard.tsx#L148-L187)
+- [DashboardController.php:45-57](file://app\Http\Controllers\DashboardController.php#L45-L57)
+
+## Quick Action Integration
+The quick action section provides direct navigation to common payroll management tasks. The system integrates with the broader application routing to enable seamless navigation between different functional areas.
+
+### Quick Action Architecture
+**Updated** The quick action system provides structured access to different management areas:
+
+- **View Deductions**: Direct navigation to deduction management interface
+- **Employees**: Access to employee directory and management
+- **Deduction Types**: Navigation to deduction category management
+- **Add Employee**: Quick creation of new employee records
 
 ### Navigation and Routing Integration
-**Updated** Tab navigation integrates with the broader application routing:
+**Updated** Quick action navigation integrates with the broader application routing:
 
 - **Inertia.js Integration**: Seamless navigation without full page reloads
-- **Breadcrumb Support**: Automatic breadcrumb generation for navigation context
-- **Route Parameter Handling**: Proper handling of employee-specific routing parameters
-- **State Management**: Consistent state management across tab transitions
+- **Route Parameter Handling**: Proper handling of navigation parameters
+- **State Management**: Consistent state management across navigation
+- **Context Preservation**: Maintained navigation context for user experience
 
-### Component Organization
-**Updated** Tabbed interface organization includes:
+### Action Button Design
+**Updated** Quick action button design includes:
 
-- **Overview Component**: Primary dashboard with real-time metrics
-- **EmployeeCompensation Component**: Detailed compensation management
-- **CompensationDeductions Component**: Comprehensive deduction management
-- **EmployeeClaims Component**: Claim management and analysis
-- **Reports Component**: Detailed reporting and analytics
-- **EmployeeSettings Component**: Profile and configuration management
+- **Icon Integration**: Appropriate icons for each action type
+- **Color Coding**: Strategic color schemes for different action categories
+- **Visual Hierarchy**: Clear visual distinction between action types
+- **Responsive Layout**: Grid-based layout for different screen sizes
 
 **Section sources**
-- [Manage.tsx:138-201](file://resources\js\pages\Employees\Manage\Manage.tsx#L138-L201)
-- [web.php:82-91](file://routes\web.php#L82-L91)
+- [dashboard.tsx:189-250](file://resources\js\pages\dashboard.tsx#L189-L250)
 
 ## Performance Optimization
-The Overview component system implements several performance optimization strategies to ensure responsive user experience with comprehensive data visualization and real-time analytics. The system balances functionality with performance through careful architectural decisions.
+The streamlined dashboard implements performance optimization strategies to ensure responsive user experience with essential data visualization and real-time analytics. The system balances functionality with performance through careful architectural decisions.
 
 ### Database Query Optimization
 **Updated** Strategic query optimization includes:
 
-- **Efficient Data Aggregation**: Single query operations for comprehensive data retrieval
-- **Relationship Eager Loading**: Prevents N+1 query problems through strategic relationship loading
-- **Historical Data Processing**: Efficient processing of lifetime compensation data
-- **Conditional Data Loading**: Appropriate loading of optional RATA data based on eligibility
+- **Efficient Count Operations**: Simple count queries for statistical metrics
+- **Limited Result Sets**: Top 5 results for office and deduction analytics
+- **Date-Based Filtering**: Efficient monthly period filtering
+- **Single Query Operations**: Consolidated data retrieval for performance
 
 ### Frontend Performance
 **Updated** Client-side optimizations include:
 
-- **Component Memoization**: React.memo for stable data presentation
-- **Event Delegation**: Efficient event handling for interactive elements
-- **Conditional Rendering**: Appropriate display logic based on data availability
-- **State Management**: Optimized state updates preventing unnecessary re-renders
+- **Component Rendering**: Efficient rendering of statistical cards
+- **Event Handling**: Optimized click handlers for navigation
+- **State Management**: Minimal state updates for static data
+- **Asset Loading**: Efficient loading of icons and components
 
 ### Asset Optimization
 **Updated** Resource optimization strategies:
@@ -336,92 +280,91 @@ The Overview component system implements several performance optimization strate
 - **Component Splitting**: Strategic component loading for faster initial render
 
 **Section sources**
-- [ManageEmployeeController.php:23-38](file://app\Http\Controllers\ManageEmployeeController.php#L23-L38)
-- [Overview.tsx:19-27](file://resources\js\pages\Employees\Manage\Overview.tsx#L19-L27)
+- [DashboardController.php:16-37](file://app\Http\Controllers\DashboardController.php#L16-L37)
+- [dashboard.tsx:41-47](file://resources\js\pages\dashboard.tsx#L41-L47)
 
 ## Data Aggregation and Processing
-The Overview component implements comprehensive data aggregation through sophisticated database queries and relationship management, providing real-time insights into employee compensation patterns and organizational metrics.
+The dashboard implements efficient data aggregation through optimized database queries and relationship management, providing essential statistical insights for organizational metrics.
 
 ### Backend Data Aggregation
-**Updated** The ManageEmployeeController performs comprehensive data aggregation:
+**Updated** The DashboardController performs essential data aggregation:
 
-- **Employee Data Loading**: Eager loading of employee relationships with compensation records
-- **Latest Compensation Retrieval**: Automatic fetching of most recent salary, PERA, and RATA records
-- **Historical Data Processing**: Comprehensive processing of lifetime deduction and claim data
-- **Period-based Organization**: Deduction records organized by pay period for detailed analysis
+- **Employee Data Loading**: Simple count operations for employee statistics
+- **Office Data Processing**: Basic counting of office assignments
+- **Deduction Type Analysis**: Active deduction type identification
+- **Monthly Analytics Processing**: Current period calculation and filtering
 
 ### Frontend Data Processing
 **Updated** Client-side data processing includes:
 
-- **Real-time Calculations**: Dynamic computation of gross pay, net income, and monthly totals
-- **Conditional Logic**: Appropriate display logic based on employee eligibility and data availability
-- **Formatting Operations**: Currency and date formatting with proper localization
-- **Grouping Operations**: Deduction records grouped by pay period for display
+- **Statistical Calculations**: Simple arithmetic operations for metrics
+- **Formatting Operations**: Currency and count formatting with localization
+- **Component Rendering**: Efficient rendering of statistical overview
+- **Navigation Handling**: Event handling for quick actions
 
 ### Data Transformation
-**Updated** Raw database results undergo sophisticated transformation:
+**Updated** Raw database results undergo straightforward transformation:
 
-- **Type Casting**: Proper conversion of numeric and boolean values
-- **Formatting**: Currency formatting for financial metrics with Philippine Peso localization
-- **Structuring**: Organized data structures for frontend consumption with proper typing
-- **Validation**: Null checking and fallback value provision for display consistency
+- **Type Casting**: Proper conversion of numeric values
+- **Formatting**: Currency formatting for monetary metrics
+- **Structuring**: Organized data structures for frontend consumption
+- **Validation**: Null checking and fallback value provision
 
 **Section sources**
-- [ManageEmployeeController.php:18-176](file://app\Http\Controllers\ManageEmployeeController.php#L18-L176)
-- [Employee.php:66-88](file://app\Models\Employee.php#L66-L88)
+- [DashboardController.php:14-89](file://app\Http\Controllers\DashboardController.php#L14-L89)
 
 ## Troubleshooting Guide
-Common issues encountered with the Employee Overview Dashboard typically relate to data loading, permission validation, component rendering, and financial calculation accuracy. The following troubleshooting steps address typical scenarios:
+Common issues encountered with the streamlined Employee Dashboard typically relate to data loading, navigation, component rendering, and statistical calculation accuracy. The following troubleshooting steps address typical scenarios:
 
 ### Data Loading Issues
-**Updated** Verify that the ManageEmployeeController is correctly aggregating employee data:
+**Updated** Verify that the DashboardController is correctly aggregating essential data:
 
-- Check database connectivity and query execution for employee compensation records
-- Validate that latest compensation relationships are properly established
-- Ensure that historical deduction and claim data is being processed correctly
-- Verify that effective date filtering is working appropriately
+- Check database connectivity and query execution for employee and office counts
+- Validate that monthly deduction statistics are being calculated correctly
+- Ensure that top deduction categories are being processed properly
+- Verify that recent employee activity is being filtered by current month
 
-### Financial Calculation Errors
-**Updated** Troubleshoot financial calculation issues:
+### Statistical Calculation Errors
+**Updated** Troubleshoot statistical calculation issues:
 
-- Check that gross pay calculation includes all applicable compensation components
-- Verify that monthly deduction and claim calculations are accurate
-- Ensure that net income estimation reflects current month's deductions
-- Validate that historical totals are calculated correctly across all periods
+- Check that employee counts and office counts are accurate
+- Verify that monthly deduction totals and counts are correct
+- Ensure that top deduction categories are sorted by amount
+- Validate that recent employee totals are calculated correctly
 
 ### Component Rendering Issues
 **Updated** Troubleshoot component rendering problems:
 
-- Check for JavaScript errors in browser console affecting Overview component
+- Check for JavaScript errors in browser console affecting dashboard components
 - Verify that all required dependencies are properly loaded and typed
 - Validate TypeScript compilation and type checking for component props
 - Ensure proper component prop interfaces are maintained across all sections
 
-### Employment Information Display
-**Updated** Address employment information display issues:
+### Navigation Issues
+**Updated** Address navigation problems:
 
-- Check that employee position and office assignments are properly loaded
-- Verify that employment status badges are displaying correctly
-- Ensure that RATA eligibility indicators are functioning properly
-- Validate that conditional display logic works for non-RATA eligible employees
+- Check that route definitions are properly configured
+- Verify that Inertia.js navigation is working correctly
+- Ensure that quick action buttons are properly linked to routes
+- Validate that navigation parameters are handled correctly
 
 ### Performance Issues
 **Updated** Address performance bottlenecks:
 
-- Monitor database query execution times for data aggregation operations
-- Check for excessive re-renders in React components during tab switching
+- Monitor database query execution times for statistical operations
+- Check for excessive re-renders in React components during navigation
 - Verify that component memoization is working effectively for static data
 - Ensure proper caching strategies are implemented for frequently accessed data
 
 **Section sources**
-- [ManageEmployeeController.php:18-176](file://app\Http\Controllers\ManageEmployeeController.php#L18-L176)
-- [Overview.tsx:29-259](file://resources\js\pages\Employees\Manage\Overview.tsx#L29-L259)
+- [DashboardController.php:14-89](file://app\Http\Controllers\DashboardController.php#L14-L89)
+- [dashboard.tsx:49-255](file://resources\js\pages\dashboard.tsx#L49-L255)
 
 ## Conclusion
-The Employee Overview Dashboard has evolved into a comprehensive employee management system that provides sophisticated compensation analytics and real-time financial insights. The system successfully balances advanced functionality with performance optimization through careful architectural decisions and implementation patterns.
+The Employee Dashboard has evolved into a streamlined, focused interface that emphasizes essential payroll analytics and management workflows. The system successfully balances comprehensive functionality with performance optimization through careful architectural decisions and implementation patterns.
 
-**Updated** The comprehensive Overview component establishes a robust foundation for enterprise-level employee management, featuring four main compensation cards with effective date tracking, interactive monthly activity statistics, comprehensive all-time financial summaries, detailed employment information display, and sophisticated financial analytics. The system provides an excellent foundation for employee compensation management applications requiring real-time metrics, interactive data visualization, and comprehensive administrative functionality.
+**Updated** The streamlined dashboard establishes a robust foundation for enterprise-level payroll management, featuring four essential statistical overview cards, comprehensive deduction analytics, recent employee activity tracking, and quick action integration. The system provides an excellent foundation for payroll administration applications requiring immediate insights into organizational metrics while maintaining professional appearance and consistent performance standards throughout the application.
 
-Key strengths of the implementation include efficient database query optimization, sophisticated data aggregation patterns, responsive design principles, comprehensive type safety through TypeScript integration, and seamless tabbed interface integration. The Overview component provides comprehensive employee compensation insights while maintaining extensibility for future enhancements and specialized management functionalities.
+Key strengths of the implementation include efficient database query optimization, streamlined data aggregation patterns, responsive design principles, comprehensive type safety through TypeScript integration, and seamless navigation integration. The dashboard provides comprehensive payroll insights while maintaining simplicity and focus on core business intelligence.
 
-The addition of real-time compensation metrics, monthly activity tracking, all-time summaries, and enhanced financial analytics significantly enhances user experience by providing immediate insights into employee compensation patterns while maintaining professional appearance and consistent performance standards throughout the application. The system represents a mature, production-ready solution for comprehensive employee management and compensation analytics.
+The removal of the 'Employees by Office' section creates a more focused user experience that emphasizes essential metrics and quick navigation to common tasks. The system represents a mature, production-ready solution for comprehensive payroll management and organizational analytics with enhanced performance and simplified interface design.
