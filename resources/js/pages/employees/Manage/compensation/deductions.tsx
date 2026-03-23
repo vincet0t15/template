@@ -78,6 +78,32 @@ export function CompensationDeductions({
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
 
+    // Helper function to get the effective amount for a specific period
+    const getEffectiveAmount = (
+        history: { amount: number; effective_date: string }[] | undefined,
+        periodYear: number,
+        periodMonth: number,
+    ): number => {
+        if (!history || history.length === 0) return 0;
+
+        // Create a date for the end of the period (last day of the month)
+        const periodEndDate = new Date(periodYear, periodMonth, 0); // Day 0 of next month = last day of current month
+
+        // Sort history by effective_date descending (newest first)
+        const sortedHistory = [...history].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime());
+
+        // Find the most recent record that was effective before or during this period
+        for (const record of sortedHistory) {
+            const effectiveDate = new Date(record.effective_date);
+            if (effectiveDate <= periodEndDate) {
+                return Number(record.amount);
+            }
+        }
+
+        // If no record found, return the oldest one (fallback)
+        return Number(sortedHistory[sortedHistory.length - 1]?.amount ?? 0);
+    };
+
     const openNewDialog = () => {
         setDialogState({
             open: true,
@@ -142,13 +168,15 @@ export function CompensationDeductions({
                 <div className="space-y-4">
                     {periods.map((periodKey) => {
                         const [year, month] = periodKey.split('-');
+                        const periodYear = parseInt(year);
+                        const periodMonth = parseInt(month);
                         const periodDeductions = deductions[periodKey] ?? [];
                         const totalDeductions = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
 
-                        // Calculate gross pay including Salary + PERA + RATA
-                        const salary = Number(employee.latest_salary?.amount ?? 0);
-                        const pera = Number(employee.latest_pera?.amount ?? 0);
-                        const rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+                        // Calculate gross pay using historical data for the specific period
+                        const salary = getEffectiveAmount(employee.salaries, periodYear, periodMonth);
+                        const pera = getEffectiveAmount(employee.peras, periodYear, periodMonth);
+                        const rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, periodYear, periodMonth) : 0;
                         const grossPay = salary + pera + rata;
                         const netPay = grossPay - totalDeductions;
 

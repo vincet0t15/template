@@ -23,6 +23,34 @@ function formatDate(dateString: string) {
     return date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+// Helper function to get the effective amount for a specific period
+function getEffectiveAmount(
+    history: { amount: number; effective_date: string }[] | undefined,
+    periodYear: number,
+    periodMonth: number,
+): number {
+    if (!history || history.length === 0) return 0;
+
+    // Create a date for the end of the period (last day of the month)
+    const periodEndDate = new Date(periodYear, periodMonth, 0);
+
+    // Sort history by effective_date descending (newest first)
+    const sortedHistory = [...history].sort(
+        (a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime(),
+    );
+
+    // Find the most recent record that was effective before or during this period
+    for (const record of sortedHistory) {
+        const effectiveDate = new Date(record.effective_date);
+        if (effectiveDate <= periodEndDate) {
+            return Number(record.amount);
+        }
+    }
+
+    // If no record found, return the oldest one (fallback)
+    return Number(sortedHistory[sortedHistory.length - 1]?.amount ?? 0);
+}
+
 interface MonthlyDeductionRow {
     year: number;
     month: number;
@@ -70,10 +98,34 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
     const totalAllDeductions = allDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
-    // Calculate compensation components
-    const salary = Number(employee.latest_salary?.amount ?? 0);
-    const pera = Number(employee.latest_pera?.amount ?? 0);
-    const rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+    // Determine which compensation values to show based on filters
+    // If a specific month/year is filtered, use historical data for that period
+    // Otherwise use the latest values
+    let salary: number;
+    let pera: number;
+    let rata: number;
+
+    if (filterMonth && filterYear) {
+        // Use historical data for the specific filtered period
+        salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
+        pera = getEffectiveAmount(employee.peras, parseInt(filterYear), parseInt(filterMonth));
+        rata = employee.is_rata_eligible
+            ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth))
+            : 0;
+    } else if (filterYear) {
+        // For year-only filter, use the value at the end of that year (December)
+        salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
+        pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
+        rata = employee.is_rata_eligible
+            ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12)
+            : 0;
+    } else {
+        // No filters - use latest values
+        salary = Number(employee.latest_salary?.amount ?? 0);
+        pera = Number(employee.latest_pera?.amount ?? 0);
+        rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+    }
+
     const grossPay = salary + pera + rata;
     const netPay = grossPay - totalAllDeductions;
 
