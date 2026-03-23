@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
+import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { useForm } from '@inertiajs/react';
 import { type FormEventHandler } from 'react';
 import { toast } from 'sonner';
@@ -32,20 +33,28 @@ interface SalaryDialogProps {
     onClose: () => void;
     employee: Employee;
     deductionTypes: DeductionType[];
+    defaultMonth: string;
+    defaultYear: string;
+    existingDeductions: EmployeeDeduction[];
 }
 
-export function SalaryDialog({ open, onClose, employee, deductionTypes }: SalaryDialogProps) {
+export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultMonth, defaultYear, existingDeductions }: SalaryDialogProps) {
+    const isEditing = existingDeductions.length > 0;
+
     const { data, setData, post, processing, reset } = useForm<{
         pay_period_month: string;
         pay_period_year: string;
         deductions: { deduction_type_id: number; amount: string }[];
     }>({
-        pay_period_month: String(new Date().getMonth() + 1),
-        pay_period_year: String(currentYear),
-        deductions: deductionTypes.map((dt) => ({
-            deduction_type_id: dt.id,
-            amount: '',
-        })),
+        pay_period_month: defaultMonth,
+        pay_period_year: defaultYear,
+        deductions: deductionTypes.map((dt) => {
+            const existing = existingDeductions.find((e) => e.deduction_type_id === dt.id);
+            return {
+                deduction_type_id: dt.id,
+                amount: existing ? String(existing.amount) : '',
+            };
+        }),
     });
 
     const handleAmountChange = (index: number, value: string) => {
@@ -74,9 +83,11 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
             <DialogContent className="max-h-[95vh] min-w-2xl overflow-y-auto">
                 <form onSubmit={onSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Salary Deductions</DialogTitle>
+                        <DialogTitle>{isEditing ? 'Edit Salary Deductions' : 'Add Salary Deductions'}</DialogTitle>
                         <DialogDescription>
-                            Enter deductions for {employee.last_name}, {employee.first_name}.
+                            {isEditing
+                                ? `Updating deductions for ${employee.last_name}, ${employee.first_name} — ${MONTHS.find((m) => m.value === data.pay_period_month)?.label} ${data.pay_period_year}.`
+                                : `Enter deductions for ${employee.last_name}, ${employee.first_name}.`}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -84,7 +95,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                     <div className="mt-4 grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Label>Month</Label>
-                            <Select value={data.pay_period_month} onValueChange={(v) => setData('pay_period_month', v)}>
+                            <Select value={data.pay_period_month} onValueChange={(v) => setData('pay_period_month', v)} disabled={isEditing}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select month" />
                                 </SelectTrigger>
@@ -99,7 +110,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes }: Salary
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label>Year</Label>
-                            <Select value={data.pay_period_year} onValueChange={(v) => setData('pay_period_year', v)}>
+                            <Select value={data.pay_period_year} onValueChange={(v) => setData('pay_period_year', v)} disabled={isEditing}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select year" />
                                 </SelectTrigger>

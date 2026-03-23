@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
-import { Plus } from 'lucide-react';
+import type { EmployeeDeduction } from '@/types/employeeDeduction';
+import { Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -14,8 +15,20 @@ interface CompensationSalaryProps {
     deductionTypes: DeductionType[];
 }
 
+interface DialogState {
+    open: boolean;
+    month: string;
+    year: string;
+    existingDeductions: EmployeeDeduction[];
+}
+
 export function CompensationSalary({ employee, deductionTypes }: CompensationSalaryProps) {
-    const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
+    const [dialogState, setDialogState] = useState<DialogState>({
+        open: false,
+        month: String(new Date().getMonth() + 1),
+        year: String(new Date().getFullYear()),
+        existingDeductions: [],
+    });
 
     const deductions = employee.deductions ?? [];
 
@@ -32,10 +45,31 @@ export function CompensationSalary({ employee, deductionTypes }: CompensationSal
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
 
+    const openNewDialog = () => {
+        setDialogState({
+            open: true,
+            month: String(new Date().getMonth() + 1),
+            year: String(new Date().getFullYear()),
+            existingDeductions: [],
+        });
+    };
+
+    const openEditDialog = (periodKey: string) => {
+        const [year, month] = periodKey.split('-');
+        setDialogState({
+            open: true,
+            month: String(parseInt(month)),
+            year,
+            existingDeductions: grouped[periodKey] ?? [],
+        });
+    };
+
+    const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
+
     return (
         <div className="space-y-4">
             <div>
-                <Button onClick={() => setOpenSalaryDialog(true)}>
+                <Button onClick={openNewDialog}>
                     <Plus className="h-4 w-4" />
                     Add Salary Deductions
                 </Button>
@@ -59,7 +93,13 @@ export function CompensationSalary({ employee, deductionTypes }: CompensationSal
                                         </Badge>
                                         <span className="text-muted-foreground text-xs">{periodDeductions.length} deduction(s)</span>
                                     </div>
-                                    <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
+                                        <Button size="sm" variant="outline" onClick={() => openEditDialog(periodKey)}>
+                                            <Pencil className="h-3 w-3" />
+                                            Edit
+                                        </Button>
+                                    </div>
                                 </div>
                                 <Table>
                                     <TableHeader className="bg-muted/20">
@@ -85,12 +125,15 @@ export function CompensationSalary({ employee, deductionTypes }: CompensationSal
                 </div>
             )}
 
-            {openSalaryDialog && (
+            {dialogState.open && (
                 <SalaryDialog
-                    open={openSalaryDialog}
-                    onClose={() => setOpenSalaryDialog(false)}
+                    open={dialogState.open}
+                    onClose={closeDialog}
                     employee={employee}
                     deductionTypes={deductionTypes}
+                    defaultMonth={dialogState.month}
+                    defaultYear={dialogState.year}
+                    existingDeductions={dialogState.existingDeductions}
                 />
             )}
         </div>
