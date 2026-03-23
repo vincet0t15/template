@@ -15,9 +15,9 @@ export function SalaryDialog({ open, onClose, deductionTypes }: SalaryDialogProp
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <form>
-                <DialogContent className="min-w-4xl">
+                <DialogContent className="max-h-[95vh] min-w-4xl overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Salary</DialogTitle>
+                        <DialogTitle>Salary Deductions</DialogTitle>
                         <DialogDescription>Enter salary deductions.</DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
