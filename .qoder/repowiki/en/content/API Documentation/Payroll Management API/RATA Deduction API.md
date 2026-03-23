@@ -14,6 +14,14 @@
 - [rata.tsx](file://resources/js/pages/settings/Employee/manage/rata.tsx)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Added documentation for the new RATA update endpoint functionality
+- Updated endpoint coverage to include PUT/PATCH /ratas/{rata} for record corrections
+- Enhanced validation documentation for amount and effective_date fields
+- Added frontend integration details for the update feature
+- Updated architecture diagrams to reflect the complete CRUD operations
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -26,7 +34,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive API documentation for the Rural Transformation Agenda (RATA) deduction endpoints. It covers the GET /ratas endpoint for retrieving RATA deduction records, GET /ratas/history/{employee} for employee RATA deduction history, POST /ratas for recording new RATA deductions, and DELETE /ratas/{rata} for removing RATA records. It also details the RATA calculation methodology, deduction rates, eligibility requirements, data model, compliance requirements, and error handling.
+This document provides comprehensive API documentation for the Rural Transformation Agenda (RATA) deduction endpoints. It covers the GET /ratas endpoint for retrieving RATA deduction records, GET /ratas/history/{employee} for employee RATA deduction history, POST /ratas for recording new RATA deductions, PUT/PATCH /ratas/{rata} for correcting existing RATA records, and DELETE /ratas/{rata} for removing RATA records. It also details the RATA calculation methodology, deduction rates, eligibility requirements, data model, compliance requirements, and error handling.
 
 ## Project Structure
 The RATA functionality spans backend controllers and models, frontend pages, and database migrations. Routes are defined under the /ratas prefix and handled by the RataController. The Rata model defines the data structure and relationships, while the Employee model includes eligibility and historical associations.
@@ -37,7 +45,8 @@ subgraph "Routes"
 R1["GET /ratas<br/>RataController@index"]
 R2["GET /ratas/history/{employee}<br/>RataController@history"]
 R3["POST /ratas<br/>RataController@store"]
-R4["DELETE /ratas/{rata}<br/>RataController@destroy"]
+R4["PUT/PATCH /ratas/{rata}<br/>RataController@update"]
+R5["DELETE /ratas/{rata}<br/>RataController@destroy"]
 end
 subgraph "Controllers"
 C1["RataController"]
@@ -54,6 +63,7 @@ R1 --> C1
 R2 --> C1
 R3 --> C1
 R4 --> C1
+R5 --> C1
 C1 --> M1
 C1 --> M2
 M1 --> T1
@@ -61,30 +71,30 @@ M2 --> T2
 ```
 
 **Diagram sources**
-- [web.php:47-53](file://routes/web.php#L47-L53)
-- [RataController.php:11-75](file://app/Http/Controllers/RataController.php#L11-L75)
+- [web.php:67-73](file://routes/web.php#L67-L73)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:8-40](file://app/Models/Rata.php#L8-L40)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
 - [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
 
 **Section sources**
-- [web.php:47-53](file://routes/web.php#L47-L53)
-- [RataController.php:11-75](file://app/Http/Controllers/RataController.php#L11-L75)
+- [web.php:67-73](file://routes/web.php#L67-L73)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:8-40](file://app/Models/Rata.php#L8-L40)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
 - [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
 
 ## Core Components
-- RataController: Handles requests for listing eligible employees, viewing employee RATA history, creating new RATA deductions, and deleting RATA records.
+- RataController: Handles requests for listing eligible employees, viewing employee RATA history, creating new RATA deductions, updating existing records, and deleting RATA records.
 - Rata model: Defines fillable attributes, casting for amount and effective_date, relationships to Employee and User, and automatic created_by population.
 - Employee model: Includes is_rata_eligible flag, ratas relationship, and latestRata accessor.
 - Database migrations: Define the ratas table schema and the is_rata_eligible column addition to employees.
-- Frontend types and pages: Define the Rata data contract and UI flows for adding and viewing RATA records.
+- Frontend types and pages: Define the Rata data contract and UI flows for adding, editing, and viewing RATA records.
 
 Key implementation references:
-- Controller actions and validations: [RataController.php:13-75](file://app/Http/Controllers/RataController.php#L13-L75)
+- Controller actions and validations: [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - Model attributes and casts: [Rata.php:10-20](file://app/Models/Rata.php#L10-L20)
 - Model relationships: [Rata.php:22-30](file://app/Models/Rata.php#L22-L30), [Employee.php:56-59](file://app/Models/Employee.php#L56-L59)
 - Database schema: [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
@@ -92,7 +102,7 @@ Key implementation references:
 - Frontend types: [rata.d.ts:3-22](file://resources/js/types/rata.d.ts#L3-L22)
 
 **Section sources**
-- [RataController.php:13-75](file://app/Http/Controllers/RataController.php#L13-L75)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:10-30](file://app/Models/Rata.php#L10-L30)
 - [Employee.php:56-59](file://app/Models/Employee.php#L56-L59)
 - [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
@@ -100,11 +110,11 @@ Key implementation references:
 - [rata.d.ts:3-22](file://resources/js/types/rata.d.ts#L3-L22)
 
 ## Architecture Overview
-The RATA endpoints follow a standard MVC pattern:
+The RATA endpoints follow a standard MVC pattern with full CRUD capabilities:
 - Routes define the endpoint URLs and bind parameters.
 - Controllers validate inputs, query models, and render responses.
 - Models encapsulate data access, casting, and relationships.
-- Views (Inertia pages) present data and collect user input for creating RATA records.
+- Views (Inertia pages) present data and collect user input for creating and updating RATA records.
 
 ```mermaid
 sequenceDiagram
@@ -135,6 +145,14 @@ Model->>DB : INSERT INTO ratas
 DB-->>Model : Rata created
 Model-->>Controller : success
 Controller-->>Client : Redirect with success
+Client->>Route : PUT/PATCH /ratas/{rata}
+Route->>Controller : update(rata)
+Controller->>Controller : validate(amount, effective_date)
+Controller->>Model : rata->update(...)
+Model->>DB : UPDATE ratas SET amount=?, effective_date=? WHERE id=?
+DB-->>Model : Rata updated
+Model-->>Controller : success
+Controller-->>Client : Redirect with success
 Client->>Route : DELETE /ratas/{rata}
 Route->>Controller : destroy(rata)
 Controller->>Model : rata->delete()
@@ -145,8 +163,8 @@ Controller-->>Client : Redirect with success
 ```
 
 **Diagram sources**
-- [web.php:47-53](file://routes/web.php#L47-L53)
-- [RataController.php:13-75](file://app/Http/Controllers/RataController.php#L13-L75)
+- [web.php:67-73](file://routes/web.php#L67-L73)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:10-20](file://app/Models/Rata.php#L10-L20)
 - [Employee.php:85-88](file://app/Models/Employee.php#L85-L88)
 
@@ -190,12 +208,12 @@ Behavior:
 Response: Renders the employee RATA history page with records and actions.
 
 References:
-- Controller action: [RataController.php:37-48](file://app/Http/Controllers/RataController.php#L37-L48)
+- Controller action: [RataController.php:54-65](file://app/Http/Controllers/RataController.php#L54-L65)
 - Employee relationships: [Employee.php:31-59](file://app/Models/Employee.php#L31-L59)
 - Rata createdBy relationship: [Rata.php:27-30](file://app/Models/Rata.php#L27-L30)
 
 **Section sources**
-- [RataController.php:37-48](file://app/Http/Controllers/RataController.php#L37-L48)
+- [RataController.php:54-65](file://app/Http/Controllers/RataController.php#L54-L65)
 - [Employee.php:31-59](file://app/Models/Employee.php#L31-L59)
 - [Rata.php:27-30](file://app/Models/Rata.php#L27-L30)
 
@@ -211,16 +229,39 @@ Behavior:
 Response: Redirects back with success message.
 
 References:
-- Controller store action: [RataController.php:50-66](file://app/Http/Controllers/RataController.php#L50-L66)
+- Controller store action: [RataController.php:67-83](file://app/Http/Controllers/RataController.php#L67-L83)
 - Model fillable and casts: [Rata.php:10-20](file://app/Models/Rata.php#L10-L20)
 - Model boot for created_by: [Rata.php:32-39](file://app/Models/Rata.php#L32-L39)
 - Frontend form fields: [index.tsx:198-223](file://resources/js/pages/ratas/index.tsx#L198-L223)
 
 **Section sources**
-- [RataController.php:50-66](file://app/Http/Controllers/RataController.php#L50-L66)
+- [RataController.php:67-83](file://app/Http/Controllers/RataController.php#L67-L83)
 - [Rata.php:10-20](file://app/Models/Rata.php#L10-L20)
 - [Rata.php:32-39](file://app/Models/Rata.php#L32-L39)
 - [index.tsx:198-223](file://resources/js/pages/ratas/index.tsx#L198-L223)
+
+#### PUT/PATCH /ratas/{rata}
+Purpose: Correct or adjust an existing RATA deduction record.
+
+**Updated** Added new endpoint for updating existing RATA records with proper validation.
+
+Behavior:
+- Validates amount as numeric and min 0.
+- Validates effective_date as date.
+- Updates the specified RATA record with new values.
+- Maintains the original created_by and created_at timestamps.
+
+Response: Redirects back with success message.
+
+References:
+- Controller update action: [RataController.php:85-98](file://app/Http/Controllers/RataController.php#L85-L98)
+- Frontend edit dialog: [rata.tsx:78-146](file://resources/js/pages/settings/Employee/manage/rata.tsx#L78-L146)
+- Validation rules: [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
+
+**Section sources**
+- [RataController.php:85-98](file://app/Http/Controllers/RataController.php#L85-L98)
+- [rata.tsx:78-146](file://resources/js/pages/settings/Employee/manage/rata.tsx#L78-L146)
+- [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
 
 #### DELETE /ratas/{rata}
 Purpose: Remove a RATA record.
@@ -232,11 +273,11 @@ Behavior:
 Response: Redirect with success.
 
 References:
-- Controller destroy action: [RataController.php:68-73](file://app/Http/Controllers/RataController.php#L68-L73)
+- Controller destroy action: [RataController.php:100-105](file://app/Http/Controllers/RataController.php#L100-L105)
 - Frontend delete action: [history.tsx:27-31](file://resources/js/pages/ratas/history.tsx#L27-L31)
 
 **Section sources**
-- [RataController.php:68-73](file://app/Http/Controllers/RataController.php#L68-L73)
+- [RataController.php:100-105](file://app/Http/Controllers/RataController.php#L100-L105)
 - [history.tsx:27-31](file://resources/js/pages/ratas/history.tsx#L27-L31)
 
 ### Data Model for RATA Deductions
@@ -302,35 +343,41 @@ Eligibility requirements:
 
 Compliance requirements:
 - created_by is automatically set to the authenticated user ID during creation.
-- Amount validation enforces non-negative numeric values.
-- effective_date validation ensures a valid date.
+- Amount validation enforces non-negative numeric values for both creation and updates.
+- effective_date validation ensures a valid date for both creation and updates.
+
+**Updated** Both creation and update operations enforce the same validation rules for consistency.
 
 References:
 - Amount casting: [Rata.php:17-19](file://app/Models/Rata.php#L17-L19)
 - Eligibility column: [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
 - Created by auto-fill: [Rata.php:36-38](file://app/Models/Rata.php#L36-L38)
-- Validation rules: [RataController.php:52-56](file://app/Http/Controllers/RataController.php#L52-L56)
+- Validation rules: [RataController.php:69-73](file://app/Http/Controllers/RataController.php#L69-L73), [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
 
 **Section sources**
 - [Rata.php:17-19](file://app/Models/Rata.php#L17-L19)
 - [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
 - [Rata.php:36-38](file://app/Models/Rata.php#L36-L38)
-- [RataController.php:52-56](file://app/Http/Controllers/RataController.php#L52-L56)
+- [RataController.php:69-73](file://app/Http/Controllers/RataController.php#L69-L73)
+- [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
 
 ### Frontend Integration Details
 - The RATA dashboard page supports search and pagination for eligible employees.
 - The history page displays formatted currency and dates, and allows deletion of records.
-- The manage employee page includes a stubbed rate table component.
+- The manage employee page includes a comprehensive RATA management interface with add, edit, and delete functionality.
+- The edit dialog enables correction or adjustment of existing RATA records with validation feedback.
+
+**Updated** Added details about the new edit functionality for correcting existing RATA records.
 
 References:
 - Dashboard page: [index.tsx:158-174](file://resources/js/pages/ratas/index.tsx#L158-L174)
 - History page: [history.tsx:26-103](file://resources/js/pages/ratas/history.tsx#L26-L103)
-- Manage employee page: [rata.tsx:1-81](file://resources/js/pages/settings/Employee/manage/rata.tsx#L1-L81)
+- Manage employee page: [rata.tsx:1-266](file://resources/js/pages/settings/Employee/manage/rata.tsx#L1-L266)
 
 **Section sources**
 - [index.tsx:158-174](file://resources/js/pages/ratas/index.tsx#L158-L174)
 - [history.tsx:26-103](file://resources/js/pages/ratas/history.tsx#L26-L103)
-- [rata.tsx:1-81](file://resources/js/pages/settings/Employee/manage/rata.tsx#L1-L81)
+- [rata.tsx:1-266](file://resources/js/pages/settings/Employee/manage/rata.tsx#L1-L266)
 
 ## Dependency Analysis
 The RATA endpoints depend on:
@@ -349,16 +396,16 @@ ModelEmployee --> DB2["employees table"]
 ```
 
 **Diagram sources**
-- [web.php:47-53](file://routes/web.php#L47-L53)
-- [RataController.php:13-75](file://app/Http/Controllers/RataController.php#L13-L75)
+- [web.php:67-73](file://routes/web.php#L67-L73)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:8-40](file://app/Models/Rata.php#L8-L40)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
 - [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
 
 **Section sources**
-- [web.php:47-53](file://routes/web.php#L47-L53)
-- [RataController.php:13-75](file://app/Http/Controllers/RataController.php#L13-L75)
+- [web.php:67-73](file://routes/web.php#L67-L73)
+- [RataController.php:13-105](file://app/Http/Controllers/RataController.php#L13-L105)
 - [Rata.php:8-40](file://app/Models/Rata.php#L8-L40)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [2026_03_22_115111_create_ratas_table.php:14-21](file://database/migrations/2026_03_22_115111_create_ratas_table.php#L14-L21)
@@ -368,6 +415,7 @@ ModelEmployee --> DB2["employees table"]
 - Pagination: The /ratas endpoint uses pagination to limit result sets, improving response times and memory usage.
 - Eager loading: The controller eager-loads related data (employmentStatus, office, latestRata) to reduce N+1 queries.
 - Indexing: Consider adding database indexes on employee_id and effective_date for improved query performance on large datasets.
+- **Updated** Validation caching: Both create and update operations use the same validation rules, reducing code duplication and improving consistency.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
@@ -375,11 +423,16 @@ Common issues and resolutions:
   - employee_id missing or invalid: Ensure the employee exists in the employees table.
   - amount negative or non-numeric: Ensure amount is a valid positive number.
   - effective_date invalid: Ensure the date is in a valid date format.
-  References: [RataController.php:52-56](file://app/Http/Controllers/RataController.php#L52-L56)
+  References: [RataController.php:69-73](file://app/Http/Controllers/RataController.php#L69-L73)
+
+- Validation errors on PUT/PATCH /ratas/{rata}:
+  - amount negative or non-numeric: Ensure amount is a valid positive number.
+  - effective_date invalid: Ensure the date is in a valid date format.
+  References: [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
 
 - Authorization:
   - All routes are protected by the auth middleware. Ensure the user is authenticated before calling endpoints.
-  References: [web.php:20](file://routes/web.php#L20)
+  References: [web.php:28](file://routes/web.php#L28)
 
 - Eligibility:
   - Employees must have is_rata_eligible set to true to appear in /ratas results.
@@ -387,13 +440,16 @@ Common issues and resolutions:
 
 - Deletion failures:
   - Ensure the RATA record exists and the user has permission to delete.
-  References: [RataController.php:68-73](file://app/Http/Controllers/RataController.php#L68-L73)
+  References: [RataController.php:100-105](file://app/Http/Controllers/RataController.php#L100-L105)
+
+**Updated** Added troubleshooting guidance for the new update endpoint.
 
 **Section sources**
-- [RataController.php:52-56](file://app/Http/Controllers/RataController.php#L52-L56)
-- [web.php:20](file://routes/web.php#L20)
+- [RataController.php:69-73](file://app/Http/Controllers/RataController.php#L69-L73)
+- [RataController.php:87-90](file://app/Http/Controllers/RataController.php#L87-L90)
+- [web.php:28](file://routes/web.php#L28)
 - [2026_03_22_115109_add_is_rata_eligible_to_employees_table.php:14-16](file://database/migrations/2026_03_22_115109_add_is_rata_eligible_to_employees_table.php#L14-L16)
-- [RataController.php:68-73](file://app/Http/Controllers/RataController.php#L68-L73)
+- [RataController.php:100-105](file://app/Http/Controllers/RataController.php#L100-L105)
 
 ## Conclusion
-The RATA deduction endpoints provide a straightforward mechanism for managing RATA deductions against eligible employees. The implementation focuses on simplicity with explicit validation, automatic audit trail via created_by, and clear relationships between employees and their deduction records. Future enhancements could include computed deduction amounts based on salary tiers and additional compliance checks.
+The RATA deduction endpoints provide a comprehensive mechanism for managing RATA deductions against eligible employees. The implementation now includes full CRUD operations with explicit validation, automatic audit trail via created_by, and clear relationships between employees and their deduction records. The addition of the update endpoint enables correction or adjustment of existing RATA records with proper validation. Future enhancements could include computed deduction amounts based on salary tiers, batch operations for multiple records, and enhanced compliance checking for audit trails.

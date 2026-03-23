@@ -12,8 +12,18 @@
 - [history.tsx](file://resources/js/pages/salaries/history.tsx)
 - [create.tsx](file://resources/js/pages/settings/Employee/manage/salary/create.tsx)
 - [index.tsx](file://resources/js/pages/payroll/index.tsx)
+- [salary.tsx](file://resources/js/pages/Employees/Manage/compensation/salary.tsx)
+- [salaryDialog.tsx](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx)
 - [2026_03_22_115112_create_employee_deductions_table.php](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added documentation for the new update method in SalaryController enabling modification of existing salary records
+- Updated salary administration workflow to include editing functionality
+- Enhanced salary history tracking section to cover edit operations
+- Updated frontend integration documentation for edit dialogs
+- Added validation and effective_date handling documentation for salary modifications
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -28,7 +38,7 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document describes the salary management subsystem within the application. It covers the salary model and its relationships with employees, effective date handling, and salary history tracking. It also explains salary creation and deletion workflows, payroll computation that aggregates salary with related benefits and deductions, and the user interfaces for administration and reporting. Compliance considerations such as minimum wage and pay scale configurations are discussed conceptually, along with best practices for maintaining accurate historical records.
+This document describes the salary management subsystem within the application. It covers the salary model and its relationships with employees, effective date handling, and salary history tracking. It also explains salary creation, modification, and deletion workflows, payroll computation that aggregates salary with related benefits and deductions, and the user interfaces for administration and reporting. Compliance considerations such as minimum wage and pay scale configurations are discussed conceptually, along with best practices for maintaining accurate historical records.
 
 ## Project Structure
 The salary management system spans backend Eloquent models and controllers, frontend TypeScript/React pages, and database migrations. Routes define the REST endpoints for salary administration, while payroll aggregation is handled in the PayrollController. Frontend pages provide filtering, viewing, and administrative actions.
@@ -45,6 +55,8 @@ end
 subgraph "Frontend"
 F_History["Page: Salaries History<br/>resources/js/pages/salaries/history.tsx"]
 F_Create["Page: Create Salary Dialog<br/>resources/js/pages/settings/Employee/manage/salary/create.tsx"]
+F_Salary["Page: Employee Salary Management<br/>resources/js/pages/Employees/Manage/compensation/salary.tsx"]
+F_SalaryDialog["Dialog: Edit Salary<br/>resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx"]
 F_Payroll["Page: Payroll Summary<br/>resources/js/pages/payroll/index.tsx"]
 T_Salary["Types: Salary Types<br/>resources/js/types/salary.d.ts"]
 T_Payroll["Types: Payroll Types<br/>resources/js/types/payroll.d.ts"]
@@ -59,33 +71,40 @@ C_Payroll --> M_Employee
 M_Employee --> M_Salary
 F_History --> C_Salary
 F_Create --> C_Salary
+F_Salary --> C_Salary
+F_SalaryDialog --> C_Salary
 F_Payroll --> C_Payroll
 T_Salary -.-> F_History
+T_Salary -.-> F_Salary
 T_Payroll -.-> F_Payroll
 MIG_EmpDed -.-> C_Payroll
 ```
 
 **Diagram sources**
-- [web.php:31-37](file://routes/web.php#L31-L37)
-- [SalaryController.php:11-74](file://app/Http/Controllers/SalaryController.php#L11-L74)
+- [web.php:51-57](file://routes/web.php#L51-L57)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [PayrollController.php:11-125](file://app/Http/Controllers/PayrollController.php#L11-L125)
 - [Salary.php:8-35](file://app/Models/Salary.php#L8-L35)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
+- [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 - [index.tsx:49-221](file://resources/js/pages/payroll/index.tsx#L49-L221)
 - [salary.d.ts:3-24](file://resources/js/types/salary.d.ts#L3-L24)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
 - [2026_03_22_115112_create_employee_deductions_table.php:14-27](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L14-L27)
 
 **Section sources**
-- [web.php:31-37](file://routes/web.php#L31-L37)
-- [SalaryController.php:11-74](file://app/Http/Controllers/SalaryController.php#L11-L74)
+- [web.php:51-57](file://routes/web.php#L51-L57)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [PayrollController.php:11-125](file://app/Http/Controllers/PayrollController.php#L11-L125)
 - [Salary.php:8-35](file://app/Models/Salary.php#L8-L35)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
+- [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 - [index.tsx:49-221](file://resources/js/pages/payroll/index.tsx#L49-L221)
 - [salary.d.ts:3-24](file://resources/js/types/salary.d.ts#L3-L24)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
@@ -94,7 +113,7 @@ MIG_EmpDed -.-> C_Payroll
 ## Core Components
 - Salary model: Stores employee salary records with effective dates and maintains soft-deleted history.
 - Employee model: Defines relationships to salaries and provides helpers to fetch the latest salary.
-- SalaryController: Handles listing employees with latest salary, viewing salary history per employee, creating new salary records, and deleting salary records.
+- SalaryController: Handles listing employees with latest salary, viewing salary history per employee, creating new salary records, updating existing records, and deleting salary records.
 - PayrollController: Aggregates salary, PERA, RATA, and deductions for payroll computation and displays summaries and details.
 - Frontend pages: Provide filtering, viewing, and administrative actions for salary records and payroll summaries.
 - Types: TypeScript interfaces define the shape of salary and payroll data exchanged between frontend and backend.
@@ -103,11 +122,12 @@ Key implementation highlights:
 - Effective date handling: Salary records are ordered by effective_date to determine the latest active record.
 - History tracking: Soft deletes enable historical audit trails; queries load created_by user and sort by effective_date.
 - Payroll computation: Gross pay equals salary + PERA + RATA; net pay equals gross minus total deductions for the pay period.
+- **Updated** Modification support: New update method enables editing existing salary records with proper validation and effective_date handling.
 
 **Section sources**
 - [Salary.php:8-35](file://app/Models/Salary.php#L8-L35)
 - [Employee.php:46-72](file://app/Models/Employee.php#L46-L72)
-- [SalaryController.php:13-73](file://app/Http/Controllers/SalaryController.php#L13-L73)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [PayrollController.php:13-124](file://app/Http/Controllers/PayrollController.php#L13-L124)
 - [salary.d.ts:3-24](file://resources/js/types/salary.d.ts#L3-L24)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
@@ -136,8 +156,8 @@ FE-->>U : "Display amounts, dates, creators"
 ```
 
 **Diagram sources**
-- [web.php:34](file://routes/web.php#L34)
-- [SalaryController.php:36-47](file://app/Http/Controllers/SalaryController.php#L36-L47)
+- [web.php:54](file://routes/web.php#L54)
+- [SalaryController.php:53-64](file://app/Http/Controllers/SalaryController.php#L53-L64)
 - [Employee.php:46-49](file://app/Models/Employee.php#L46-L49)
 - [Salary.php:26-29](file://app/Models/Salary.php#L26-L29)
 - [history.tsx:48-99](file://resources/js/pages/salaries/history.tsx#L48-L99)
@@ -186,31 +206,42 @@ User "1" <-- "many" Salary : "belongsTo (created_by)"
 - [Employee.php:46-72](file://app/Models/Employee.php#L46-L72)
 
 ### Salary Administration Workflow
-Administrative actions include listing employees with latest salary, viewing history, creating new salary records, and deleting records. The controller validates inputs and associates the creator.
+Administrative actions include listing employees with latest salary, viewing history, creating new salary records, editing existing records, and deleting records. The controller validates inputs and associates the creator.
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
-participant FE as "Create Salary Dialog<br/>create.tsx"
+participant FE as "Create/Edit Salary Dialog<br/>salary.tsx"
 participant BE as "SalaryController"
 participant SM as "Salary Model"
-U->>FE : "Open Create Salary"
-FE->>BE : "POST /salaries"
+U->>FE : "Open Create/Edit Salary"
+FE->>BE : "POST /salaries (Create)"
 BE->>BE : "Validate employee_id, amount, effective_date"
 BE->>SM : "Create salary with created_by"
 SM-->>BE : "Persisted record"
 BE-->>FE : "Redirect with success"
 FE-->>U : "Confirm saved"
+Note over U,BE : Edit Operation
+U->>FE : "Open Edit Salary"
+FE->>BE : "PUT /salaries/{salary} (Update)"
+BE->>BE : "Validate amount, effective_date"
+BE->>SM : "Update salary record"
+SM-->>BE : "Updated record"
+BE-->>FE : "Redirect with success"
+FE-->>U : "Confirm updated"
 ```
 
 **Diagram sources**
-- [web.php:35](file://routes/web.php#L35)
-- [SalaryController.php:49-65](file://app/Http/Controllers/SalaryController.php#L49-L65)
-- [Salary.php:12-18](file://app/Models/Salary.php#L12-L18)
+- [web.php:55](file://routes/web.php#L55)
+- [web.php:56](file://routes/web.php#L56)
+- [SalaryController.php:66-97](file://app/Http/Controllers/SalaryController.php#L66-L97)
+- [salary.tsx:24-34](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L24-L34)
+- [salary.tsx:92-104](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L92-L104)
 
 **Section sources**
-- [SalaryController.php:13-73](file://app/Http/Controllers/SalaryController.php#L13-L73)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
 
 ### Salary History Tracking
 The history view lists all salary records for an employee, sorted by effective_date descending, and shows who created each record. Soft deletes preserve historical context.
@@ -231,12 +262,12 @@ BE-->>FE : "Render table with amounts/dates/users"
 ```
 
 **Diagram sources**
-- [web.php:34](file://routes/web.php#L34)
-- [SalaryController.php:36-47](file://app/Http/Controllers/SalaryController.php#L36-L47)
+- [web.php:54](file://routes/web.php#L54)
+- [SalaryController.php:53-64](file://app/Http/Controllers/SalaryController.php#L53-L64)
 - [history.tsx:48-99](file://resources/js/pages/salaries/history.tsx#L48-L99)
 
 **Section sources**
-- [SalaryController.php:36-47](file://app/Http/Controllers/SalaryController.php#L36-L47)
+- [SalaryController.php:53-64](file://app/Http/Controllers/SalaryController.php#L53-L64)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 
 ### Payroll Computation and Reporting
@@ -271,37 +302,43 @@ DetailCompute --> DetailRender["Render Detailed Payroll View"]
 Best practices:
 - Always create a new salary record with a future effective_date when changing grades to maintain chronological accuracy.
 - Use end_date to mark the last day of an old grade before transitioning to a new one.
+- **Updated** For edits: When modifying existing records, ensure the effective_date maintains chronological order and doesn't overlap with other salary periods.
 
 **Section sources**
 - [Salary.php:20-24](file://app/Models/Salary.php#L20-L24)
 - [Employee.php:69-72](file://app/Models/Employee.php#L69-L72)
 - [PayrollController.php:30-67](file://app/Http/Controllers/PayrollController.php#L30-L67)
+- [SalaryController.php:84-97](file://app/Http/Controllers/SalaryController.php#L84-L97)
 
 ### Salary Adjustment Procedures
-Adjustments are performed via the create endpoint, validated, and associated with the current user. Deletion removes a record from history, preserving previous entries.
+Adjustments are performed via the create and update endpoints, validated, and associated with the current user. Deletion removes a record from history, preserving previous entries.
 
 ```mermaid
 sequenceDiagram
 participant U as "HR User"
-participant FE as "Create Salary Dialog"
+participant FE as "Create/Edit Salary Dialog"
 participant BE as "SalaryController"
 participant SM as "Salary Model"
 U->>FE : "Set Amount, Effective Date"
-FE->>BE : "Submit form"
+FE->>BE : "Submit form (POST for create, PUT for update)"
 BE->>BE : "Validate inputs"
-BE->>SM : "Create with created_by"
-SM-->>BE : "Persisted"
+BE->>SM : "Create/Update with created_by"
+SM-->>BE : "Persisted/Updated"
 BE-->>U : "Success feedback"
 ```
 
 **Diagram sources**
-- [web.php:35](file://routes/web.php#L35)
-- [SalaryController.php:49-65](file://app/Http/Controllers/SalaryController.php#L49-L65)
+- [web.php:55](file://routes/web.php#L55)
+- [web.php:56](file://routes/web.php#L56)
+- [SalaryController.php:66-97](file://app/Http/Controllers/SalaryController.php#L66-L97)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:24-34](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L24-L34)
+- [salary.tsx:92-104](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L92-L104)
 
 **Section sources**
-- [SalaryController.php:49-65](file://app/Http/Controllers/SalaryController.php#L49-L65)
+- [SalaryController.php:66-97](file://app/Http/Controllers/SalaryController.php#L66-L97)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
 
 ### Approval Workflows
 The current implementation does not include built-in approval steps. To add approvals:
@@ -328,7 +365,7 @@ The current implementation does not include built-in approval steps. To add appr
 - [index.tsx:155-214](file://resources/js/pages/payroll/index.tsx#L155-L214)
 
 ### Compliance and Pay Scale Configurations
-- Minimum wage: Enforce minimum wage checks during salary creation by validating against a configured minimum wage table or policy.
+- Minimum wage: Enforce minimum wage checks during salary creation/update by validating against a configured minimum wage table or policy.
 - Pay scales: Introduce a PayScale model linked to job grades; validate new salary amounts against the applicable scale for the effective date.
 - Regulatory reporting: Add fields for tax code, SSS, PHIC, HDMF identifiers, and export payroll data for statutory filings.
 
@@ -336,11 +373,13 @@ The current implementation does not include built-in approval steps. To add appr
 
 ### User Interface for Salary Administration
 - Create dialog: Provides fields for salary amount, effective date, optional end date, and remarks; displays current active salary.
+- Edit dialog: Allows modification of existing salary records with validation for amount and effective_date.
 - History page: Lists all salary records with formatted currency and dates, and allows deletion of individual records.
 - Payroll summary: Offers month/year filters, office selection, and search; computes and displays gross and net pay.
 
 **Section sources**
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [index.tsx:49-221](file://resources/js/pages/payroll/index.tsx#L49-L221)
 
@@ -362,33 +401,40 @@ PC --> M_E["Employee Model"]
 M_E --> M_S
 FE_H["salaries/history.tsx"] --> SC
 FE_C["settings/Employee/manage/salary/create.tsx"] --> SC
+FE_S["Employees/Manage/compensation/salary.tsx"] --> SC
+FE_SD["Employees/Manage/compensation/salaryDialog.tsx"] --> SC
 FE_P["payroll/index.tsx"] --> PC
 T_S["salary.d.ts"] -.-> FE_H
+T_S -.-> FE_S
 T_P["payroll.d.ts"] -.-> FE_P
 MIG["employee_deductions migration"] --> PC
 ```
 
 **Diagram sources**
-- [web.php:31-37](file://routes/web.php#L31-L37)
-- [SalaryController.php:11-74](file://app/Http/Controllers/SalaryController.php#L11-L74)
+- [web.php:51-57](file://routes/web.php#L51-L57)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [PayrollController.php:11-125](file://app/Http/Controllers/PayrollController.php#L11-L125)
 - [Salary.php:8-35](file://app/Models/Salary.php#L8-L35)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
+- [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 - [index.tsx:49-221](file://resources/js/pages/payroll/index.tsx#L49-L221)
 - [salary.d.ts:3-24](file://resources/js/types/salary.d.ts#L3-L24)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
 - [2026_03_22_115112_create_employee_deductions_table.php:14-27](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L14-L27)
 
 **Section sources**
-- [web.php:31-37](file://routes/web.php#L31-L37)
-- [SalaryController.php:11-74](file://app/Http/Controllers/SalaryController.php#L11-L74)
+- [web.php:51-57](file://routes/web.php#L51-L57)
+- [SalaryController.php:13-105](file://app/Http/Controllers/SalaryController.php#L13-L105)
 - [PayrollController.php:11-125](file://app/Http/Controllers/PayrollController.php#L11-L125)
 - [Salary.php:8-35](file://app/Models/Salary.php#L8-L35)
 - [Employee.php:10-104](file://app/Models/Employee.php#L10-L104)
 - [history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [create.tsx:23-100](file://resources/js/pages/settings/Employee/manage/salary/create.tsx#L23-L100)
+- [salary.tsx:78-146](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L78-L146)
+- [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 - [index.tsx:49-221](file://resources/js/pages/payroll/index.tsx#L49-L221)
 - [salary.d.ts:3-24](file://resources/js/types/salary.d.ts#L3-L24)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
@@ -404,16 +450,18 @@ MIG["employee_deductions migration"] --> PC
 
 ## Troubleshooting Guide
 Common issues and resolutions:
-- Validation errors on salary creation: Ensure employee_id exists, amount is numeric and non-negative, and effective_date is a valid date.
+- Validation errors on salary creation/update: Ensure employee_id exists, amount is numeric and non-negative, and effective_date is a valid date.
 - Missing latest salary in payroll: Verify that the latest salary record exists and has a valid effective_date; check soft-deleted records if history appears truncated.
 - Incorrect payroll totals: Confirm that PERA/RATA records exist for the selected month/year and that deductions match the pay period filters.
+- **Updated** Edit operation failures: Ensure the salary ID exists and the user has permission to modify the record; check that effective_date doesn't conflict with existing salary periods.
 
 **Section sources**
-- [SalaryController.php:51-55](file://app/Http/Controllers/SalaryController.php#L51-L55)
+- [SalaryController.php:68-89](file://app/Http/Controllers/SalaryController.php#L68-L89)
 - [PayrollController.php:30-67](file://app/Http/Controllers/PayrollController.php#L30-L67)
+- [salary.tsx:92-104](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L92-L104)
 
 ## Conclusion
-The salary management system provides robust support for recording salary changes, tracking history, and computing payroll. Its design leverages effective dates for chronological accuracy, soft deletes for auditability, and clear separation between administration and reporting. Extending the system with approvals, compliance checks, and batch operations would further strengthen operational controls and scalability.
+The salary management system provides robust support for recording salary changes, tracking history, and computing payroll. Its design leverages effective dates for chronological accuracy, soft deletes for auditability, and clear separation between administration and reporting. The addition of update functionality enables modification of existing salary records with proper validation and effective_date handling. Extending the system with approvals, compliance checks, and batch operations would further strengthen operational controls and scalability.
 
 ## Appendices
 - Data types used across the system:

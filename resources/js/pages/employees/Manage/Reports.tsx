@@ -330,24 +330,28 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                                 <CardTitle className="text-sm">Yearly Deduction Totals</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Year</TableHead>
-                                            <TableHead className="text-right">Total Deducted</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.entries(deductionsByYear)
-                                            .sort(([a], [b]) => Number(b) - Number(a))
-                                            .map(([year, total]) => (
-                                                <TableRow key={year}>
-                                                    <TableCell className="font-medium">{year}</TableCell>
-                                                    <TableCell className="text-right font-semibold text-red-600">{formatCurrency(total)}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
+                                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                                    <Table className="">
+                                        <TableHeader className="bg-muted/90 rounded-sm">
+                                            <TableRow>
+                                                <TableHead>Year</TableHead>
+                                                <TableHead className="text-right">Total Deducted</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {Object.entries(deductionsByYear)
+                                                .sort(([a], [b]) => Number(b) - Number(a))
+                                                .map(([year, total]) => (
+                                                    <TableRow key={year}>
+                                                        <TableCell className="font-medium">{year}</TableCell>
+                                                        <TableCell className="text-right font-semibold text-red-600">
+                                                            {formatCurrency(total)}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -356,41 +360,45 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-sm">Period Breakdown</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-0">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Period</TableHead>
-                                            <TableHead>Deduction Type</TableHead>
-                                            <TableHead className="text-right">Amount</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {deductionPeriods.map((period) => (
-                                            <Fragment key={`${period.year}-${period.month}`}>
-                                                {period.items.map((d, idx) => (
-                                                    <TableRow key={d.id}>
-                                                        {idx === 0 && (
-                                                            <TableCell rowSpan={period.items.length + 1} className="align-top font-medium">
-                                                                {MONTHS[period.month - 1]} {period.year}
+                            <CardContent>
+                                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                                    <Table>
+                                        <TableHeader className="bg-muted/90 rounded-sm">
+                                            <TableRow>
+                                                <TableHead>Period</TableHead>
+                                                <TableHead>Deduction Type</TableHead>
+                                                <TableHead className="text-right">Amount</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {deductionPeriods.map((period) => (
+                                                <Fragment key={`${period.year}-${period.month}`}>
+                                                    {period.items.map((d, idx) => (
+                                                        <TableRow key={d.id}>
+                                                            {idx === 0 && (
+                                                                <TableCell rowSpan={period.items.length + 1} className="align-top font-medium">
+                                                                    {MONTHS[period.month - 1]} {period.year}
+                                                                </TableCell>
+                                                            )}
+                                                            <TableCell className="text-muted-foreground">{d.deduction_type?.name ?? '—'}</TableCell>
+                                                            <TableCell className="text-right text-red-600">
+                                                                {formatCurrency(Number(d.amount))}
                                                             </TableCell>
-                                                        )}
-                                                        <TableCell className="text-muted-foreground">{d.deduction_type?.name ?? '—'}</TableCell>
-                                                        <TableCell className="text-right text-red-600">{formatCurrency(Number(d.amount))}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                    <TableRow key={`total-${period.year}-${period.month}`} className="bg-muted/30">
+                                                        <TableCell className="text-right text-xs font-semibold text-slate-500 italic">
+                                                            Period Total
+                                                        </TableCell>
+                                                        <TableCell className="text-right font-bold text-red-600">
+                                                            {formatCurrency(period.total)}
+                                                        </TableCell>
                                                     </TableRow>
-                                                ))}
-                                                <TableRow key={`total-${period.year}-${period.month}`} className="bg-muted/30">
-                                                    <TableCell className="text-right text-xs font-semibold text-slate-500 italic">
-                                                        Period Total
-                                                    </TableCell>
-                                                    <TableCell className="text-right font-bold text-red-600">
-                                                        {formatCurrency(period.total)}
-                                                    </TableCell>
-                                                </TableRow>
-                                            </Fragment>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                                </Fragment>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -413,35 +421,42 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                                     <CardTitle className="text-sm">{yearRow.year}</CardTitle>
                                     <span className="text-sm font-semibold text-green-600">{formatCurrency(yearRow.total)}</span>
                                 </CardHeader>
-                                <CardContent className="p-0">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Date</TableHead>
-                                                <TableHead>Type</TableHead>
-                                                <TableHead>Purpose</TableHead>
-                                                <TableHead className="text-right">Amount</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {yearRow.items
-                                                .sort((a, b) => new Date(b.claim_date).getTime() - new Date(a.claim_date).getTime())
-                                                .map((c) => (
-                                                    <TableRow key={c.id}>
-                                                        <TableCell className="whitespace-nowrap">
-                                                            {new Date(c.claim_date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Badge variant="outline">{c.claim_type?.name ?? '—'}</Badge>
-                                                        </TableCell>
-                                                        <TableCell className="text-muted-foreground max-w-[200px] truncate">{c.purpose}</TableCell>
-                                                        <TableCell className="text-right font-medium text-green-600">
-                                                            {formatCurrency(Number(c.amount))}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                        </TableBody>
-                                    </Table>
+                                <CardContent>
+                                    <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                                        <Table>
+                                            <TableHeader className="bg-muted/90">
+                                                <TableRow>
+                                                    <TableHead>Date</TableHead>
+                                                    <TableHead>Type</TableHead>
+                                                    <TableHead>Purpose</TableHead>
+                                                    <TableHead className="text-right">Amount</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {yearRow.items
+                                                    .sort((a, b) => new Date(b.claim_date).getTime() - new Date(a.claim_date).getTime())
+                                                    .map((c) => (
+                                                        <TableRow key={c.id}>
+                                                            <TableCell className="whitespace-nowrap">
+                                                                {new Date(c.claim_date).toLocaleDateString('en-PH', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                })}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Badge variant="default">{c.claim_type?.name ?? '—'}</Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                                                                {c.purpose}
+                                                            </TableCell>
+                                                            <TableCell className="text-right font-medium text-green-600">
+                                                                {formatCurrency(Number(c.amount))}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}

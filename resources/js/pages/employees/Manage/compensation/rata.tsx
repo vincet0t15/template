@@ -1,3 +1,4 @@
+import { DatePicker } from '@/components/custom-date-picker';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -5,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Employee } from '@/types/employee';
 import type { Rata } from '@/types/rata';
-import { useForm } from '@inertiajs/react';
-import { CalendarIcon, Plus, TrendingUp } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
@@ -56,7 +57,7 @@ function AddRataDialog({ open, onClose, employee }: { open: boolean; onClose: ()
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label>Effective Date</Label>
-                            <Input type="date" value={data.effective_date} onChange={(e) => setData('effective_date', e.target.value)} required />
+                            <DatePicker value={data.effective_date} onChange={(value: string) => setData('effective_date', value)} />
                         </div>
                     </div>
                     <DialogFooter className="mt-6">
@@ -75,6 +76,68 @@ function AddRataDialog({ open, onClose, employee }: { open: boolean; onClose: ()
     );
 }
 
+function EditRataDialog({ open, onClose, rata }: { open: boolean; onClose: () => void; rata: Rata | null }) {
+    const { data, setData, put, processing, reset } = useForm({
+        amount: rata?.amount?.toString() || '',
+        effective_date: rata?.effective_date || new Date().toISOString().split('T')[0],
+    });
+
+    const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault();
+        if (!rata) return;
+
+        put(route('ratas.update', rata.id), {
+            onSuccess: () => {
+                toast.success('RATA updated successfully');
+                reset();
+                onClose();
+            },
+            onError: () => toast.error('Failed to update RATA.'),
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="max-w-md">
+                <form onSubmit={onSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Edit RATA</DialogTitle>
+                        <DialogDescription>Update the RATA amount and effective date.</DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4 space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <Label>Amount (₱)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={data.amount}
+                                onChange={(e) => setData('amount', e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <Label>Effective Date</Label>
+                            <DatePicker value={data.effective_date} onChange={(value: string) => setData('effective_date', value)} />
+                        </div>
+                    </div>
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Update RATA'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 const formatCurrency = (amount: number | undefined) => {
     if (!amount) return '₱0.00';
     return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
@@ -84,8 +147,25 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-PH', 
 
 export default function CompensationRata({ employee }: CompensationRataProps) {
     const [openDialog, setOpenDialog] = useState(false);
+    const [editDialog, setEditDialog] = useState<{ open: boolean; rata: Rata | null }>({
+        open: false,
+        rata: null,
+    });
     const ratas: Rata[] = employee.ratas ?? [];
     const current = employee.latest_rata;
+
+    const handleDelete = (rata: Rata) => {
+        if (confirm('Are you sure you want to delete this RATA record?')) {
+            router.delete(route('ratas.destroy', rata.id), {
+                onSuccess: () => toast.success('RATA record deleted successfully'),
+                onError: () => toast.error('Failed to delete RATA record'),
+            });
+        }
+    };
+
+    const handleEdit = (rata: Rata) => {
+        setEditDialog({ open: true, rata });
+    };
 
     return (
         <div className="space-y-6">
@@ -138,6 +218,7 @@ export default function CompensationRata({ employee }: CompensationRataProps) {
                                 <TableRow>
                                     <TableHead>Amount</TableHead>
                                     <TableHead>Effective Date</TableHead>
+                                    <TableHead className="w-[100px] text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -145,6 +226,21 @@ export default function CompensationRata({ employee }: CompensationRataProps) {
                                     <TableRow key={r.id} className={i === 0 ? 'font-semibold' : ''}>
                                         <TableCell>{formatCurrency(r.amount)}</TableCell>
                                         <TableCell className="text-muted-foreground text-sm">{formatDate(r.effective_date)}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(r)} className="h-8 w-8">
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(r)}
+                                                    className="h-8 w-8 text-red-600 hover:text-red-700"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -154,6 +250,9 @@ export default function CompensationRata({ employee }: CompensationRataProps) {
             </div>
 
             {openDialog && <AddRataDialog open={openDialog} onClose={() => setOpenDialog(false)} employee={employee} />}
+            {editDialog.open && editDialog.rata && (
+                <EditRataDialog open={editDialog.open} onClose={() => setEditDialog({ open: false, rata: null })} rata={editDialog.rata} />
+            )}
         </div>
     );
 }

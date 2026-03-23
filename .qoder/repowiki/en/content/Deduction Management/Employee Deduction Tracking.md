@@ -23,12 +23,11 @@
 
 ## Update Summary
 **Changes Made**
-- Enhanced pagination system with 50-item per-page limits across employee deductions and payroll interfaces
-- Comprehensive month/year filtering capabilities with dedicated UI components
-- Improved frontend filtering with office and employment status selectors
-- Enhanced data presentation with pagination controls and improved table layouts
-- Added sophisticated form validation and error handling for deduction operations
-- Implemented comprehensive search functionality across employee names
+- Enhanced EmployeeDeductionController with improved historical data loading and getEffectiveAmount method for accurate deduction calculations based on effective dates
+- Added sophisticated effective date calculation logic that considers historical compensation records
+- Implemented consistent getEffectiveAmount method in both EmployeeDeductionController and PayrollController for uniform historical data processing
+- Enhanced frontend interfaces to display computed effective amounts alongside historical compensation data
+- Improved payroll calculation accuracy by using effective amounts from historical records rather than current values
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -36,22 +35,23 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Enhanced Pagination System](#enhanced-pagination-system)
-7. [Advanced Filtering Capabilities](#advanced-filtering-capabilities)
-8. [Frontend Interface Improvements](#frontend-interface-improvements)
-9. [Dependency Analysis](#dependency-analysis)
-10. [Performance Considerations](#performance-considerations)
-11. [Troubleshooting Guide](#troubleshooting-guide)
-12. [Conclusion](#conclusion)
-13. [Appendices](#appendices)
+6. [Enhanced Historical Data Processing](#enhanced-historical-data-processing)
+7. [Enhanced Pagination System](#enhanced-pagination-system)
+8. [Advanced Filtering Capabilities](#advanced-filtering-capabilities)
+9. [Frontend Interface Improvements](#frontend-interface-improvements)
+10. [Dependency Analysis](#dependency-analysis)
+11. [Performance Considerations](#performance-considerations)
+12. [Troubleshooting Guide](#troubleshooting-guide)
+13. [Conclusion](#conclusion)
+14. [Appendices](#appendices)
 
 ## Introduction
-This document describes the enhanced employee deduction tracking system, focusing on how deductions are created, assigned to employees, calculated, and integrated into payroll. The system now features comprehensive pagination, advanced filtering capabilities, and improved user experience for managing employee deductions across multiple pay periods. It explains the relationship between employees and deduction types via the pivot-like table structure, documents the end-to-end workflow for applying, modifying, and removing deductions, and covers the enhanced frontend interface with filtering, sorting, and bulk operations. It also details deduction calculation logic, payroll integration, impact on net pay, validation rules, eligibility criteria, and audit logging.
+This document describes the enhanced employee deduction tracking system, focusing on how deductions are created, assigned to employees, calculated, and integrated into payroll. The system now features comprehensive pagination, advanced filtering capabilities, improved user experience for managing employee deductions across multiple pay periods, and sophisticated historical data processing for accurate deduction calculations. It explains the relationship between employees and deduction types via the pivot-like table structure, documents the end-to-end workflow for applying, modifying, and removing deductions, and covers the enhanced frontend interface with filtering, sorting, and bulk operations. It also details deduction calculation logic, payroll integration, impact on net pay, validation rules, eligibility criteria, and audit logging.
 
 ## Project Structure
 The system spans Laravel backend models/controllers and Inertia/Vue frontend pages/components with enhanced pagination and filtering:
 - Backend models define the domain entities and relationships with improved query optimization.
-- Controllers expose REST endpoints for CRUD operations and payroll aggregation with pagination support.
+- Controllers expose REST endpoints for CRUD operations and payroll aggregation with pagination support and sophisticated historical data processing.
 - Migrations define the database schema for deduction types, employees, and employee deductions.
 - Frontend pages render paginated lists, forms, and payroll summaries with comprehensive filtering and enhanced user interface components.
 
@@ -63,6 +63,8 @@ DT["DeductionType<br/>Model"]
 EM["Employee<br/>Model"]
 EDC["EmployeeDeductionController"]
 PC["PayrollController"]
+GETE["getEffectiveAmount Method"]
+ENDC["Enhanced Historical Processing"]
 end
 subgraph "Database"
 TBL_ED["employee_deductions"]
@@ -73,6 +75,7 @@ IDX["employee-deductions/index.tsx"]
 PIDX["payroll/index.tsx"]
 PS["payroll/show.tsx"]
 PAG["paginationData.tsx"]
+ENDX["Enhanced UI Display"]
 end
 ED --> DT
 ED --> EM
@@ -81,6 +84,11 @@ EDC --> DT
 EDC --> EM
 PC --> EM
 PC --> ED
+GETE --> ENDC
+ENDC --> IDX
+ENDC --> PIDX
+ENDX --> IDX
+ENDX --> PIDX
 ED -.migration.-> TBL_ED
 DT -.migration.-> TBL_DT
 IDX --> EDC
@@ -94,8 +102,8 @@ PAG --> PIDX
 - [EmployeeDeduction.php:1-59](file://app/Models/EmployeeDeduction.php#L1-L59)
 - [DeductionType.php:1-33](file://app/Models/DeductionType.php#L1-L33)
 - [Employee.php:1-104](file://app/Models/Employee.php#L1-L104)
-- [EmployeeDeductionController.php:1-119](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L119)
-- [PayrollController.php:1-133](file://app/Http/Controllers/PayrollController.php#L1-L133)
+- [EmployeeDeductionController.php:1-173](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L173)
+- [PayrollController.php:1-171](file://app/Http/Controllers/PayrollController.php#L1-L171)
 - [2026_03_22_115112_create_employee_deductions_table.php:1-38](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L1-L38)
 - [2026_03_22_115110_create_deduction_types_table.php:1-32](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L1-L32)
 - [employee-deductions/index.tsx:1-427](file://resources/js/pages/employee-deductions/index.tsx#L1-L427)
@@ -112,9 +120,9 @@ PAG --> PIDX
 - EmployeeDeduction model: Stores per-period deduction records with amount, pay period, notes, and audit metadata. Includes relationships to Employee and DeductionType, and scopes for period filtering with automatic audit trail population.
 - DeductionType model: Defines deduction categories (name, code, description, active flag) and provides an active scope with efficient querying.
 - Employee model: Represents staff members with employment and office relations, and convenience accessors for latest salary/pera/rata with eager loading optimization.
-- EmployeeDeductionController: Handles listing, creating, updating, and deleting employee deductions with comprehensive validation, duplicate prevention, and pagination support.
-- PayrollController: Aggregates payroll data per employee for a given month/year, computing gross pay and net pay from salary, pera, rata, and deductions with enhanced filtering capabilities.
-- Frontend pages: Provide comprehensive filtering, pagination, adding/editing/removing deductions, and displaying payroll summaries with enhanced user interface components.
+- EmployeeDeductionController: Handles listing, creating, updating, and deleting employee deductions with comprehensive validation, duplicate prevention, pagination support, and sophisticated historical data processing through the getEffectiveAmount method.
+- PayrollController: Aggregates payroll data per employee for a given month/year, computing gross pay and net pay from salary, pera, rata, and deductions with enhanced filtering capabilities and consistent historical data processing.
+- Frontend pages: Provide comprehensive filtering, pagination, adding/editing/removing deductions, and displaying payroll summaries with enhanced user interface components and computed effective amounts.
 
 **Section sources**
 - [EmployeeDeduction.php:8-58](file://app/Models/EmployeeDeduction.php#L8-L58)
@@ -126,10 +134,10 @@ PAG --> PIDX
 ## Architecture Overview
 The system follows a layered architecture with enhanced pagination and filtering:
 - Routes define endpoints for employee deductions and payroll with comprehensive parameter handling.
-- Controllers orchestrate queries, apply filters, compute derived values, and render Inertia pages with pagination support.
+- Controllers orchestrate queries, apply filters, compute derived values using historical data, and render Inertia pages with pagination support.
 - Models encapsulate relationships, casts, and scopes with optimized query performance.
 - Migrations define the schema and constraints with unique indexing for data integrity.
-- Frontend pages consume typed props, trigger controller actions, and provide enhanced user interface components.
+- Frontend pages consume typed props, trigger controller actions, and provide enhanced user interface components with computed effective amounts.
 
 ```mermaid
 sequenceDiagram
@@ -142,13 +150,14 @@ U->>FE : "Open Employee Deductions with Filters"
 FE->>RT : "GET /employee-deductions?month&year&office_id&employment_status_id&search"
 RT->>C : "index(filters)"
 C->>M : "Query employees with pagination and filters"
-M-->>C : "Paginated employees with deductions"
+C->>C : "getEffectiveAmount(history, year, month)"
+C->>M : "Process historical compensation records"
+M-->>C : "Paginated employees with effective amounts"
 C-->>FE : "Render with enhanced filters and pagination"
 U->>FE : "Add deduction with pagination"
 FE->>RT : "POST /employee-deductions"
 RT->>C : "store()"
 C->>M : "Validate + check duplicate + create"
-M-->>C : "Created"
 C-->>FE : "Redirect with success and pagination preserved"
 ```
 
@@ -284,7 +293,7 @@ C-->>FE : "Redirect with success (preserves pagination)"
 - Total deductions equals the sum of all deduction amounts for the period.
 - Net pay equals gross pay minus total deductions.
 - Eligibility: RATA is included only if the employee is eligible.
-- Enhanced with comprehensive filtering and pagination support.
+- Enhanced with comprehensive filtering and pagination support using effective amounts from historical data.
 
 ```mermaid
 sequenceDiagram
@@ -297,6 +306,7 @@ FE->>RT : "GET /payroll?month&year&office_id&employment_status_id&search"
 RT->>C : "index(request)"
 C->>E : "Load employees with latest salary/pera/rata (paginated)"
 C->>D : "Load deductions for month/year"
+C->>C : "getEffectiveAmount for salary/pera/rata"
 C->>C : "Compute gross = sum(salary+pera+rata)"
 C->>C : "Compute total_deductions = sum(deductions)"
 C->>C : "Compute net = gross - total_deductions"
@@ -311,6 +321,48 @@ C-->>FE : "Render payroll summary with pagination"
 **Section sources**
 - [PayrollController.php:54-72](file://app/Http/Controllers/PayrollController.php#L54-L72)
 - [payroll/show.tsx:120-131](file://resources/js/pages/payroll/show.tsx#L120-L131)
+
+## Enhanced Historical Data Processing
+
+**Updated** The system now includes sophisticated historical data processing through the getEffectiveAmount method, which calculates accurate deduction amounts based on effective dates rather than current values.
+
+### Effective Amount Calculation Logic
+The getEffectiveAmount method processes historical records to determine the most appropriate amount for a given pay period:
+
+1. **Historical Record Processing**: Loads all historical compensation records (salary, pera, rata) effective before or during the selected period
+2. **Effective Date Matching**: Sorts records by effective_date descending and finds the most recent record that was effective before or during the period end date
+3. **Fallback Logic**: If no record is found before the period end, uses the oldest available record
+4. **Period End Calculation**: Creates a date representing the last day of the target month for comparison
+
+### Implementation Details
+- **Period End Date**: Calculates the end of the target month using `now()->setDate($year, $month, 1)->endOfMonth()`
+- **Descending Sort**: Prioritizes the most recent effective record within the period
+- **Fallback Strategy**: Ensures calculation succeeds even if no historical record exists for the period
+- **Consistent Processing**: Applied uniformly across EmployeeDeductionController and PayrollController
+
+### Historical Data Loading
+The system loads historical compensation data with effective date filtering:
+
+```mermaid
+flowchart TD
+A["Load Employee History"] --> B["Filter by effective_date <= period_end"]
+B --> C["Sort by effective_date desc"]
+C --> D{"Record Found?"}
+D --> |Yes| E["Use Most Recent Record"]
+D --> |No| F["Use Oldest Record"]
+E --> G["Return Amount"]
+F --> G["Return Amount"]
+```
+
+**Diagram sources**
+- [EmployeeDeductionController.php:17-42](file://app/Http/Controllers/EmployeeDeductionController.php#L17-L42)
+- [PayrollController.php:17-43](file://app/Http/Controllers/PayrollController.php#L17-L43)
+
+**Section sources**
+- [EmployeeDeductionController.php:17-42](file://app/Http/Controllers/EmployeeDeductionController.php#L17-L42)
+- [PayrollController.php:17-43](file://app/Http/Controllers/PayrollController.php#L17-L43)
+- [EmployeeDeductionController.php:87-98](file://app/Http/Controllers/EmployeeDeductionController.php#L87-L98)
+- [PayrollController.php:89-110](file://app/Http/Controllers/PayrollController.php#L89-L110)
 
 ## Enhanced Pagination System
 The system now implements comprehensive pagination across all major interfaces with 50 items per page, preserving filter state and scroll position for optimal user experience.
@@ -384,14 +436,20 @@ The frontend has been significantly enhanced with improved user experience, bett
 
 ### Action Controls
 - **Inline editing**: Direct editing within table rows with pencil icons
-- **Quick deletion**: Inline delete actions with confirmation dialogs
+- **Quick deletion**: inline delete actions with confirmation dialogs
 - **Bulk operations**: Foundation for future multi-selection capabilities
 - **Navigation aids**: Clear visual hierarchy and responsive design
+
+### Enhanced Data Display
+- **Effective Amounts**: Display of computed effective amounts alongside historical compensation data
+- **Historical Context**: Clear indication of which historical records are being used for calculations
+- **Pay Period Information**: Explicit display of month/year for each deduction entry
 
 **Section sources**
 - [employee-deductions/index.tsx:228-311](file://resources/js/pages/employee-deductions/index.tsx#L228-L311)
 - [employee-deductions/index.tsx:313-422](file://resources/js/pages/employee-deductions/index.tsx#L313-L422)
 - [employee-deductions/index.tsx:160-165](file://resources/js/pages/employee-deductions/index.tsx#L160-L165)
+- [payroll/index.tsx:204-213](file://resources/js/pages/payroll/index.tsx#L204-L213)
 
 ### Types and Data Contracts
 - EmployeeDeduction type defines the shape of deduction records and nested relations with enhanced typing.
@@ -408,7 +466,7 @@ The frontend has been significantly enhanced with improved user experience, bett
 - [filter.d.ts:3-6](file://resources/js/types/filter.d.ts#L3-L6)
 
 ## Dependency Analysis
-- Controllers depend on models for querying and persistence with enhanced pagination support.
+- Controllers depend on models for querying and persistence with enhanced pagination support and historical data processing.
 - Models define relationships and constraints with optimized query performance.
 - Routes bind URLs to controller actions with comprehensive parameter handling.
 - Frontend pages depend on typed props, Inertia routing helpers, and enhanced UI components.
@@ -426,6 +484,8 @@ EDM --> DB["employee_deductions table"]
 DT --> DB2["deduction_types table"]
 PAG["paginationData.tsx"] --> IDX["employee-deductions/index.tsx"]
 PAG --> PIDX["payroll/index.tsx"]
+GETE["getEffectiveAmount Method"] --> EDC
+GETE --> PC
 ```
 
 **Diagram sources**
@@ -449,6 +509,7 @@ PAG --> PIDX["payroll/index.tsx"]
 - **Derived computations**: Payroll totals are computed server-side to avoid heavy client-side aggregation with efficient collection transformations.
 - **Filter optimization**: Query builders apply filters efficiently with conditional clauses and proper indexing.
 - **State preservation**: Pagination maintains filter state to reduce redundant queries and improve user experience.
+- **Historical processing**: getEffectiveAmount method optimizes historical record processing with efficient sorting and filtering.
 
 ## Troubleshooting Guide
 - **Duplicate deduction error**: When attempting to add a deduction for the same employee, deduction type, month, and year, the system prevents duplication and returns an error message with pagination preserved.
@@ -456,6 +517,7 @@ PAG --> PIDX["payroll/index.tsx"]
 - **Audit trail**: created_by is automatically set to the authenticated user upon creation with proper authentication handling.
 - **Pagination issues**: If pagination links don't work, check URL parameters and ensure proper state preservation.
 - **Filter problems**: If filters don't apply correctly, verify parameter encoding and URL synchronization.
+- **Historical data issues**: If effective amounts appear incorrect, verify that historical records exist and effective dates are properly set.
 
 **Section sources**
 - [EmployeeDeductionController.php:76-85](file://app/Http/Controllers/EmployeeDeductionController.php#L76-L85)
@@ -464,26 +526,29 @@ PAG --> PIDX["payroll/index.tsx"]
 - [paginationData.tsx:16-30](file://resources/js/components/paginationData.tsx#L16-L30)
 
 ## Conclusion
-The enhanced employee deduction tracking system provides a robust foundation for recording, managing, and aggregating deductions per pay period with comprehensive pagination, advanced filtering, and improved user experience. It enforces data integrity via validation and unique constraints, integrates seamlessly with payroll computation, and offers a sophisticated interface for filtering, adding, editing, and removing deductions. The architecture cleanly separates concerns between models, controllers, routes, and frontend pages, enabling maintainability and extensibility with enhanced performance through optimized queries and pagination.
+The enhanced employee deduction tracking system provides a robust foundation for recording, managing, and aggregating deductions per pay period with comprehensive pagination, advanced filtering, improved user experience, and sophisticated historical data processing. It enforces data integrity via validation and unique constraints, integrates seamlessly with payroll computation using effective amounts from historical records, and offers a sophisticated interface for filtering, adding, editing, and removing deductions. The architecture cleanly separates concerns between models, controllers, routes, and frontend pages, enabling maintainability and extensibility with enhanced performance through optimized queries, pagination, and historical data processing.
 
 ## Appendices
 
 ### Deduction Scenarios and Examples
-- Scenario A: Add a fixed deduction for an employee in a specific month/year using the enhanced filtering system.
-- Scenario B: Modify the amount of an existing deduction after review with improved validation feedback.
+- Scenario A: Add a fixed deduction for an employee in a specific month/year using the enhanced filtering system with accurate effective amount calculation.
+- Scenario B: Modify the amount of an existing deduction after review with improved validation feedback and historical context.
 - Scenario C: Remove a deduction that was entered in error with confirmation dialog and pagination preservation.
-- Scenario D: Manual override of a deduction for a special circumstance; ensure notes capture justification with enhanced form validation.
-- Scenario E: Historical tracking: view deduction history per employee and compare periods with comprehensive pagination.
-- Scenario F: Bulk operations: Future enhancement for multi-deduction management with improved selection capabilities.
+- Scenario D: Manual override of a deduction for a special circumstance; ensure notes capture justification with enhanced form validation and effective date consideration.
+- Scenario E: Historical tracking: view deduction history per employee and compare periods with comprehensive pagination and effective amount analysis.
+- Scenario F: Bulk operations: Future enhancement for multi-deduction management with improved selection capabilities and historical data consistency.
 
 ### Eligibility and Validation Rules
 - Eligibility: RATA inclusion depends on employee's eligibility flag with proper status checking.
 - Validation: Amount non-negative, numeric; pay period valid (1-12 month range, 2020-2100 year range); existence of employee and deduction type; uniqueness per employee/type/month/year enforced by database and controller logic.
 - Pagination: 50 items per page with state preservation across navigation.
 - Filtering: Comprehensive filter support with real-time updates and URL synchronization.
+- Historical Processing: Effective amounts calculated using getEffectiveAmount method with proper date-based record selection.
 
 **Section sources**
 - [Employee.php:20](file://app/Models/Employee.php#L20)
 - [PayrollController.php:64-69](file://app/Http/Controllers/PayrollController.php#L64-L69)
 - [EmployeeDeductionController.php:67-74](file://app/Http/Controllers/EmployeeDeductionController.php#L67-L74)
 - [2026_03_22_115112_create_employee_deductions_table.php:25-26](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L25-L26)
+- [EmployeeDeductionController.php:17-42](file://app/Http/Controllers/EmployeeDeductionController.php#L17-L42)
+- [PayrollController.php:17-43](file://app/Http/Controllers/PayrollController.php#L17-L43)

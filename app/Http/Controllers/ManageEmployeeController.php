@@ -17,6 +17,7 @@ class ManageEmployeeController extends Controller
 {
     public function index(Request $request, Employee $employee)
     {
+
         $filterMonth = $request->input('deduction_month');
         $filterYear = $request->input('deduction_year');
 
@@ -43,19 +44,19 @@ class ManageEmployeeController extends Controller
             ->orderBy('pay_period_year', 'desc')
             ->orderBy('pay_period_month', 'desc');
 
-        // Apply month filter
+
         if ($filterMonth) {
             $periodsQuery->where('pay_period_month', $filterMonth);
         }
 
-        // Apply year filter
+
         if ($filterYear) {
             $periodsQuery->where('pay_period_year', $filterYear);
         }
 
         $paginatedPeriods = $periodsQuery->paginate(50)->withQueryString();
 
-        // Get all deductions for the current page's periods
+
         $periodsList = $paginatedPeriods->map(function ($p) {
             return "{$p->pay_period_year}-" . str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->values()->toArray();
@@ -68,12 +69,12 @@ class ManageEmployeeController extends Controller
             ->orderBy('pay_period_month', 'desc')
             ->get();
 
-        // Group deductions by period for frontend
+
         $groupedDeductions = $deductionsData->groupBy(function ($d) {
             return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->toArray();
 
-        // Get all taken periods for conflict detection (just the period keys)
+
         $takenPeriods = EmployeeDeduction::where('employee_id', $employee->id)
             ->selectRaw('DISTINCT pay_period_year, pay_period_month')
             ->get()
@@ -83,7 +84,6 @@ class ManageEmployeeController extends Controller
             ->values()
             ->toArray();
 
-        // Get unique years for filter dropdown
         $availableYears = EmployeeDeduction::where('employee_id', $employee->id)
             ->selectRaw('DISTINCT pay_period_year as year')
             ->orderBy('pay_period_year', 'desc')
@@ -94,7 +94,7 @@ class ManageEmployeeController extends Controller
         $offices = Office::all();
         $deductionTypes = DeductionType::active()->get();
 
-        // Claims data
+
         $claimMonth = $request->input('claim_month');
         $claimYear = $request->input('claim_year');
         $claimTypeId = $request->input('claim_type_id');
@@ -167,7 +167,6 @@ class ManageEmployeeController extends Controller
                 'claim_year' => $claimYear,
                 'claim_type_id' => $claimTypeId,
             ],
-            // Overview & Reports
             'allDeductions' => $allDeductions,
             'allClaims' => $allClaims,
             'totalDeductionsAllTime' => $totalDeductionsAllTime,

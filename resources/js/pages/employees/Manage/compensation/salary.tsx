@@ -1,3 +1,4 @@
+import { DatePicker } from '@/components/custom-date-picker';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -56,7 +57,7 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label>Effective Date</Label>
-                            <Input type="date" value={data.effective_date} onChange={(e) => setData('effective_date', e.target.value)} required />
+                            <DatePicker value={data.effective_date} onChange={(value) => setData('effective_date', value)} />
                         </div>
                     </div>
                     <DialogFooter className="mt-6">
@@ -75,15 +76,7 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
     );
 }
 
-function EditSalaryDialog({
-    open,
-    onClose,
-    salary,
-}: {
-    open: boolean;
-    onClose: () => void;
-    salary: Salary | null;
-}) {
+function EditSalaryDialog({ open, onClose, salary }: { open: boolean; onClose: () => void; salary: Salary | null }) {
     const { data, setData, put, processing, reset } = useForm({
         amount: salary?.amount?.toString() || '',
         effective_date: salary?.effective_date || new Date().toISOString().split('T')[0],
@@ -126,7 +119,7 @@ function EditSalaryDialog({
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label>Effective Date</Label>
-                            <Input type="date" value={data.effective_date} onChange={(e) => setData('effective_date', e.target.value)} required />
+                            <DatePicker value={data.effective_date} onChange={(value: string) => setData('effective_date', value)} />
                         </div>
                     </div>
                     <DialogFooter className="mt-6">
@@ -154,8 +147,25 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-PH', 
 
 export function CompensationSalary({ employee }: CompensationSalaryProps) {
     const [openDialog, setOpenDialog] = useState(false);
+    const [editDialog, setEditDialog] = useState<{ open: boolean; salary: Salary | null }>({
+        open: false,
+        salary: null,
+    });
     const salaries: Salary[] = employee.salaries ?? [];
     const current = employee.latest_salary;
+
+    const handleDelete = (salary: Salary) => {
+        if (confirm('Are you sure you want to delete this salary record?')) {
+            router.delete(route('salaries.destroy', salary.id), {
+                onSuccess: () => toast.success('Salary record deleted successfully'),
+                onError: () => toast.error('Failed to delete salary record'),
+            });
+        }
+    };
+
+    const handleEdit = (salary: Salary) => {
+        setEditDialog({ open: true, salary });
+    };
 
     return (
         <div className="space-y-6">
@@ -199,6 +209,7 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
                                 <TableRow>
                                     <TableHead>Amount</TableHead>
                                     <TableHead>Effective Date</TableHead>
+                                    <TableHead className="w-[100px] text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -206,6 +217,21 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
                                     <TableRow key={s.id} className={i === 0 ? 'font-semibold' : ''}>
                                         <TableCell>{formatCurrency(s.amount)}</TableCell>
                                         <TableCell className="text-muted-foreground text-sm">{formatDate(s.effective_date)}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(s)} className="h-8 w-8">
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(s)}
+                                                    className="h-8 w-8 text-red-600 hover:text-red-700"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -215,6 +241,9 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
             </div>
 
             {openDialog && <AddSalaryDialog open={openDialog} onClose={() => setOpenDialog(false)} employee={employee} />}
+            {editDialog.open && editDialog.salary && (
+                <EditSalaryDialog open={editDialog.open} onClose={() => setEditDialog({ open: false, salary: null })} salary={editDialog.salary} />
+            )}
         </div>
     );
 }
