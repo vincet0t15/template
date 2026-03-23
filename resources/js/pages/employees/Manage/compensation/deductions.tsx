@@ -137,10 +137,10 @@ export function CompensationDeductions({
                     })}
                 </div>
             )}
-            {lastPage > 1 && (
+            {pagination && (
                 <div className="flex items-center justify-between border-t pt-4">
                     <div className="text-muted-foreground text-sm">
-                        Page {currentPage} of {lastPage}
+                        Page {currentPage} of {lastPage} ({pagination.total} periods)
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
