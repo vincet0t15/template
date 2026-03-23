@@ -8,7 +8,7 @@ import type { Employee } from '@/types/employee';
 import type { Pera } from '@/types/pera';
 import { router, useForm } from '@inertiajs/react';
 import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
-import { useState, type FormEventHandler } from 'react';
+import { useEffect, useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
 interface CompensationPeraProps {
@@ -78,9 +78,19 @@ function AddPeraDialog({ open, onClose, employee }: { open: boolean; onClose: ()
 
 function EditPeraDialog({ open, onClose, pera }: { open: boolean; onClose: () => void; pera: Pera | null }) {
     const { data, setData, put, processing, reset } = useForm({
-        amount: pera?.amount?.toString() || '',
-        effective_date: pera?.effective_date || new Date().toISOString().split('T')[0],
+        amount: '',
+        effective_date: '',
     });
+
+    // Update form data when pera changes
+    useEffect(() => {
+        if (pera) {
+            setData({
+                amount: pera.amount?.toString() || '',
+                effective_date: pera.effective_date || '',
+            });
+        }
+    }, [pera]);
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();

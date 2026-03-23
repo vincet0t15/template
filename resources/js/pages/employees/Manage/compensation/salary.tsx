@@ -8,7 +8,7 @@ import type { Employee } from '@/types/employee';
 import type { Salary } from '@/types/salary';
 import { router, useForm } from '@inertiajs/react';
 import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
-import { useState, type FormEventHandler } from 'react';
+import { useEffect, useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
 interface CompensationSalaryProps {
@@ -78,9 +78,19 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
 
 function EditSalaryDialog({ open, onClose, salary }: { open: boolean; onClose: () => void; salary: Salary | null }) {
     const { data, setData, put, processing, reset } = useForm({
-        amount: salary?.amount?.toString() || '',
-        effective_date: salary?.effective_date || new Date().toISOString().split('T')[0],
+        amount: '',
+        effective_date: '',
     });
+
+    // Update form data when salary changes
+    useEffect(() => {
+        if (salary) {
+            setData({
+                amount: salary.amount?.toString() || '',
+                effective_date: salary.effective_date || '',
+            });
+        }
+    }, [salary]);
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();

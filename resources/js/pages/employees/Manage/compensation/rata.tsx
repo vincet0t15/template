@@ -8,7 +8,7 @@ import type { Employee } from '@/types/employee';
 import type { Rata } from '@/types/rata';
 import { router, useForm } from '@inertiajs/react';
 import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
-import { useState, type FormEventHandler } from 'react';
+import { useEffect, useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
 interface CompensationRataProps {
@@ -78,9 +78,19 @@ function AddRataDialog({ open, onClose, employee }: { open: boolean; onClose: ()
 
 function EditRataDialog({ open, onClose, rata }: { open: boolean; onClose: () => void; rata: Rata | null }) {
     const { data, setData, put, processing, reset } = useForm({
-        amount: rata?.amount?.toString() || '',
-        effective_date: rata?.effective_date || new Date().toISOString().split('T')[0],
+        amount: '',
+        effective_date: '',
     });
+
+    // Update form data when rata changes
+    useEffect(() => {
+        if (rata) {
+            setData({
+                amount: rata.amount?.toString() || '',
+                effective_date: rata.effective_date || '',
+            });
+        }
+    }, [rata]);
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
