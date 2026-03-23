@@ -8,6 +8,8 @@ interface PrintReportProps {
     employee: Employee;
     allDeductions: EmployeeDeduction[];
     allClaims: Claim[];
+    filterMonth?: string | null;
+    filterYear?: string | null;
 }
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -34,7 +36,7 @@ interface YearlyClaimRow {
     total: number;
 }
 
-export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ employee, allDeductions, allClaims }, ref) => {
+export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ employee, allDeductions, allClaims, filterMonth, filterYear }, ref) => {
     // Group deductions by year-month
     const deductionsByPeriod: Record<string, MonthlyDeductionRow> = {};
     for (const d of allDeductions) {

@@ -39,11 +39,40 @@ interface YearlyClaimRow {
 
 function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     const [showPrintPreview, setShowPrintPreview] = useState(false);
+    const [filterMonth, setFilterMonth] = useState<string | null>(null);
+    const [filterYear, setFilterYear] = useState<string | null>(null);
     const printRef = useRef<HTMLDivElement>(null);
+
+    // Extract available years from data
+    const availableYears = useMemo(() => {
+        const years = new Set<number>();
+        allDeductions.forEach(d => years.add(d.pay_period_year));
+        allClaims.forEach(c => years.add(new Date(c.claim_date).getFullYear()));
+        return Array.from(years).sort((a, b) => b - a);
+    }, [allDeductions, allClaims]);
+
+    // Filter deductions based on selected month/year
+    const filteredDeductions = useMemo(() => {
+        return allDeductions.filter(d => {
+            const monthMatch = !filterMonth || d.pay_period_month === parseInt(filterMonth);
+            const yearMatch = !filterYear || d.pay_period_year === parseInt(filterYear);
+            return monthMatch && yearMatch;
+        });
+    }, [allDeductions, filterMonth, filterYear]);
+
+    // Filter claims based on selected month/year
+    const filteredClaims = useMemo(() => {
+        return allClaims.filter(c => {
+            const claimDate = new Date(c.claim_date);
+            const monthMatch = !filterMonth || claimDate.getMonth() + 1 === parseInt(filterMonth);
+            const yearMatch = !filterYear || claimDate.getFullYear() === parseInt(filterYear);
+            return monthMatch && yearMatch;
+        });
+    }, [allClaims, filterMonth, filterYear]);
 
     // Group deductions by year-month
     const deductionsByPeriod: Record<string, MonthlyDeductionRow> = {};
-    for (const d of allDeductions) {
+    for (const d of filteredDeductions) {
         const key = `${d.pay_period_year}-${String(d.pay_period_month).padStart(2, '0')}`;
         if (!deductionsByPeriod[key]) {
             deductionsByPeriod[key] = { year: d.pay_period_year, month: d.pay_period_month, items: [], total: 0 };
@@ -55,13 +84,13 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
 
     // Group deductions by year for yearly totals
     const deductionsByYear: Record<number, number> = {};
-    for (const d of allDeductions) {
+    for (const d of filteredDeductions) {
         deductionsByYear[d.pay_period_year] = (deductionsByYear[d.pay_period_year] ?? 0) + Number(d.amount);
     }
 
     // Group claims by year
     const claimsByYearMap: Record<number, YearlyClaimRow> = {};
-    for (const c of allClaims) {
+    for (const c of filteredClaims) {
         const year = new Date(c.claim_date).getFullYear();
         if (!claimsByYearMap[year]) {
             claimsByYearMap[year] = { year, items: [], total: 0 };
@@ -71,8 +100,15 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     }
     const claimYears = Object.values(claimsByYearMap).sort((a, b) => b.year - a.year);
 
-    const totalAllDeductions = allDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
-    const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
+    const totalAllDeductions = filteredDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
+    const totalAllClaims = filteredClaims.reduce((sum, c) => sum + Number(c.amount), 0);
+
+    const hasActiveFilters = filterMonth || filterYear;
+
+    const clearFilters = () => {
+        setFilterMonth(null);
+        setFilterYear(null);
+    };
 
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -106,6 +142,28 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                 </Button>
             </div>
 
+            {/* Date Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+                <CustomComboBox
+                    items={MONTHS.map((month, index) => ({ value: String(index + 1), label: month }))}
+                    placeholder="All Months"
+                    value={filterMonth}
+                    onSelect={(value) => setFilterMonth(value)}
+                />
+                <CustomComboBox
+                    items={availableYears.map((year) => ({ value: String(year), label: String(year) }))}
+                    placeholder="All Years"
+                    value={filterYear}
+                    onSelect={(value) => setFilterYear(value)}
+                />
+                {hasActiveFilters && (
+                    <Button variant="ghost" onClick={clearFilters}>
+                        <X className="mr-1 h-4 w-4" />
+                        Clear Filters
+                    </Button>
+                )}
+            </div>
+
             {/* Print Preview Dialog */}
             <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
                 <DialogContent className="max-h-[90vh] min-w-[90vw] overflow-y-auto">
@@ -118,7 +176,14 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                             </Button>
                         </DialogTitle>
                     </DialogHeader>
-                    <PrintReport ref={printRef} employee={employee} allDeductions={allDeductions} allClaims={allClaims} />
+                    <PrintReport
+                        ref={printRef}
+                        employee={employee}
+                        allDeductions={filteredDeductions}
+                        allClaims={filteredClaims}
+                        filterMonth={filterMonth}
+                        filterYear={filterYear}
+                    />
                 </DialogContent>
             </Dialog>
 
