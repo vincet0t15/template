@@ -77,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
     // MANAGE EMPLOYEE
     Route::prefix('manage')->group(function () {
         Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
+        Route::post('employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
     });
 
     // OFFICES

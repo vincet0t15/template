@@ -1,93 +1,98 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DeductionType } from '@/types/deductionType';
+import type { Employee } from '@/types/employee';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 interface CompensationSalaryProps {
+    employee: Employee;
     deductionTypes: DeductionType[];
 }
 
-const invoices = [
-    {
-        invoice: 'INV001',
-        paymentStatus: 'Paid',
-        totalAmount: '$250.00',
-        paymentMethod: 'Credit Card',
-    },
-    {
-        invoice: 'INV002',
-        paymentStatus: 'Pending',
-        totalAmount: '$150.00',
-        paymentMethod: 'PayPal',
-    },
-    {
-        invoice: 'INV003',
-        paymentStatus: 'Unpaid',
-        totalAmount: '$350.00',
-        paymentMethod: 'Bank Transfer',
-    },
-    {
-        invoice: 'INV004',
-        paymentStatus: 'Paid',
-        totalAmount: '$450.00',
-        paymentMethod: 'Credit Card',
-    },
-    {
-        invoice: 'INV005',
-        paymentStatus: 'Paid',
-        totalAmount: '$550.00',
-        paymentMethod: 'PayPal',
-    },
-    {
-        invoice: 'INV006',
-        paymentStatus: 'Pending',
-        totalAmount: '$200.00',
-        paymentMethod: 'Bank Transfer',
-    },
-    {
-        invoice: 'INV007',
-        paymentStatus: 'Unpaid',
-        totalAmount: '$300.00',
-        paymentMethod: 'Credit Card',
-    },
-];
-
-export function CompensationSalary({ deductionTypes }: CompensationSalaryProps) {
+export function CompensationSalary({ employee, deductionTypes }: CompensationSalaryProps) {
     const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
+
+    const deductions = employee.deductions ?? [];
+
+    // Group deductions by pay period (month-year)
+    const grouped = deductions.reduce<Record<string, typeof deductions>>((acc, d) => {
+        const key = `${d.pay_period_year}-${String(d.pay_period_month).padStart(2, '0')}`;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(d);
+        return acc;
+    }, {});
+
+    const periods = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
+
     return (
-        <div>
-            <div className="mb-4">
+        <div className="space-y-4">
+            <div>
                 <Button onClick={() => setOpenSalaryDialog(true)}>
                     <Plus className="h-4 w-4" />
-                    Salary Deductions
+                    Add Salary Deductions
                 </Button>
             </div>
-            <div className="w-full overflow-hidden rounded-sm border shadow-sm">
-                <Table>
-                    <TableHeader className="bg-muted/50">
-                        <TableRow>
-                            <TableHead className="w-[100px]">Invoice</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Method</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
-                        {invoices.map((invoice) => (
-                            <TableRow key={invoice.invoice}>
-                                <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                                <TableCell>{invoice.paymentStatus}</TableCell>
-                                <TableCell>{invoice.paymentMethod}</TableCell>
-                                <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
 
-            {openSalaryDialog && <SalaryDialog open={openSalaryDialog} onClose={() => setOpenSalaryDialog(false)} deductionTypes={deductionTypes} />}
+            {periods.length === 0 ? (
+                <div className="text-muted-foreground rounded-lg border py-12 text-center text-sm">No salary deductions recorded yet.</div>
+            ) : (
+                <div className="space-y-4">
+                    {periods.map((periodKey) => {
+                        const [year, month] = periodKey.split('-');
+                        const periodDeductions = grouped[periodKey];
+                        const total = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
+
+                        return (
+                            <div key={periodKey} className="overflow-hidden rounded-lg border shadow-sm">
+                                <div className="bg-muted/50 flex items-center justify-between px-4 py-2">
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="font-semibold">
+                                            {MONTHS[parseInt(month) - 1]} {year}
+                                        </Badge>
+                                        <span className="text-muted-foreground text-xs">{periodDeductions.length} deduction(s)</span>
+                                    </div>
+                                    <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
+                                </div>
+                                <Table>
+                                    <TableHeader className="bg-muted/20">
+                                        <TableRow>
+                                            <TableHead>Deduction Type</TableHead>
+                                            <TableHead>Code</TableHead>
+                                            <TableHead className="text-right">Amount</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {periodDeductions.map((d) => (
+                                            <TableRow key={d.id}>
+                                                <TableCell className="font-medium">{d.deduction_type?.name ?? '—'}</TableCell>
+                                                <TableCell className="text-muted-foreground text-xs">{d.deduction_type?.code ?? '—'}</TableCell>
+                                                <TableCell className="text-right text-red-600">- {formatCurrency(Number(d.amount))}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {openSalaryDialog && (
+                <SalaryDialog
+                    open={openSalaryDialog}
+                    onClose={() => setOpenSalaryDialog(false)}
+                    employee={employee}
+                    deductionTypes={deductionTypes}
+                />
+            )}
         </div>
     );
 }

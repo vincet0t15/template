@@ -107,7 +107,7 @@ export default function EmployeeManagePage({ employee, employmentStatuses, offic
                         <Overview />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
-                        <EmployeeCompensation deductionTypes={deductionTypes} />
+                        <EmployeeCompensation employee={employee} deductionTypes={deductionTypes} />
                     </TabsContent>
                     <TabsContent value="settings" className="mt-0 outline-none">
                         <EmployeeSettings employee={employee} employmentStatuses={employmentStatuses} offices={offices} />
