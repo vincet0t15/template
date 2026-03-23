@@ -7,16 +7,20 @@ import { Head, router } from '@inertiajs/react';
 
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Claim, ClaimFilters } from '@/types/claim';
+import type { ClaimType } from '@/types/claimType';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
-import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Settings } from 'lucide-react';
+import type { PaginatedDataResponse } from '@/types/pagination';
+import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Receipt, Settings } from 'lucide-react';
 
 import EmployeeCompensation from './Compensation';
 import Overview from './Overview';
 import EmployeeSettings from './Settings';
+import { EmployeeClaims } from './claims';
 
 interface EmployeeManageProps {
     employee: Employee;
@@ -37,6 +41,11 @@ interface EmployeeManageProps {
         per_page: number;
         total: number;
     };
+    // Claims
+    claims?: PaginatedDataResponse<Claim>;
+    claimTypes?: ClaimType[];
+    availableClaimYears?: number[];
+    claimFilters?: ClaimFilters;
 }
 
 export default function EmployeeManagePage({
@@ -50,6 +59,10 @@ export default function EmployeeManagePage({
     availableYears = [],
     filters = {},
     deductionPagination,
+    claims,
+    claimTypes = [],
+    availableClaimYears = [],
+    claimFilters = {},
 }: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Employees', href: '/settings/employees' },
@@ -122,6 +135,9 @@ export default function EmployeeManagePage({
                             <TabsTrigger value="compensation">
                                 <CoinsIcon className="h-4 w-4" /> Compensation
                             </TabsTrigger>
+                            <TabsTrigger value="claims">
+                                <Receipt className="h-4 w-4" /> Claims
+                            </TabsTrigger>
                             <TabsTrigger value="reports">
                                 <FileText className="h-4 w-4" /> Reports
                             </TabsTrigger>
@@ -144,6 +160,15 @@ export default function EmployeeManagePage({
                             availableYears={availableYears}
                             filters={filters}
                             deductionPagination={deductionPagination}
+                        />
+                    </TabsContent>
+                    <TabsContent value="claims" className="mt-0 outline-none">
+                        <EmployeeClaims
+                            employee={employee}
+                            claims={claims}
+                            claimTypes={claimTypes}
+                            availableYears={availableClaimYears}
+                            filters={claimFilters}
                         />
                     </TabsContent>
                     <TabsContent value="settings" className="mt-0 outline-none">

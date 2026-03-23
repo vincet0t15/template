@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\ClaimTypeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeductionTypeController;
 use App\Http\Controllers\DocumentTypeController;
@@ -80,6 +82,12 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('manage')->group(function () {
         Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
         Route::post('employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
+
+        // CLAIMS
+        Route::get('employees/{employee}/claims', [ClaimController::class, 'index'])->name('manage.employees.claims.index');
+        Route::post('employees/{employee}/claims', [ClaimController::class, 'store'])->name('manage.employees.claims.store');
+        Route::put('employees/{employee}/claims/{claim}', [ClaimController::class, 'update'])->name('manage.employees.claims.update');
+        Route::delete('employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
     });
 
     // OFFICES
@@ -107,6 +115,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('document-types', [DocumentTypeController::class, 'store'])->name('document-types.store');
         Route::put('document-types/{documentType}', [DocumentTypeController::class, 'update'])->name('document-types.update');
         Route::delete('document-types/{documentType}', [DocumentTypeController::class, 'destroy'])->name('document-types.destroy');
+
+        // CLAIM TYPES
+        Route::get('claim-types', [ClaimTypeController::class, 'index'])->name('claim-types.index');
+        Route::post('claim-types', [ClaimTypeController::class, 'store'])->name('claim-types.store');
+        Route::put('claim-types/{claimType}', [ClaimTypeController::class, 'update'])->name('claim-types.update');
+        Route::delete('claim-types/{claimType}', [ClaimTypeController::class, 'destroy'])->name('claim-types.destroy');
     });
 });
 

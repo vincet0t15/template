@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Claim;
+use App\Models\ClaimType;
 use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
@@ -92,6 +94,37 @@ class ManageEmployeeController extends Controller
         $offices = Office::all();
         $deductionTypes = DeductionType::active()->get();
 
+        // Claims data
+        $claimMonth = $request->input('claim_month');
+        $claimYear = $request->input('claim_year');
+        $claimTypeId = $request->input('claim_type_id');
+
+        $claimsQuery = Claim::where('employee_id', $employee->id)
+            ->with('claimType')
+            ->orderBy('claim_date', 'desc');
+
+        if ($claimMonth) {
+            $claimsQuery->whereMonth('claim_date', $claimMonth);
+        }
+
+        if ($claimYear) {
+            $claimsQuery->whereYear('claim_date', $claimYear);
+        }
+
+        if ($claimTypeId) {
+            $claimsQuery->where('claim_type_id', $claimTypeId);
+        }
+
+        $claims = $claimsQuery->paginate(20)->withQueryString();
+
+        $claimTypes = ClaimType::active()->get();
+
+        $availableClaimYears = Claim::where('employee_id', $employee->id)
+            ->selectRaw('DISTINCT YEAR(claim_date) as year')
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
+
         return Inertia::render('Employees/Manage/Manage', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
@@ -110,6 +143,14 @@ class ManageEmployeeController extends Controller
                 'last_page' => $paginatedPeriods->lastPage(),
                 'per_page' => $paginatedPeriods->perPage(),
                 'total' => $paginatedPeriods->total(),
+            ],
+            'claims' => $claims,
+            'claimTypes' => $claimTypes,
+            'availableClaimYears' => $availableClaimYears,
+            'claimFilters' => [
+                'claim_month' => $claimMonth,
+                'claim_year' => $claimYear,
+                'claim_type_id' => $claimTypeId,
             ],
         ]);
     }
