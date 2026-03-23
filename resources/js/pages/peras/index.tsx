@@ -1,3 +1,4 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,7 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
+import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { History, PlusIcon, Search, User } from 'lucide-react';
@@ -24,12 +27,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface PerasProps {
     employees: PaginatedDataResponse<Employee>;
-    filters: FilterProps;
+    offices: Office[];
+    employmentStatuses: EmploymentStatus[];
+    filters: FilterProps & { office_id?: string; employment_status_id?: string };
 }
 
-export default function PerasIndex({ employees, filters }: PerasProps) {
-    const { data: searchData, setData: setSearchData } = useForm({
+export default function PerasIndex({ employees, offices, employmentStatuses, filters }: PerasProps) {
+    const { data: filterData, setData: setFilterData } = useForm({
         search: filters.search || '',
+        office_id: filters.office_id || '',
+        employment_status_id: filters.employment_status_id || '',
     });
 
     const [openAdd, setOpenAdd] = useState(false);
@@ -47,14 +54,24 @@ export default function PerasIndex({ employees, filters }: PerasProps) {
         effective_date: new Date().toISOString().split('T')[0],
     });
 
+    const officeOptions = offices.map((o) => ({ value: o.id.toString(), label: o.name }));
+    const employmentStatusOptions = employmentStatuses.map((s) => ({ value: s.id.toString(), label: s.name }));
+
+    const applyFilters = () => {
+        const queryString: Record<string, string> = {};
+        if (filterData.search) queryString.search = filterData.search;
+        if (filterData.office_id) queryString.office_id = filterData.office_id;
+        if (filterData.employment_status_id) queryString.employment_status_id = filterData.employment_status_id;
+        router.get(route('peras.index'), queryString, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const queryString = searchData.search ? { search: searchData.search } : {};
-            router.get(route('peras.index'), queryString, {
-                preserveState: true,
-                preserveScroll: true,
-            });
+            applyFilters();
         }
     };
 
@@ -88,7 +105,25 @@ export default function PerasIndex({ employees, filters }: PerasProps) {
                 <Heading title="Personnel Economic Relief Allowance (PERA)" description="Manage employee PERA records with history tracking." />
 
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex w-full items-center gap-2 sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="w-[220px]">
+                            <CustomComboBox
+                                items={officeOptions}
+                                placeholder="All Offices"
+                                value={filterData.office_id || null}
+                                onSelect={(value) => setFilterData('office_id', value ?? '')}
+                            />
+                        </div>
+
+                        <div className="w-[200px]">
+                            <CustomComboBox
+                                items={employmentStatusOptions}
+                                placeholder="All Status"
+                                value={filterData.employment_status_id || null}
+                                onSelect={(value) => setFilterData('employment_status_id', value ?? '')}
+                            />
+                        </div>
+
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
@@ -97,8 +132,8 @@ export default function PerasIndex({ employees, filters }: PerasProps) {
                                 id="search"
                                 placeholder="Search employee..."
                                 className="w-full pl-8"
-                                value={searchData.search}
-                                onChange={(e) => setSearchData('search', e.target.value)}
+                                value={filterData.search}
+                                onChange={(e) => setFilterData('search', e.target.value)}
                                 onKeyDown={handleSearchKeyDown}
                             />
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />

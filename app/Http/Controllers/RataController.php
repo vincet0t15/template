@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\EmploymentStatus;
+use App\Models\Office;
 use App\Models\Rata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +15,8 @@ class RataController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $officeId = $request->input('office_id');
+        $employmentStatusId = $request->input('employment_status_id');
 
         $employees = Employee::query()
             ->where('is_rata_eligible', true)
@@ -21,15 +25,28 @@ class RataController extends Controller
                     ->orWhere('middle_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%");
             })
+            ->when($officeId, function ($query, $officeId) {
+                $query->where('office_id', $officeId);
+            })
+            ->when($employmentStatusId, function ($query, $employmentStatusId) {
+                $query->where('employment_status_id', $employmentStatusId);
+            })
             ->with(['employmentStatus', 'office', 'latestRata'])
             ->orderBy('last_name', 'asc')
             ->paginate(50)
             ->withQueryString();
 
+        $offices = Office::orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
+
         return Inertia::render('ratas/index', [
             'employees' => $employees,
+            'offices' => $offices,
+            'employmentStatuses' => $employmentStatuses,
             'filters' => [
                 'search' => $search,
+                'office_id' => $officeId,
+                'employment_status_id' => $employmentStatusId,
             ],
         ]);
     }
