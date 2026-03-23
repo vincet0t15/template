@@ -1,12 +1,15 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { FileText, Receipt, TrendingDown } from 'lucide-react';
-import { Fragment } from 'react';
+import { FileText, Printer, Receipt, TrendingDown } from 'lucide-react';
+import { Fragment, useRef, useState } from 'react';
+import { PrintReport } from './PrintReport';
 
 interface ReportsProps {
     employee: Employee;
@@ -34,6 +37,9 @@ interface YearlyClaimRow {
 }
 
 function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
+    const [showPrintPreview, setShowPrintPreview] = useState(false);
+    const printRef = useRef<HTMLDivElement>(null);
+
     // Group deductions by year-month
     const deductionsByPeriod: Record<string, MonthlyDeductionRow> = {};
     for (const d of allDeductions) {
@@ -67,18 +73,53 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     const totalAllDeductions = allDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
+    const handlePrint = () => {
+        const printContent = printRef.current;
+        if (!printContent) return;
+
+        const originalContents = document.body.innerHTML;
+        const printContents = printContent.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    };
+
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex items-center gap-2">
-                <FileText className="text-muted-foreground h-5 w-5" />
-                <div>
-                    <h2 className="text-lg font-semibold">Employee Report</h2>
-                    <p className="text-muted-foreground text-sm">
-                        {employee.last_name}, {employee.first_name} {employee.middle_name} — {employee.position}
-                    </p>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <FileText className="text-muted-foreground h-5 w-5" />
+                    <div>
+                        <h2 className="text-lg font-semibold">Employee Report</h2>
+                        <p className="text-muted-foreground text-sm">
+                            {employee.last_name}, {employee.first_name} {employee.middle_name} — {employee.position}
+                        </p>
+                    </div>
                 </div>
+                <Button onClick={() => setShowPrintPreview(true)}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print Report
+                </Button>
             </div>
+
+            {/* Print Preview Dialog */}
+            <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
+                <DialogContent className="max-h-[90vh] min-w-[90vw] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center justify-between">
+                            <span>Print Preview</span>
+                            <Button onClick={handlePrint} size="sm">
+                                <Printer className="mr-2 h-4 w-4" />
+                                Print Now
+                            </Button>
+                        </DialogTitle>
+                    </DialogHeader>
+                    <PrintReport ref={printRef} employee={employee} allDeductions={allDeductions} allClaims={allClaims} />
+                </DialogContent>
+            </Dialog>
 
             {/* Summary Cards */}
             <div className="grid gap-4 sm:grid-cols-2">
