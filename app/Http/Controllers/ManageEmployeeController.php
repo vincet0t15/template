@@ -125,6 +125,21 @@ class ManageEmployeeController extends Controller
             ->pluck('year')
             ->toArray();
 
+        // All deductions & claims (unpaginated) for Overview + Reports
+        $allDeductions = EmployeeDeduction::where('employee_id', $employee->id)
+            ->with('deductionType')
+            ->orderBy('pay_period_year', 'desc')
+            ->orderBy('pay_period_month', 'desc')
+            ->get();
+
+        $allClaims = Claim::where('employee_id', $employee->id)
+            ->with('claimType')
+            ->orderBy('claim_date', 'desc')
+            ->get();
+
+        $totalDeductionsAllTime = (float) $allDeductions->sum('amount');
+        $totalClaimsAllTime = (float) $allClaims->sum('amount');
+
         return Inertia::render('Employees/Manage/Manage', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
@@ -152,6 +167,11 @@ class ManageEmployeeController extends Controller
                 'claim_year' => $claimYear,
                 'claim_type_id' => $claimTypeId,
             ],
+            // Overview & Reports
+            'allDeductions' => $allDeductions,
+            'allClaims' => $allClaims,
+            'totalDeductionsAllTime' => $totalDeductionsAllTime,
+            'totalClaimsAllTime' => $totalClaimsAllTime,
         ]);
     }
 

@@ -19,6 +19,7 @@ import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Receipt, Settings } fr
 
 import EmployeeCompensation from './Compensation';
 import Overview from './Overview';
+import Reports from './Reports';
 import EmployeeSettings from './Settings';
 import { EmployeeClaims } from './claims';
 
@@ -46,6 +47,11 @@ interface EmployeeManageProps {
     claimTypes?: ClaimType[];
     availableClaimYears?: number[];
     claimFilters?: ClaimFilters;
+    // Overview & Reports
+    allDeductions?: EmployeeDeduction[];
+    allClaims?: Claim[];
+    totalDeductionsAllTime?: number;
+    totalClaimsAllTime?: number;
 }
 
 export default function EmployeeManagePage({
@@ -63,6 +69,10 @@ export default function EmployeeManagePage({
     claimTypes = [],
     availableClaimYears = [],
     claimFilters = {},
+    allDeductions = [],
+    allClaims = [],
+    totalDeductionsAllTime = 0,
+    totalClaimsAllTime = 0,
 }: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Employees', href: '/settings/employees' },
@@ -81,8 +91,6 @@ export default function EmployeeManagePage({
     const getInitials = () => {
         return `${employee.first_name.charAt(0)}${employee.last_name.charAt(0)}`;
     };
-
-    console.log(deductions);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -148,7 +156,13 @@ export default function EmployeeManagePage({
                     </div>
 
                     <TabsContent value="overview" className="mt-0 outline-none">
-                        <Overview />
+                        <Overview
+                            employee={employee}
+                            deductions={deductions}
+                            claims={allClaims}
+                            totalDeductionsAllTime={totalDeductionsAllTime}
+                            totalClaimsAllTime={totalClaimsAllTime}
+                        />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
                         <EmployeeCompensation
@@ -170,6 +184,9 @@ export default function EmployeeManagePage({
                             availableYears={availableClaimYears}
                             filters={claimFilters}
                         />
+                    </TabsContent>
+                    <TabsContent value="reports" className="mt-0 outline-none">
+                        <Reports employee={employee} allDeductions={allDeductions} allClaims={allClaims} />
                     </TabsContent>
                     <TabsContent value="settings" className="mt-0 outline-none">
                         <EmployeeSettings employee={employee} employmentStatuses={employmentStatuses} offices={offices} />

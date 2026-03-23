@@ -1,16 +1,17 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Pagination from '@/components/paginationData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Claim, ClaimFilters } from '@/types/claim';
 import type { ClaimType } from '@/types/claimType';
 import type { Employee } from '@/types/employee';
 import { PaginatedDataResponse } from '@/types/pagination';
-import { router, useForm } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { CreateClaimDialog } from './create';
+import { EditClaimDialog } from './edit';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -28,8 +29,8 @@ interface DialogState {
 }
 
 export function EmployeeClaims({ employee, claims, claimTypes, availableYears, filters }: ClaimsProps) {
-    const [dialogState, setDialogState] = useState<DialogState>({ open: false, claim: null });
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
+    const [editDialogState, setEditDialogState] = useState<DialogState>({ open: false, claim: null });
     const claimsData = claims || {
         data: [],
         current_page: 1,
@@ -42,14 +43,6 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
         links: [],
     };
 
-    const { data, setData, post, put, reset, errors } = useForm({
-        claim_type_id: '',
-        claim_date: '',
-        amount: '',
-        purpose: '',
-        remarks: '',
-    });
-
     const applyFilter = (newFilters: Partial<ClaimFilters>) => {
         router.get(route('manage.employees.claims.index', employee.id), { ...filters, ...newFilters }, { preserveState: true, preserveScroll: true });
     };
@@ -58,38 +51,12 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
         router.get(route('manage.employees.claims.index', employee.id), {}, { preserveState: true, preserveScroll: true });
     };
 
-    // const openCreateDialog = () => {
-    //     reset();
-    //     setData('claim_date', new Date().toISOString().split('T')[0]);
-    //     setDialogState({ open: true, claim: null });
-    // };
-
     const openEditDialog = (claim: Claim) => {
-        setData({
-            claim_type_id: String(claim.claim_type_id),
-            claim_date: claim.claim_date,
-            amount: String(claim.amount),
-            purpose: claim.purpose,
-            remarks: claim.remarks || '',
-        });
-        setDialogState({ open: true, claim });
+        setEditDialogState({ open: true, claim });
     };
 
-    const closeDialog = () => {
-        setDialogState({ open: false, claim: null });
-        reset();
-    };
-
-    const handleSubmit = () => {
-        if (dialogState.claim) {
-            put(route('manage.employees.claims.update', [employee.id, dialogState.claim.id]), {
-                onSuccess: closeDialog,
-            });
-        } else {
-            post(route('manage.employees.claims.store', employee.id), {
-                onSuccess: closeDialog,
-            });
-        }
+    const closeEditDialog = () => {
+        setEditDialogState({ open: false, claim: null });
     };
 
     const handleDelete = (claim: Claim) => {
@@ -112,56 +79,26 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
         <div className="space-y-4">
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-                <Select
-                    value={filters.claim_month || 'all'}
-                    onValueChange={(value) => applyFilter({ claim_month: value === 'all' ? undefined : value })}
-                >
-                    <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Months</SelectItem>
-                        {MONTHS.map((month, index) => (
-                            <SelectItem key={month} value={String(index + 1)}>
-                                {month}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <CustomComboBox
+                    items={MONTHS.map((month, index) => ({ value: String(index + 1), label: month }))}
+                    placeholder="All Months"
+                    value={filters.claim_month ?? null}
+                    onSelect={(value) => applyFilter({ claim_month: value ?? undefined })}
+                />
 
-                <Select
-                    value={filters.claim_year || 'all'}
-                    onValueChange={(value) => applyFilter({ claim_year: value === 'all' ? undefined : value })}
-                >
-                    <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Years</SelectItem>
-                        {availableYears.map((year) => (
-                            <SelectItem key={year} value={String(year)}>
-                                {year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <CustomComboBox
+                    items={availableYears.map((year) => ({ value: String(year), label: String(year) }))}
+                    placeholder="All Years"
+                    value={filters.claim_year ?? null}
+                    onSelect={(value) => applyFilter({ claim_year: value ?? undefined })}
+                />
 
-                <Select
-                    value={filters.claim_type_id || 'all'}
-                    onValueChange={(value) => applyFilter({ claim_type_id: value === 'all' ? undefined : value })}
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Claim Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        {claimTypes.map((type) => (
-                            <SelectItem key={type.id} value={String(type.id)}>
-                                {type.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <CustomComboBox
+                    items={claimTypes.map((type) => ({ value: String(type.id), label: type.name }))}
+                    placeholder="All Types"
+                    value={filters.claim_type_id ?? null}
+                    onSelect={(value) => applyFilter({ claim_type_id: value ?? undefined })}
+                />
 
                 {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -184,7 +121,7 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
             ) : (
                 <div className="rounded-md border">
                     <Table>
-                        <TableHeader>
+                        <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Type</TableHead>
@@ -226,6 +163,16 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
 
             {openCreateDialog && (
                 <CreateClaimDialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} employee={employee} claimTypes={claimTypes} />
+            )}
+
+            {editDialogState.open && editDialogState.claim && (
+                <EditClaimDialog
+                    open={editDialogState.open}
+                    onClose={closeEditDialog}
+                    employee={employee}
+                    claim={editDialogState.claim}
+                    claimTypes={claimTypes}
+                />
             )}
         </div>
     );
