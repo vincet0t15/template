@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import type { EmployeeDeduction } from '@/types/employeeDeduction';
+import type { Employee } from '@/types/employee';
 import type { Office } from '@/types/office';
 import { Head, router } from '@inertiajs/react';
 import { Building2, Calculator, Clock, FileText, MinusCircle, TrendingUp, Users } from 'lucide-react';
@@ -24,7 +24,7 @@ interface DashboardProps {
         employeesWithDeductions: number;
     };
     employeesByOffice: (Office & { employees_count: number })[];
-    recentDeductions: EmployeeDeduction[];
+    recentEmployeesWithDeductions: (Employee & { total_deductions: number })[];
     topDeductionTypes: {
         deduction_type_id: number;
         total_amount: number;
@@ -46,7 +46,7 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-export default function Dashboard({ stats, employeesByOffice, recentDeductions, topDeductionTypes, currentPeriod }: DashboardProps) {
+export default function Dashboard({ stats, employeesByOffice, recentEmployeesWithDeductions, topDeductionTypes, currentPeriod }: DashboardProps) {
     const statCards = [
         {
             title: 'Total Employees',
@@ -85,7 +85,9 @@ export default function Dashboard({ stats, employeesByOffice, recentDeductions, 
                 {/* Header */}
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Employee Deductions Dashboard</h1>
-                    <p className="text-muted-foreground">Track and manage employee deductions for {currentPeriod.monthName} {currentPeriod.year}</p>
+                    <p className="text-muted-foreground">
+                        Track and manage employee deductions for {currentPeriod.monthName} {currentPeriod.year}
+                    </p>
                 </div>
 
                 {/* Stats Grid */}
@@ -143,26 +145,26 @@ export default function Dashboard({ stats, employeesByOffice, recentDeductions, 
                         </CardContent>
                     </Card>
 
-                    {/* Recent Deductions */}
+                    {/* Employees with Deductions */}
                     <Card className="lg:col-span-3">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Clock className="h-5 w-5" />
-                                Recent Deductions
+                                Employees with Deductions
                             </CardTitle>
-                            <CardDescription>Latest deduction entries</CardDescription>
+                            <CardDescription>Recent employees and their total deductions for {currentPeriod.monthName}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {recentDeductions.map((deduction) => (
+                                {recentEmployeesWithDeductions.map((employee) => (
                                     <div
-                                        key={deduction.id}
+                                        key={employee.id}
                                         className="flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                                         onClick={() => router.get(route('employee-deductions.index'))}
                                     >
                                         <Avatar className="h-10 w-10 border">
-                                            {deduction.employee?.image_path ? (
-                                                <AvatarImage src={deduction.employee.image_path} alt={`${deduction.employee?.first_name} ${deduction.employee?.last_name}`} />
+                                            {employee.image_path ? (
+                                                <AvatarImage src={employee.image_path} alt={`${employee.first_name} ${employee.last_name}`} />
                                             ) : null}
                                             <AvatarFallback className="bg-gray-100">
                                                 <Users className="h-5 w-5 text-gray-400" />
@@ -170,12 +172,12 @@ export default function Dashboard({ stats, employeesByOffice, recentDeductions, 
                                         </Avatar>
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate font-medium">
-                                                {deduction.employee?.last_name}, {deduction.employee?.first_name}
+                                                {employee.last_name}, {employee.first_name}
                                             </p>
-                                            <p className="text-muted-foreground truncate text-sm">{deduction.deduction_type?.name}</p>
+                                            <p className="text-muted-foreground truncate text-sm">{employee.office?.name}</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="font-semibold">{formatCurrency(Number(deduction.amount))}</span>
+                                            <span className="font-semibold">{formatCurrency(Number(employee.total_deductions))}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -206,9 +208,7 @@ export default function Dashboard({ stats, employeesByOffice, recentDeductions, 
                                             <p className="text-muted-foreground text-xs">{office.code}</p>
                                         </div>
                                     </div>
-                                    <span className="bg-secondary rounded-full px-3 py-1 text-sm font-semibold">
-                                        {office.employees_count}
-                                    </span>
+                                    <span className="bg-secondary rounded-full px-3 py-1 text-sm font-semibold">{office.employees_count}</span>
                                 </div>
                             ))}
                         </div>
