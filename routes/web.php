@@ -16,6 +16,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PeraController;
 use App\Http\Controllers\RataController;
 use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,6 +26,14 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // SUPPLIERS
+    Route::prefix('suppliers')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
+        Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+        Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+    });
 
     // PAYROLL
     Route::prefix('payroll')->group(function () {

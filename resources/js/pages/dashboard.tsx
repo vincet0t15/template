@@ -186,35 +186,6 @@ export default function Dashboard({ stats, employeesByOffice, recentEmployeesWit
                     </Card>
                 </div>
 
-                {/* Employees by Office */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Building2 className="h-5 w-5" />
-                            Employees by Office
-                        </CardTitle>
-                        <CardDescription>Distribution of employees across departments</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                            {employeesByOffice.map((office) => (
-                                <div key={office.id} className="flex items-center justify-between rounded-lg border p-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                                            <Building2 className="text-primary h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">{office.name}</p>
-                                            <p className="text-muted-foreground text-xs">{office.code}</p>
-                                        </div>
-                                    </div>
-                                    <span className="bg-secondary rounded-full px-3 py-1 text-sm font-semibold">{office.employees_count}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-
                 {/* Quick Actions */}
                 <Card>
                     <CardHeader>
