@@ -1,3 +1,4 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -54,6 +55,11 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
         search: filters.search || '',
     });
 
+    const officeOptions = offices.map((office) => ({
+        value: office.id.toString(),
+        label: office.name,
+    }));
+
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
         if (filterData.month) queryString.month = filterData.month;
@@ -85,9 +91,9 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
                 <Heading title="Payroll Summary" description={`View payroll summary for ${getMonthName(filters.month)} ${filters.year}`} />
 
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <Select value={filterData.month.toString()} onValueChange={(value) => setFilterData('month', parseInt(value))}>
-                            <SelectTrigger className="w-[140px]">
+                            <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Month" />
                             </SelectTrigger>
                             <SelectContent>
@@ -101,28 +107,20 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
 
                         <Input
                             type="number"
-                            className="w-[100px]"
+                            className="w-[150px]"
                             value={filterData.year}
                             onChange={(e) => setFilterData('year', parseInt(e.target.value))}
                             placeholder="Year"
                         />
 
-                        <Select
-                            value={filterData.office_id || 'all'}
-                            onValueChange={(value) => setFilterData('office_id', value === 'all' ? '' : value)}
-                        >
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="All Offices" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Offices</SelectItem>
-                                {offices.map((office) => (
-                                    <SelectItem key={office.id} value={office.id.toString()}>
-                                        {office.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-full">
+                            <CustomComboBox
+                                items={officeOptions}
+                                placeholder="All Offices"
+                                value={filterData.office_id || null}
+                                onSelect={(value) => setFilterData('office_id', value ?? '')}
+                            />
+                        </div>
 
                         <div className="relative w-full sm:w-[200px]">
                             <Input
