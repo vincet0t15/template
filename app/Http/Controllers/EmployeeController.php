@@ -38,7 +38,7 @@ class EmployeeController extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
 
-        return Inertia::render('settings/Employee/create', [
+        return Inertia::render('Employees/create', [
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
         ]);
@@ -76,7 +76,7 @@ class EmployeeController extends Controller
         ]);
 
 
-        return redirect()->route('employees.index')->with('success', 'Employee created successfully');
+        return redirect()->back()->with('success', 'Employee created successfully');
     }
 
     public function show(Request $request, Employee $employee)
@@ -84,7 +84,7 @@ class EmployeeController extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
 
-        return Inertia::render('settings/Employee/edit', [
+        return Inertia::render('Employee/edit', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,

@@ -1,142 +1,150 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
-import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { Pencil, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { SalaryDialog } from './salaryDialog';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import type { Salary } from '@/types/salary';
+import { useForm } from '@inertiajs/react';
+import { CalendarIcon, Plus, TrendingUp } from 'lucide-react';
+import { useState, type FormEventHandler } from 'react';
+import { toast } from 'sonner';
 
 interface CompensationSalaryProps {
     employee: Employee;
-    deductionTypes: DeductionType[];
 }
 
-interface DialogState {
-    open: boolean;
-    month: string;
-    year: string;
-    existingDeductions: EmployeeDeduction[];
-}
-
-export function CompensationSalary({ employee, deductionTypes }: CompensationSalaryProps) {
-    const [dialogState, setDialogState] = useState<DialogState>({
-        open: false,
-        month: String(new Date().getMonth() + 1),
-        year: String(new Date().getFullYear()),
-        existingDeductions: [],
+function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: () => void; employee: Employee }) {
+    const { data, setData, post, processing, reset } = useForm({
+        employee_id: employee.id,
+        amount: '',
+        effective_date: new Date().toISOString().split('T')[0],
     });
 
-    const deductions = employee.deductions ?? [];
-
-    // Group deductions by pay period (month-year)
-    const grouped = deductions.reduce<Record<string, typeof deductions>>((acc, d) => {
-        const key = `${d.pay_period_year}-${String(d.pay_period_month).padStart(2, '0')}`;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(d);
-        return acc;
-    }, {});
-
-    const periods = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-
-    const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
-
-    const openNewDialog = () => {
-        setDialogState({
-            open: true,
-            month: String(new Date().getMonth() + 1),
-            year: String(new Date().getFullYear()),
-            existingDeductions: [],
+    const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault();
+        post(route('salaries.store'), {
+            onSuccess: () => {
+                toast.success('Salary added successfully');
+                reset();
+                onClose();
+            },
+            onError: () => toast.error('Failed to add salary.'),
         });
     };
-
-    const openEditDialog = (periodKey: string) => {
-        const [year, month] = periodKey.split('-');
-        setDialogState({
-            open: true,
-            month: String(parseInt(month)),
-            year,
-            existingDeductions: grouped[periodKey] ?? [],
-        });
-    };
-
-    const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
 
     return (
-        <div className="space-y-4">
-            <div>
-                <Button onClick={openNewDialog}>
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="max-w-md">
+                <form onSubmit={onSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Add Salary</DialogTitle>
+                        <DialogDescription>Enter the new salary amount and effective date.</DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4 space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <Label>Amount (₱)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={data.amount}
+                                onChange={(e) => setData('amount', e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <Label>Effective Date</Label>
+                            <Input type="date" value={data.effective_date} onChange={(e) => setData('effective_date', e.target.value)} required />
+                        </div>
+                    </div>
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Save Salary'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+const formatCurrency = (amount: number | undefined) => {
+    if (!amount) return '₱0.00';
+    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
+};
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+export function CompensationSalary({ employee }: CompensationSalaryProps) {
+    const [openDialog, setOpenDialog] = useState(false);
+    const salaries: Salary[] = employee.salaries ?? [];
+    const current = employee.latest_salary;
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">Salary</h3>
+                <Button size="sm" onClick={() => setOpenDialog(true)}>
                     <Plus className="h-4 w-4" />
-                    Add Salary Deductions
+                    Add Salary
                 </Button>
             </div>
 
-            {periods.length === 0 ? (
-                <div className="text-muted-foreground rounded-lg border py-12 text-center text-sm">No salary deductions recorded yet.</div>
-            ) : (
-                <div className="space-y-4">
-                    {periods.map((periodKey) => {
-                        const [year, month] = periodKey.split('-');
-                        const periodDeductions = grouped[periodKey];
-                        const total = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
-
-                        return (
-                            <div key={periodKey} className="overflow-hidden rounded-lg border shadow-sm">
-                                <div className="bg-muted/50 flex items-center justify-between px-4 py-2">
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="font-semibold">
-                                            {MONTHS[parseInt(month) - 1]} {year}
-                                        </Badge>
-                                        <span className="text-muted-foreground text-xs">{periodDeductions.length} deduction(s)</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
-                                        <Button size="sm" variant="outline" onClick={() => openEditDialog(periodKey)}>
-                                            <Pencil className="h-3 w-3" />
-                                            Edit
-                                        </Button>
-                                    </div>
-                                </div>
-                                <Table>
-                                    <TableHeader className="bg-muted/20">
-                                        <TableRow>
-                                            <TableHead>Deduction Type</TableHead>
-                                            <TableHead>Code</TableHead>
-                                            <TableHead className="text-right">Amount</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {periodDeductions.map((d) => (
-                                            <TableRow key={d.id}>
-                                                <TableCell className="font-medium">{d.deduction_type?.name ?? '—'}</TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">{d.deduction_type?.code ?? '—'}</TableCell>
-                                                <TableCell className="text-right text-red-600">- {formatCurrency(Number(d.amount))}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        );
-                    })}
+            {/* Current Salary Card */}
+            <div className="rounded-xl border bg-gradient-to-br from-emerald-50 to-teal-50 p-5 shadow-sm dark:from-emerald-950/30 dark:to-teal-950/30">
+                <div className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide text-emerald-700 uppercase dark:text-emerald-400">
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    Current Salary
                 </div>
-            )}
+                {current ? (
+                    <>
+                        <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(current.amount)}</p>
+                        <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                            <CalendarIcon className="h-3 w-3" />
+                            Effective {formatDate(current.effective_date)}
+                        </p>
+                    </>
+                ) : (
+                    <p className="text-muted-foreground text-sm">No salary record yet.</p>
+                )}
+            </div>
 
-            {dialogState.open && (
-                <SalaryDialog
-                    open={dialogState.open}
-                    onClose={closeDialog}
-                    employee={employee}
-                    deductionTypes={deductionTypes}
-                    defaultMonth={dialogState.month}
-                    defaultYear={dialogState.year}
-                    existingDeductions={dialogState.existingDeductions}
-                    takenPeriods={periods}
-                />
-            )}
+            {/* History Table */}
+            <div>
+                <p className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">History</p>
+                {salaries.length === 0 ? (
+                    <div className="text-muted-foreground rounded-lg border py-8 text-center text-sm">No salary history.</div>
+                ) : (
+                    <div className="overflow-hidden rounded-lg border shadow-sm">
+                        <Table>
+                            <TableHeader className="bg-muted/50">
+                                <TableRow>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Effective Date</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {salaries.map((s, i) => (
+                                    <TableRow key={s.id} className={i === 0 ? 'font-semibold' : ''}>
+                                        <TableCell>{formatCurrency(s.amount)}</TableCell>
+                                        <TableCell className="text-muted-foreground text-sm">{formatDate(s.effective_date)}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+            </div>
+
+            {openDialog && <AddSalaryDialog open={openDialog} onClose={() => setOpenDialog(false)} employee={employee} />}
         </div>
     );
 }
