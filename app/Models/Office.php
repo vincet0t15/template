@@ -21,6 +21,11 @@ class Office extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
     public static function boot()
     {
         parent::boot();
