@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { SalaryDialog } from './salaryDialog';
 
 const invoices = [
     {
@@ -48,10 +50,11 @@ const invoices = [
 ];
 
 export function CompensationSalary() {
+    const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
     return (
         <div>
             <div className="mb-4">
-                <Button>
+                <Button onClick={() => setOpenSalaryDialog(true)}>
                     <Plus className="h-4 w-4" />
                     Add Salary
                 </Button>
@@ -78,6 +81,8 @@ export function CompensationSalary() {
                     </TableBody>
                 </Table>
             </div>
+
+            {openSalaryDialog && <SalaryDialog open={openSalaryDialog} onClose={() => setOpenSalaryDialog(false)} />}
         </div>
     );
 }

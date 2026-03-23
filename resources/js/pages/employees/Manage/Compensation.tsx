@@ -5,7 +5,7 @@ import { CompensationSalary } from './compensation/salary';
 function EmployeeCompensation() {
     return (
         <div>
-            <Tabs defaultValue="account" orientation="vertical">
+            <Tabs defaultValue="salary" orientation="vertical">
                 <TabsList className="flex w-[150px] flex-col gap-3 bg-transparent">
                     <TabsTrigger value="salary">Salary</TabsTrigger>
                     <TabsTrigger value="pera">PERA</TabsTrigger>

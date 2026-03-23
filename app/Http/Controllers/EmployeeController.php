@@ -113,9 +113,10 @@ class EmployeeController extends Controller
             $employee->image_path = $request->file('photo')->store('employees', 'public');
         }
 
+        $validated = $request->suffix == 'None' ? array_merge($validated, ['suffix' => null]) : $validated;
         $employee->update($validated);
 
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully');
+        return redirect()->back()->with('success', 'Employee updated successfully');
     }
 
     public function destroy(Employee $employee)
