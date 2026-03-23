@@ -56,11 +56,13 @@ class ManageEmployeeController extends Controller
             'pay_period_year' => 'required|integer|min:2020|max:2100',
             'deductions' => 'required|array',
             'deductions.*.deduction_type_id' => 'required|exists:deduction_types,id',
-            'deductions.*.amount' => 'required|numeric|min:0',
+            'deductions.*.amount' => 'nullable|numeric|min:0',
         ]);
 
         foreach ($validated['deductions'] as $deduction) {
-            if ($deduction['amount'] <= 0) {
+            $amount = $deduction['amount'] ?? null;
+
+            if ($amount === null || $amount === '') {
                 continue;
             }
 
