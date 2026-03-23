@@ -16,6 +16,7 @@
 - [EmployeeController.php](file://app/Http/Controllers/EmployeeController.php)
 - [ManageEmployeeController.php](file://app/Http/Controllers/ManageEmployeeController.php)
 - [EmployeeManage.php](file://app/Http/Controllers/EmployeeManage.php)
+- [DashboardController.php](file://app/Http/Controllers/DashboardController.php)
 - [Manage.tsx](file://resources/js/pages/Employees/Manage/Manage.tsx)
 - [Compensation.tsx](file://resources/js/pages/Employees/Manage/Compensation.tsx)
 - [Settings.tsx](file://resources/js/pages/Employees/Manage/Settings.tsx)
@@ -23,11 +24,11 @@
 
 ## Update Summary
 **Changes Made**
-- Added comprehensive documentation for new Manage Employee routing structure
-- Updated employee management routes section to reflect new manage.employees routes
-- Added new Manage Employee Controller documentation
-- Updated navigation structure to include employee management tabs
-- Enhanced dependency analysis to include new employee management components
+- Updated dashboard routing section to reflect the new DashboardController implementation
+- Added comprehensive documentation for the DashboardController and its dashboard page integration
+- Updated routing configuration analysis to include the new controller-based approach
+- Enhanced dashboard functionality documentation with detailed controller methods and data processing
+- Updated dependency analysis to include DashboardController in the routing architecture
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -41,7 +42,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the routing architecture of a Laravel-based payroll management application using Inertia.js for seamless single-page application behavior. The system separates concerns between server-side routing and client-side navigation, leveraging Laravel routes to render React pages via Inertia middleware. Authentication routes are isolated under dedicated route groups, while feature-specific routes are grouped by domain areas such as payroll, employees, and settings. The architecture now includes a comprehensive employee management system with dedicated routes for managing employee compensation, benefits, and settings.
+This document explains the routing architecture of a Laravel-based payroll management application using Inertia.js for seamless single-page application behavior. The system separates concerns between server-side routing and client-side navigation, leveraging Laravel routes to render React pages via Inertia middleware. Authentication routes are isolated under dedicated route groups, while feature-specific routes are grouped by domain areas such as payroll, employees, and settings. The architecture now includes a comprehensive dashboard system powered by the new DashboardController, which provides centralized analytics and reporting capabilities for the payroll management system.
 
 ## Project Structure
 The routing architecture spans three primary layers:
@@ -55,7 +56,7 @@ Browser["Browser"]
 Laravel["Laravel Application"]
 Routes["Routes<br/>web.php, auth.php, settings.php"]
 Middleware["Middleware<br/>HandleInertiaRequests"]
-Controllers["Controllers<br/>PayrollController, EmployeeController,<br/>ManageEmployeeController, EmployeeManage"]
+Controllers["Controllers<br/>DashboardController, PayrollController, EmployeeController,<br/>ManageEmployeeController, EmployeeManage"]
 Views["Blade Template<br/>app.blade.php"]
 React["React Pages<br/>dashboard.tsx, welcome.tsx, EmployeeManage"]
 Browser --> Laravel
@@ -67,7 +68,7 @@ Views --> React
 ```
 
 **Diagram sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
@@ -75,7 +76,7 @@ Views --> React
 - [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
 
 **Section sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 - [app.php:1-24](file://bootstrap/app.php#L1-L24)
@@ -94,10 +95,10 @@ Key routing patterns:
 - Authentication routes are guarded by guest middleware for registration/login and auth middleware for verification and logout.
 - Feature routes are grouped under prefixes (e.g., payroll, employees, settings) and use controller actions to render React pages.
 - Settings routes provide profile and password management under an authenticated context.
-- **Updated** Employee management routes now include dedicated manage.employees routes for comprehensive employee administration.
+- **Updated** Dashboard routes now use the dedicated DashboardController for centralized analytics and reporting functionality.
 
 **Section sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
@@ -128,7 +129,7 @@ React-->>Client : Interactive SPA page
 ```
 
 **Diagram sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 - [app.blade.php:1-21](file://resources/views/app.blade.php#L1-L21)
 - [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
@@ -164,6 +165,61 @@ React-->>Client : Login form
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [AuthenticatedSessionController.php:1-52](file://app/Http/Controllers/Auth/AuthenticatedSessionController.php#L1-L52)
 
+### Dashboard Routing
+**Updated** The dashboard routing now uses the dedicated DashboardController instead of inline closures, providing centralized analytics and reporting functionality.
+
+```mermaid
+sequenceDiagram
+participant Client as "Client"
+participant DashboardRoutes as "Dashboard Routes"
+participant DashboardController as "DashboardController"
+participant Middleware as "Inertia Middleware"
+participant Blade as "Blade Template"
+participant React as "React Dashboard Page"
+Client->>DashboardRoutes : GET /dashboard
+DashboardRoutes->>DashboardController : Dispatch index action
+DashboardController->>Middleware : Return Inertia response with analytics data
+Middleware->>Blade : Render root template
+Blade->>React : Mount dashboard page with statistics
+React-->>Client : Interactive dashboard with analytics
+```
+
+**Diagram sources**
+- [web.php:24-25](file://routes/web.php#L24-L25)
+- [DashboardController.php:14-87](file://app/Http/Controllers/DashboardController.php#L14-L87)
+- [HandleInertiaRequests.php:18-53](file://app/Http/Middleware/HandleInertiaRequests.php#L18-L53)
+- [app.blade.php:12-20](file://resources/views/app.blade.php#L12-L20)
+
+**Section sources**
+- [web.php:24-25](file://routes/web.php#L24-L25)
+- [DashboardController.php:1-89](file://app/Http/Controllers/DashboardController.php#L1-L89)
+
+### Dashboard Controller Implementation
+The DashboardController provides comprehensive analytics and reporting functionality:
+
+```mermaid
+flowchart TD
+DashboardController["DashboardController"] --> StatsCalculation["Calculate Statistics"]
+StatsCalculation --> TotalEmployees["Total Employees Count"]
+StatsCalculation --> TotalOffices["Total Offices Count"]
+StatsCalculation --> ActiveDeductionTypes["Active Deduction Types"]
+StatsCalculation --> MonthlyDeductions["Monthly Deductions Analytics"]
+MonthlyDeductions --> DeductionsCount["Deductions Count"]
+MonthlyDeductions --> DeductionsTotal["Deductions Total Amount"]
+MonthlyDeductions --> EmployeesWithDeductions["Employees With Deductions"]
+DashboardController --> DataAggregation["Aggregate Data"]
+DataAggregation --> EmployeesByOffice["Top Offices by Employee Count"]
+DataAggregation --> RecentEmployees["Recent Employees with Deductions"]
+DataAggregation --> TopDeductionTypes["Top Deduction Types by Amount"]
+DashboardController --> InertiaResponse["Return Inertia Response"]
+```
+
+**Diagram sources**
+- [DashboardController.php:14-87](file://app/Http/Controllers/DashboardController.php#L14-L87)
+
+**Section sources**
+- [DashboardController.php:1-89](file://app/Http/Controllers/DashboardController.php#L1-L89)
+
 ### Payroll Feature Routing
 Payroll routes are grouped under the payroll prefix and handled by PayrollController. The controller queries related models and computes derived values for rendering.
 
@@ -194,7 +250,7 @@ React-->>Client : Payroll listing with filters
 - [PayrollController.php:1-125](file://app/Http/Controllers/PayrollController.php#L1-L125)
 
 ### Employee Management Routing
-**Updated** Employee routes are now organized into two distinct management systems:
+Employee routes are now organized into two distinct management systems:
 - Basic employee CRUD operations under employees prefix
 - Comprehensive employee management under manage.employees prefix
 
@@ -216,13 +272,13 @@ React-->>Client : Comprehensive employee management interface
 ```
 
 **Diagram sources**
-- [web.php:77-81](file://routes/web.php#L77-L81)
+- [web.php:79-83](file://routes/web.php#L79-L83)
 - [ManageEmployeeController.php:16-50](file://app/Http/Controllers/ManageEmployeeController.php#L16-L50)
 - [HandleInertiaRequests.php:18-53](file://app/Http/Middleware/HandleInertiaRequests.php#L18-L53)
 - [app.blade.php:12-20](file://resources/views/app.blade.php#L12-L20)
 
 **Section sources**
-- [web.php:66-81](file://routes/web.php#L66-L81)
+- [web.php:66-83](file://routes/web.php#L66-L83)
 - [ManageEmployeeController.php:1-86](file://app/Http/Controllers/ManageEmployeeController.php#L1-L86)
 - [EmployeeManage.php:1-42](file://app/Http/Controllers/EmployeeManage.php#L1-L42)
 
@@ -277,8 +333,35 @@ Render --> End(["Interactive SPA"])
 - [app.blade.php:1-21](file://resources/views/app.blade.php#L1-L21)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 
+### Dashboard Page Integration
+The dashboard page provides comprehensive analytics and reporting capabilities:
+
+```mermaid
+flowchart TD
+DashboardPage["Dashboard Page"] --> StatCards["Stat Cards"]
+StatCards --> TotalEmployees["Total Employees"]
+StatCards --> TotalOffices["Total Offices"]
+StatCards --> DeductionTypes["Deduction Types"]
+StatCards --> MonthlyDeductions["Monthly Deductions"]
+DashboardPage --> Charts["Data Visualization"]
+Charts --> TopDeductionTypes["Top Deduction Types"]
+Charts --> EmployeesWithDeductions["Employees with Deductions"]
+Charts --> EmployeesByOffice["Employees by Office"]
+DashboardPage --> QuickActions["Quick Actions"]
+QuickActions --> ViewDeductions["View Deductions"]
+QuickActions --> ViewEmployees["View Employees"]
+QuickActions --> ManageDeductionTypes["Manage Deduction Types"]
+QuickActions --> AddEmployee["Add Employee"]
+```
+
+**Diagram sources**
+- [dashboard.tsx:49-282](file://resources/js/pages/dashboard.tsx#L49-L282)
+
+**Section sources**
+- [dashboard.tsx:1-284](file://resources/js/pages/dashboard.tsx#L1-L284)
+
 ### Employee Management Interface
-**New** The employee management interface provides a comprehensive tabbed system for managing employee details:
+The employee management interface provides a comprehensive tabbed system for managing employee details:
 
 ```mermaid
 flowchart TD
@@ -307,12 +390,12 @@ The routing architecture exhibits clear separation of concerns:
 - Controllers depend on middleware for shared data and root template rendering.
 - Middleware depends on the Blade template for mounting React pages.
 - Frontend pages depend on Inertia for navigation and data sharing.
-- **Updated** Employee management routes now depend on both ManageEmployeeController and EmployeeManage for different management contexts.
+- **Updated** Dashboard routes now depend on the dedicated DashboardController for centralized analytics functionality.
 
 ```mermaid
 graph TB
 Routes["Routes<br/>web.php, auth.php, settings.php"]
-Controllers["Controllers<br/>PayrollController, EmployeeController,<br/>ManageEmployeeController, EmployeeManage"]
+Controllers["Controllers<br/>DashboardController, PayrollController, EmployeeController,<br/>ManageEmployeeController, EmployeeManage"]
 Middleware["HandleInertiaRequests"]
 Blade["app.blade.php"]
 ReactPages["React Pages<br/>dashboard.tsx, welcome.tsx, EmployeeManage"]
@@ -323,14 +406,14 @@ Blade --> ReactPages
 ```
 
 **Diagram sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 - [app.blade.php:1-21](file://resources/views/app.blade.php#L1-L21)
 
 **Section sources**
-- [web.php:1-110](file://routes/web.php#L1-L110)
+- [web.php:1-115](file://routes/web.php#L1-L115)
 - [auth.php:1-57](file://routes/auth.php#L1-L57)
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
@@ -341,7 +424,7 @@ Blade --> ReactPages
 - Inertia middleware shares minimal data to reduce payload sizes.
 - Frontend page resolution leverages Vite for efficient asset loading.
 - Pagination in controllers limits data transfer for large datasets.
-- **Updated** Employee management routes optimize data loading by preloading related models and using efficient query relationships.
+- **Updated** DashboardController optimizes data loading by using efficient Eloquent queries and eager loading relationships to minimize database round trips.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
@@ -349,13 +432,13 @@ Common issues and resolutions:
 - Inertia rendering errors: Verify the root template path and shared data keys in middleware.
 - Asset loading problems: Confirm Vite configuration and Blade @vite directives are present.
 - Route not found: Check route group prefixes and controller method signatures.
-- **Updated** Employee management issues: Verify manage.employees routes are properly nested and controller methods match route parameters.
+- **Updated** Dashboard routing issues: Verify the DashboardController is properly imported and the route definition matches the controller method signature.
 
 **Section sources**
 - [auth.php:13-35](file://routes/auth.php#L13-L35)
 - [HandleInertiaRequests.php:18-53](file://app/Http/Middleware/HandleInertiaRequests.php#L18-L53)
 - [app.blade.php:12-20](file://resources/views/app.blade.php#L12-L20)
-- [web.php:77-81](file://routes/web.php#L77-L81)
+- [web.php:24-25](file://routes/web.php#L24-L25)
 
 ## Conclusion
-The routing architecture combines Laravel's structured routing with Inertia.js to deliver a responsive, SPA-like experience. Routes are cleanly organized by domain, controllers encapsulate business logic, and middleware ensures consistent data sharing and template rendering. The recent major routing restructuring introduces comprehensive employee management capabilities with dedicated routes for managing employee compensation, benefits, and settings. This enhanced architecture enables maintainable development and predictable navigation across authentication, payroll, employee management, and settings domains, providing a robust foundation for the payroll management application.
+The routing architecture combines Laravel's structured routing with Inertia.js to deliver a responsive, SPA-like experience. Routes are cleanly organized by domain, controllers encapsulate business logic, and middleware ensures consistent data sharing and template rendering. The recent major routing restructuring introduces comprehensive dashboard capabilities through the new DashboardController, replacing inline closures with a dedicated controller for centralized analytics and reporting. This enhanced architecture enables maintainable development and predictable navigation across authentication, payroll, employee management, and dashboard domains, providing a robust foundation for the payroll management application.

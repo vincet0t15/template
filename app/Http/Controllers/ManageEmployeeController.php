@@ -31,12 +31,44 @@ class ManageEmployeeController extends Controller
             'ratas' => function ($query) {
                 $query->orderBy('effective_date', 'desc');
             },
-            'deductions' => function ($query) {
-                $query->with('deductionType')
-                    ->orderBy('pay_period_year', 'desc')
-                    ->orderBy('pay_period_month', 'desc');
-            },
         ]);
+
+
+        $periodsQuery = EmployeeDeduction::where('employee_id', $employee->id)
+            ->selectRaw('pay_period_year, pay_period_month, COUNT(*) as deduction_count, SUM(amount) as total_amount')
+            ->groupBy('pay_period_year', 'pay_period_month')
+            ->orderBy('pay_period_year', 'desc')
+            ->orderBy('pay_period_month', 'desc');
+
+        $paginatedPeriods = $periodsQuery->paginate(50);
+
+        // Get all deductions for the current page's periods
+        $periodsList = $paginatedPeriods->map(function ($p) {
+            return "{$p->pay_period_year}-" . str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
+        })->values()->toArray();
+
+        $deductionsData = EmployeeDeduction::where('employee_id', $employee->id)
+            ->whereIn('pay_period_year', $paginatedPeriods->pluck('pay_period_year'))
+            ->whereIn('pay_period_month', $paginatedPeriods->pluck('pay_period_month'))
+            ->with('deductionType')
+            ->orderBy('pay_period_year', 'desc')
+            ->orderBy('pay_period_month', 'desc')
+            ->get();
+
+        // Group deductions by period for frontend
+        $groupedDeductions = $deductionsData->groupBy(function ($d) {
+            return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+        })->toArray();
+
+        // Get all taken periods for conflict detection (just the period keys)
+        $takenPeriods = EmployeeDeduction::where('employee_id', $employee->id)
+            ->selectRaw('DISTINCT pay_period_year, pay_period_month')
+            ->get()
+            ->map(function ($d) {
+                return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+            })
+            ->values()
+            ->toArray();
 
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
@@ -47,6 +79,15 @@ class ManageEmployeeController extends Controller
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
             'deductionTypes' => $deductionTypes,
+            'deductions' => $groupedDeductions,
+            'periodsList' => $periodsList,
+            'takenPeriods' => $takenPeriods,
+            'deductionPagination' => [
+                'current_page' => $paginatedPeriods->currentPage(),
+                'last_page' => $paginatedPeriods->lastPage(),
+                'per_page' => $paginatedPeriods->perPage(),
+                'total' => $paginatedPeriods->total(),
+            ],
         ]);
     }
 

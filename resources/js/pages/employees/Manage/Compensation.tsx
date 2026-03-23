@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
+import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { CompensationDeductions } from './compensation/deductions';
 import CompensationPera from './compensation/pera';
 import CompensationRata from './compensation/rata';
@@ -9,9 +10,25 @@ import { CompensationSalary } from './compensation/salary';
 interface EmployeeCompensationProps {
     employee: Employee;
     deductionTypes: DeductionType[];
+    deductions?: Record<string, EmployeeDeduction[]>;
+    periodsList?: string[];
+    takenPeriods?: string[];
+    deductionPagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
-function EmployeeCompensation({ employee, deductionTypes }: EmployeeCompensationProps) {
+function EmployeeCompensation({
+    employee,
+    deductionTypes,
+    deductions = {},
+    periodsList = [],
+    takenPeriods = [],
+    deductionPagination,
+}: EmployeeCompensationProps) {
     return (
         <div>
             <Tabs defaultValue="deductions" orientation="vertical">
@@ -35,7 +52,14 @@ function EmployeeCompensation({ employee, deductionTypes }: EmployeeCompensation
                 </TabsContent>
 
                 <TabsContent value="deductions">
-                    <CompensationDeductions employee={employee} deductionTypes={deductionTypes} />
+                    <CompensationDeductions
+                        employee={employee}
+                        deductionTypes={deductionTypes}
+                        deductions={deductions}
+                        periodsList={periodsList}
+                        takenPeriods={takenPeriods}
+                        pagination={deductionPagination}
+                    />
                 </TabsContent>
             </Tabs>
         </div>

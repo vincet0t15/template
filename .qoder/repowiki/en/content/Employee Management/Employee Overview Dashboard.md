@@ -2,443 +2,402 @@
 
 <cite>
 **Referenced Files in This Document**
-- [Manage.tsx](file://resources/js/pages/Employees/Manage/Manage.tsx)
-- [Overview.tsx](file://resources/js/pages/Employees/Manage/Overview.tsx)
-- [Compensation.tsx](file://resources/js/pages/Employees/Manage/Compensation.tsx)
-- [Settings.tsx](file://resources/js/pages/Employees/Manage/Settings.tsx)
-- [EmployeeManage.php](file://app\Http\Controllers\EmployeeManage.php)
-- [Employee.php](file://app\Models\Employee.php)
-- [employee.d.ts](file://resources/js/types/employee.d.ts)
-- [employmentStatuses.d.ts](file://resources/js/types/employmentStatuses.d.ts)
-- [office.d.ts](file://resources/js/types/office.d.ts)
+- [DashboardController.php](file://app\Http\Controllers\DashboardController.php)
+- [dashboard.tsx](file://resources\js\pages\dashboard.tsx)
 - [web.php](file://routes\web.php)
-- [tabs.tsx](file://resources/js/components/ui/tabs.tsx)
-- [avatar.tsx](file://resources/js/components/ui/avatar.tsx)
-- [overview.tsx](file://resources/js/pages/settings/Employee/manage/overview.tsx)
-- [compensation.tsx](file://resources/js/pages/settings/Employee/manage/compensation.tsx)
-- [index.tsx](file://resources/js/pages/settings/Employee/manage/index.tsx)
+- [Employee.php](file://app\Models\Employee.php)
+- [EmployeeDeduction.php](file://app\Models\EmployeeDeduction.php)
+- [DeductionType.php](file://app\Models\DeductionType.php)
+- [Office.php](file://app\Models\Office.php)
+- [employee.d.ts](file://resources\js\types\employee.d.ts)
+- [office.d.ts](file://resources\js\types\office.d.ts)
+- [employee-deductions\index.tsx](file://resources\js\pages\employee-deductions\index.tsx)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Updated to reflect the new comprehensive employee management dashboard with tabbed interface
-- Added documentation for professional header with avatar display and employment status badges
-- Enhanced salary formatting capabilities with Philippine Peso currency display
-- Updated routing structure to include new employees management routes
-- Added detailed component analysis for the new tabbed interface implementation
+- Complete replacement of basic dashboard with comprehensive employee deductions dashboard system
+- Added new DashboardController with advanced analytics and statistical reporting
+- Implemented sophisticated four-card statistics dashboard with interactive visualizations
+- Integrated comprehensive administrative controls and quick action buttons
+- Replaced simple employee management interface with dedicated deductions management system
+- Added advanced data aggregation including monthly deduction tracking and top deduction types analysis
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Project Structure](#project-structure)
-3. [Core Components](#core-components)
-4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Tabbed Interface Implementation](#tabbed-interface-implementation)
-7. [Professional Header Features](#professional-header-features)
-8. [Salary Formatting System](#salary-formatting-system)
-9. [Dependency Analysis](#dependency-analysis)
-10. [Performance Considerations](#performance-considerations)
+2. [System Architecture](#system-architecture)
+3. [Dashboard Components](#dashboard-components)
+4. [Statistical Analytics System](#statistical-analytics-system)
+5. [Interactive Data Visualization](#interactive-data-visualization)
+6. [Administrative Controls](#administrative-controls)
+7. [Data Aggregation and Reporting](#data-aggregation-and-reporting)
+8. [User Interface Components](#user-interface-components)
+9. [Performance Optimization](#performance-optimization)
+10. [Integration Patterns](#integration-patterns)
 11. [Troubleshooting Guide](#troubleshooting-guide)
 12. [Conclusion](#conclusion)
 
 ## Introduction
-The Employee Overview Dashboard represents a comprehensive payroll management interface designed to provide HR professionals and managers with a unified, tabbed-view experience for employee compensation and benefits management. This dashboard features a professional header with avatar display, employment status badges, and sophisticated salary formatting capabilities, delivering actionable insights into workforce compensation strategies through an intuitive tabbed interface.
+The Employee Overview Dashboard has been completely transformed into a sophisticated employee deductions analytics platform. This comprehensive system replaces the previous basic dashboard with a feature-rich interface designed for payroll administrators and HR professionals managing employee compensation deductions. The new dashboard features advanced statistical cards, interactive visualizations, and comprehensive administrative controls, providing real-time insights into workforce compensation patterns and deduction management.
 
-The system leverages Laravel's backend architecture with React frontend components, creating a seamless Single Page Application (SPA) experience with real-time data visualization and responsive design principles optimized for both desktop and mobile viewing experiences.
+The system leverages Laravel's backend architecture with React frontend components to deliver a modern Single Page Application (SPA) experience with sophisticated data visualization, responsive design principles, and comprehensive analytics capabilities.
 
-**Updated** The dashboard now includes a comprehensive tabbed interface with four main sections: Overview, Compensation, Reports, and Settings, each providing specialized functionality for employee management operations.
+**Updated** The dashboard now focuses specifically on employee deduction management, featuring four main statistical cards, interactive charts, and comprehensive administrative controls for payroll operations.
 
-## Project Structure
-The dashboard implementation follows a modular architecture with clear separation between frontend React components and backend PHP controllers. The structure emphasizes maintainability and scalability through organized file organization and consistent naming conventions.
+## System Architecture
+The dashboard system implements a modern client-server architecture with React frontend components communicating with Laravel backend services through Inertia.js for seamless page transitions and state management.
 
 ```mermaid
 graph TB
 subgraph "Frontend Layer"
-A[Manage.tsx] --> B[Professional Header]
-A --> C[Tabbed Interface]
-A --> D[Avatar Component]
-A --> E[Badge Component]
-C --> F[Overview Tab]
-C --> G[Compensation Tab]
-C --> H[Reports Tab]
-C --> I[Settings Tab]
+A[Dashboard Component] --> B[Statistical Cards]
+A --> C[Interactive Charts]
+A --> D[Administrative Controls]
+B --> E[Total Employees Card]
+B --> F[Total Offices Card]
+B --> G[Deduction Types Card]
+B --> H[Monthly Deductions Card]
+C --> I[Top Deduction Types Chart]
+C --> J[Employees by Office Distribution]
+D --> K[Quick Action Buttons]
+D --> L[Filter Controls]
 end
 subgraph "Backend Layer"
-J[EmployeeManage Controller] --> K[Employee Model]
-K --> L[Salary Model]
-K --> M[Pera Model]
-K --> N[Rata Model]
+M[DashboardController] --> N[Statistics Aggregation]
+N --> O[Employee Count]
+N --> P[Office Statistics]
+N --> Q[Deduction Type Analysis]
+N --> R[Monthly Deduction Tracking]
+M --> S[Data Relationships]
+S --> T[Employee-Deduction Relations]
+S --> U[Deduction-Type Analysis]
 end
-subgraph "Routing & Layout"
-O[Web Routes] --> J
-P[App Layout] --> A
-Q[Tabs Component] --> C
-R[Avatar Component] --> D
-S[Badge Component] --> E
+subgraph "Database Layer"
+V[Employee Table] --> W[Employee-Deduction Relations]
+X[EmployeeDeduction Table] --> Y[DeductionType Relations]
+Z[Office Table] --> V
 end
-A --> J
-B --> D
-C --> F
-C --> G
-C --> H
-C --> I
+A --> M
+M --> V
+M --> X
+M --> Z
 ```
 
 **Diagram sources**
-- [Manage.tsx:25-116](file://resources/js/pages/Employees/Manage/Manage.tsx#L25-L116)
-- [EmployeeManage.php:13-40](file://app\Http\Controllers\EmployeeManage.php#L13-L40)
-- [Employee.php:90-103](file://app\Models\Employee.php#L90-L103)
+- [dashboard.tsx:49-283](file://resources\js\pages\dashboard.tsx#L49-L283)
+- [DashboardController.php:14-87](file://app\Http\Controllers\DashboardController.php#L14-L87)
+
+The architecture ensures efficient data loading through optimized database queries and relationship eager loading, reducing server response times while providing comprehensive analytics data.
 
 **Section sources**
-- [Manage.tsx:1-118](file://resources/js/pages/Employees/Manage/Manage.tsx#L1-L118)
-- [EmployeeManage.php:1-42](file://app\Http\Controllers\EmployeeManage.php#L1-L42)
-- [web.php:105-107](file://routes\web.php#L105-L107)
+- [DashboardController.php:12-89](file://app\Http\Controllers\DashboardController.php#L12-L89)
+- [dashboard.tsx:1-284](file://resources\js\pages\dashboard.tsx#L1-L284)
 
-## Core Components
-The dashboard consists of several interconnected components that work together to provide comprehensive employee management functionality. Each component serves a specific purpose in the overall system architecture while maintaining loose coupling and high cohesion.
+## Dashboard Components
+The dashboard consists of four primary statistical cards that provide comprehensive overview of employee deduction metrics. Each card features sophisticated design elements including colored icons, descriptive text, and currency formatting for financial data presentation.
 
-### Professional Employee Header
-**Updated** The professional header component features a sophisticated design with avatar display, employment status badges, and salary formatting. It displays employee personal information, employment status, office assignment, and current monthly compensation with proper currency formatting.
+### Statistical Cards System
+**Updated** The four main statistical cards provide essential metrics for payroll administration:
 
-### Tabbed Interface System
-**Updated** The tabbed interface provides four distinct sections for comprehensive employee management:
-- **Overview**: Displays key compensation metrics and summary information
-- **Compensation**: Shows detailed salary history and allowance information
-- **Reports**: Provides reporting capabilities and historical data visualization
-- **Settings**: Offers employee profile management and configuration options
+1. **Total Employees Card**: Displays registered employee count with user icon and blue color scheme
+2. **Total Offices Card**: Shows department count with building icon and emerald green color scheme  
+3. **Deduction Types Card**: Lists active deduction categories with file text icon and purple color scheme
+4. **Monthly Deductions Card**: Presents current month's deduction statistics with currency formatting and employee count
 
-### Currency Formatting System
-**Updated** The salary formatting system implements Philippine Peso (PHP) currency display with proper localization, including decimal precision and currency symbol formatting for consistent financial data presentation.
+### Interactive Visualizations
+**Updated** The dashboard includes sophisticated data visualization components:
 
-**Section sources**
-- [Manage.tsx:55-116](file://resources/js/pages/Employees/Manage/Manage.tsx#L55-L116)
-- [overview.tsx:9-114](file://resources/js/pages/settings/Employee/manage/overview.tsx#L9-L114)
-- [compensation.tsx:265-283](file://resources/js/pages/settings/Employee/manage/compensation.tsx#L265-L283)
+- **Top Deduction Types**: Bar chart-style display showing highest deduction categories by amount
+- **Employees by Office**: Grid layout displaying department distribution with employee counts
+- **Recent Employees**: List view with avatar display and total deduction amounts
 
-## Architecture Overview
-The dashboard architecture implements a client-server model with React frontend components communicating with Laravel backend services through AJAX requests. The system utilizes Inertia.js for seamless page transitions and state management.
+### Administrative Controls
+**Updated** Comprehensive administrative controls provide quick access to payroll management functions:
 
-```mermaid
-sequenceDiagram
-participant Client as "Browser Client"
-participant ManagePage as "Employee Manage Page"
-participant Controller as "EmployeeManage Controller"
-participant Model as "Employee Model"
-participant Database as "Database Layer"
-Client->>ManagePage : User navigates to employee management dashboard
-ManagePage->>Controller : Fetch employee data with relationships
-Controller->>Model : Load employee with eager loading
-Model->>Database : Query employee with related models
-Database-->>Model : Return employee data with associations
-Model-->>Controller : Employee with salaries, peras, ratas
-Controller-->>ManagePage : Rendered tabbed interface
-ManagePage-->>Client : Professional header with avatar and badges
-Note over Client,Database : Real-time data updates with currency formatting
-```
-
-**Diagram sources**
-- [EmployeeManage.php:15-30](file://app\Http\Controllers\EmployeeManage.php#L15-L30)
-- [Employee.php:31-64](file://app\Models\Employee.php#L31-L64)
-
-The architecture ensures efficient data loading through eager loading of related models, reducing database queries and improving response times. The frontend components utilize React's virtual DOM for optimal rendering performance with sophisticated state management.
+- **View Deductions**: Direct navigation to employee deduction management
+- **Employees**: Access to employee directory and management
+- **Deduction Types**: Management of deduction category configurations
+- **Add Employee**: Quick creation of new employee records
 
 **Section sources**
-- [EmployeeManage.php:13-40](file://app\Http\Controllers\EmployeeManage.php#L13-L40)
-- [Employee.php:14-29](file://app\Models\Employee.php#L14-L29)
+- [dashboard.tsx:50-109](file://resources\js\pages\dashboard.tsx#L50-L109)
+- [dashboard.tsx:114-186](file://resources\js\pages\dashboard.tsx#L114-L186)
+- [dashboard.tsx:219-279](file://resources\js\pages\dashboard.tsx#L219-L279)
 
-## Detailed Component Analysis
+## Statistical Analytics System
+The DashboardController implements sophisticated analytics aggregation through optimized database queries and relationship management. The system calculates key metrics in real-time while maintaining performance through efficient query patterns.
 
-### Employee Management Page Component
-**Updated** The Employee Management Page component serves as the primary interface for comprehensive employee operations, featuring a professional header with avatar display, employment status badges, and a sophisticated tabbed interface system. The component integrates advanced currency formatting, responsive design patterns, and comprehensive data visualization capabilities.
+### Statistics Aggregation
+**Updated** The controller performs comprehensive data aggregation:
 
-```mermaid
-classDiagram
-class EmployeeManagePage {
-+employee : Employee
-+employmentStatuses : EmploymentStatus[]
-+offices : Office[]
-+breadcrumbs : BreadcrumbItem[]
-+formatCurrency() : string
-+getInitials() : string
-+render() : JSX.Element
-}
-class ProfessionalHeader {
-+avatar : Avatar
-+employeeName : string
-+employmentStatus : Badge
-+positionOffice : string
-+currentSalary : string
-}
-class TabbedInterface {
-+tabsList : TabsList
-+overviewTab : TabsTrigger
-+compensationTab : TabsTrigger
-+reportsTab : TabsTrigger
-+settingsTab : TabsTrigger
-}
-class CurrencyFormatting {
-+formatCurrency() : string
-+currencyLocale : 'en-PH'
-+currencyCode : 'PHP'
-+minimumFractionDigits : 2
-}
-EmployeeManagePage --> ProfessionalHeader : "contains"
-EmployeeManagePage --> TabbedInterface : "uses"
-EmployeeManagePage --> CurrencyFormatting : "implements"
-ProfessionalHeader --> Avatar : "displays"
-ProfessionalHeader --> Badge : "shows status"
-TabbedInterface --> Tabs : "manages navigation"
-```
+- **Total Employees**: Simple count of all registered employees
+- **Total Offices**: Department count with employee distribution analysis
+- **Active Deduction Types**: Filtered count of currently active deduction categories
+- **Monthly Deductions**: Complex aggregation including count, total amount, and unique employee tracking
 
-**Diagram sources**
-- [Manage.tsx:24-116](file://resources/js/pages/Employees/Manage/Manage.tsx#L24-L116)
-- [avatar.tsx:6-24](file://resources/js/components/ui/avatar.tsx#L6-L24)
-- [tabs.tsx:40-54](file://resources/js/components/ui/tabs.tsx#L40-L54)
+### Data Processing Logic
+**Updated** Advanced data processing includes:
 
-The component implements intelligent responsive design patterns with CSS Grid for desktop optimization and mobile-first considerations. The professional header features sophisticated avatar handling with fallback initials, while the tabbed interface provides seamless navigation between different management functions.
-
-**Section sources**
-- [Manage.tsx:25-116](file://resources/js/pages/Employees/Manage/Manage.tsx#L25-L116)
-- [avatar.tsx:1-111](file://resources/js/components/ui/avatar.tsx#L1-L111)
-- [tabs.tsx:1-89](file://resources/js/components/ui/tabs.tsx#L1-L89)
-
-### Employee Management Controller
-The EmployeeManage controller orchestrates data retrieval and presentation logic for the employee dashboard. It implements sophisticated relationship loading strategies to minimize database queries while ensuring comprehensive data availability.
+- **Time-based Filtering**: Current month/year calculation for temporal data
+- **Relationship Aggregation**: Eager loading of related models with sum calculations
+- **Top Category Analysis**: Grouping and ordering deduction types by total amount
+- **Employee Distribution**: Office-based employee counting with limits
 
 ```mermaid
 flowchart TD
-Start([Controller Action Called]) --> LoadEmployee["Load Employee Record"]
-LoadEmployee --> LoadRelations["Load Related Models"]
-LoadRelations --> SortSalaries["Sort Salaries Descending"]
-SortSalaries --> SortPera["Sort PERA Records Descending"]
-SortPera --> SortRata["Sort RATA Records Descending"]
-SortRata --> PrepareResponse["Prepare Response Data"]
-PrepareResponse --> RenderView["Render Manage Component"]
-RenderView --> End([Return Response])
-LoadRelations --> |Eager Loading| LoadSalaries["Load Latest Salary"]
-LoadRelations --> |Eager Loading| LoadPera["Load Latest PERA"]
-LoadRelations --> |Eager Loading| LoadRata["Load Latest RATA"]
+Start([Dashboard Request]) --> Stats["Calculate Basic Stats"]
+Stats --> Monthly["Process Monthly Deductions"]
+Monthly --> TopTypes["Aggregate Top Deduction Types"]
+TopTypes --> Distribution["Generate Office Distribution"]
+Distribution --> Employees["Fetch Recent Employees"]
+Employees --> Response["Return Aggregated Data"]
+Stats --> |Eager Loading| Relations["Load Employee Relations"]
+Relations --> SumCalc["Calculate Totals & Counts"]
+TopTypes --> |Group By| DeductionType["Group By Deduction Type"]
+DeductionType --> OrderAmount["Order By Total Amount"]
 ```
 
 **Diagram sources**
-- [EmployeeManage.php:15-30](file://app\Http\Controllers\EmployeeManage.php#L15-L30)
-
-The controller implements efficient data loading patterns through Laravel's relationship loading capabilities, ensuring optimal performance while maintaining data completeness. The controller loads employee relationships including office, employment status, and latest compensation records.
+- [DashboardController.php:16-67](file://app\Http\Controllers\DashboardController.php#L16-L67)
 
 **Section sources**
-- [EmployeeManage.php:13-40](file://app\Http\Controllers\EmployeeManage.php#L13-L40)
+- [DashboardController.php:14-87](file://app\Http\Controllers\DashboardController.php#L14-L87)
 
-### Backend Data Model Integration
-The Employee model serves as the central data abstraction layer, defining relationships with compensation-related entities and implementing automatic data transformations. It maintains referential integrity while providing convenient accessors for derived data.
+## Interactive Data Visualization
+The dashboard implements sophisticated data visualization components that transform raw statistical data into actionable insights through interactive elements and responsive design.
 
-```mermaid
-erDiagram
-EMPLOYEE {
-int id PK
-string first_name
-string middle_name
-string last_name
-string suffix
-string position
-boolean is_rata_eligible
-int employment_status_id FK
-int office_id FK
-int created_by FK
-string image_path
-timestamp created_at
-timestamp updated_at
-}
-SALARY {
-int id PK
-int employee_id FK
-decimal amount
-date effective_date
-date end_date
-int created_by FK
-timestamp created_at
-timestamp updated_at
-}
-PERA {
-int id PK
-int employee_id FK
-decimal amount
-date effective_date
-int created_by FK
-timestamp created_at
-timestamp updated_at
-}
-RATA {
-int id PK
-int employee_id FK
-decimal amount
-date effective_date
-int created_by FK
-timestamp created_at
-timestamp updated_at
-}
-EMPLOYEE ||--o{ SALARY : has_many
-EMPLOYEE ||--o{ PERA : has_many
-EMPLOYEE ||--o{ RATA : has_many
-EMPLOYEE }o--|| EMPLOYMENT_STATUS : belongs_to
-EMPLOYEE }o--|| OFFICE : belongs_to
-```
+### Statistical Card Design
+**Updated** Each statistical card features:
 
-**Diagram sources**
-- [Employee.php:31-64](file://app\Models\Employee.php#L31-L64)
-- [employee.d.ts:8-29](file://resources/js/types/employee.d.ts#L8-L29)
+- **Icon Integration**: Color-coded circular backgrounds with white icons
+- **Dynamic Value Display**: Large, bold typography for key metrics
+- **Descriptive Text**: Secondary text providing context and breakdown information
+- **Responsive Layout**: Grid-based arrangement adapting to different screen sizes
 
-The model architecture supports soft deletes, automatic timestamp management, and relationship definitions that enable complex queries without manual JOIN operations. The model includes convenience properties for accessing latest compensation records.
+### Data Presentation Components
+**Updated** Interactive visualization components include:
+
+- **Top Deduction Types**: Horizontal layout with icon, name, entry count, and formatted currency amount
+- **Employees with Deductions**: Clickable list items with avatar fallback, employee information, and total deduction display
+- **Office Distribution**: Five-column grid showing department names, codes, and employee counts
+
+### Currency Formatting System
+**Updated** Sophisticated currency formatting ensures consistent financial data presentation:
+
+- **Philippine Peso Localization**: 'en-PH' locale with PHP currency code
+- **Integer Formatting**: Zero decimal places for clean currency display
+- **Consistent Application**: Applied across all financial metrics and visualizations
 
 **Section sources**
-- [Employee.php:14-29](file://app\Models\Employee.php#L14-L29)
-- [employee.d.ts:1-43](file://resources/js/types/employee.d.ts#L1-L43)
+- [dashboard.tsx:41-47](file://resources\js\pages\dashboard.tsx#L41-L47)
+- [dashboard.tsx:124-144](file://resources\js\pages\dashboard.tsx#L124-L144)
+- [dashboard.tsx:159-183](file://resources\js\pages\dashboard.tsx#L159-L183)
 
-## Tabbed Interface Implementation
-**Updated** The tabbed interface provides a sophisticated navigation system with four distinct functional areas, each designed for specific employee management tasks. The implementation uses Radix UI's Tabs component with custom styling and responsive behavior.
+## Administrative Controls
+The dashboard provides comprehensive administrative controls through intuitive button-based interfaces that facilitate quick navigation to payroll management functions.
 
-### Overview Tab
-The Overview tab displays key compensation metrics in an intuitive card-based layout, presenting monthly salary amounts, allowance configurations, RATA eligibility status, and employment classification information with appropriate visual indicators and formatting.
+### Quick Action System
+**Updated** Four primary administrative actions provide immediate access to key functions:
 
-### Compensation Tab
-**Updated** The Compensation tab provides detailed salary history and allowance information, displaying comprehensive tables of salary changes with effective dates, amounts, and status indicators. The tab includes sophisticated filtering and sorting capabilities for historical data management.
+- **View Deductions**: Navigate to comprehensive deduction management interface
+- **Employees**: Access employee directory and management capabilities
+- **Deduction Types**: Manage deduction category configurations and active status
+- **Add Employee**: Create new employee records with streamlined form access
 
-### Reports Tab
-**Updated** The Reports tab offers comprehensive reporting capabilities with historical data visualization, trend analysis, and export functionality. The tab provides insights into compensation patterns and allows for detailed analysis of employee pay structures.
+### Interactive Elements
+**Updated** Administrative controls feature:
 
-### Settings Tab
-**Updated** The Settings tab provides employee profile management functionality, allowing authorized users to update employment status, office assignments, and compensation configurations. The tab includes validation and audit trail capabilities for all changes.
+- **Visual Feedback**: Hover states with background color transitions
+- **Icon Integration**: Appropriate icons representing each administrative function
+- **Text Descriptions**: Supporting text explaining each action's purpose
+- **Responsive Design**: Grid-based layout adapting to different screen sizes
 
-**Section sources**
-- [Manage.tsx:85-113](file://resources/js/pages/Employees/Manage/Manage.tsx#L85-L113)
-- [overview.tsx:19-112](file://resources/js/pages/settings/Employee/manage/overview.tsx#L19-L112)
-- [compensation.tsx:265-283](file://resources/js/pages/settings/Employee/manage/compensation.tsx#L265-L283)
+### Navigation Integration
+**Updated** Administrative controls integrate seamlessly with the overall dashboard navigation:
 
-## Professional Header Features
-**Updated** The professional header component represents a sophisticated user interface element featuring avatar display, employment status badges, and comprehensive employee information presentation. The header implements advanced design patterns for professional appearance and functionality.
-
-### Avatar Display System
-The avatar system features sophisticated image handling with fallback initials generation, border styling, and shadow effects. The component automatically generates initials from employee names and provides graceful fallback handling for missing images.
-
-### Employment Status Badges
-**Updated** Employment status badges provide visual indicators of employee classification with color-coded styling and hover effects. The badges display employment status names with professional styling and appropriate visual hierarchy.
-
-### Salary Information Display
-**Updated** The header prominently displays current monthly compensation with Philippine Peso currency formatting, including proper decimal precision and currency symbol presentation. The salary display includes temporal indicators and formatting consistency.
-
-### Responsive Design Integration
-**Updated** The professional header implements responsive design principles with flexible layout adaptation for different screen sizes. The component maintains visual consistency across mobile, tablet, and desktop form factors.
+- **Consistent Styling**: Match the dashboard's color scheme and design language
+- **Accessibility**: Proper contrast ratios and interactive affordances
+- **Performance**: Client-side navigation without full page reloads
 
 **Section sources**
-- [Manage.tsx:55-81](file://resources/js/pages/Employees/Manage/Manage.tsx#L55-L81)
-- [avatar.tsx:1-111](file://resources/js/components/ui/avatar.tsx#L1-L111)
+- [dashboard.tsx:226-277](file://resources\js\pages\dashboard.tsx#L226-L277)
 
-## Salary Formatting System
-**Updated** The salary formatting system implements sophisticated currency display capabilities with Philippine Peso localization, decimal precision control, and consistent formatting across the application interface.
-
-### Currency Localization
-The formatting system uses 'en-PH' locale for proper Philippine Peso representation, including appropriate currency symbol placement and thousands separator handling. The implementation ensures consistent formatting across all salary displays.
-
-### Decimal Precision Control
-**Updated** The system maintains two decimal places for currency values, providing precise financial calculations and consistent display formatting. The formatting preserves monetary accuracy while maintaining readability.
-
-### Integration Points
-**Updated** The salary formatting function is integrated throughout the application, appearing in the professional header, overview cards, compensation tables, and various report displays. This ensures consistent financial data presentation across all user interfaces.
-
-### Error Handling
-**Updated** The formatting system includes robust error handling for undefined or null salary values, providing graceful fallback display of '₱0.00' for missing compensation data. The system handles edge cases and maintains interface stability.
-
-**Section sources**
-- [Manage.tsx:31-38](file://resources/js/pages/Employees/Manage/Manage.tsx#L31-L38)
-- [overview.tsx:10-17](file://resources/js/pages/settings/Employee/manage/overview.tsx#L10-L17)
-
-## Dependency Analysis
-The dashboard system exhibits well-structured dependencies with clear separation of concerns and minimal coupling between components. The dependency graph reveals a hierarchical organization where frontend components depend on backend services through well-defined interfaces.
-
-```mermaid
-graph LR
-subgraph "Frontend Dependencies"
-A[Manage.tsx] --> B[Employee Types]
-A --> C[Avatar Component]
-A --> D[Badge Component]
-A --> E[Tabs Component]
-F[Overview Component] --> G[Currency Formatting]
-H[Compensation Component] --> I[Table Components]
-J[Settings Component] --> K[Form Components]
-L[Professional Header] --> C
-L --> D
-L --> G
-end
-subgraph "Backend Dependencies"
-M[EmployeeManage Controller] --> N[Employee Model]
-N --> O[Salary Model]
-N --> P[Pera Model]
-N --> Q[Rata Model]
-R[Web Routes] --> M
-S[App Layout] --> T[Manage Component]
-U[Avatar Component] --> C
-V[Badge Component] --> D
-W[Tabs Component] --> E
-end
-A --> M
-F --> N
-H --> N
-J --> N
-L --> N
-```
-
-**Diagram sources**
-- [Manage.tsx:1-118](file://resources/js/pages/Employees/Manage/Manage.tsx#L1-L118)
-- [EmployeeManage.php:1-42](file://app\Http\Controllers\EmployeeManage.php#L1-L42)
-- [web.php:105-107](file://routes\web.php#L105-L107)
-
-The dependency structure ensures maintainability through clear interfaces and reduces coupling through shared type definitions and common service layers. The professional header and tabbed interface components demonstrate cohesive design patterns with specialized functionality.
-
-**Section sources**
-- [web.php:105-107](file://routes\web.php#L105-L107)
-- [employee.d.ts:1-43](file://resources/js/types/employee.d.ts#L1-L43)
-
-## Performance Considerations
-The dashboard implementation incorporates several performance optimization strategies to ensure responsive user experience even with large datasets. Key optimization techniques include efficient database querying, lazy loading of non-critical data, and optimized rendering strategies.
+## Data Aggregation and Reporting
+The dashboard implements comprehensive data aggregation through sophisticated database queries and relationship management, providing real-time insights into employee deduction patterns and organizational metrics.
 
 ### Database Query Optimization
-The EmployeeManage controller implements eager loading strategies to minimize N+1 query problems. By loading related models in a single operation, the system reduces database round trips and improves overall response times. The controller loads employee relationships including office, employment status, and latest compensation records.
+**Updated** The system employs optimized query patterns:
 
-### Frontend Rendering Efficiency
-React's component architecture enables efficient re-rendering through proper state management and memoization patterns. The dashboard components utilize conditional rendering to avoid unnecessary computations when data is unavailable. The tabbed interface implements lazy loading for tab content to improve initial load performance.
+- **Single Query Aggregation**: Efficient counting and summing in a single database operation
+- **Relationship Eager Loading**: Prevents N+1 query problems through strategic relationship loading
+- **Temporal Filtering**: Dynamic month/year filtering for current period analysis
+- **Limit Constraints**: Strategic limiting for top results and recent data display
 
-### Asset Loading Strategies
-**Updated** The professional header component implements optimized avatar loading with fallback handling and efficient image caching. The tabbed interface uses React.lazy for dynamic import of tab components, reducing initial bundle size and improving application startup performance.
+### Relationship Management
+**Updated** Complex relationship handling includes:
 
-### Currency Formatting Performance
-**Updated** The salary formatting function implements memoization for frequently accessed values, reducing computational overhead for repeated currency display operations. The formatting system caches locale-specific formatting options for improved performance.
+- **Employee-Deduction Relations**: Sum calculations with pay period filtering
+- **Deduction-Type Analysis**: Category-based grouping with total amount computation
+- **Office-Employee Distribution**: Count aggregation with ordering and limiting
+- **Multi-Level Aggregation**: Hierarchical data processing for comprehensive reporting
 
-## Troubleshooting Guide
-Common issues encountered with the Employee Overview Dashboard typically relate to data loading, permission validation, and asset rendering. The following troubleshooting steps address typical scenarios:
+### Data Transformation
+**Updated** Raw database results undergo sophisticated transformation:
 
-### Data Loading Issues
-Verify that employee records contain valid compensation data and that related models are properly associated. Check database relationships and ensure that foreign key constraints are satisfied. Validate that the EmployeeManage controller is correctly loading all required relationships.
-
-### Permission and Access Control
-Ensure that users have appropriate permissions to access employee records and compensation data. Verify middleware configuration and route protection mechanisms. Check that the employees.manage.show route requires authentication.
-
-### Frontend Component Rendering
-**Updated** Check for JavaScript errors in the browser console and verify that all required dependencies are properly loaded. Validate TypeScript definitions and component prop interfaces. Ensure that the AppLayout wrapper is properly configured and that the tabbed interface renders correctly.
-
-### Professional Header Issues
-**Updated** Verify that avatar images load correctly and that fallback initials are generated properly. Check that employment status badges display correctly and that salary formatting applies consistently. Validate responsive behavior across different screen sizes.
-
-### Tabbed Interface Problems
-**Updated** Ensure that tab navigation works correctly and that tab content loads dynamically. Verify that the default active tab is set properly and that tab switching maintains state correctly. Check for proper styling and responsive behavior of the tab interface.
+- **Type Casting**: Proper conversion of numeric and boolean values
+- **Formatting**: Currency formatting for financial metrics
+- **Structuring**: Organized data structures for frontend consumption
+- **Validation**: Null checking and fallback value provision
 
 **Section sources**
-- [EmployeeManage.php:13-40](file://app\Http\Controllers\EmployeeManage.php#L13-L40)
-- [Manage.tsx:25-116](file://resources/js/pages/Employees/Manage/Manage.tsx#L25-L116)
+- [DashboardController.php:24-67](file://app\Http\Controllers\DashboardController.php#L24-L67)
+- [Employee.php:61-64](file://app\Models\Employee.php#L61-L64)
+- [EmployeeDeduction.php:26-34](file://app\Models\EmployeeDeduction.php#L26-L34)
+
+## User Interface Components
+The dashboard implements a modern, responsive user interface with sophisticated component design and interaction patterns optimized for payroll administration workflows.
+
+### Layout Architecture
+**Updated** The dashboard follows a structured layout pattern:
+
+- **Header Section**: Clear title and description with current period information
+- **Statistics Grid**: Four-card layout arranged in responsive grid pattern
+- **Visualization Areas**: Two main content sections with complementary data presentation
+- **Action Controls**: Bottom-aligned administrative controls for quick access
+
+### Component Styling
+**Updated** Visual design elements include:
+
+- **Card-Based Design**: Consistent card layouts with subtle shadows and borders
+- **Color Coding**: Strategic use of color schemes for different metric categories
+- **Typography Hierarchy**: Clear visual hierarchy with bold metrics and supporting text
+- **Icon Integration**: Contextual icons enhancing visual communication
+
+### Responsive Design
+**Updated** The interface adapts to various screen sizes:
+
+- **Mobile Optimization**: Single column layout on small screens
+- **Tablet Adaptation**: Dual column layout for medium screens
+- **Desktop Enhancement**: Multi-column grid for optimal desktop experience
+- **Flexible Components**: Cards and grids that resize based on available space
+
+**Section sources**
+- [dashboard.tsx:84-109](file://resources\js\pages\dashboard.tsx#L84-L109)
+- [dashboard.tsx:112-216](file://resources\js\pages\dashboard.tsx#L112-L216)
+
+## Performance Optimization
+The dashboard system implements several performance optimization strategies to ensure responsive user experience with comprehensive data visualization and real-time analytics.
+
+### Database Query Optimization
+**Updated** Strategic query optimization includes:
+
+- **Aggregation Queries**: Single query operations for count and sum calculations
+- **Relationship Loading**: Eager loading to prevent N+1 query problems
+- **Index Utilization**: Proper use of database indexes for filtering operations
+- **Result Limiting**: Strategic limiting for top results and recent data
+
+### Frontend Performance
+**Updated** Client-side optimizations include:
+
+- **Component Memoization**: React.memo for stable data presentation
+- **Event Delegation**: Efficient event handling for interactive elements
+- **Lazy Loading**: Dynamic imports for non-critical components
+- **State Management**: Optimized state updates preventing unnecessary re-renders
+
+### Asset Optimization
+**Updated** Resource optimization strategies:
+
+- **Icon Loading**: Efficient icon rendering with minimal bundle impact
+- **Image Handling**: Avatar fallback system preventing broken image requests
+- **CSS Optimization**: Tailwind utility classes for efficient styling
+- **Bundle Size**: Strategic component splitting for faster initial load
+
+**Section sources**
+- [DashboardController.php:39-57](file://app\Http\Controllers\DashboardController.php#L39-L57)
+- [dashboard.tsx:165-182](file://resources\js\pages\dashboard.tsx#L165-L182)
+
+## Integration Patterns
+The dashboard integrates seamlessly with the broader application ecosystem through well-defined patterns that ensure consistency across the payroll management system.
+
+### Routing Integration
+**Updated** The dashboard integrates with the application routing system:
+
+- **Named Routes**: Consistent naming for navigation and programmatic access
+- **Breadcrumb Support**: Automatic breadcrumb generation for navigation context
+- **Middleware Integration**: Authentication and authorization through middleware chain
+- **Route Parameters**: Flexible parameter handling for dynamic content
+
+### Component Integration
+**Updated** Frontend component integration patterns:
+
+- **Layout System**: Consistent AppLayout wrapper for unified styling
+- **Type Safety**: TypeScript interfaces ensuring data contract compliance
+- **Event Handling**: Standardized event patterns for interactive elements
+- **State Management**: Consistent state patterns across component hierarchy
+
+### Data Flow Integration
+**Updated** Data flow patterns ensure consistency:
+
+- **Server-Side Rendering**: Inertia.js integration for initial page loads
+- **Client-Side Navigation**: Seamless navigation without full page refreshes
+- **Real-Time Updates**: State synchronization for dynamic content updates
+- **Error Handling**: Consistent error handling patterns across the application
+
+**Section sources**
+- [web.php:24-25](file://routes\web.php#L24-L25)
+- [dashboard.tsx:82-83](file://resources\js\pages\dashboard.tsx#L82-L83)
+
+## Troubleshooting Guide
+Common issues encountered with the Employee Deductions Dashboard typically relate to data loading, permission validation, and component rendering. The following troubleshooting steps address typical scenarios:
+
+### Data Loading Issues
+**Updated** Verify that the DashboardController is correctly aggregating statistics:
+
+- Check database connectivity and query execution
+- Validate that employee-deduction relationships are properly established
+- Ensure that current month filtering logic is working correctly
+- Verify that top deduction types aggregation is functioning
+
+### Permission and Access Control
+**Updated** Ensure proper authentication and authorization:
+
+- Verify that users have appropriate permissions for payroll data access
+- Check that middleware is correctly protecting dashboard routes
+- Validate that route authentication is properly configured
+
+### Frontend Component Rendering
+**Updated** Troubleshoot component rendering issues:
+
+- Check for JavaScript errors in browser console
+- Verify that all required dependencies are properly loaded
+- Validate TypeScript compilation and type checking
+- Ensure proper component prop interfaces are maintained
+
+### Statistical Data Accuracy
+**Updated** Verify data accuracy and formatting:
+
+- Check that currency formatting is applied consistently
+- Validate that statistical calculations match database queries
+- Ensure that time-based filtering correctly identifies current period
+- Verify that relationship aggregations are producing expected results
+
+### Performance Issues
+**Updated** Address performance bottlenecks:
+
+- Monitor database query execution times
+- Check for excessive re-renders in React components
+- Verify that component memoization is working effectively
+- Ensure proper caching strategies are implemented
+
+**Section sources**
+- [DashboardController.php:14-87](file://app\Http\Controllers\DashboardController.php#L14-L87)
+- [dashboard.tsx:49-283](file://resources\js\pages\dashboard.tsx#L49-L283)
 
 ## Conclusion
-The Employee Overview Dashboard represents a sophisticated payroll management solution that combines modern frontend development practices with robust backend architecture. The system successfully balances functionality, performance, and maintainability through careful architectural decisions and implementation patterns.
+The Employee Overview Dashboard has evolved into a comprehensive employee deductions analytics platform that provides sophisticated payroll management capabilities. The system successfully balances advanced functionality with performance optimization through careful architectural decisions and implementation patterns.
 
-**Updated** The comprehensive tabbed interface implementation establishes a solid foundation for enterprise-level employee management applications, featuring professional headers with avatar display, employment status badges, and sophisticated salary formatting capabilities. The system provides an excellent foundation for payroll management applications requiring real-time data visualization, interactive user interfaces, and comprehensive employee compensation management.
+**Updated** The comprehensive dashboard system establishes a robust foundation for enterprise-level payroll administration, featuring four main statistical cards, interactive visualizations, and comprehensive administrative controls. The system provides an excellent foundation for employee deduction management applications requiring real-time analytics, interactive data visualization, and comprehensive administrative functionality.
 
-Key strengths of the implementation include efficient data loading strategies through eager loading, responsive design principles with professional header styling, comprehensive type safety through TypeScript integration, and modular component architecture with sophisticated tabbed navigation. The dashboard provides comprehensive employee compensation visualization while maintaining extensibility for future enhancements and specialized management functionalities.
+Key strengths of the implementation include efficient database query optimization, sophisticated data aggregation patterns, responsive design principles, and comprehensive type safety through TypeScript integration. The dashboard provides comprehensive payroll analytics while maintaining extensibility for future enhancements and specialized management functionalities.
 
-The addition of the tabbed interface system significantly enhances user experience by organizing functionality into logical sections while maintaining professional appearance and consistent performance standards throughout the application.
+The addition of the advanced statistical cards and interactive visualizations significantly enhances user experience by providing immediate insights into payroll operations while maintaining professional appearance and consistent performance standards throughout the application. The system represents a mature, production-ready solution for employee deduction management and payroll analytics.

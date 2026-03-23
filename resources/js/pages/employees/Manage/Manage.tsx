@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
+import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
 import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Settings } from 'lucide-react';
@@ -22,9 +23,27 @@ interface EmployeeManageProps {
     employmentStatuses: EmploymentStatus[];
     offices: Office[];
     deductionTypes: DeductionType[];
+    deductions?: Record<string, EmployeeDeduction[]>;
+    periodsList?: string[];
+    takenPeriods?: string[];
+    deductionPagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
-export default function EmployeeManagePage({ employee, employmentStatuses, offices, deductionTypes }: EmployeeManageProps) {
+export default function EmployeeManagePage({
+    employee,
+    employmentStatuses,
+    offices,
+    deductionTypes,
+    deductions = {},
+    periodsList = [],
+    takenPeriods = [],
+    deductionPagination,
+}: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Employees', href: '/settings/employees' },
         { title: `${employee.last_name}, ${employee.first_name}`, href: `/settings/employees/manage/${employee.id}` },
@@ -42,6 +61,8 @@ export default function EmployeeManagePage({ employee, employmentStatuses, offic
     const getInitials = () => {
         return `${employee.first_name.charAt(0)}${employee.last_name.charAt(0)}`;
     };
+
+    console.log(deductions);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -107,7 +128,14 @@ export default function EmployeeManagePage({ employee, employmentStatuses, offic
                         <Overview />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
-                        <EmployeeCompensation employee={employee} deductionTypes={deductionTypes} />
+                        <EmployeeCompensation
+                            employee={employee}
+                            deductionTypes={deductionTypes}
+                            deductions={deductions}
+                            periodsList={periodsList}
+                            takenPeriods={takenPeriods}
+                            deductionPagination={deductionPagination}
+                        />
                     </TabsContent>
                     <TabsContent value="settings" className="mt-0 outline-none">
                         <EmployeeSettings employee={employee} employmentStatuses={employmentStatuses} offices={offices} />

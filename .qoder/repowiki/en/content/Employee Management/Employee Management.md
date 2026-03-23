@@ -6,6 +6,11 @@
 - [EmployeeSettingController.php](file://app/Http/Controllers/EmployeeSettingController.php)
 - [EmployeeController.php](file://app/Http/Controllers/EmployeeController.php)
 - [EmployeeManage.php](file://app/Http/Controllers/EmployeeManage.php)
+- [EmployeeDeductionController.php](file://app/Http/Controllers/EmployeeDeductionController.php)
+- [PayrollController.php](file://app/Http/Controllers/PayrollController.php)
+- [PeraController.php](file://app/Http/Controllers/PeraController.php)
+- [RataController.php](file://app/Http/Controllers/RataController.php)
+- [SalaryController.php](file://app/Http/Controllers/SalaryController.php)
 - [Employee.php](file://app/Models/Employee.php)
 - [EmployeeDeduction.php](file://app/Models/EmployeeDeduction.php)
 - [DeductionType.php](file://app/Models/DeductionType.php)
@@ -17,32 +22,24 @@
 - [2026_03_19_014108_create_employment_statuses_table.php](file://database/migrations/2026_03_19_014108_create_employment_statuses_table.php)
 - [2026_03_18_071422_create_offices_table.php](file://database/migrations/2026_03_18_071422_create_offices_table.php)
 - [employee.d.ts](file://resources/js/types/employee.d.ts)
-- [index.tsx](file://resources/js/pages/settings/Employee/index.tsx)
-- [create.tsx](file://resources/js/pages/settings/Employee/create.tsx)
-- [edit.tsx](file://resources/js/pages/settings/Employee/edit.tsx)
-- [show.tsx](file://resources/js/pages/settings/Employee/show.tsx)
+- [employmentStatuses.d.ts](file://resources/js/types/employmentStatuses.d.ts)
+- [CustomComboBox.tsx](file://resources/js/components/CustomComboBox.tsx)
 - [Employees/Index.tsx](file://resources/js/pages/Employees/Index.tsx)
-- [Employees/Manage/Manage.tsx](file://resources/js/pages/Employees/Manage/Manage.tsx)
-- [Employees/Manage/Overview.tsx](file://resources/js/pages/Employees/Manage/Overview.tsx)
-- [Employees/Manage/Compensation.tsx](file://resources/js/pages/Employees/Manage/Compensation.tsx)
-- [Employees/Manage/Settings.tsx](file://resources/js/pages/Employees/Manage/Settings.tsx)
-- [Employees/Manage/compensation/deductions.tsx](file://resources/js/pages/Employees/Manage/compensation/deductions.tsx)
-- [Employees/Manage/compensation/salary.tsx](file://resources/js/pages/Employees/Manage/compensation/salary.tsx)
-- [routes/web.php](file://routes/web.php)
 - [payroll/index.tsx](file://resources/js/pages/payroll/index.tsx)
 - [employee-deductions/index.tsx](file://resources/js/pages/employee-deductions/index.tsx)
-- [deduction-types/index.tsx](file://resources/js/pages/deduction-types/index.tsx)
-- [CustomComboBox.tsx](file://resources/js/components/CustomComboBox.tsx)
-- [nav-main.tsx](file://resources/js/components/nav-main.tsx)
-- [app-sidebar.tsx](file://resources/js/components/app-sidebar.tsx)
+- [salaries/index.tsx](file://resources/js/pages/salaries/index.tsx)
+- [peras/index.tsx](file://resources/js/pages/peras/index.tsx)
+- [ratas/index.tsx](file://resources/js/pages/ratas/index.tsx)
+- [routes/web.php](file://routes/web.php)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- **Enhanced Filtering Capabilities**: Added extensive filtering with office ID and employment status filters across multiple pages
-- **Improved Combobox Components**: Enhanced CustomComboBox component with better value handling and selection logic
-- **Navigation Structure Updates**: Removed Deduction Types menu item from sidebar navigation while maintaining dedicated page access
-- **Consistent Filter Implementation**: Standardized filtering approach across Employee List, Payroll, and Employee Deductions pages
+- **Enhanced Filtering Capabilities**: Added comprehensive employment status filtering across multiple employee management pages
+- **Updated Backend Controllers**: Enhanced EmployeeDeductionController, PayrollController, PeraController, RataController, and SalaryController to support employment_status_id parameter
+- **Frontend Integration**: Integrated new CustomComboBox components for filtering by office and employment status
+- **Standardized Filter Parameters**: Consistent employment_status_id parameter handling across all allowance and payroll controllers
+- **Enhanced Response Data**: Employment status data included in controller responses for better frontend integration
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -66,7 +63,7 @@
 ## Introduction
 This document describes the complete employee lifecycle management system built with Laravel and Inertia.js. The system has undergone significant enhancements to improve user experience through extensive filtering capabilities, enhanced combobox components, and improved navigation structure.
 
-The recent updates introduce comprehensive filtering options allowing users to filter employees by office location and employment status across multiple interfaces. The enhanced CustomComboBox component provides better user interaction and value handling. The navigation structure has been refined by removing the Deduction Types menu item while maintaining dedicated access to this functionality.
+The recent updates introduce comprehensive filtering options allowing users to filter employees by office location, employment status, and other criteria across multiple interfaces. The enhanced CustomComboBox component provides better user interaction and value handling. The backend controllers have been updated to support employment_status_id parameter for more granular filtering and reporting capabilities.
 
 The system continues to provide unified employee management with tabbed navigation, advanced allowance tracking, comprehensive deduction management, and seamless payroll integration, now with significantly improved filtering and user interface capabilities.
 
@@ -909,3 +906,35 @@ The enhanced interface supports both operational efficiency and administrative o
 
 **Section sources**
 - [routes/web.php:77-105](file://routes/web.php#L77-L105)
+
+### Enhanced Controller Implementations
+**Updated Backend Controllers** supporting employment_status_id parameter:
+- **EmployeeDeductionController**: Enhanced with employment_status_id filtering and employment status data in responses
+- **PayrollController**: Updated to support employment_status_id parameter for payroll filtering and reporting
+- **PeraController**: Enhanced with employment_status_id filtering for PERA allowance management
+- **RataController**: Updated with employment_status_id filtering and eligibility-based access control
+- **SalaryController**: Enhanced with employment_status_id filtering for salary management
+
+**Section sources**
+- [EmployeeDeductionController.php:16-63](file://app/Http/Controllers/EmployeeDeductionController.php#L16-L63)
+- [PayrollController.php:14-89](file://app/Http/Controllers/PayrollController.php#L14-L89)
+- [PeraController.php:15-51](file://app/Http/Controllers/PeraController.php#L15-L51)
+- [RataController.php:15-51](file://app/Http/Controllers/RataController.php#L15-L51)
+- [SalaryController.php:15-50](file://app/Http/Controllers/SalaryController.php#L15-L50)
+
+### Frontend Filter Components
+**Enhanced Frontend Components** with employment status filtering:
+- **CustomComboBox**: Improved value handling and selection logic for employment status filtering
+- **Employee List**: Combined office and employment status filtering with search integration
+- **Payroll Interface**: Dual filtering system with office and employment status selection
+- **Deduction Management**: Comprehensive filtering with pay period, office, and employment status controls
+- **Allowance Interfaces**: Individual filtering for salary, PERA, and RATA management with employment status support
+
+**Section sources**
+- [CustomComboBox.tsx:14-60](file://resources/js/components/CustomComboBox.tsx#L14-L60)
+- [Employees/Index.tsx:35-120](file://resources/js/pages/Employees/Index.tsx#L35-L120)
+- [payroll/index.tsx:54-160](file://resources/js/pages/payroll/index.tsx#L54-L160)
+- [employee-deductions/index.tsx:66-226](file://resources/js/pages/employee-deductions/index.tsx#L66-L226)
+- [salaries/index.tsx:107-125](file://resources/js/pages/salaries/index.tsx#L107-L125)
+- [peras/index.tsx:107-125](file://resources/js/pages/peras/index.tsx#L107-L125)
+- [ratas/index.tsx:107-125](file://resources/js/pages/ratas/index.tsx#L107-L125)

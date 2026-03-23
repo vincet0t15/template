@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
+import { router } from '@inertiajs/react';
 import { Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
@@ -13,6 +14,15 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 interface CompensationDeductionsProps {
     employee: Employee;
     deductionTypes: DeductionType[];
+    deductions?: Record<string, EmployeeDeduction[]>;
+    periodsList?: string[];
+    takenPeriods?: string[];
+    pagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 interface DialogState {
@@ -22,7 +32,14 @@ interface DialogState {
     existingDeductions: EmployeeDeduction[];
 }
 
-export function CompensationDeductions({ employee, deductionTypes }: CompensationDeductionsProps) {
+export function CompensationDeductions({
+    employee,
+    deductionTypes,
+    deductions = {},
+    periodsList = [],
+    takenPeriods = [],
+    pagination,
+}: CompensationDeductionsProps) {
     const [dialogState, setDialogState] = useState<DialogState>({
         open: false,
         month: String(new Date().getMonth() + 1),
@@ -30,17 +47,9 @@ export function CompensationDeductions({ employee, deductionTypes }: Compensatio
         existingDeductions: [],
     });
 
-    const deductions = employee.deductions ?? [];
-
-    // Group deductions by pay period (month-year)
-    const grouped = deductions.reduce<Record<string, typeof deductions>>((acc, d) => {
-        const key = `${d.pay_period_year}-${String(d.pay_period_month).padStart(2, '0')}`;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(d);
-        return acc;
-    }, {});
-
-    const periods = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+    const goToPage = (page: number) => {
+        router.get(route('manage.employees.index', employee.id), { deduction_page: page }, { preserveState: true, preserveScroll: true });
+    };
 
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
@@ -60,11 +69,15 @@ export function CompensationDeductions({ employee, deductionTypes }: Compensatio
             open: true,
             month: String(parseInt(month)),
             year,
-            existingDeductions: grouped[periodKey] ?? [],
+            existingDeductions: deductions[periodKey] ?? [],
         });
     };
 
     const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
+
+    const periods = periodsList;
+    const currentPage = pagination?.current_page ?? 1;
+    const lastPage = pagination?.last_page ?? 1;
 
     return (
         <div className="space-y-4">
@@ -76,12 +89,12 @@ export function CompensationDeductions({ employee, deductionTypes }: Compensatio
             </div>
 
             {periods.length === 0 ? (
-                <div className="text-muted-foreground rounded-lg border py-12 text-center text-sm">No deductions recorded yet.</div>
+                <div className="text-muted-foreground rounded-sm border py-12 text-center text-sm">No deductions recorded yet.</div>
             ) : (
                 <div className="space-y-4">
                     {periods.map((periodKey) => {
                         const [year, month] = periodKey.split('-');
-                        const periodDeductions = grouped[periodKey];
+                        const periodDeductions = deductions[periodKey] ?? [];
                         const total = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
 
                         return (
@@ -124,7 +137,21 @@ export function CompensationDeductions({ employee, deductionTypes }: Compensatio
                     })}
                 </div>
             )}
-
+            {lastPage > 1 && (
+                <div className="flex items-center justify-between border-t pt-4">
+                    <div className="text-muted-foreground text-sm">
+                        Page {currentPage} of {lastPage}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                            Previous
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === lastPage}>
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            )}
             {dialogState.open && (
                 <SalaryDialog
                     open={dialogState.open}
@@ -134,7 +161,7 @@ export function CompensationDeductions({ employee, deductionTypes }: Compensatio
                     defaultMonth={dialogState.month}
                     defaultYear={dialogState.year}
                     existingDeductions={dialogState.existingDeductions}
-                    takenPeriods={periods}
+                    takenPeriods={takenPeriods}
                 />
             )}
         </div>
