@@ -99,7 +99,7 @@ export default function EmployeeManagePage({
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Back Button */}
-                <Button variant="outline" size="sm" className="w-fit" onClick={() => router.get(route('employees.index'))}>
+                <Button variant="outline" className="w-fit" onClick={() => router.get(route('employees.index'))}>
                     <ArrowLeft className="mr-1 h-4 w-4" />
                     Back to Employees
                 </Button>

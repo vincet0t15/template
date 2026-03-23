@@ -92,7 +92,7 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Salary</h3>
-                <Button size="sm" onClick={() => setOpenDialog(true)}>
+                <Button onClick={() => setOpenDialog(true)}>
                     <Plus className="h-4 w-4" />
                     Add Salary
                 </Button>

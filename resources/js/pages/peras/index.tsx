@@ -183,11 +183,11 @@ export default function PerasIndex({ employees, offices, employmentStatuses, fil
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Button variant="outline" size="sm" onClick={() => router.get(route('peras.history', employee.id))}>
+                                                <Button variant="outline" onClick={() => router.get(route('peras.history', employee.id))}>
                                                     <History className="mr-1 h-4 w-4" />
                                                     History
                                                 </Button>
-                                                <Button variant="default" size="sm" onClick={() => handleOpenAdd(employee)}>
+                                                <Button variant="default" onClick={() => handleOpenAdd(employee)}>
                                                     <PlusIcon className="mr-1 h-4 w-4" />
                                                     Add
                                                 </Button>

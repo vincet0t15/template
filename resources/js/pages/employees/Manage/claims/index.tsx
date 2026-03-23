@@ -101,7 +101,7 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                 />
 
                 {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" onClick={clearFilters}>
                         <X className="mr-1 h-4 w-4" />
                         Clear
                     </Button>

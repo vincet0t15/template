@@ -122,7 +122,7 @@ export function CompensationDeductions({
                 />
 
                 {(filters.deduction_month || filters.deduction_year) && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost" onClick={clearFilters}>
                         <X className="mr-1 h-4 w-4" />
                         Clear
                     </Button>
@@ -156,7 +156,7 @@ export function CompensationDeductions({
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
-                                        <Button size="sm" variant="outline" onClick={() => openEditDialog(periodKey)}>
+                                        <Button variant="outline" onClick={() => openEditDialog(periodKey)}>
                                             <Pencil className="h-3 w-3" />
                                             Edit
                                         </Button>
@@ -191,10 +191,10 @@ export function CompensationDeductions({
                         Page {currentPage} of {lastPage} ({pagination.total} periods)
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                        <Button variant="outline" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
                             Previous
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === lastPage}>
+                        <Button variant="outline" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === lastPage}>
                             Next
                         </Button>
                     </div>

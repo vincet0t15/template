@@ -64,83 +64,119 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                 </div>
 
                 {/* Transactions Table */}
-                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                <div className="w-full overflow-hidden rounded-md border shadow-sm">
                     <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader className="bg-muted/50">
-                                <TableRow>
-                                    <TableHead className="whitespace-nowrap">PR Date / PR #</TableHead>
-                                    <TableHead className="whitespace-nowrap">PO Date / PO #</TableHead>
-                                    <TableHead className="whitespace-nowrap">Sale Inv. / #</TableHead>
-                                    <TableHead className="whitespace-nowrap">OR Date / OR #</TableHead>
-                                    <TableHead className="whitespace-nowrap">D.R. Date / D.R. #</TableHead>
-                                    <TableHead className="whitespace-nowrap">QTY/Period</TableHead>
-                                    <TableHead>Particulars</TableHead>
-                                    <TableHead className="text-right">Gross</TableHead>
-                                    <TableHead className="text-right">EWT</TableHead>
-                                    <TableHead className="text-right">VAT</TableHead>
-                                    <TableHead className="text-right">Net Amount</TableHead>
-                                    <TableHead className="whitespace-nowrap">Date Proc. / Remarks</TableHead>
-                                    <TableHead className="w-20">Actions</TableHead>
+                        <Table className="text-sm">
+                            <TableHeader>
+                                <TableRow className="bg-muted hover:bg-muted">
+                                    <TableHead className="min-w-[110px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        PR Date / PR #
+                                    </TableHead>
+                                    <TableHead className="min-w-[110px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        PO Date / PO #
+                                    </TableHead>
+                                    <TableHead className="min-w-[120px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        Sale Inv. / #
+                                    </TableHead>
+                                    <TableHead className="min-w-[110px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        OR Date / OR #
+                                    </TableHead>
+                                    <TableHead className="min-w-[110px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        D.R. Date / D.R. #
+                                    </TableHead>
+                                    <TableHead className="min-w-[90px] px-3 py-2 text-xs font-semibold tracking-wide uppercase">
+                                        QTY / Period
+                                    </TableHead>
+                                    <TableHead className="min-w-[150px] px-3 py-2 text-xs font-semibold tracking-wide uppercase">
+                                        Particulars
+                                    </TableHead>
+                                    <TableHead className="min-w-[100px] px-3 py-2 text-right text-xs font-semibold tracking-wide uppercase">
+                                        Gross
+                                    </TableHead>
+                                    <TableHead className="min-w-[95px] px-3 py-2 text-right text-xs font-semibold tracking-wide uppercase">
+                                        EWT
+                                    </TableHead>
+                                    <TableHead className="min-w-[95px] px-3 py-2 text-right text-xs font-semibold tracking-wide uppercase">
+                                        VAT
+                                    </TableHead>
+                                    <TableHead className="min-w-[110px] px-3 py-2 text-right text-xs font-semibold tracking-wide uppercase">
+                                        Net Amount
+                                    </TableHead>
+
+                                    <TableHead className="min-w-[120px] px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase">
+                                        Date Procure
+                                    </TableHead>
+                                    <TableHead className="text-right text-xs font-semibold tracking-wide uppercase">Remarks</TableHead>
+                                    <TableHead className="text-xs font-semibold tracking-wide uppercase">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {transactions.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={13} className="text-muted-foreground py-8 text-center">
+                                        <TableCell colSpan={13} className="text-muted-foreground py-10 text-center">
                                             No transactions yet. Click "Add Transaction" to create one.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     transactions.data.map((txn) => (
-                                        <TableRow key={txn.id}>
-                                            <TableCell className="whitespace-nowrap">
+                                        <TableRow key={txn.id} className="hover:bg-muted/30">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div className="font-medium">{formatDate(txn.pr_date)}</div>
                                                 <div className="text-muted-foreground text-xs">{txn.pr_no}</div>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div>{formatDate(txn.po_date)}</div>
                                                 <div className="text-muted-foreground text-xs">{txn.po_no || '-'}</div>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div>{formatDate(txn.sale_invoice_date)}</div>
                                                 <div className="text-muted-foreground text-xs">{txn.sale_invoice_no || '-'}</div>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div>{formatDate(txn.or_date)}</div>
                                                 <div className="text-muted-foreground text-xs">{txn.or_no || '-'}</div>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div>{formatDate(txn.dr_date)}</div>
                                                 <div className="text-muted-foreground text-xs">{txn.dr_no || '-'}</div>
                                             </TableCell>
-                                            <TableCell className="whitespace-nowrap">{txn.qty_period_covered || '-'}</TableCell>
-                                            <TableCell className="max-w-[200px] truncate">{txn.particulars}</TableCell>
-                                            <TableCell className="text-right">{formatCurrency(txn.gross)}</TableCell>
-                                            <TableCell className="text-right">{formatCurrency(txn.ewt)}</TableCell>
-                                            <TableCell className="text-right">{formatCurrency(txn.vat)}</TableCell>
-                                            <TableCell className="text-right font-medium">{formatCurrency(txn.net_amount)}</TableCell>
-                                            <TableCell className="whitespace-nowrap">
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">{txn.qty_period_covered || '-'}</TableCell>
+                                            <TableCell className="max-w-[180px] truncate px-3 py-2" title={txn.particulars}>
+                                                {txn.particulars}
+                                            </TableCell>
+                                            <TableCell className="px-3 py-2 text-right tabular-nums">{formatCurrency(txn.gross)}</TableCell>
+                                            <TableCell className="text-muted-foreground px-3 py-2 text-right tabular-nums">
+                                                {formatCurrency(txn.ewt)}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground px-3 py-2 text-right tabular-nums">
+                                                {formatCurrency(txn.vat)}
+                                            </TableCell>
+                                            <TableCell className="px-3 py-2 text-right font-semibold tabular-nums">
+                                                {formatCurrency(txn.net_amount)}
+                                            </TableCell>
+                                            <TableCell className="px-3 py-2 whitespace-nowrap">
                                                 <div>{formatDate(txn.date_processed)}</div>
+                                            </TableCell>
+                                            <TableCell className="whitespace-nowrap">
                                                 <div className="text-muted-foreground text-xs">{txn.remarks || '-'}</div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">
+                                            <TableCell className="px-3 py-2">
+                                                <div className="flex items-center gap-0.5">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8"
+                                                        className="h-7 w-7 text-blue-500 hover:text-blue-600"
                                                         onClick={() => setEditingTransaction(txn)}
                                                     >
-                                                        <Edit className="h-4 w-4" />
+                                                        <Edit className="h-3.5 w-3.5" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                                                        className="h-7 w-7 text-red-500 hover:text-red-600"
                                                         onClick={() => setDeletingTransaction(txn)}
                                                     >
-                                                        <Trash2 className="h-4 w-4" />
+                                                        <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
                                             </TableCell>
@@ -153,7 +189,7 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-4">
+                <div className="mt-2">
                     <PaginationData data={transactions} />
                 </div>
             </div>

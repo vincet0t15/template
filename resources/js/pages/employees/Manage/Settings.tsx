@@ -139,13 +139,13 @@ export default function EmployeeSettings({ employee, employmentStatuses, offices
                             </button>
 
                             <div className="flex flex-wrap justify-center gap-2">
-                                <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('photo')?.click()}>
+                                <Button type="button" variant="outline" onClick={() => document.getElementById('photo')?.click()}>
                                     <UploadIcon className="mr-1 size-4" />
                                     {photoPreviewUrl ? 'Change' : 'Choose'}
                                 </Button>
 
                                 {photoPreviewUrl && (
-                                    <Button type="button" variant="destructive" size="sm" onClick={handleRemovePhoto}>
+                                    <Button type="button" variant="destructive" onClick={handleRemovePhoto}>
                                         <XIcon className="mr-1 size-4" />
                                         Remove
                                     </Button>

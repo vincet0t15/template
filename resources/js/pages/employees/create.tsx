@@ -146,7 +146,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                 </button>
 
                                 <div className="flex flex-wrap justify-center gap-2">
-                                    <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('photo')?.click()}>
+                                    <Button type="button" variant="outline" onClick={() => document.getElementById('photo')?.click()}>
                                         <UploadIcon className="mr-1 size-4" />
                                         {photoPreviewUrl ? 'Change' : 'Choose'}
                                     </Button>
@@ -155,7 +155,6 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                         <Button
                                             type="button"
                                             variant="destructive"
-                                            size="sm"
                                             onClick={() => {
                                                 if (photoPreviewUrlRef.current) {
                                                     URL.revokeObjectURL(photoPreviewUrlRef.current);
