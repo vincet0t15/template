@@ -15,13 +15,14 @@ import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
-import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Receipt, Settings } from 'lucide-react';
+import { ArrowLeft, CoinsIcon, FileText, LayoutDashboard, Receipt, Settings, TrendingDown } from 'lucide-react';
 
 import EmployeeCompensation from './Compensation';
 import Overview from './Overview';
 import Reports from './Reports';
 import EmployeeSettings from './Settings';
 import { EmployeeClaims } from './claims';
+import { CompensationDeductions } from './compensation/deductions';
 
 interface EmployeeManageProps {
     employee: Employee;
@@ -143,6 +144,9 @@ export default function EmployeeManagePage({
                             <TabsTrigger value="compensation">
                                 <CoinsIcon className="h-4 w-4" /> Compensation
                             </TabsTrigger>
+                            <TabsTrigger value="deductions">
+                                <TrendingDown className="h-4 w-4" /> Deductions
+                            </TabsTrigger>
                             <TabsTrigger value="claims">
                                 <Receipt className="h-4 w-4" /> Claims
                             </TabsTrigger>
@@ -165,7 +169,10 @@ export default function EmployeeManagePage({
                         />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
-                        <EmployeeCompensation
+                        <EmployeeCompensation employee={employee} />
+                    </TabsContent>
+                    <TabsContent value="deductions" className="mt-0 outline-none">
+                        <CompensationDeductions
                             employee={employee}
                             deductionTypes={deductionTypes}
                             deductions={deductions}
@@ -173,7 +180,7 @@ export default function EmployeeManagePage({
                             takenPeriods={takenPeriods}
                             availableYears={availableYears}
                             filters={filters}
-                            deductionPagination={deductionPagination}
+                            pagination={deductionPagination}
                         />
                     </TabsContent>
                     <TabsContent value="claims" className="mt-0 outline-none">
