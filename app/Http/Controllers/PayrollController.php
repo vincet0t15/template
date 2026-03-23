@@ -6,11 +6,41 @@ use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
+use App\Models\Pera;
+use App\Models\Rata;
+use App\Models\Salary;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PayrollController extends Controller
 {
+    /**
+     * Get the effective amount for a specific period from history
+     */
+    private function getEffectiveAmount($history, int $year, int $month): float
+    {
+        if ($history->isEmpty()) {
+            return 0;
+        }
+
+        // Create date for end of the period (last day of month)
+        $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
+
+        // Sort by effective_date descending and find the most recent record
+        // that was effective before or during this period
+        $effectiveRecord = $history
+            ->sortByDesc('effective_date')
+            ->first(function ($record) use ($periodEnd) {
+                return $record->effective_date <= $periodEnd;
+            });
+
+        // If no record found before period end, use the oldest one
+        if (!$effectiveRecord) {
+            $effectiveRecord = $history->sortBy('effective_date')->first();
+        }
+
+        return (float) ($effectiveRecord?->amount ?? 0);
+    }
     public function index(Request $request)
     {
         $month = $request->input('month', now()->month);
@@ -32,14 +62,20 @@ class PayrollController extends Controller
             ->when($employmentStatusId, function ($query, $employmentStatusId) {
                 $query->where('employment_status_id', $employmentStatusId);
             })
-            ->with(['salaries' => function ($query) {
-                $query->latest('effective_date')->limit(1);
+            ->with(['salaries' => function ($query) use ($year, $month) {
+                // Load all salaries effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
             }])
-            ->with(['peras' => function ($query) {
-                $query->latest('effective_date')->limit(1);
+            ->with(['peras' => function ($query) use ($year, $month) {
+                // Load all PERAs effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
             }])
-            ->with(['ratas' => function ($query) {
-                $query->latest('effective_date')->limit(1);
+            ->with(['ratas' => function ($query) use ($year, $month) {
+                // Load all RATAs effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
             }])
             ->with(['deductions' => function ($query) use ($month, $year) {
                 $query->where('pay_period_month', $month)
@@ -50,20 +86,22 @@ class PayrollController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        // Transform employees to include computed values
+        // Transform employees to include computed values using historical data
         $employees->getCollection()->transform(function ($employee) use ($month, $year) {
-            $salary = $employee->salaries->first();
-            $pera = $employee->peras->first();
-            $rata = $employee->ratas->first();
+            // Get effective compensation for the selected period
+            $salary = $this->getEffectiveAmount($employee->salaries, $year, $month);
+            $pera = $this->getEffectiveAmount($employee->peras, $year, $month);
+            $rata = $employee->is_rata_eligible ? $this->getEffectiveAmount($employee->ratas, $year, $month) : 0;
+
             $deductions = $employee->deductions;
 
             $totalDeductions = (float) $deductions->sum('amount');
-            $grossPay = (float) ($salary->amount ?? 0) + (float) ($pera->amount ?? 0) + (float) ($rata->amount ?? 0);
+            $grossPay = $salary + $pera + $rata;
             $netPay = $grossPay - $totalDeductions;
 
-            $employee->current_salary = (float) ($salary->amount ?? 0);
-            $employee->current_pera = (float) ($pera->amount ?? 0);
-            $employee->current_rata = (float) ($rata->amount ?? 0);
+            $employee->current_salary = $salary;
+            $employee->current_pera = $pera;
+            $employee->current_rata = $rata;
             $employee->total_deductions = $totalDeductions;
             $employee->gross_pay = $grossPay;
             $employee->net_pay = $netPay;

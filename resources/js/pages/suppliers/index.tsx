@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Supplier } from '@/types/supplier';
 import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { CreateSupplierDialog } from './create-dialog';
 import { DeleteSupplierDialog } from './delete-dialog';
@@ -33,7 +33,7 @@ export default function Suppliers({ suppliers }: Props) {
                 />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <Button onClick={() => setIsCreateOpen(true)}>
-                        <Plus className="h-4 w-4" />
+                        <PlusIcon className="h-4 w-4" />
                         Add Supplier
                     </Button>
                 </div>

@@ -12,7 +12,15 @@
 - [HandleInertiaRequests.php](file://app/Http/Middleware/HandleInertiaRequests.php)
 - [create_users_table.php](file://database/migrations/0001_01_01_000000_create_users_table.php)
 - [confirm-password.tsx](file://resources/js/pages/auth/confirm-password.tsx)
+- [offices/index.tsx](file://resources/js/pages/settings/offices/index.tsx)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added new section documenting the office management interface refactoring
+- Updated architecture overview to include reusable dialog components
+- Enhanced component analysis with dialog-based office management
+- Added new diagrams showing the refactored dialog component structure
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -26,10 +34,10 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides comprehensive settings management documentation for user profile management, password updates, and account preferences. It covers profile editing processes, validation rules, security measures, password change procedures, confirmation requirements, and security policies. It also details the settings interface, form handling, data persistence, user preference management, notification settings, and account security controls. Additionally, it addresses settings validation, error handling, user feedback mechanisms, and administrative settings interface capabilities.
+This document provides comprehensive settings management documentation for user profile management, password updates, and account preferences. It covers profile editing processes, validation rules, security measures, password change procedures, confirmation requirements, and security policies. It also details the settings interface, form handling, data persistence, user preference management, notification settings, and account security controls. Additionally, it addresses settings validation, error handling, user feedback mechanisms, administrative settings interface capabilities, and the newly refactored office management interface with reusable dialog components.
 
 ## Project Structure
-The settings management system is organized around dedicated controllers for profile and password operations, route definitions, validation requests, and frontend layouts. The backend uses Laravel controllers and middleware, while the frontend leverages Inertia.js for a seamless single-page application experience.
+The settings management system is organized around dedicated controllers for profile and password operations, route definitions, validation requests, and frontend layouts. The backend uses Laravel controllers and middleware, while the frontend leverages Inertia.js for a seamless single-page application experience. The system now includes a refactored office management interface with reusable dialog components for improved code organization and maintainability.
 
 ```mermaid
 graph TB
@@ -48,6 +56,10 @@ end
 subgraph "Frontend"
 LAYOUT["resources/js/layouts/settings/layout.tsx"]
 CONFIRM["resources/js/pages/auth/confirm-password.tsx"]
+OFFICES["resources/js/pages/settings/offices/index.tsx"]
+CREATE_DIALOG["CreateOfficeDialog.tsx"]
+EDIT_DIALOG["EditOfficeDialog.tsx"]
+DELETE_DIALOG["DeleteOfficeDialog.tsx"]
 end
 ROUTES --> PC
 ROUTES --> PWDC
@@ -58,6 +70,9 @@ PC --> MW
 PWDC --> MW
 LAYOUT --> ROUTES
 CONFIRM --> AUTHCFG
+OFFICES --> CREATE_DIALOG
+OFFICES --> EDIT_DIALOG
+OFFICES --> DELETE_DIALOG
 ```
 
 **Diagram sources**
@@ -71,6 +86,7 @@ CONFIRM --> AUTHCFG
 - [layout.tsx:1-63](file://resources/js/layouts/settings/layout.tsx#L1-L63)
 - [confirm-password.tsx:1-60](file://resources/js/pages/auth/confirm-password.tsx#L1-L60)
 - [create_users_table.php:1-50](file://database/migrations/0001_01_01_000000_create_users_table.php#L1-L50)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 **Section sources**
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
@@ -82,6 +98,7 @@ CONFIRM --> AUTHCFG
 - [layout.tsx:1-63](file://resources/js/layouts/settings/layout.tsx#L1-L63)
 - [auth.php:1-116](file://config/auth.php#L1-L116)
 - [create_users_table.php:1-50](file://database/migrations/0001_01_01_000000_create_users_table.php#L1-L50)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 ## Core Components
 - ProfileController: Handles profile viewing, updating, and account deletion with email verification logic and session management.
@@ -93,6 +110,7 @@ CONFIRM --> AUTHCFG
 - Authentication Configuration: Configures guards, providers, password reset behavior, and password confirmation timeouts.
 - Middleware: Shares authentication and flash data across Inertia.js requests.
 - Database Migration: Creates the users table with unique email constraints and timestamps.
+- Office Management Interface: **Updated** Now features refactored dialog components for create, edit, and delete operations with improved code organization.
 
 **Section sources**
 - [ProfileController.php:1-64](file://app/Http/Controllers/Settings/ProfileController.php#L1-L64)
@@ -104,13 +122,15 @@ CONFIRM --> AUTHCFG
 - [auth.php:1-116](file://config/auth.php#L1-L116)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 - [create_users_table.php:1-50](file://database/migrations/0001_01_01_000000_create_users_table.php#L1-L50)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 ## Architecture Overview
-The settings architecture follows a layered approach:
+The settings architecture follows a layered approach with enhanced modularity for office management operations:
 - Frontend: Inertia.js renders settings pages with a shared layout and navigation.
 - Backend: Controllers handle requests, enforce validation, and manage persistence.
 - Data Layer: Eloquent model and database migration define user data structure and constraints.
 - Security: Authentication configuration and middleware ensure secure access and data sharing.
+- **Updated** Dialog Components: Office management now uses reusable dialog components for create, edit, and delete operations, improving code organization and maintainability.
 
 ```mermaid
 sequenceDiagram
@@ -119,6 +139,10 @@ participant Layout as "Settings Layout"
 participant Routes as "Settings Routes"
 participant ProfileCtrl as "ProfileController"
 participant PasswordCtrl as "PasswordController"
+participant OfficesIndex as "Offices Index Component"
+participant CreateDialog as "CreateOfficeDialog"
+participant EditDialog as "EditOfficeDialog"
+participant DeleteDialog as "DeleteOfficeDialog"
 participant Validator as "ProfileUpdateRequest"
 participant UserModel as "User Model"
 participant AuthMW as "HandleInertiaRequests"
@@ -127,6 +151,14 @@ Layout->>Routes : Resolve settings routes
 Routes->>ProfileCtrl : GET /settings/profile
 ProfileCtrl->>AuthMW : Share auth and flash data
 ProfileCtrl-->>Client : Render profile settings page
+Client->>Routes : Navigate to /settings/offices
+Routes->>OfficesIndex : Load offices index
+OfficesIndex->>CreateDialog : Open create dialog
+CreateDialog->>OfficesIndex : Handle create operation
+OfficesIndex->>EditDialog : Open edit dialog
+EditDialog->>OfficesIndex : Handle edit operation
+OfficesIndex->>DeleteDialog : Open delete dialog
+DeleteDialog->>OfficesIndex : Handle delete operation
 Client->>Routes : Submit profile update
 Routes->>ProfileCtrl : PATCH /settings/profile
 ProfileCtrl->>Validator : Validate request
@@ -147,6 +179,7 @@ PasswordCtrl-->>Client : Back to previous page
 - [ProfileUpdateRequest.php:1-33](file://app/Http/Requests/Settings/ProfileUpdateRequest.php#L1-L33)
 - [User.php:1-49](file://app/Models/User.php#L1-L49)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 ## Detailed Component Analysis
 
@@ -260,6 +293,42 @@ Navigation items:
 **Section sources**
 - [layout.tsx:1-63](file://resources/js/layouts/settings/layout.tsx#L1-L63)
 
+### Office Management Interface
+**Updated** The office management interface has been refactored to use reusable dialog components for improved code organization and maintainability. The main index component now delegates create, edit, and delete operations to separate dialog components.
+
+```mermaid
+flowchart TD
+OfficesIndex["Offices Index Component"] --> CreateDialog["CreateOfficeDialog"]
+OfficesIndex --> EditDialog["EditOfficeDialog"]
+OfficesIndex --> DeleteDialog["DeleteOfficeDialog"]
+OfficesIndex --> StateManagement["State Management<br/>openCreateDialog, openEditDialog, openDeleteDialog"]
+OfficesIndex --> EventHandlers["Event Handlers<br/>handleEditClick, handleDeleteClick"]
+CreateDialog --> FormHandling["Form Handling & Validation"]
+EditDialog --> FormHandling
+DeleteDialog --> Confirmation["Confirmation Logic"]
+StateManagement --> ConditionalRendering["Conditional Rendering"]
+EventHandlers --> StateUpdates["State Updates"]
+ConditionalRendering --> DialogComponents["Dialog Components"]
+```
+
+**Diagram sources**
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
+
+Key features of the refactored interface:
+- **Reusable Dialog Components**: Separate components for create, edit, and delete operations
+- **State Management**: Centralized state management for dialog visibility and selected office data
+- **Event Handling**: Clean event handlers for opening dialogs with proper office context
+- **Conditional Rendering**: Efficient rendering of dialog components only when needed
+- **Improved Maintainability**: Better separation of concerns and easier testing of individual dialog components
+
+Component responsibilities:
+- **CreateOfficeDialog**: Handles new office creation with form validation and submission
+- **EditOfficeDialog**: Manages office modification with pre-filled data and update operations
+- **DeleteOfficeDialog**: Implements safe deletion with confirmation and error handling
+
+**Section sources**
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
+
 ### Data Persistence and Model Behavior
 The User model defines fillable attributes, hidden fields, and attribute casting to ensure secure data handling and serialization.
 
@@ -300,7 +369,7 @@ Note: Administrative settings for user management are implemented in separate co
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
 
 ## Dependency Analysis
-The settings system exhibits clear separation of concerns with minimal coupling between components. Controllers depend on validation requests and the User model, while routes connect to controllers. The middleware ensures consistent data sharing across Inertia.js requests.
+The settings system exhibits clear separation of concerns with minimal coupling between components. Controllers depend on validation requests and the User model, while routes connect to controllers. The middleware ensures consistent data sharing across Inertia.js requests. **Updated** The office management interface now depends on reusable dialog components for enhanced modularity.
 
 ```mermaid
 graph TB
@@ -313,6 +382,13 @@ ProfileController --> Middleware["HandleInertiaRequests.php"]
 PasswordController --> Middleware
 AuthConfig["auth.php"] --> PasswordController
 AuthConfig --> Middleware
+OfficesIndex["offices/index.tsx"] --> CreateDialog["CreateOfficeDialog.tsx"]
+OfficesIndex --> EditDialog["EditOfficeDialog.tsx"]
+OfficesIndex --> DeleteDialog["DeleteOfficeDialog.tsx"]
+OfficesIndex --> StateManagement["State Management Hooks"]
+CreateDialog --> FormValidation["Form Validation"]
+EditDialog --> FormValidation
+DeleteDialog --> ConfirmationLogic["Confirmation Logic"]
 ```
 
 **Diagram sources**
@@ -323,6 +399,7 @@ AuthConfig --> Middleware
 - [User.php:1-49](file://app/Models/User.php#L1-L49)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 - [auth.php:1-116](file://config/auth.php#L1-L116)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 **Section sources**
 - [settings.php:1-22](file://routes/settings.php#L1-L22)
@@ -332,12 +409,14 @@ AuthConfig --> Middleware
 - [User.php:1-49](file://app/Models/User.php#L1-L49)
 - [HandleInertiaRequests.php:1-55](file://app/Http/Middleware/HandleInertiaRequests.php#L1-L55)
 - [auth.php:1-116](file://config/auth.php#L1-L116)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 ## Performance Considerations
 - Validation occurs server-side using FormRequest classes, ensuring efficient and consistent validation logic.
 - Password hashing is performed server-side, leveraging Laravel's built-in hashing mechanisms.
 - Inertia.js provides client-side navigation without full page reloads, improving perceived performance.
 - Middleware shares authentication and flash data efficiently across requests.
+- **Updated** Dialog components improve performance by lazy-loading only when needed, reducing initial bundle size and improving render performance.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
@@ -345,12 +424,14 @@ Common issues and resolutions:
 - Password confirmation errors: Verify that the current password matches the stored hash before attempting password changes.
 - Session-related issues: After account deletion, ensure logout and session invalidation occur to prevent session fixation.
 - Authentication timeouts: Adjust password confirmation timeout in authentication configuration if users frequently encounter timeouts.
+- **Updated** Dialog component issues: Ensure proper state management for dialog visibility and selected office data. Check that dialog components receive required props and handle loading states appropriately.
 
 **Section sources**
 - [ProfileUpdateRequest.php:1-33](file://app/Http/Requests/Settings/ProfileUpdateRequest.php#L1-L33)
 - [PasswordController.php:1-44](file://app/Http/Controllers/Settings/PasswordController.php#L1-L44)
 - [ProfileController.php:1-64](file://app/Http/Controllers/Settings/ProfileController.php#L1-L64)
 - [auth.php:1-116](file://config/auth.php#L1-L116)
+- [offices/index.tsx:1-145](file://resources/js/pages/settings/offices/index.tsx#L1-L145)
 
 ## Conclusion
-The settings management system provides a secure, user-friendly interface for managing profiles, passwords, and preferences. It enforces robust validation, maintains strict security policies, and integrates seamlessly with the application's authentication and middleware layers. The modular design allows for easy extension and maintenance while preserving a consistent user experience.
+The settings management system provides a secure, user-friendly interface for managing profiles, passwords, and preferences. It enforces robust validation, maintains strict security policies, and integrates seamlessly with the application's authentication and middleware layers. The modular design allows for easy extension and maintenance while preserving a consistent user experience. **Updated** The recent refactoring of the office management interface with reusable dialog components significantly improves code organization, maintainability, and user experience, setting a foundation for further enhancements to the settings management system.

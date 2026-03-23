@@ -24,20 +24,14 @@ function formatDate(dateString: string) {
 }
 
 // Helper function to get the effective amount for a specific period
-function getEffectiveAmount(
-    history: { amount: number; effective_date: string }[] | undefined,
-    periodYear: number,
-    periodMonth: number,
-): number {
+function getEffectiveAmount(history: { amount: number; effective_date: string }[] | undefined, periodYear: number, periodMonth: number): number {
     if (!history || history.length === 0) return 0;
 
     // Create a date for the end of the period (last day of the month)
     const periodEndDate = new Date(periodYear, periodMonth, 0);
 
     // Sort history by effective_date descending (newest first)
-    const sortedHistory = [...history].sort(
-        (a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime(),
-    );
+    const sortedHistory = [...history].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime());
 
     // Find the most recent record that was effective before or during this period
     for (const record of sortedHistory) {
@@ -109,16 +103,12 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
         // Use historical data for the specific filtered period
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), parseInt(filterMonth));
-        rata = employee.is_rata_eligible
-            ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth))
-            : 0;
+        rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
     } else if (filterYear) {
         // For year-only filter, use the value at the end of that year (December)
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
-        rata = employee.is_rata_eligible
-            ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12)
-            : 0;
+        rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
     } else {
         // No filters - use latest values
         salary = Number(employee.latest_salary?.amount ?? 0);

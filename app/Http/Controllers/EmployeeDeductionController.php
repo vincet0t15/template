@@ -13,6 +13,33 @@ use Inertia\Inertia;
 
 class EmployeeDeductionController extends Controller
 {
+    /**
+     * Get the effective amount for a specific period from history
+     */
+    private function getEffectiveAmount($history, int $year, int $month): float
+    {
+        if ($history->isEmpty()) {
+            return 0;
+        }
+
+        // Create date for end of the period (last day of month)
+        $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
+
+        // Sort by effective_date descending and find the most recent record
+        // that was effective before or during this period
+        $effectiveRecord = $history
+            ->sortByDesc('effective_date')
+            ->first(function ($record) use ($periodEnd) {
+                return $record->effective_date <= $periodEnd;
+            });
+
+        // If no record found before period end, use the oldest one
+        if (!$effectiveRecord) {
+            $effectiveRecord = $history->sortBy('effective_date')->first();
+        }
+
+        return (float) ($effectiveRecord?->amount ?? 0);
+    }
     public function index(Request $request)
     {
         $month = $request->input('month', now()->month);
@@ -22,7 +49,7 @@ class EmployeeDeductionController extends Controller
         $search = $request->input('search');
 
         $employees = Employee::query()
-            ->with(['employmentStatus', 'office', 'latestSalary', 'latestPera', 'latestRata'])
+            ->with(['employmentStatus', 'office'])
             ->when($search, function ($query, $search) {
                 $query->where('first_name', 'like', "%{$search}%")
                     ->orWhere('middle_name', 'like', "%{$search}%")
@@ -34,6 +61,21 @@ class EmployeeDeductionController extends Controller
             ->when($employmentStatusId, function ($query, $employmentStatusId) {
                 $query->where('employment_status_id', $employmentStatusId);
             })
+            ->with(['salaries' => function ($query) use ($year, $month) {
+                // Load all salaries effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
+            ->with(['peras' => function ($query) use ($year, $month) {
+                // Load all PERAs effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
+            ->with(['ratas' => function ($query) use ($year, $month) {
+                // Load all RATAs effective before or during the selected period
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
             ->with(['deductions' => function ($query) use ($month, $year) {
                 $query->where('pay_period_month', $month)
                     ->where('pay_period_year', $year)
@@ -42,6 +84,18 @@ class EmployeeDeductionController extends Controller
             ->orderBy('last_name', 'asc')
             ->paginate(50)
             ->withQueryString();
+
+        // Transform employees to include computed values using historical data
+        $employees->getCollection()->transform(function ($employee) use ($month, $year) {
+            // Get effective compensation for the selected period
+            $employee->current_salary = $this->getEffectiveAmount($employee->salaries, $year, $month);
+            $employee->current_pera = $this->getEffectiveAmount($employee->peras, $year, $month);
+            $employee->current_rata = $employee->is_rata_eligible
+                ? $this->getEffectiveAmount($employee->ratas, $year, $month)
+                : 0;
+
+            return $employee;
+        });
 
         $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
         $offices = Office::orderBy('name')->get();

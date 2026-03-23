@@ -57,7 +57,7 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                             {supplier.contact_number && <p className="text-muted-foreground text-sm">{supplier.contact_number}</p>}
                         </div>
                     </div>
-                    <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+                    <Button onClick={() => setIsCreateOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Transaction
                     </Button>

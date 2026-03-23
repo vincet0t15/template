@@ -10,11 +10,20 @@
 - [web.php](file://routes/web.php)
 - [index.tsx](file://resources/js/pages/deduction-types/index.tsx)
 - [deductionType.d.ts](file://resources/js/types/deductionType.d.ts)
+- [pagination.d.ts](file://resources/js/types/pagination.d.ts)
+- [paginationData.tsx](file://resources/js/components/paginationData.tsx)
 - [DeductionTypeSeeder.php](file://database/seeders/DeductionTypeSeeder.php)
 - [dialog.tsx](file://resources/js/components/ui/dialog.tsx)
 - [table.tsx](file://resources/js/components/ui/table.tsx)
 - [switch.tsx](file://resources/js/components/ui/switch.tsx)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Enhanced backend controller with search functionality using Request objects and LIKE operators
+- Added pagination support with 10 items per page and query string preservation
+- Updated frontend to handle paginated data structure and maintain search state
+- Integrated pagination components for better user experience
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -28,10 +37,10 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document describes the deduction types configuration system used to define, manage, and apply payroll deduction categories such as taxes, insurance, and retirement plans. It covers the backend data model and validation, the controller CRUD operations, and the frontend interface for creating, editing, and deleting deduction types. It also explains the unique code system, active/inactive status management, and how deduction types integrate with employee-specific deductions.
+This document describes the deduction types configuration system used to define, manage, and apply payroll deduction categories such as taxes, insurance, and retirement plans. The system now includes enhanced search functionality and pagination capabilities for improved performance and user experience. It covers the backend data model and validation, the controller CRUD operations with query-based filtering, and the frontend interface for creating, editing, and deleting deduction types with pagination support.
 
 ## Project Structure
-The deduction types feature spans Laravel backend controllers and Eloquent models, a dedicated database migration, Inertia-based React frontend pages, TypeScript type definitions, and route definitions.
+The deduction types feature spans Laravel backend controllers and Eloquent models, a dedicated database migration, Inertia-based React frontend pages with pagination components, TypeScript type definitions, and route definitions.
 
 ```mermaid
 graph TB
@@ -46,6 +55,8 @@ end
 subgraph "Frontend"
 FE["resources/js/pages/deduction-types/index.tsx"]
 T["resources/js/types/deductionType.d.ts"]
+PT["resources/js/types/pagination.d.ts"]
+PC["resources/js/components/paginationData.tsx"]
 DLG["resources/js/components/ui/dialog.tsx"]
 TAB["resources/js/components/ui/table.tsx"]
 SW["resources/js/components/ui/switch.tsx"]
@@ -56,54 +67,60 @@ M --> DB
 EC --> EM
 FE --> C
 FE --> T
+FE --> PT
+FE --> PC
 FE --> DLG
 FE --> TAB
 FE --> SW
 ```
 
 **Diagram sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:9-54](file://app/Http/Controllers/DeductionTypeController.php#L9-L54)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:9-66](file://app/Http/Controllers/DeductionTypeController.php#L9-L66)
 - [DeductionType.php:7-32](file://app/Models/DeductionType.php#L7-L32)
 - [EmployeeDeduction.php:8-58](file://app/Models/EmployeeDeduction.php#L8-L58)
 - [EmployeeDeductionController.php:12-107](file://app/Http/Controllers/EmployeeDeductionController.php#L12-L107)
 - [2026_03_22_115110_create_deduction_types_table.php:14-21](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L14-L21)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
+- [pagination.d.ts:1-24](file://resources/js/types/pagination.d.ts#L1-L24)
+- [paginationData.tsx:1-34](file://resources/js/components/paginationData.tsx#L1-L34)
 - [dialog.tsx:10-86](file://resources/js/components/ui/dialog.tsx#L10-L86)
 - [table.tsx:5-114](file://resources/js/components/ui/table.tsx#L5-L114)
 - [switch.tsx:6-31](file://resources/js/components/ui/switch.tsx#L6-L31)
 
 **Section sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:9-54](file://app/Http/Controllers/DeductionTypeController.php#L9-L54)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:9-66](file://app/Http/Controllers/DeductionTypeController.php#L9-L66)
 - [DeductionType.php:7-32](file://app/Models/DeductionType.php#L7-L32)
 - [2026_03_22_115110_create_deduction_types_table.php:14-21](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L14-L21)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
 
 ## Core Components
 - DeductionType model: Defines fillable attributes, boolean casting for status, relationship to employee deductions, and an active scope.
-- DeductionTypeController: Implements index, store, update, and destroy actions with validation and redirects.
-- Frontend page: Provides a table listing deduction types, create/edit dialogs, form validation feedback, and action buttons.
+- DeductionTypeController: Implements index with search and pagination, store, update, and destroy actions with validation and redirects.
+- Frontend page: Provides a table listing deduction types with pagination, create/edit dialogs, form validation feedback, and action buttons.
 - Database migration: Creates the deduction_types table with unique code, nullable description, and default active status.
-- Routes: Exposes REST-like endpoints under the deduction-types prefix.
+- Routes: Exposes REST-like endpoints under the deduction-types prefix with proper HTTP verb routing.
 - EmployeeDeduction integration: Active deduction types are used when assigning employee-specific deductions.
+- Pagination system: Handles 10 items per page with query string preservation for search and pagination state.
 
 **Section sources**
 - [DeductionType.php:9-31](file://app/Models/DeductionType.php#L9-L31)
-- [DeductionTypeController.php:20-53](file://app/Http/Controllers/DeductionTypeController.php#L20-L53)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [DeductionTypeController.php:11-66](file://app/Http/Controllers/DeductionTypeController.php#L11-L66)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 - [2026_03_22_115110_create_deduction_types_table.php:14-21](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L14-L21)
-- [web.php:55-61](file://routes/web.php#L55-L61)
+- [web.php:123-128](file://routes/web.php#L123-L128)
 - [EmployeeDeductionController.php:40-40](file://app/Http/Controllers/EmployeeDeductionController.php#L40-L40)
+- [paginationData.tsx:1-34](file://resources/js/components/paginationData.tsx#L1-L34)
 
 ## Architecture Overview
-The system follows a layered architecture:
-- Routes define the HTTP endpoints for deduction types.
-- Controller handles requests, validates input, and orchestrates persistence.
+The system follows a layered architecture with enhanced search and pagination capabilities:
+- Routes define the HTTP endpoints for deduction types with proper RESTful routing.
+- Controller handles requests with Request objects, validates input, applies search filters, and orchestrates paginated persistence.
 - Model encapsulates data access, casting, and relationships.
-- Frontend renders the UI, manages forms via Inertia, and communicates with controllers.
+- Frontend renders the UI with pagination components, manages forms via Inertia, and communicates with controllers while preserving search state.
 
 ```mermaid
 sequenceDiagram
@@ -114,29 +131,30 @@ participant CTRL as "DeductionTypeController"
 participant MODEL as "DeductionType Model"
 participant DB as "Database"
 U->>FE : Open Deduction Types page
-FE->>RT : GET /deduction-types
-RT->>CTRL : index()
-CTRL->>MODEL : query all ordered by name
-MODEL->>DB : SELECT * FROM deduction_types ORDER BY name
-DB-->>MODEL : rows
-MODEL-->>CTRL : collection
-CTRL-->>FE : render with data
-U->>FE : Click "Add Deduction Type"
-FE->>RT : POST /deduction-types
-RT->>CTRL : store(validated payload)
-CTRL->>MODEL : create(validated)
-MODEL->>DB : INSERT INTO deduction_types
-DB-->>MODEL : success
-MODEL-->>CTRL : model instance
-CTRL-->>FE : redirect with success
+FE->>RT : GET /settings/deduction-types?search=&page=1
+RT->>CTRL : index(Request)
+CTRL->>CTRL : extract search query
+CTRL->>MODEL : query with search filters
+MODEL->>DB : SELECT * FROM deduction_types WHERE name LIKE %search% OR code LIKE %search% ORDER BY name ASC LIMIT 10 OFFSET 0
+DB-->>MODEL : paginated rows
+MODEL-->>CTRL : paginated collection
+CTRL-->>FE : render with pagination data and filters
+U->>FE : Enter search term "GSIS"
+FE->>RT : GET /settings/deduction-types?search=GSIS&page=1
+RT->>CTRL : index(Request)
+CTRL->>MODEL : query with LIKE filters
+MODEL->>DB : SELECT * FROM deduction_types WHERE name LIKE %GSIS% OR code LIKE %GSIS% ORDER BY name ASC LIMIT 10 OFFSET 0
+DB-->>MODEL : paginated filtered rows
+MODEL-->>CTRL : paginated filtered collection
+CTRL-->>FE : render with filtered data and preserved search
 ```
 
 **Diagram sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:11-32](file://app/Http/Controllers/DeductionTypeController.php#L11-L32)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:11-29](file://app/Http/Controllers/DeductionTypeController.php#L11-L29)
 - [DeductionType.php:9-18](file://app/Models/DeductionType.php#L9-L18)
 - [2026_03_22_115110_create_deduction_types_table.php:14-21](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L14-L21)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 
 ## Detailed Component Analysis
 
@@ -188,14 +206,16 @@ DeductionType "1" --> "many" EmployeeDeduction : "hasMany"
 
 **Section sources**
 - [DeductionType.php:9-31](file://app/Models/DeductionType.php#L9-L31)
-- [DeductionTypeController.php:22-41](file://app/Http/Controllers/DeductionTypeController.php#L22-L41)
+- [DeductionTypeController.php:31-57](file://app/Http/Controllers/DeductionTypeController.php#L31-L57)
 - [2026_03_22_115110_create_deduction_types_table.php:14-21](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L14-L21)
 
-### Controller CRUD Operations
-- Index: Returns all deduction types sorted by name for the frontend table.
+### Enhanced Controller CRUD Operations with Search and Pagination
+- Index: Returns paginated deduction types (10 per page) with search functionality, sorted by name, and preserves query string for pagination state.
 - Store: Validates input, ensures unique code, persists the record, and returns a success redirect.
 - Update: Validates input, ensures unique code excluding the current record, updates the record, and returns a success redirect.
 - Destroy: Deletes the record and returns a success redirect.
+
+**Updated** Enhanced with Request object handling, search query extraction, LIKE operator filtering, and pagination with query string preservation.
 
 ```mermaid
 sequenceDiagram
@@ -203,19 +223,25 @@ participant FE as "Frontend"
 participant RT as "Routes"
 participant CTRL as "DeductionTypeController"
 participant MODEL as "DeductionType"
-FE->>RT : POST /deduction-types
+FE->>RT : GET /settings/deduction-types?page=2&search=GSIS
+RT->>CTRL : index(Request)
+CTRL->>CTRL : $search = $request->query('search')
+CTRL->>MODEL : query()->when($search)->where('name','like','%'.$search.'%')->orWhere('code','like','%'.$search.'%')->orderBy('name','asc')->paginate(10)->withQueryString()
+MODEL-->>CTRL : paginated collection with preserved query params
+CTRL-->>FE : render with pagination data and filters
+FE->>RT : POST /settings/deduction-types
 RT->>CTRL : store(Request)
 CTRL->>CTRL : validate(name, code, description, is_active)
 CTRL->>MODEL : create(validated)
 MODEL-->>CTRL : persisted model
 CTRL-->>FE : redirect back with success
-FE->>RT : PUT /deduction-types/{id}
+FE->>RT : PUT /settings/deduction-types/{id}
 RT->>CTRL : update(Request, DeductionType)
 CTRL->>CTRL : validate(name, code(unique), description, is_active)
 CTRL->>MODEL : update(validated)
 MODEL-->>CTRL : updated model
 CTRL-->>FE : redirect back with success
-FE->>RT : DELETE /deduction-types/{id}
+FE->>RT : DELETE /settings/deduction-types/{id}
 RT->>CTRL : destroy(DeductionType)
 CTRL->>MODEL : delete()
 MODEL-->>CTRL : deleted
@@ -223,19 +249,23 @@ CTRL-->>FE : redirect back with success
 ```
 
 **Diagram sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:20-53](file://app/Http/Controllers/DeductionTypeController.php#L20-L53)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:11-66](file://app/Http/Controllers/DeductionTypeController.php#L11-L66)
 - [DeductionType.php:9-18](file://app/Models/DeductionType.php#L9-L18)
 
 **Section sources**
-- [DeductionTypeController.php:11-53](file://app/Http/Controllers/DeductionTypeController.php#L11-L53)
-- [web.php:55-61](file://routes/web.php#L55-L61)
+- [DeductionTypeController.php:11-66](file://app/Http/Controllers/DeductionTypeController.php#L11-L66)
+- [web.php:123-128](file://routes/web.php#L123-L128)
 
-### Frontend Interface and User Interactions
+### Frontend Interface and User Interactions with Pagination
 - Layout and navigation:
   - Uses a shared app layout and breadcrumb pointing to Deduction Types.
 - Table display:
   - Shows Name, Code (monospace), Description, Status (Active/Inactive badge), and Action buttons (Edit/Delete).
+- Pagination system:
+  - Displays pagination controls with preserved search state.
+  - Shows "Showing X to Y from Total Z" information.
+  - Maintains active page highlighting and disabled states for non-clickable links.
 - Create dialog:
   - Fields: Name, Code (auto-uppercase), Description, Active switch.
   - Validation feedback shown per field.
@@ -244,37 +274,54 @@ CTRL-->>FE : redirect back with success
   - Pre-populated with current values; submits via PUT to update endpoint.
 - Delete action:
   - Confirmation prompt; triggers DELETE to remove endpoint.
+- Search functionality:
+  - Search input maintained across pagination pages.
+  - Query string preserved during navigation.
 - UI components:
   - Dialog, Table, Switch components are reused for consistent UX.
+  - Pagination component handles link rendering and state management.
+
+**Updated** Enhanced with pagination components, search state preservation, and improved user experience for large datasets.
 
 ```mermaid
 flowchart TD
-Start(["Open Deduction Types"]) --> View["Render Table of Deduction Types"]
-View --> Create["Click Add Deduction Type"]
+Start(["Open Deduction Types"]) --> View["Render Table with Pagination"]
+View --> Search["Enter Search Term"]
+Search --> Filter["Apply LIKE Filters"]
+Filter --> Paginate["Paginate Results (10/page)"]
+Paginate --> ViewFiltered["Display Filtered Results"]
+ViewFiltered --> Navigate["Navigate Pages"]
+Navigate --> Preserve["Preserve Search & Pagination State"]
+Preserve --> ViewFiltered
+ViewFiltered --> Create["Click Add Deduction Type"]
 Create --> OpenCreate["Open Create Dialog"]
 OpenCreate --> FillCreate["Fill Form Fields"]
 FillCreate --> SubmitCreate["Submit Create"]
-SubmitCreate --> SuccessCreate["Redirect with Success Message"]
-View --> Edit["Click Edit"]
+SubmitCreate --> Reload["Reload with Success Message"]
+Reload --> ViewFiltered
+ViewFiltered --> Edit["Click Edit"]
 Edit --> OpenEdit["Open Edit Dialog"]
 OpenEdit --> FillEdit["Fill Form Fields"]
 FillEdit --> SubmitEdit["Submit Update"]
-SubmitEdit --> SuccessEdit["Redirect with Success Message"]
-View --> Delete["Click Delete"]
+SubmitEdit --> Reload
+Reload --> ViewFiltered
+ViewFiltered --> Delete["Click Delete"]
 Delete --> Confirm{"Confirm Deletion?"}
 Confirm --> |Yes| DoDelete["DELETE Request"]
-DoDelete --> SuccessDelete["Redirect with Success Message"]
+DoDelete --> Reload
 Confirm --> |No| Cancel["Cancel Operation"]
 ```
 
 **Diagram sources**
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
+- [paginationData.tsx:4-34](file://resources/js/components/paginationData.tsx#L4-L34)
 - [dialog.tsx:50-86](file://resources/js/components/ui/dialog.tsx#L50-L86)
 - [table.tsx:53-63](file://resources/js/components/ui/table.tsx#L53-L63)
 - [switch.tsx:6-31](file://resources/js/components/ui/switch.tsx#L6-L31)
 
 **Section sources**
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
+- [paginationData.tsx:1-34](file://resources/js/components/paginationData.tsx#L1-L34)
 - [dialog.tsx:10-86](file://resources/js/components/ui/dialog.tsx#L10-L86)
 - [table.tsx:5-114](file://resources/js/components/ui/table.tsx#L5-L114)
 - [switch.tsx:6-31](file://resources/js/components/ui/switch.tsx#L6-L31)
@@ -320,8 +367,7 @@ timestamp updated_at
 
 **Section sources**
 - [2026_03_22_115110_create_deduction_types_table.php:17](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L17)
-- [DeductionTypeController.php:24](file://app/Http/Controllers/DeductionTypeController.php#L24)
-- [DeductionTypeController.php:38](file://app/Http/Controllers/DeductionTypeController.php#L38)
+- [DeductionTypeController.php:33-56](file://app/Http/Controllers/DeductionTypeController.php#L33-L56)
 - [DeductionType.php:16-18](file://app/Models/DeductionType.php#L16-L18)
 - [DeductionType.php:28-31](file://app/Models/DeductionType.php#L28-L31)
 - [EmployeeDeductionController.php:40](file://app/Http/Controllers/EmployeeDeductionController.php#L40)
@@ -348,10 +394,13 @@ These examples demonstrate consistent naming, concise codes, and optional descri
 - [EmployeeDeduction.php:36-39](file://app/Models/EmployeeDeduction.php#L36-L39)
 
 ## Dependency Analysis
-- Routes depend on DeductionTypeController methods.
-- Controller depends on DeductionType model for persistence and queries.
-- Frontend depends on controller endpoints and TypeScript types.
+- Routes depend on DeductionTypeController methods with proper HTTP verb routing.
+- Controller depends on DeductionType model for persistence, queries, and search filtering.
+- Frontend depends on controller endpoints, TypeScript types, and pagination components.
+- Pagination components depend on Inertia's Link component for state preservation.
 - EmployeeDeductionController depends on DeductionType for filtering active deduction types.
+
+**Updated** Enhanced with pagination dependencies and query string preservation mechanisms.
 
 ```mermaid
 graph LR
@@ -359,30 +408,39 @@ RT["routes/web.php"] --> CTRL["DeductionTypeController"]
 CTRL --> MODEL["DeductionType Model"]
 FE["index.tsx"] --> CTRL
 FE --> TYPES["deductionType.d.ts"]
+FE --> PAGTYPES["pagination.d.ts"]
+FE --> PAGCOMP["paginationData.tsx"]
 EC["EmployeeDeductionController"] --> DT["DeductionType Model"]
 EC --> ED["EmployeeDeduction Model"]
+PAGCOMP --> INERTIALINK["@inertiajs/react Link"]
 ```
 
 **Diagram sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:9-54](file://app/Http/Controllers/DeductionTypeController.php#L9-L54)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:9-66](file://app/Http/Controllers/DeductionTypeController.php#L9-L66)
 - [DeductionType.php:7-32](file://app/Models/DeductionType.php#L7-L32)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
+- [pagination.d.ts:1-24](file://resources/js/types/pagination.d.ts#L1-L24)
+- [paginationData.tsx:1-34](file://resources/js/components/paginationData.tsx#L1-L34)
 - [EmployeeDeductionController.php:12-107](file://app/Http/Controllers/EmployeeDeductionController.php#L12-L107)
 - [EmployeeDeduction.php:8-58](file://app/Models/EmployeeDeduction.php#L8-L58)
 
 **Section sources**
-- [web.php:55-61](file://routes/web.php#L55-L61)
-- [DeductionTypeController.php:9-54](file://app/Http/Controllers/DeductionTypeController.php#L9-L54)
-- [index.tsx:27-257](file://resources/js/pages/deduction-types/index.tsx#L27-L257)
+- [web.php:123-128](file://routes/web.php#L123-L128)
+- [DeductionTypeController.php:9-66](file://app/Http/Controllers/DeductionTypeController.php#L9-L66)
+- [index.tsx:27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
 - [EmployeeDeductionController.php:12-107](file://app/Http/Controllers/EmployeeDeductionController.php#L12-L107)
 
 ## Performance Considerations
-- Index query sorts by name; ensure appropriate indexing for name and code columns.
+- Index query now includes search filtering with LIKE operators on both name and code fields.
+- Pagination limits results to 10 per page, improving load times for large datasets.
+- Query string preservation maintains user search state across pagination pages.
 - Unique code validation occurs at both controller and database levels; keep database constraints to prevent race conditions.
-- Frontend paginates employee deduction lists; similar pagination could be considered for large deduction type lists if growth warrants it.
 - Boolean casting for is_active avoids string comparisons in queries.
+- Consider adding database indexes on name and code columns for improved search performance.
+
+**Updated** Enhanced with search performance considerations and pagination benefits.
 
 ## Troubleshooting Guide
 - Duplicate code error on create/update:
@@ -391,15 +449,24 @@ EC --> ED["EmployeeDeduction Model"]
 - Validation failures:
   - Name missing or too long, invalid boolean for is_active, or invalid code format.
   - Resolution: Correct form inputs; frontend shows field-level error messages.
+- Search not working:
+  - Ensure search query is passed as query parameter in URL.
+  - Check that LIKE operators are properly applied in controller.
+- Pagination issues:
+  - Verify pagination component receives proper paginated data structure.
+  - Ensure query string preservation maintains search state across pages.
 - Delete confirmation:
   - Use the confirmation dialog before removing a deduction type.
 - Active vs inactive:
   - Only active deduction types appear in employee deduction assignments; toggle status accordingly.
 
+**Updated** Added troubleshooting guidance for search functionality and pagination issues.
+
 **Section sources**
-- [DeductionTypeController.php:22-41](file://app/Http/Controllers/DeductionTypeController.php#L22-L41)
+- [DeductionTypeController.php:31-57](file://app/Http/Controllers/DeductionTypeController.php#L31-L57)
 - [index.tsx:173-183](file://resources/js/pages/deduction-types/index.tsx#L173-L183)
+- [paginationData.tsx:4-34](file://resources/js/components/paginationData.tsx#L4-L34)
 - [EmployeeDeductionController.php:40](file://app/Http/Controllers/EmployeeDeductionController.php#L40)
 
 ## Conclusion
-The deduction types configuration system provides a robust foundation for managing payroll deduction categories. It enforces unique codes, maintains active status controls, integrates with employee-specific deductions, and offers a clean frontend interface with validation and responsive actions. The design balances simplicity with extensibility, enabling straightforward addition of new deduction categories and consistent application across the payroll workflow.
+The deduction types configuration system provides a robust foundation for managing payroll deduction categories with enhanced search and pagination capabilities. It enforces unique codes, maintains active status controls, integrates with employee-specific deductions, and offers a clean frontend interface with validation, responsive actions, and efficient data handling. The addition of search functionality and pagination significantly improves user experience for large datasets while maintaining the system's simplicity and extensibility. The design balances performance with usability, enabling straightforward addition of new deduction categories and consistent application across the payroll workflow.

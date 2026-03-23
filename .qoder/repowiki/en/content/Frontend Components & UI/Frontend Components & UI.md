@@ -37,16 +37,24 @@
 - [Compensation.tsx](file://resources/js/pages/Employees/Manage/Compensation.tsx)
 - [salary.tsx](file://resources/js/pages/Employees/Manage/compensation/salary.tsx)
 - [salaryDialog.tsx](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx)
+- [claim-types/index.tsx](file://resources/js/pages/claim-types/index.tsx)
+- [claim-types/create.tsx](file://resources/js/pages/claim-types/create.tsx)
+- [claim-types/edit.tsx](file://resources/js/pages/claim-types/edit.tsx)
+- [claim-types/delete.tsx](file://resources/js/pages/claim-types/delete.tsx)
+- [claimType.ts](file://resources/js/types/claimType.ts)
+- [ClaimTypeController.php](file://app/Http/Controllers/ClaimTypeController.php)
+- [web.php](file://routes/web.php)
+- [2026_03_23_053019_create_claim_types_table.php](file://database/migrations/2026_03_23_053019_create_claim_types_table.php)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Added comprehensive employee management system with new Settings.tsx component (265 lines)
-- Introduced Compensation.tsx with tabbed interface for salary, PERA, RATA, and deductions
-- Created salary.tsx and salaryDialog.tsx for salary management functionality
-- Updated employee settings interface to replace old implementation with modern React patterns
-- Enhanced form handling with Inertia router integration and toast notifications
-- Added comprehensive photo upload functionality with preview and removal capabilities
+- Added comprehensive Claim Types management system with new ClaimTypeForm interface for better TypeScript support
+- Enhanced app header with new navigation item for Claim Types integration under Settings
+- Implemented complete CRUD operations for claim types with create, edit, and delete functionality
+- Added TypeScript interfaces for ClaimType and ClaimTypeForm with proper validation
+- Integrated claim types into the claims management system for employee reimbursement workflows
+- Enhanced navigation system with dedicated Claim Types menu item in the Settings section
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -57,20 +65,21 @@
 6. [Modernized UI Components](#modernized-ui-components)
 7. [Enhanced Navigation Systems](#enhanced-navigation-systems)
 8. [Employee Management System](#employee-management-system)
-9. [React 19 Integration](#react-19-integration)
-10. [Mobile-First Design Patterns](#mobile-first-design-patterns)
-11. [Advanced Component Features](#advanced-component-features)
-12. [Enhanced Pages](#enhanced-pages)
-13. [Dependency Analysis](#dependency-analysis)
-14. [Performance Considerations](#performance-considerations)
-15. [Troubleshooting Guide](#troubleshooting-guide)
-16. [Conclusion](#conclusion)
-17. [Appendices](#appendices)
+9. [Claim Types Management System](#claim-types-management-system)
+10. [React 19 Integration](#react-19-integration)
+11. [Mobile-First Design Patterns](#mobile-first-design-patterns)
+12. [Advanced Component Features](#advanced-component-features)
+13. [Enhanced Pages](#enhanced-pages)
+14. [Dependency Analysis](#dependency-analysis)
+15. [Performance Considerations](#performance-considerations)
+16. [Troubleshooting Guide](#troubleshooting-guide)
+17. [Conclusion](#conclusion)
+18. [Appendices](#appendices)
 
 ## Introduction
 This document describes the frontend component library and UI architecture built with React 19, Inertia, Radix UI, Tailwind CSS, and shadcn-inspired patterns. The system has been comprehensively modernized with enhanced navigation components, a complete Menubar system, and advanced React 19 integration patterns. It covers reusable UI components, their props, styling, composition, state management, interactivity, responsive design, accessibility, and integration patterns. It also outlines testing approaches and the development workflow.
 
-**Updated** The system now includes a comprehensive employee management frontend system with modern React patterns and enhanced functionality.
+**Updated** The system now includes a comprehensive employee management frontend system with modern React patterns and enhanced functionality, plus a complete Claim Types management system with TypeScript support.
 
 ## Project Structure
 The frontend is organized around a modern component library under resources/js/components/ui and page components under resources/js/pages. The application bootstraps via Inertia and Vite, with Tailwind CSS providing utility-first styling and a centralized alias configuration for imports. The architecture now leverages React 19's modern patterns including new hooks and improved performance characteristics.
@@ -95,6 +104,14 @@ P["Employee Management"] --> Q["resources/js/pages/Employees/Manage/Settings.tsx
 P --> R["resources/js/pages/Employees/Manage/Compensation.tsx"]
 P --> S["resources/js/pages/Employees/Manage/compensation/salary.tsx"]
 P --> T["resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx"]
+U["Claim Types System"] --> V["resources/js/pages/claim-types/index.tsx"]
+U --> W["resources/js/pages/claim-types/create.tsx"]
+U --> X["resources/js/pages/claim-types/edit.tsx"]
+U --> Y["resources/js/pages/claim-types/delete.tsx"]
+Z["TypeScript Interfaces"] --> AA["resources/js/types/claimType.ts"]
+AB["Backend Controller"] --> AC["app/Http/Controllers/ClaimTypeController.php"]
+AD["Routes"] --> AE["routes/web.php"]
+AF["Database Migration"] --> AG["database/migrations/2026_03_23_053019_create_claim_types_table.php"]
 ```
 
 **Diagram sources**
@@ -113,6 +130,14 @@ P --> T["resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx"]
 - [Compensation.tsx:1-42](file://resources/js/pages/Employees/Manage/Compensation.tsx#L1-L42)
 - [salary.tsx:1-4](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L1-L4)
 - [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
+- [claim-types/index.tsx:1-156](file://resources/js/pages/claim-types/index.tsx#L1-L156)
+- [claim-types/create.tsx:1-64](file://resources/js/pages/claim-types/create.tsx#L1-L64)
+- [claim-types/edit.tsx:1-61](file://resources/js/pages/claim-types/edit.tsx#L1-L61)
+- [claim-types/delete.tsx:1-47](file://resources/js/pages/claim-types/delete.tsx#L1-L47)
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)
+- [ClaimTypeController.php:1-70](file://app/Http/Controllers/ClaimTypeController.php#L1-L70)
+- [web.php:135-140](file://routes/web.php#L135-L140)
+- [2026_03_23_053019_create_claim_types_table.php:1-32](file://database/migrations/2026_03_23_053019_create_claim_types_table.php#L1-L32)
 
 **Section sources**
 - [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
@@ -192,6 +217,7 @@ The UI architecture follows a modernized layered pattern leveraging React 19:
 - Styling is centralized via Tailwind and a cn() helper for merging classes.
 - shadcn configuration defines style, icon library, and aliases.
 - Enhanced mobile detection and navigation patterns integrated throughout.
+- **Updated**: Claim Types management system integrated with backend controllers and database migrations.
 
 ```mermaid
 graph TB
@@ -231,6 +257,16 @@ EMS["Settings.tsx"]
 EMC["Compensation.tsx"]
 EMSD["salaryDialog.tsx"]
 EMSS["salary.tsx"]
+END
+subgraph "Claim Types System"
+CTS["claim-types/index.tsx"]
+CTC["claim-types/create.tsx"]
+CTE["claim-types/edit.tsx"]
+CTD["claim-types/delete.tsx"]
+CTI["types/claimType.ts"]
+CTC2["ClaimTypeController.php"]
+RTS["routes/web.php"]
+DBM["2026_03_23_053019_create_claim_types_table.php"]
 END
 APP --> BTN
 APP --> INP
@@ -281,6 +317,16 @@ EMC --> TAB
 EMSD --> DLG
 EMSD --> SEL
 EMSD --> INP
+CTS --> BTN
+CTS --> DLG
+CTS --> TAB
+CTC --> DLG
+CTE --> DLG
+CTD --> DLG
+CTI --> CTI
+CTC2 --> CTI
+RTS --> CTI
+DBM --> CTI
 ```
 
 **Diagram sources**
@@ -305,6 +351,14 @@ EMSD --> INP
 - [Compensation.tsx:1-42](file://resources/js/pages/Employees/Manage/Compensation.tsx#L1-L42)
 - [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 - [salary.tsx:1-4](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L1-L4)
+- [claim-types/index.tsx:1-156](file://resources/js/pages/claim-types/index.tsx#L1-L156)
+- [claim-types/create.tsx:1-64](file://resources/js/pages/claim-types/create.tsx#L1-L64)
+- [claim-types/edit.tsx:1-61](file://resources/js/pages/claim-types/edit.tsx#L1-L61)
+- [claim-types/delete.tsx:1-47](file://resources/js/pages/claim-types/delete.tsx#L1-L47)
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)
+- [ClaimTypeController.php:1-70](file://app/Http/Controllers/ClaimTypeController.php#L1-L70)
+- [web.php:135-140](file://routes/web.php#L135-L140)
+- [2026_03_23_053019_create_claim_types_table.php:1-32](file://database/migrations/2026_03_23_053019_create_claim_types_table.php#L1-L32)
 
 ## Detailed Component Analysis
 
@@ -811,6 +865,196 @@ Error --> UserInput
 - [salary.tsx:1-4](file://resources/js/pages/Employees/Manage/compensation/salary.tsx#L1-L4)
 - [salaryDialog.tsx:1-197](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L1-L197)
 
+## Claim Types Management System
+**New** Comprehensive Claim Types management system with TypeScript support and full CRUD operations.
+
+### ClaimType Interface and Form Support
+**New** TypeScript interfaces for ClaimType and ClaimTypeForm provide strong typing across the claim types management system.
+
+- ClaimType Interface
+  - Defines the structure for claim type entities with id, name, code, description, and status.
+  - Includes timestamps for created_at and updated_at fields.
+  - Used throughout the frontend for type-safe data handling.
+
+- ClaimTypeForm Interface
+  - Provides form-specific typing with name, code, optional description, and is_active status.
+  - Includes [key: string]: any for extensibility with additional form fields.
+  - Enables proper TypeScript validation in form components.
+
+```mermaid
+classDiagram
+class ClaimType {
++id : number
++name : string
++code : string
++description : string | null
++is_active : boolean
++created_at : string
++updated_at : string
+}
+class ClaimTypeForm {
++name : string
++code : string
++description : string | null
++is_active : boolean
++[key : string] : any
+}
+ClaimType --> ClaimTypeForm : "used in forms"
+```
+
+**Diagram sources**
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)
+
+**Section sources**
+- [claimType.ts:1-19](file://resources/js/types/claimType.ts#L1-L19)
+
+### Claim Types Index Page
+**New** Main page for displaying and managing claim types with search, pagination, and action buttons.
+
+- Implementation highlights:
+  - Comprehensive claim types listing with name, code, description, and status columns.
+  - Search functionality with Enter key support and URL query parameters.
+  - Pagination integration with custom Pagination component.
+  - Action buttons for edit and delete operations.
+  - Badge component for displaying active/inactive status.
+- Key features:
+  - Form state management with Inertia router integration.
+  - Responsive layout with mobile-first design approach.
+  - Modal dialog management for create, edit, and delete operations.
+  - Breadcrumb navigation for proper site structure.
+- Props and behavior:
+  - Form handling with useForm hook for search input.
+  - Router integration for state preservation and scroll restoration.
+  - Modal dialog state management with controlled open/close state.
+  - Pagination component integration with Laravel-style pagination links.
+
+```mermaid
+sequenceDiagram
+participant User as "User"
+participant Search as "Search Input"
+participant Router as "Inertia Router"
+participant Server as "Backend"
+participant Page as "Claim Types Page"
+User->>Search : Type search term
+User->>Search : Press Enter
+Search->>Router : router.get() with query params
+Router->>Server : HTTP GET request
+Server-->>Router : Paginated response
+Router->>Page : Update component state
+Page->>Page : Render filtered table
+```
+
+**Diagram sources**
+- [claim-types/index.tsx:52-63](file://resources/js/pages/claim-types/index.tsx#L52-L63)
+- [claim-types/index.tsx:33-35](file://resources/js/pages/claim-types/index.tsx#L33-L35)
+
+**Section sources**
+- [claim-types/index.tsx:1-156](file://resources/js/pages/claim-types/index.tsx#L1-L156)
+
+### Claim Types Create/Edit Components
+**New** Modal dialog components for creating and editing claim types with form validation.
+
+- Create Claim Type Component
+  - Modal dialog with form fields for name, code, description, and active status.
+  - Form state management with useForm hook using ClaimTypeForm interface.
+  - Validation and submission handling via Inertia router.
+  - Toast notifications for success/error states.
+  - Toggle switch for is_active status control.
+
+- Edit Claim Type Component
+  - Modal dialog pre-populated with existing claim type data.
+  - Form state management with useForm hook for edit operations.
+  - Validation and update handling via Inertia router.
+  - Toast notifications for success/error states.
+  - Toggle switch for is_active status control.
+
+```mermaid
+flowchart TD
+Start(["Open Create/Edit Dialog"]) --> CheckEdit{"Is Editing?"}
+CheckEdit --> |Yes| EditMode["Edit Mode"]
+CheckEdit --> |No| AddMode["Add Mode"]
+EditMode --> LoadData["Load existing data into form"]
+AddMode --> DefaultForm["Initialize empty form"]
+LoadData --> RenderDialog["Render dialog with form"]
+DefaultForm --> RenderDialog
+RenderDialog --> UserInput["User enters form data"]
+UserInput --> Validate["Validate form inputs"]
+Validate --> Submit["Submit form"]
+Submit --> Process["Process form submission"]
+Process --> Success["Show success toast & close"]
+Process --> Error["Show error toast"]
+Success --> Close(["Close dialog"])
+Error --> UserInput
+```
+
+**Diagram sources**
+- [claim-types/create.tsx:17-43](file://resources/js/pages/claim-types/create.tsx#L17-L43)
+- [claim-types/edit.tsx:16-40](file://resources/js/pages/claim-types/edit.tsx#L16-L40)
+
+**Section sources**
+- [claim-types/create.tsx:1-64](file://resources/js/pages/claim-types/create.tsx#L1-L64)
+- [claim-types/edit.tsx:1-61](file://resources/js/pages/claim-types/edit.tsx#L1-L61)
+
+### Claim Types Delete Component
+**New** Confirmation dialog for deleting claim types with proper validation.
+
+- Implementation highlights:
+  - AlertDialog component for confirmation prompt.
+  - Validation to prevent deletion of claim types with existing claims.
+  - Success/error toast notifications based on operation result.
+  - Proper cleanup of dialog state on close.
+- Key features:
+  - Confirmation dialog with cancel and continue actions.
+  - Backend validation to prevent deletion of claim types with associated claims.
+  - Toast notifications for user feedback.
+  - Proper dialog state management with onOpenChange handler.
+
+**Section sources**
+- [claim-types/delete.tsx:1-47](file://resources/js/pages/claim-types/delete.tsx#L1-L47)
+
+### Backend Integration
+**New** Backend controller and routes for Claim Types management system.
+
+- ClaimTypeController
+  - Implements full CRUD operations for claim types.
+  - Search functionality with LIKE queries on name and code fields.
+  - Validation for unique code constraint and required fields.
+  - Prevention of deletion of claim types with existing claims.
+  - Proper error handling and success messaging.
+
+- Routes Configuration
+  - Dedicated routes for claim types under the settings prefix.
+  - RESTful routes for index, store, update, and destroy operations.
+  - Proper naming conventions for claim types endpoints.
+
+- Database Migration
+  - Creates claim_types table with id, name, code, description, and is_active fields.
+  - Unique constraint on code field.
+  - Default is_active value set to true.
+  - Timestamps for created_at and updated_at fields.
+
+**Section sources**
+- [ClaimTypeController.php:1-70](file://app/Http/Controllers/ClaimTypeController.php#L1-L70)
+- [web.php:135-140](file://routes/web.php#L135-L140)
+- [2026_03_23_053019_create_claim_types_table.php:1-32](file://database/migrations/2026_03_23_053019_create_claim_types_table.php#L1-L32)
+
+### Enhanced App Header Navigation
+**Updated** Enhanced app header with new Claim Types navigation item for seamless integration.
+
+- Implementation highlights:
+  - Claim Types added as a dedicated menu item under Settings.
+  - Uses ReceiptCent icon from Lucide React for visual representation.
+  - Direct link to /settings/claim-types route.
+  - Integrated into the existing navigation menu system.
+- Key features:
+  - Seamless integration with existing Settings menu structure.
+  - Consistent styling with other navigation items.
+  - Proper icon usage and hover effects.
+  - Mobile-responsive navigation with sheet-based mobile interface.
+
+**Section sources**
+- [app-header.tsx:110-113](file://resources/js/components/app-header.tsx#L110-L113)
+
 ## React 19 Integration
 **Updated** Comprehensive React 19 integration with modern patterns and enhanced performance.
 
@@ -906,12 +1150,21 @@ State --> Return["Boolean Result"]
 - Toast notifications for user feedback.
 - Responsive grid layout for optimal desktop/mobile experience.
 
+### Claim Types System Enhancements
+- **New**: TypeScript interfaces for strong typing across the system.
+- **New**: Full CRUD operations with proper validation and error handling.
+- **New**: Integration with claims management system for employee reimbursements.
+- **New**: Backend validation to prevent deletion of claim types with existing claims.
+- **New**: Consistent styling and navigation integration with existing system.
+
 **Section sources**
 - [sidebar.tsx:25-30](file://resources/js/components/ui/sidebar.tsx#L25-L30)
 - [sidebar.tsx:94-107](file://resources/js/components/ui/sidebar.tsx#L94-L107)
 - [placeholder-pattern.tsx:7-20](file://resources/js/components/ui/placeholder-pattern.tsx#L7-L20)
 - [Settings.tsx:38-44](file://resources/js/pages/Employees/Manage/Settings.tsx#L38-L44)
 - [salaryDialog.tsx:76-78](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L76-L78)
+- [claimType.ts:12-18](file://resources/js/types/claimType.ts#L12-L18)
+- [ClaimTypeController.php:31-57](file://app/Http/Controllers/ClaimTypeController.php#L31-L57)
 
 ## Enhanced Pages
 
@@ -926,7 +1179,7 @@ State --> Return["Boolean Result"]
 - Key features:
   - Clean, focused dashboard interface without navigation clutter.
   - PlaceholderPattern integration for modern visual backgrounds.
-  - Responsive grid system with aspect ratios and overflow handling.
+  - Responsive grid layout adapts to different screen sizes.
   - Improved mobile-first design approach.
 - Props and behavior:
   - Breadcrumb navigation simplified to basic dashboard route.
@@ -1028,9 +1281,12 @@ Page->>Page : Render filtered table
   - Integrates with Inertia routing for seamless navigation.
   - Provides better mobile responsiveness and accessibility.
 
+- **Updated**: Claim Types navigation added to Settings menu with proper icon and routing.
+
 **Section sources**
 - [NavMenu.tsx:1-117](file://resources/js/components/NavMenu.tsx#L1-L117)
 - [NavMain2.tsx:1-29](file://resources/js/components/NavMain2.tsx#L1-L29)
+- [app-header.tsx:86-116](file://resources/js/components/app-header.tsx#L86-L116)
 
 ## Dependency Analysis
 **Updated** Enhanced dependency configuration supporting React 19 and modern patterns.
@@ -1120,6 +1376,9 @@ TSC --> RADIX
   - **Updated**: Verify NavigationMenu viewport positioning with right-0 class.
   - **Updated**: Verify employee settings form validation and photo upload functionality.
   - **Updated**: Check salary dialog form state management and period conflict detection.
+  - **Updated**: Verify Claim Types interface usage and form validation.
+  - **Updated**: Check Claim Types backend controller validation and route configuration.
+  - **Updated**: Verify Claim Types navigation integration in app header.
 
 **Section sources**
 - [app.tsx:28-30](file://resources/js/app.tsx#L28-L30)
@@ -1128,6 +1387,9 @@ TSC --> RADIX
 - [package.json:11203](file://package.json#L11203)
 - [Settings.tsx:87-101](file://resources/js/pages/Employees/Manage/Settings.tsx#L87-L101)
 - [salaryDialog.tsx:76-78](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L76-L78)
+- [claimType.ts:12-18](file://resources/js/types/claimType.ts#L12-L18)
+- [ClaimTypeController.php:31-57](file://app/Http/Controllers/ClaimTypeController.php#L31-L57)
+- [app-header.tsx:110-113](file://resources/js/components/app-header.tsx#L110-L113)
 
 ## Conclusion
 The component library has been comprehensively modernized with React 19 integration, enhanced navigation systems, and advanced UI patterns. The architecture emphasizes accessibility, composability, and consistency through Radix UI primitives, Tailwind utilities, and a centralized cn() helper. The addition of the complete Menubar system, enhanced navigation components, improved mobile detection patterns, and modern React 19 patterns demonstrates the evolution toward more sophisticated UI architectures.
@@ -1141,8 +1403,12 @@ The component library has been comprehensively modernized with React 19 integrat
 - **Updated**: Enhanced form handling with Inertia router integration and toast notifications
 - **Updated**: Photo upload functionality with preview and automatic cleanup
 - **Updated**: Tabbed interface for compensation management with salary, PERA, RATA, and deductions sections
+- **Updated**: Complete Claim Types management system with TypeScript interfaces, full CRUD operations, and backend integration
+- **Updated**: Enhanced app header with Claim Types navigation item for seamless integration
+- **Updated**: Strong typing support with ClaimType and ClaimTypeForm interfaces
+- **Updated**: Backend validation and route configuration for claim types management
 
-The new employee management system represents a significant advancement in frontend architecture, featuring modern React patterns, comprehensive form validation, real-time error handling, and seamless integration with backend APIs. Following the documented props, variants, and composition guidelines ensures predictable behavior across pages and contexts while leveraging the latest React 19 performance improvements and modern development patterns.
+The new Claim Types management system represents a significant advancement in frontend architecture, featuring modern React patterns, comprehensive form validation, real-time error handling, and seamless integration with backend APIs. The system includes TypeScript interfaces for strong typing, full CRUD operations with proper validation, and integration with the claims management system for employee reimbursements. Following the documented props, variants, and composition guidelines ensures predictable behavior across pages and contexts while leveraging the latest React 19 performance improvements and modern development patterns.
 
 ## Appendices
 
@@ -1155,6 +1421,7 @@ The new employee management system represents a significant advancement in front
 - React 19 patterns with improved performance characteristics.
 - **Updated**: Form state management with useForm hook for consistent data handling.
 - **Updated**: Inertia router integration for seamless navigation and state management.
+- **Updated**: TypeScript interfaces for strong typing across the system.
 
 ### State Management and Interactivity
 - Dialog and Select rely on Radix UI state machines; expose minimal props to consumers.
@@ -1167,6 +1434,8 @@ The new employee management system represents a significant advancement in front
 - **Updated**: Photo upload state management with blob URL cleanup.
 - **Updated**: Salary dialog form state with dynamic deduction generation.
 - **Updated**: NavigationMenu viewport positioning with right-aligned dropdowns.
+- **Updated**: Claim Types form state management with ClaimTypeForm interface.
+- **Updated**: Backend validation state management for deletion prevention.
 
 ### Responsive Design and Accessibility
 - Responsive breakpoints via Tailwind utilities; horizontal scrolling for tables.
@@ -1177,6 +1446,7 @@ The new employee management system represents a significant advancement in front
 - Enhanced accessibility compliance with modern React patterns.
 - **Updated**: Improved cursor feedback with cursor-pointer class.
 - **Updated**: Comprehensive form validation with accessible error messages.
+- **Updated**: Claim Types system accessibility with proper form labeling.
 
 ### Testing Approach and Workflow
 - Unit testing:
@@ -1187,6 +1457,9 @@ The new employee management system represents a significant advancement in front
   - **Updated**: Test employee settings form validation and photo upload.
   - **Updated**: Test salary dialog form state management and period conflict detection.
   - **Updated**: Verify NavigationMenu right-aligned positioning and cursor-pointer styling.
+  - **Updated**: Test Claim Types interface usage and form validation.
+  - **Updated**: Test Claim Types backend controller validation and route configuration.
+  - **Updated**: Verify Claim Types navigation integration in app header.
 - Integration testing:
   - Simulate user interactions (open dialogs, select items, navigate menus).
   - Test responsive behavior across device sizes.
@@ -1195,6 +1468,8 @@ The new employee management system represents a significant advancement in front
   - **Updated**: Verify dashboard layout without navigation components.
   - **Updated**: Test employee settings form submission and photo upload workflow.
   - **Updated**: Test salary dialog modal functionality and form validation.
+  - **Updated**: Test Claim Types CRUD operations and validation.
+  - **Updated**: Verify Claim Types integration with claims management system.
 - Development workflow:
   - Use Vite dev server for hot reload.
   - Run linting and formatting checks via npm scripts.
@@ -1203,3 +1478,5 @@ The new employee management system represents a significant advancement in front
   - **Updated**: Test new employee management components thoroughly.
   - **Updated**: Verify toast notifications and error handling.
   - **Updated**: Test responsive behavior of new components.
+  - **Updated**: Test Claim Types system thoroughly with all CRUD operations.
+  - **Updated**: Verify TypeScript interfaces and type safety throughout the system.
