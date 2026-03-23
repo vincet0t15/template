@@ -17,6 +17,7 @@ use App\Http\Controllers\PeraController;
 use App\Http\Controllers\RataController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierTransactionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -33,6 +34,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+        // Supplier Transactions
+        Route::get('{supplier}/transactions', [SupplierTransactionController::class, 'show'])->name('suppliers.transactions.show');
+        Route::post('{supplier}/transactions', [SupplierTransactionController::class, 'store'])->name('suppliers.transactions.store');
+        Route::put('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'update'])->name('suppliers.transactions.update');
+        Route::delete('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'destroy'])->name('suppliers.transactions.destroy');
     });
 
     // PAYROLL
