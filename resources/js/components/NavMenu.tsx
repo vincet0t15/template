@@ -11,8 +11,9 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 import { NavGroup } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 const components: { title: string; href: string; description: string }[] = [
     {
@@ -48,31 +49,48 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function NavMenu({ items = [] }: { items: NavGroup[] }) {
+    const page = usePage();
     return (
         <NavigationMenu>
             <NavigationMenuList>
                 {items.map((group) =>
                     group.children?.length ? (
                         <NavigationMenuItem key={group.title}>
-                            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-                            <NavigationMenuContent className="right-0 left-auto">
+                            <NavigationMenuTrigger className="ml-2 flex items-center gap-2">
+                                {group.icon && <group.icon className="h-4 w-4" />}
+                                {group.title}
+                            </NavigationMenuTrigger>
+
+                            <NavigationMenuContent>
                                 <ul className="w-96">
-                                    <ListItem href="/docs" title="Introduction">
-                                        Re-usable components built with Tailwind CSS.
-                                    </ListItem>
-                                    <ListItem href="/docs/installation" title="Installation">
-                                        How to install dependencies and structure your app.
-                                    </ListItem>
-                                    <ListItem href="/docs/primitives/typography" title="Typography">
-                                        Styles for headings, paragraphs, lists...etc
-                                    </ListItem>
+                                    {group.children.map((item) => (
+                                        <Link
+                                            key={item.title}
+                                            href={item.href}
+                                            className={cn(
+                                                'hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm',
+                                                page.url.startsWith(item.href) && 'bg-accent text-accent-foreground',
+                                            )}
+                                        >
+                                            {item.icon && <item.icon className="h-4 w-4" />}
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    ))}
                                 </ul>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                     ) : (
                         <NavigationMenuItem key={group.title}>
                             <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                                <Link href="/docs">Docs</Link>
+                                <Link
+                                    href={group.href ?? '#'}
+                                    className={cn('hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md p-2 text-sm', {
+                                        'bg-accent text-accent-foreground': page.url.startsWith(group.href ?? ''),
+                                    })}
+                                >
+                                    {group.icon && <group.icon className="h-4 w-4" />}
+                                    {group.title}
+                                </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                     ),
