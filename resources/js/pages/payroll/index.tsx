@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Office } from '@/types/office';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -39,19 +40,22 @@ const MONTHS = [
 interface PayrollIndexProps {
     employees: PaginatedDataResponse<PayrollEmployee>;
     offices: Office[];
+    employmentStatuses: EmploymentStatus[];
     filters: {
         month: number;
         year: number;
         office_id?: number;
+        employment_status_id?: number;
         search?: string;
     };
 }
 
-export default function PayrollIndex({ employees, offices, filters }: PayrollIndexProps) {
+export default function PayrollIndex({ employees, offices, employmentStatuses, filters }: PayrollIndexProps) {
     const { data: filterData, setData: setFilterData } = useForm({
         month: filters.month,
         year: filters.year,
         office_id: filters.office_id?.toString() || '',
+        employment_status_id: filters.employment_status_id?.toString() || '',
         search: filters.search || '',
     });
 
@@ -60,11 +64,17 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
         label: office.name,
     }));
 
+    const employmentStatusOptions = employmentStatuses.map((s) => ({
+        value: s.id.toString(),
+        label: s.name,
+    }));
+
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
         if (filterData.month) queryString.month = filterData.month;
         if (filterData.year) queryString.year = filterData.year;
         if (filterData.office_id) queryString.office_id = filterData.office_id;
+        if (filterData.employment_status_id) queryString.employment_status_id = filterData.employment_status_id;
         if (filterData.search) queryString.search = filterData.search;
 
         router.get(route('payroll.index'), queryString, {
@@ -91,9 +101,10 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
                 <Heading title="Payroll Summary" description={`View payroll summary for ${getMonthName(filters.month)} ${filters.year}`} />
 
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        {/* Month */}
                         <Select value={filterData.month.toString()} onValueChange={(value) => setFilterData('month', parseInt(value))}>
-                            <SelectTrigger className="w-full">
+                            <SelectTrigger className="w-[140px]">
                                 <SelectValue placeholder="Month" />
                             </SelectTrigger>
                             <SelectContent>
@@ -105,15 +116,17 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
                             </SelectContent>
                         </Select>
 
+                        {/* Year */}
                         <Input
                             type="number"
-                            className="w-[150px]"
+                            className="w-[100px]"
                             value={filterData.year}
                             onChange={(e) => setFilterData('year', parseInt(e.target.value))}
                             placeholder="Year"
                         />
 
-                        <div className="w-full">
+                        {/* Office */}
+                        <div className="w-[220px]">
                             <CustomComboBox
                                 items={officeOptions}
                                 placeholder="All Offices"
@@ -122,6 +135,17 @@ export default function PayrollIndex({ employees, offices, filters }: PayrollInd
                             />
                         </div>
 
+                        {/* Employment Status */}
+                        <div className="w-[200px]">
+                            <CustomComboBox
+                                items={employmentStatusOptions}
+                                placeholder="All Status"
+                                value={filterData.employment_status_id || null}
+                                onSelect={(value) => setFilterData('employment_status_id', value ?? '')}
+                            />
+                        </div>
+
+                        {/* Search */}
                         <div className="relative w-full sm:w-[200px]">
                             <Input
                                 placeholder="Search employee..."

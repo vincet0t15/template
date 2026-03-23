@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DeductionType;
 use App\Models\Employee;
+use App\Models\EmploymentStatus;
 use App\Models\Office;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +17,7 @@ class PayrollController extends Controller
         $year = $request->input('year', now()->year);
         $officeId = $request->input('office_id');
         $search = $request->input('search');
+        $employmentStatusId = $request->input('employment_status_id');
 
         $employees = Employee::query()
             ->with(['employmentStatus', 'office'])
@@ -26,6 +28,9 @@ class PayrollController extends Controller
             })
             ->when($officeId, function ($query, $officeId) {
                 $query->where('office_id', $officeId);
+            })
+            ->when($employmentStatusId, function ($query, $employmentStatusId) {
+                $query->where('employment_status_id', $employmentStatusId);
             })
             ->with(['salaries' => function ($query) {
                 $query->latest('effective_date')->limit(1);
@@ -67,14 +72,17 @@ class PayrollController extends Controller
         });
 
         $offices = Office::orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
 
         return Inertia::render('payroll/index', [
             'employees' => $employees,
             'offices' => $offices,
+            'employmentStatuses' => $employmentStatuses,
             'filters' => [
                 'month' => (int) $month,
                 'year' => (int) $year,
                 'office_id' => $officeId,
+                'employment_status_id' => $employmentStatusId,
                 'search' => $search,
             ],
         ]);

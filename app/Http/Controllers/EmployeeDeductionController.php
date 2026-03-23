@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
+use App\Models\EmploymentStatus;
+use App\Models\Office;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,6 +18,7 @@ class EmployeeDeductionController extends Controller
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
         $officeId = $request->input('office_id');
+        $employmentStatusId = $request->input('employment_status_id');
         $search = $request->input('search');
 
         $employees = Employee::query()
@@ -28,6 +31,9 @@ class EmployeeDeductionController extends Controller
             ->when($officeId, function ($query, $officeId) {
                 $query->where('office_id', $officeId);
             })
+            ->when($employmentStatusId, function ($query, $employmentStatusId) {
+                $query->where('employment_status_id', $employmentStatusId);
+            })
             ->with(['deductions' => function ($query) use ($month, $year) {
                 $query->where('pay_period_month', $month)
                     ->where('pay_period_year', $year)
@@ -38,14 +44,19 @@ class EmployeeDeductionController extends Controller
             ->withQueryString();
 
         $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
+        $offices = Office::orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
 
         return Inertia::render('employee-deductions/index', [
             'employees' => $employees,
             'deductionTypes' => $deductionTypes,
+            'offices' => $offices,
+            'employmentStatuses' => $employmentStatuses,
             'filters' => [
                 'month' => (int) $month,
                 'year' => (int) $year,
                 'office_id' => $officeId,
+                'employment_status_id' => $employmentStatusId,
                 'search' => $search,
             ],
         ]);

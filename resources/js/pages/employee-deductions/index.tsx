@@ -1,3 +1,4 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,10 +14,12 @@ import { type BreadcrumbItem } from '@/types';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
+import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, PlusIcon, Search, Trash2, User } from 'lucide-react';
+import { Pencil, Search, Trash2, User } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -44,14 +47,17 @@ const MONTHS = [
 interface EmployeeDeductionsProps {
     employees: PaginatedDataResponse<Employee>;
     deductionTypes: DeductionType[];
+    offices: Office[];
+    employmentStatuses: EmploymentStatus[];
     filters: FilterProps & {
         month: number;
         year: number;
-        office_id?: number;
+        office_id?: string;
+        employment_status_id?: string;
     };
 }
 
-export default function EmployeeDeductionsIndex({ employees, deductionTypes, filters }: EmployeeDeductionsProps) {
+export default function EmployeeDeductionsIndex({ employees, deductionTypes, offices, employmentStatuses, filters }: EmployeeDeductionsProps) {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -61,6 +67,8 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
         month: filters.month,
         year: filters.year,
         search: filters.search || '',
+        office_id: filters.office_id || '',
+        employment_status_id: filters.employment_status_id || '',
     });
 
     const {
@@ -89,11 +97,16 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
         notes: '',
     });
 
+    const officeOptions = offices.map((o) => ({ value: o.id.toString(), label: o.name }));
+    const employmentStatusOptions = employmentStatuses.map((s) => ({ value: s.id.toString(), label: s.name }));
+
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
         if (filterData.month) queryString.month = filterData.month;
         if (filterData.year) queryString.year = filterData.year;
         if (filterData.search) queryString.search = filterData.search;
+        if (filterData.office_id) queryString.office_id = filterData.office_id;
+        if (filterData.employment_status_id) queryString.employment_status_id = filterData.employment_status_id;
 
         router.get(route('employee-deductions.index'), queryString, {
             preserveState: true,
@@ -180,6 +193,24 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                             placeholder="Year"
                         />
 
+                        <div className="w-[220px]">
+                            <CustomComboBox
+                                items={officeOptions}
+                                placeholder="All Offices"
+                                value={filterData.office_id || null}
+                                onSelect={(value) => setFilterData('office_id', value ?? '')}
+                            />
+                        </div>
+
+                        <div className="w-[200px]">
+                            <CustomComboBox
+                                items={employmentStatusOptions}
+                                placeholder="All Status"
+                                value={filterData.employment_status_id || null}
+                                onSelect={(value) => setFilterData('employment_status_id', value ?? '')}
+                            />
+                        </div>
+
                         <div className="relative w-full sm:w-[200px]">
                             <Input
                                 placeholder="Search employee..."
@@ -199,10 +230,8 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary font-bold">Office</TableHead>
                                 <TableHead className="text-primary font-bold">Deductions</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Total Deductions</TableHead>
-                                <TableHead className="text-primary w-[100px] text-center font-bold">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -225,13 +254,14 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                                                 </Avatar>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
-                                                        {employee.last_name}, {employee.first_name} {employee.middle_name}
+                                                        {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                    <span className="text-muted-foreground text-xs"> {employee.office?.name}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{employee.office?.name}</TableCell>
+
                                         <TableCell>
                                             {employee.deductions && employee.deductions.length > 0 ? (
                                                 <div className="flex flex-wrap gap-1">
@@ -264,12 +294,6 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                                             {employee.deductions
                                                 ? formatCurrency(employee.deductions.reduce((sum, d) => sum + Number(d.amount), 0))
                                                 : '-'}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                            <Button variant="default" size="sm" onClick={() => handleOpenAdd(employee)}>
-                                                <PlusIcon className="mr-1 h-4 w-4" />
-                                                Add
-                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))
