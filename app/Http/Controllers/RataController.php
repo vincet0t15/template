@@ -82,6 +82,21 @@ class RataController extends Controller
         return redirect()->back()->with('success', 'RATA added successfully');
     }
 
+    public function update(Request $request, Rata $rata)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'effective_date' => 'required|date',
+        ]);
+
+        $rata->update([
+            'amount' => $validated['amount'],
+            'effective_date' => $validated['effective_date'],
+        ]);
+
+        return redirect()->back()->with('success', 'RATA record updated successfully');
+    }
+
     public function destroy(Rata $rata)
     {
         $rata->delete();

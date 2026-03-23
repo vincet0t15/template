@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Employee } from '@/types/employee';
 import type { Salary } from '@/types/salary';
-import { useForm } from '@inertiajs/react';
-import { CalendarIcon, Plus, TrendingUp } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
@@ -67,6 +67,76 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
                         </DialogClose>
                         <Button type="submit" disabled={processing}>
                             {processing ? 'Saving...' : 'Save Salary'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function EditSalaryDialog({
+    open,
+    onClose,
+    salary,
+}: {
+    open: boolean;
+    onClose: () => void;
+    salary: Salary | null;
+}) {
+    const { data, setData, put, processing, reset } = useForm({
+        amount: salary?.amount?.toString() || '',
+        effective_date: salary?.effective_date || new Date().toISOString().split('T')[0],
+    });
+
+    const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault();
+        if (!salary) return;
+
+        put(route('salaries.update', salary.id), {
+            onSuccess: () => {
+                toast.success('Salary updated successfully');
+                reset();
+                onClose();
+            },
+            onError: () => toast.error('Failed to update salary.'),
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="max-w-md">
+                <form onSubmit={onSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Edit Salary</DialogTitle>
+                        <DialogDescription>Update the salary amount and effective date.</DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4 space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <Label>Amount (₱)</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={data.amount}
+                                onChange={(e) => setData('amount', e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <Label>Effective Date</Label>
+                            <Input type="date" value={data.effective_date} onChange={(e) => setData('effective_date', e.target.value)} required />
+                        </div>
+                    </div>
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Update Salary'}
                         </Button>
                     </DialogFooter>
                 </form>

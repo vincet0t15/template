@@ -184,7 +184,7 @@ export function CompensationDeductions({
                             <div key={periodKey} className="overflow-hidden rounded-sm border shadow-sm">
                                 <div className="bg-muted/50 flex items-center justify-between px-4 py-2">
                                     <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="font-semibold">
+                                        <Badge variant="default" className="text-md rounded-sm font-semibold">
                                             {MONTHS[parseInt(month) - 1]} {year}
                                         </Badge>
                                         <span className="text-muted-foreground text-xs">{periodDeductions.length} deduction(s)</span>

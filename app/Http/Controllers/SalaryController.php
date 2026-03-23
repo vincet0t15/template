@@ -81,6 +81,21 @@ class SalaryController extends Controller
         return redirect()->back()->with('success', 'Salary added successfully');
     }
 
+    public function update(Request $request, Salary $salary)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'effective_date' => 'required|date',
+        ]);
+
+        $salary->update([
+            'amount' => $validated['amount'],
+            'effective_date' => $validated['effective_date'],
+        ]);
+
+        return redirect()->back()->with('success', 'Salary record updated successfully');
+    }
+
     public function destroy(Salary $salary)
     {
         $salary->delete();

@@ -81,6 +81,21 @@ class PeraController extends Controller
         return redirect()->back()->with('success', 'PERA added successfully');
     }
 
+    public function update(Request $request, Pera $pera)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'effective_date' => 'required|date',
+        ]);
+
+        $pera->update([
+            'amount' => $validated['amount'],
+            'effective_date' => $validated['effective_date'],
+        ]);
+
+        return redirect()->back()->with('success', 'PERA record updated successfully');
+    }
+
     public function destroy(Pera $pera)
     {
         $pera->delete();
