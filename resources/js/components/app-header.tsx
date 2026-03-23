@@ -15,6 +15,7 @@ import {
     Calculator,
     DollarSign,
     LayoutGrid,
+    LucideMoveVertical,
     Menu,
     MinusSquare,
     Receipt,
@@ -102,7 +103,7 @@ const mainNavItems: NavGroup[] = [
             {
                 title: 'Document Types',
                 href: '/settings/document-types',
-                icon: MinusSquare,
+                icon: LucideMoveVertical,
             },
         ],
     },

@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             EmploymentStatusSeeder::class,
             OfficeSeeder::class,
             DeductionTypeSeeder::class,
+            ClaimTypeSeeder::class,
         ]);
     }
 }
