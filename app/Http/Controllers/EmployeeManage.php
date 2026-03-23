@@ -12,6 +12,7 @@ class EmployeeManage extends Controller
 {
     public function show(Request $request, Employee $employee)
     {
+
         $employee->load([
             'office',
             'employmentStatus',

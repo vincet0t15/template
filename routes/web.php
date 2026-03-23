@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeductionTypeController;
+use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeManage;
@@ -62,6 +63,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
     });
 
+
+
     // EMPLOYEES
     Route::prefix('employees')->group(function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
@@ -93,14 +96,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('offices/{office}', [OfficeController::class, 'update'])->name('offices.update');
         Route::delete('offices/{office}', [OfficeController::class, 'destroy'])->name('offices.destroy');
 
-        // EMPLOYEE MANAGE
-        // Route::get('employees/manage/{employee}', [EmployeeManage::class, 'show'])->name('employees.manage.show');
-
         // DEDUCTION TYPES
         Route::get('deduction-types', [DeductionTypeController::class, 'index'])->name('deduction-types.index');
         Route::post('deduction-types', [DeductionTypeController::class, 'store'])->name('deduction-types.store');
         Route::put('deduction-types/{deductionType}', [DeductionTypeController::class, 'update'])->name('deduction-types.update');
         Route::delete('deduction-types/{deductionType}', [DeductionTypeController::class, 'destroy'])->name('deduction-types.destroy');
+
+        // DOCUMENT TYPES
+        Route::get('document-types', [DocumentTypeController::class, 'index'])->name('document-types.index');
+        Route::post('document-types', [DocumentTypeController::class, 'store'])->name('document-types.store');
+        Route::put('document-types/{documentType}', [DocumentTypeController::class, 'update'])->name('document-types.update');
+        Route::delete('document-types/{documentType}', [DocumentTypeController::class, 'destroy'])->name('document-types.destroy');
     });
 });
 

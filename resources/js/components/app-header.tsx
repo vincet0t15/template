@@ -81,6 +81,11 @@ const mainNavItems: NavGroup[] = [
                 href: '/settings/deduction-types',
                 icon: MinusSquare,
             },
+            {
+                title: 'Document Types',
+                href: '/settings/document-types',
+                icon: MinusSquare,
+            },
         ],
     },
 ];

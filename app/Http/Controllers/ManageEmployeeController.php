@@ -15,6 +15,7 @@ class ManageEmployeeController extends Controller
 {
     public function index(Request $request, Employee $employee)
     {
+
         $employee->load([
             'office',
             'employmentStatus',

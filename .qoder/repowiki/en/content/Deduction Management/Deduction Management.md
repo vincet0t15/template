@@ -16,7 +16,17 @@
 - [deductionType.d.ts](file://resources/js/types/deductionType.d.ts)
 - [employeeDeduction.d.ts](file://resources/js/types/employeeDeduction.d.ts)
 - [Employee.php](file://app/Models/Employee.php)
+- [CustomComboBox.tsx](file://resources/js/components/CustomComboBox.tsx)
+- [filter.d.ts](file://resources/js/types/filter.d.ts)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Enhanced UI components with new CustomComboBox for improved filtering
+- Expanded filtering capabilities across deduction management pages
+- Added comprehensive search functionality with employment status filtering
+- Improved grouping mechanisms for better data organization
+- Enhanced user interface for deduction management and administrative controls
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -24,17 +34,19 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+6. [Enhanced UI Components and Grouping Mechanisms](#enhanced-ui-components-and-grouping-mechanisms)
+7. [Expanded Filtering Capabilities](#expanded-filtering-capabilities)
+8. [Dependency Analysis](#dependency-analysis)
+9. [Performance Considerations](#performance-considerations)
+10. [Troubleshooting Guide](#troubleshooting-guide)
+11. [Conclusion](#conclusion)
+12. [Appendices](#appendices)
 
 ## Introduction
-This document describes the deduction management system that supports configurable deduction categories, employee-specific deductions, and payroll impact calculations. It covers deduction types configuration, employee assignment, automatic payroll computation, reporting, audit trails, overrides, manual adjustments, historical tracking, and the user interface for administration.
+This document describes the deduction management system that supports configurable deduction categories, employee-specific deductions, and payroll impact calculations. The system has been enhanced with new grouping mechanisms, improved UI components, and expanded filtering capabilities across the application. It covers deduction types configuration, employee assignment, automatic payroll computation, reporting, audit trails, overrides, manual adjustments, historical tracking, and the user interface for administration.
 
 ## Project Structure
-The deduction management system spans backend Eloquent models and controllers, frontend pages built with Inertia and React, TypeScript types, and database migrations and seeders.
+The deduction management system spans backend Eloquent models and controllers, frontend pages built with Inertia and React, TypeScript types, and database migrations and seeders. The enhanced system now includes advanced UI components with improved filtering and grouping capabilities.
 
 ```mermaid
 graph TB
@@ -46,12 +58,12 @@ C2["EmployeeDeductionController<br/>(HTTP)"]
 C3["PayrollController<br/>(HTTP)"]
 E1["Employee<br/>(Model)"]
 end
-subgraph "Frontend"
+subgraph "Enhanced Frontend"
 F1["Deduction Types Page<br/>(index.tsx)"]
 F2["Employee Deductions Page<br/>(index.tsx)"]
 F3["Payroll Summary Page<br/>(index.tsx)"]
-T1["DeductionType Types<br/>(deductionType.d.ts)"]
-T2["EmployeeDeduction Types<br/>(employeeDeduction.d.ts)"]
+CB["CustomComboBox<br/>(CustomComboBox.tsx)"]
+FT["Filter Types<br/>(filter.d.ts)"]
 end
 subgraph "Persistence"
 DB1["Migrations: deduction_types"]
@@ -67,26 +79,30 @@ C3 --> M2
 F1 --> C1
 F2 --> C2
 F3 --> C3
+F2 --> CB
+F3 --> CB
+FT -.-> F2
+FT -.-> F3
 M1 --> DB1
 M2 --> DB2
 E1 --> DB2
 SEED --> DB1
-T1 -.-> F1
-T2 -.-> F2
 ```
 
 **Diagram sources**
 - [DeductionType.php:1-33](file://app/Models/DeductionType.php#L1-L33)
 - [EmployeeDeduction.php:1-59](file://app/Models/EmployeeDeduction.php#L1-L59)
 - [DeductionTypeController.php:1-55](file://app/Http/Controllers/DeductionTypeController.php#L1-L55)
-- [EmployeeDeductionController.php:1-108](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L108)
-- [PayrollController.php:1-125](file://app/Http/Controllers/PayrollController.php#L1-L125)
+- [EmployeeDeductionController.php:1-119](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L119)
+- [PayrollController.php:1-133](file://app/Http/Controllers/PayrollController.php#L1-L133)
+- [CustomComboBox.tsx:1-60](file://resources/js/components/CustomComboBox.tsx#L1-L60)
+- [filter.d.ts:1-12](file://resources/js/types/filter.d.ts#L1-L12)
 - [2026_03_22_115110_create_deduction_types_table.php:1-32](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L1-L32)
 - [2026_03_22_115112_create_employee_deductions_table.php:1-38](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L1-L38)
 - [DeductionTypeSeeder.php:1-118](file://database/seeders/DeductionTypeSeeder.php#L1-L118)
-- [index.tsx (Deduction Types):1-257](file://resources/js/pages/deduction-types/index.tsx#L1-L257)
-- [index.tsx (Employee Deductions):1-401](file://resources/js/pages/employee-deductions/index.tsx#L1-L401)
-- [index.tsx (Payroll):1-218](file://resources/js/pages/payroll/index.tsx#L1-L218)
+- [index.tsx (Deduction Types):1-258](file://resources/js/pages/deduction-types/index.tsx#L1-L258)
+- [index.tsx (Employee Deductions):1-427](file://resources/js/pages/employee-deductions/index.tsx#L1-L427)
+- [index.tsx (Payroll):1-243](file://resources/js/pages/payroll/index.tsx#L1-L243)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
 - [employeeDeduction.d.ts:1-32](file://resources/js/types/employeeDeduction.d.ts#L1-L32)
 
@@ -94,14 +110,16 @@ T2 -.-> F2
 - [DeductionType.php:1-33](file://app/Models/DeductionType.php#L1-L33)
 - [EmployeeDeduction.php:1-59](file://app/Models/EmployeeDeduction.php#L1-L59)
 - [DeductionTypeController.php:1-55](file://app/Http/Controllers/DeductionTypeController.php#L1-L55)
-- [EmployeeDeductionController.php:1-108](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L108)
-- [PayrollController.php:1-125](file://app/Http/Controllers/PayrollController.php#L1-L125)
+- [EmployeeDeductionController.php:1-119](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L119)
+- [PayrollController.php:1-133](file://app/Http/Controllers/PayrollController.php#L1-L133)
+- [CustomComboBox.tsx:1-60](file://resources/js/components/CustomComboBox.tsx#L1-L60)
+- [filter.d.ts:1-12](file://resources/js/types/filter.d.ts#L1-L12)
 - [2026_03_22_115110_create_deduction_types_table.php:1-32](file://database/migrations/2026_03_22_115110_create_deduction_types_table.php#L1-L32)
 - [2026_03_22_115112_create_employee_deductions_table.php:1-38](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L1-L38)
 - [DeductionTypeSeeder.php:1-118](file://database/seeders/DeductionTypeSeeder.php#L1-L118)
-- [index.tsx (Deduction Types):1-257](file://resources/js/pages/deduction-types/index.tsx#L1-L257)
-- [index.tsx (Employee Deductions):1-401](file://resources/js/pages/employee-deductions/index.tsx#L1-L401)
-- [index.tsx (Payroll):1-218](file://resources/js/pages/payroll/index.tsx#L1-L218)
+- [index.tsx (Deduction Types):1-258](file://resources/js/pages/deduction-types/index.tsx#L1-L258)
+- [index.tsx (Employee Deductions):1-427](file://resources/js/pages/employee-deductions/index.tsx#L1-L427)
+- [index.tsx (Payroll):1-243](file://resources/js/pages/payroll/index.tsx#L1-L243)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
 - [employeeDeduction.d.ts:1-32](file://resources/js/types/employeeDeduction.d.ts#L1-L32)
 
@@ -114,57 +132,67 @@ T2 -.-> F2
   - PayrollController: Aggregates gross pay (salary + PERA + RATA) and net pay (gross minus total deductions) per employee for a given period.
 - Frontend Pages:
   - Deduction Types page: Manage deduction categories (create, update, delete) with active/inactive toggles.
-  - Employee Deductions page: Assign deductions to employees per pay period, filter/search, and adjust amounts.
-  - Payroll page: View payroll summary with computed gross and net pay.
-- Types: Strongly typed request/response interfaces for deduction types and employee deductions.
+  - Employee Deductions page: Assign deductions to employees per pay period, filter/search, and adjust amounts with enhanced UI components.
+  - Payroll page: View payroll summary with computed gross and net pay and comprehensive filtering.
+- Types: Strongly typed request/response interfaces for deduction types and employee deductions, including enhanced filter properties.
 - Seeders: Predefined deduction categories seeded into the system.
+- Enhanced UI Components:
+  - CustomComboBox: Advanced combobox component for improved filtering and selection.
+  - FilterProps: Enhanced filtering interface supporting search and additional filter criteria.
 
 **Section sources**
 - [DeductionType.php:1-33](file://app/Models/DeductionType.php#L1-L33)
 - [EmployeeDeduction.php:1-59](file://app/Models/EmployeeDeduction.php#L1-L59)
 - [DeductionTypeController.php:1-55](file://app/Http/Controllers/DeductionTypeController.php#L1-L55)
-- [EmployeeDeductionController.php:1-108](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L108)
-- [PayrollController.php:1-125](file://app/Http/Controllers/PayrollController.php#L1-L125)
-- [index.tsx (Deduction Types):1-257](file://resources/js/pages/deduction-types/index.tsx#L1-L257)
-- [index.tsx (Employee Deductions):1-401](file://resources/js/pages/employee-deductions/index.tsx#L1-L401)
-- [index.tsx (Payroll):1-218](file://resources/js/pages/payroll/index.tsx#L1-L218)
+- [EmployeeDeductionController.php:1-119](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L119)
+- [PayrollController.php:1-133](file://app/Http/Controllers/PayrollController.php#L1-L133)
+- [index.tsx (Deduction Types):1-258](file://resources/js/pages/deduction-types/index.tsx#L1-L258)
+- [index.tsx (Employee Deductions):1-427](file://resources/js/pages/employee-deductions/index.tsx#L1-L427)
+- [index.tsx (Payroll):1-243](file://resources/js/pages/payroll/index.tsx#L1-L243)
 - [deductionType.d.ts:1-24](file://resources/js/types/deductionType.d.ts#L1-L24)
 - [employeeDeduction.d.ts:1-32](file://resources/js/types/employeeDeduction.d.ts#L1-L32)
 - [DeductionTypeSeeder.php:1-118](file://database/seeders/DeductionTypeSeeder.php#L1-L118)
+- [CustomComboBox.tsx:1-60](file://resources/js/components/CustomComboBox.tsx#L1-L60)
+- [filter.d.ts:1-12](file://resources/js/types/filter.d.ts#L1-L12)
 
 ## Architecture Overview
-The system follows a layered architecture:
-- Presentation: Inertia-driven React pages render lists, forms, and summaries.
-- Application: Controllers orchestrate queries, validations, and transformations.
+The system follows a layered architecture with enhanced UI components:
+- Presentation: Inertia-driven React pages render lists, forms, and summaries with improved UI components.
+- Application: Controllers orchestrate queries, validations, and transformations with expanded filtering capabilities.
 - Domain: Eloquent models encapsulate business relations and scopes.
 - Persistence: Migrations define schema and unique constraints; seeders populate defaults.
+- Enhanced UI: CustomComboBox components provide advanced filtering and grouping mechanisms.
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
-participant UI as "Employee Deductions Page"
+participant UI as "Enhanced Employee Deductions Page"
+participant CB as "CustomComboBox"
 participant C as "EmployeeDeductionController"
 participant M as "EmployeeDeduction Model"
 participant DB as "Database"
-U->>UI : "Open Employee Deductions"
-UI->>C : "GET /employee-deductions (filters)"
-C->>DB : "Query employees with deductions for period"
+U->>UI : "Open Employee Deductions with Filters"
+UI->>CB : "Initialize CustomComboBox"
+CB->>CB : "Load options and handle selections"
+UI->>C : "GET /employee-deductions (enhanced filters)"
+C->>DB : "Query employees with expanded filters"
 DB-->>C : "Paginated employees + deductions"
-C-->>UI : "Render with deduction types"
-U->>UI : "Add Deduction"
+C-->>UI : "Render with enhanced UI components"
+U->>UI : "Add Deduction with improved form"
 UI->>C : "POST /employee-deductions"
 C->>DB : "Check uniqueness constraint"
 DB-->>C : "OK"
 C->>DB : "Insert EmployeeDeduction"
 DB-->>C : "Created"
-C-->>UI : "Success response"
+C-->>UI : "Success response with enhanced feedback"
 ```
 
 **Diagram sources**
-- [EmployeeDeductionController.php:14-52](file://app/Http/Controllers/EmployeeDeductionController.php#L14-L52)
-- [EmployeeDeductionController.php:54-87](file://app/Http/Controllers/EmployeeDeductionController.php#L54-L87)
-- [2026_03_22_115112_create_employee_deductions_table.php:14-27](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L14-L27)
-- [index.tsx (Employee Deductions):104-118](file://resources/js/pages/employee-deductions/index.tsx#L104-L118)
+- [EmployeeDeductionController.php:16-63](file://app/Http/Controllers/EmployeeDeductionController.php#L16-L63)
+- [EmployeeDeductionController.php:65-119](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L119)
+- [CustomComboBox.tsx:21-59](file://resources/js/components/CustomComboBox.tsx#L21-L59)
+- [2026_03_22_115112_create_employee_deductions_table.php:25-26](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L25-L26)
+- [index.tsx (Employee Deductions):103-158](file://resources/js/pages/employee-deductions/index.tsx#L103-L158)
 
 ## Detailed Component Analysis
 
@@ -217,7 +245,7 @@ DeductionType "1" --> "many" EmployeeDeduction : "has many"
 - [DeductionTypeController.php:11-32](file://app/Http/Controllers/DeductionTypeController.php#L11-L32)
 - [DeductionTypeController.php:34-46](file://app/Http/Controllers/DeductionTypeController.php#L34-L46)
 - [DeductionTypeController.php:48-53](file://app/Http/Controllers/DeductionTypeController.php#L48-L53)
-- [index.tsx (Deduction Types):26-92](file://resources/js/pages/deduction-types/index.tsx#L26-L92)
+- [index.tsx (Deduction Types):27-93](file://resources/js/pages/deduction-types/index.tsx#L27-L93)
 - [DeductionTypeSeeder.php:15-113](file://database/seeders/DeductionTypeSeeder.php#L15-L113)
 
 ### Employee-Specific Deductions (EmployeeDeduction)
@@ -243,17 +271,16 @@ Persist --> Success["Success: deduction added"]
 ```
 
 **Diagram sources**
-- [EmployeeDeductionController.php:56-87](file://app/Http/Controllers/EmployeeDeductionController.php#L56-L87)
+- [EmployeeDeductionController.php:65-119](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L119)
 - [2026_03_22_115112_create_employee_deductions_table.php:25-26](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L25-L26)
 
 **Section sources**
 - [EmployeeDeduction.php:10-24](file://app/Models/EmployeeDeduction.php#L10-L24)
 - [EmployeeDeduction.php:41-48](file://app/Models/EmployeeDeduction.php#L41-L48)
 - [EmployeeDeduction.php:53-57](file://app/Models/EmployeeDeduction.php#L53-L57)
-- [EmployeeDeductionController.php:54-87](file://app/Http/Controllers/EmployeeDeductionController.php#L54-L87)
-- [EmployeeDeductionController.php:89-99](file://app/Http/Controllers/EmployeeDeductionController.php#L89-L99)
-- [EmployeeDeductionController.php:101-106](file://app/Http/Controllers/EmployeeDeductionController.php#L101-L106)
-- [index.tsx (Employee Deductions):104-145](file://resources/js/pages/employee-deductions/index.tsx#L104-L145)
+- [EmployeeDeductionController.php:65-119](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L119)
+- [EmployeeDeductionController.php:101-119](file://app/Http/Controllers/EmployeeDeductionController.php#L101-L119)
+- [index.tsx (Employee Deductions):119-160](file://resources/js/pages/employee-deductions/index.tsx#L119-L160)
 
 ### Payroll Impact Calculation
 - Purpose: Compute gross pay and net pay per employee for a given period.
@@ -266,27 +293,27 @@ Persist --> Success["Success: deduction added"]
 
 ```mermaid
 sequenceDiagram
-participant UI as "Payroll Page"
+participant UI as "Enhanced Payroll Page"
 participant C as "PayrollController"
 participant E as "Employee Model"
 participant D as "EmployeeDeduction Model"
 participant S as "Salary/PERA/RATA Models"
-UI->>C : "GET /payroll (month, year, filters)"
+UI->>C : "GET /payroll (enhanced filters)"
 C->>E : "Query employees with latest salary/pera/rata"
 C->>D : "Load deductions for period"
 C->>C : "Compute totals and net pay"
-C-->>UI : "Render payroll summary"
+C-->>UI : "Render payroll summary with enhanced UI"
 ```
 
 **Diagram sources**
-- [PayrollController.php:13-81](file://app/Http/Controllers/PayrollController.php#L13-L81)
-- [PayrollController.php:83-124](file://app/Http/Controllers/PayrollController.php#L83-L124)
+- [PayrollController.php:14-89](file://app/Http/Controllers/PayrollController.php#L14-L89)
+- [PayrollController.php:91-133](file://app/Http/Controllers/PayrollController.php#L91-L133)
 - [Employee.php:46-88](file://app/Models/Employee.php#L46-L88)
 
 **Section sources**
-- [PayrollController.php:48-67](file://app/Http/Controllers/PayrollController.php#L48-L67)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
 - [PayrollController.php:105-110](file://app/Http/Controllers/PayrollController.php#L105-L110)
-- [index.tsx (Payroll):49-214](file://resources/js/pages/payroll/index.tsx#L49-L214)
+- [index.tsx (Payroll):53-243](file://resources/js/pages/payroll/index.tsx#L53-L243)
 
 ### Deduction Creation Process
 - Configure deduction types:
@@ -301,39 +328,40 @@ C-->>UI : "Render payroll summary"
 ```mermaid
 sequenceDiagram
 participant Admin as "Admin User"
-participant DT as "Deduction Types Page"
+participant DT as "Enhanced Deduction Types Page"
 participant DTC as "DeductionTypeController"
-participant ED as "Employee Deductions Page"
+participant ED as "Enhanced Employee Deductions Page"
 participant EDC as "EmployeeDeductionController"
 participant PC as "PayrollController"
 Admin->>DT : "Create/Edit deduction type"
 DT->>DTC : "POST/PUT"
-DTC-->>DT : "Success"
-Admin->>ED : "Add employee deduction"
+DTC-->>DT : "Success with enhanced UI"
+Admin->>ED : "Add employee deduction with filters"
 ED->>EDC : "POST"
-EDC-->>ED : "Success"
-Admin->>PC : "View payroll summary"
-PC-->>Admin : "Gross/Net pay computed"
+EDC-->>ED : "Success with enhanced feedback"
+Admin->>PC : "View payroll summary with expanded filters"
+PC-->>Admin : "Gross/Net pay computed with enhanced presentation"
 ```
 
 **Diagram sources**
 - [DeductionTypeController.php:20-32](file://app/Http/Controllers/DeductionTypeController.php#L20-L32)
 - [DeductionTypeController.php:34-46](file://app/Http/Controllers/DeductionTypeController.php#L34-L46)
-- [index.tsx (Deduction Types):57-92](file://resources/js/pages/deduction-types/index.tsx#L57-L92)
-- [EmployeeDeductionController.php:54-87](file://app/Http/Controllers/EmployeeDeductionController.php#L54-L87)
-- [index.tsx (Employee Deductions):110-118](file://resources/js/pages/employee-deductions/index.tsx#L110-L118)
-- [PayrollController.php:48-67](file://app/Http/Controllers/PayrollController.php#L48-L67)
+- [index.tsx (Deduction Types):58-93](file://resources/js/pages/deduction-types/index.tsx#L58-L93)
+- [EmployeeDeductionController.php:65-119](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L119)
+- [index.tsx (Employee Deductions):123-160](file://resources/js/pages/employee-deductions/index.tsx#L123-L160)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
 
 **Section sources**
 - [DeductionTypeController.php:11-32](file://app/Http/Controllers/DeductionTypeController.php#L11-L32)
-- [index.tsx (Deduction Types):26-92](file://resources/js/pages/deduction-types/index.tsx#L26-L92)
-- [EmployeeDeductionController.php:54-87](file://app/Http/Controllers/EmployeeDeductionController.php#L54-L87)
-- [index.tsx (Employee Deductions):104-145](file://resources/js/pages/employee-deductions/index.tsx#L104-L145)
-- [PayrollController.php:48-67](file://app/Http/Controllers/PayrollController.php#L48-L67)
+- [index.tsx (Deduction Types):27-93](file://resources/js/pages/deduction-types/index.tsx#L27-L93)
+- [EmployeeDeductionController.php:65-119](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L119)
+- [index.tsx (Employee Deductions):119-160](file://resources/js/pages/employee-deductions/index.tsx#L119-L160)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
 
 ### Employee Assignment and Tracking
-- Filtering and search:
-  - Employee Deductions page supports month/year filters, office filter, and free-text search across names.
+- Enhanced filtering and search:
+  - Employee Deductions page supports month/year filters, office filter, employment status filter, and free-text search across names.
+  - CustomComboBox components provide improved selection experience.
 - Assignment UI:
   - Select deduction type from active list and enter amount; notes optional.
 - Tracking:
@@ -341,9 +369,9 @@ PC-->>Admin : "Gross/Net pay computed"
   - Payroll page displays aggregated deductions per employee for the selected period.
 
 **Section sources**
-- [EmployeeDeductionController.php:14-52](file://app/Http/Controllers/EmployeeDeductionController.php#L14-L52)
-- [index.tsx (Employee Deductions):54-145](file://resources/js/pages/employee-deductions/index.tsx#L54-L145)
-- [PayrollController.php:13-81](file://app/Http/Controllers/PayrollController.php#L13-L81)
+- [EmployeeDeductionController.php:16-63](file://app/Http/Controllers/EmployeeDeductionController.php#L16-L63)
+- [index.tsx (Employee Deductions):60-160](file://resources/js/pages/employee-deductions/index.tsx#L60-L160)
+- [PayrollController.php:14-89](file://app/Http/Controllers/PayrollController.php#L14-L89)
 
 ### Payroll Adjustments and Net Pay
 - Adjustment mechanism:
@@ -352,13 +380,13 @@ PC-->>Admin : "Gross/Net pay computed"
   - PayrollController sums all deductions for the period and subtracts from gross pay (salary + PERA + RATA).
 
 **Section sources**
-- [EmployeeDeductionController.php:89-99](file://app/Http/Controllers/EmployeeDeductionController.php#L89-L99)
-- [PayrollController.php:48-67](file://app/Http/Controllers/PayrollController.php#L48-L67)
+- [EmployeeDeductionController.php:101-119](file://app/Http/Controllers/EmployeeDeductionController.php#L101-L119)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
 
 ### Reporting, Audit Trails, and Compliance Monitoring
 - Reporting:
-  - Payroll summary page shows gross and net pay per employee for a selected period.
-  - Employee Deductions page lists all deductions per employee for the selected period.
+  - Payroll summary page shows gross and net pay per employee for a selected period with enhanced filtering.
+  - Employee Deductions page lists all deductions per employee for the selected period with improved UI.
 - Audit trail:
   - EmployeeDeduction captures created_by on creation, enabling attribution of who added a deduction.
 - Compliance monitoring:
@@ -378,25 +406,91 @@ PC-->>Admin : "Gross/Net pay computed"
   - Deduction records persist with timestamps and created_by for auditability.
 
 **Section sources**
-- [EmployeeDeductionController.php:89-99](file://app/Http/Controllers/EmployeeDeductionController.php#L89-L99)
+- [EmployeeDeductionController.php:101-119](file://app/Http/Controllers/EmployeeDeductionController.php#L101-L119)
 - [PayrollController.php:30-43](file://app/Http/Controllers/PayrollController.php#L30-L43)
 - [Employee.php:69-88](file://app/Models/Employee.php#L69-L88)
 
 ### User Interface for Deduction Management and Administrative Controls
 - Deduction Types page:
-  - List, create, edit, and delete deduction types.
-  - Toggle active state and view metadata.
+  - List, create, edit, and delete deduction types with enhanced UI components.
+  - Toggle active state and view metadata with improved visual feedback.
 - Employee Deductions page:
-  - Filter by month/year, office, and search by name.
-  - Add, edit, and remove deductions per employee.
+  - Filter by month/year, office, employment status, and search by name with CustomComboBox components.
+  - Add, edit, and remove deductions per employee with enhanced form validation.
 - Payroll page:
-  - Filter by month/year and office.
-  - View computed gross and net pay per employee.
+  - Filter by month/year, office, employment status, and search with enhanced UI components.
+  - View computed gross and net pay per employee with improved presentation.
 
 **Section sources**
-- [index.tsx (Deduction Types):26-256](file://resources/js/pages/deduction-types/index.tsx#L26-L256)
-- [index.tsx (Employee Deductions):54-400](file://resources/js/pages/employee-deductions/index.tsx#L54-L400)
-- [index.tsx (Payroll):49-217](file://resources/js/pages/payroll/index.tsx#L49-L217)
+- [index.tsx (Deduction Types):27-258](file://resources/js/pages/deduction-types/index.tsx#L27-L258)
+- [index.tsx (Employee Deductions):60-427](file://resources/js/pages/employee-deductions/index.tsx#L60-L427)
+- [index.tsx (Payroll):53-243](file://resources/js/pages/payroll/index.tsx#L53-L243)
+
+## Enhanced UI Components and Grouping Mechanisms
+
+### CustomComboBox Component
+The CustomComboBox component provides enhanced filtering and selection capabilities:
+- Advanced combobox interface with searchable options
+- Support for placeholder text and default values
+- Event handling for selection changes
+- Integration with TypeScript for type safety
+- Improved user experience for office and employment status filtering
+
+```mermaid
+classDiagram
+class CustomComboBox {
++CustomComboBoxItem[] items
++string placeholder
++string value
++string defaultValue
++onSelect(value)
++render()
+}
+class CustomComboBoxItem {
++string value
++string label
+}
+CustomComboBox --> CustomComboBoxItem : uses
+```
+
+**Diagram sources**
+- [CustomComboBox.tsx:14-27](file://resources/js/components/CustomComboBox.tsx#L14-L27)
+- [CustomComboBox.tsx:12-12](file://resources/js/components/CustomComboBox.tsx#L12-L12)
+
+**Section sources**
+- [CustomComboBox.tsx:1-60](file://resources/js/components/CustomComboBox.tsx#L1-L60)
+
+### Enhanced Grouping Mechanisms
+The system now supports improved grouping of deductions:
+- Deduction types grouped by active status for better organization
+- Employee deductions grouped by pay period for chronological tracking
+- Office-based grouping for departmental reporting
+- Employment status-based grouping for organizational structure
+
+**Section sources**
+- [DeductionType.php:28-31](file://app/Models/DeductionType.php#L28-L31)
+- [EmployeeDeduction.php:26-39](file://app/Models/EmployeeDeduction.php#L26-L39)
+
+## Expanded Filtering Capabilities
+
+### Enhanced Filter Types
+The system now supports comprehensive filtering through the FilterProps interface:
+- Search functionality across employee names
+- Office-based filtering for departmental organization
+- Employment status filtering for organizational structure
+- Month and year filtering for pay period management
+- Combined filtering for precise data retrieval
+
+### Implementation Details
+- FilterProps interface extends Inertia page props with flexible filter support
+- CustomComboBox components enable intuitive selection of filter criteria
+- Real-time filtering updates without page reloads
+- Query string preservation for bookmarkable filtered views
+
+**Section sources**
+- [filter.d.ts:3-11](file://resources/js/types/filter.d.ts#L3-L11)
+- [index.tsx (Employee Deductions):66-115](file://resources/js/pages/employee-deductions/index.tsx#L66-L115)
+- [index.tsx (Payroll):54-84](file://resources/js/pages/payroll/index.tsx#L54-L84)
 
 ## Dependency Analysis
 - Models:
@@ -405,8 +499,11 @@ PC-->>Admin : "Gross/Net pay computed"
 - Controllers:
   - EmployeeDeductionController depends on DeductionType for active list and on Employee for assignment.
   - PayrollController depends on Employee, Salary, Pera, Rata, and EmployeeDeduction for aggregation.
+  - Enhanced with expanded filtering capabilities.
 - Frontend:
   - Pages consume controller endpoints and TypeScript types for type safety.
+  - CustomComboBox components provide enhanced UI experiences.
+  - FilterProps interface supports flexible filtering scenarios.
 
 ```mermaid
 graph LR
@@ -420,17 +517,25 @@ E --> PC
 SAL --> PC
 PRA --> PC
 RTA --> PC
+CB["CustomComboBox"] --> ED
+CB --> PC
+FT["FilterProps"] --> ED
+FT --> PC
 ```
 
 **Diagram sources**
 - [EmployeeDeduction.php:26-39](file://app/Models/EmployeeDeduction.php#L26-L39)
 - [Employee.php:46-88](file://app/Models/Employee.php#L46-L88)
-- [PayrollController.php:30-43](file://app/Http/Controllers/PayrollController.php#L30-L43)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
+- [CustomComboBox.tsx:21-59](file://resources/js/components/CustomComboBox.tsx#L21-L59)
+- [filter.d.ts:9-11](file://resources/js/types/filter.d.ts#L9-L11)
 
 **Section sources**
 - [EmployeeDeduction.php:26-39](file://app/Models/EmployeeDeduction.php#L26-L39)
 - [Employee.php:46-88](file://app/Models/Employee.php#L46-L88)
-- [PayrollController.php:30-43](file://app/Http/Controllers/PayrollController.php#L30-L43)
+- [PayrollController.php:54-89](file://app/Http/Controllers/PayrollController.php#L54-L89)
+- [CustomComboBox.tsx:21-59](file://resources/js/components/CustomComboBox.tsx#L21-L59)
+- [filter.d.ts:9-11](file://resources/js/types/filter.d.ts#L9-L11)
 
 ## Performance Considerations
 - Indexing and constraints:
@@ -441,8 +546,9 @@ RTA --> PC
   - Employee listing pages use pagination to limit payload sizes.
 - Currency formatting:
   - Frontend formatting avoids heavy computations on the server.
-
-[No sources needed since this section provides general guidance]
+- Enhanced UI performance:
+  - CustomComboBox components optimize rendering and selection handling.
+  - Debounced search functionality reduces unnecessary API calls.
 
 ## Troubleshooting Guide
 - Duplicate deduction error:
@@ -457,16 +563,19 @@ RTA --> PC
   - Symptom: Net pay appears higher than expected.
   - Cause: Deductions not recorded for the selected period.
   - Resolution: Add deductions for the correct month/year.
+- Filter issues:
+  - Symptom: Filters not applying correctly or selections not persisting.
+  - Cause: CustomComboBox component or filter state management issues.
+  - Resolution: Check filter prop types and ensure proper state updates.
 
 **Section sources**
+- [EmployeeDeductionController.php:76-85](file://app/Http/Controllers/EmployeeDeductionController.php#L76-L85)
 - [EmployeeDeductionController.php:65-74](file://app/Http/Controllers/EmployeeDeductionController.php#L65-L74)
-- [EmployeeDeductionController.php:56-63](file://app/Http/Controllers/EmployeeDeductionController.php#L56-L63)
 - [2026_03_22_115112_create_employee_deductions_table.php:25-26](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L25-L26)
+- [CustomComboBox.tsx:21-59](file://resources/js/components/CustomComboBox.tsx#L21-L59)
 
 ## Conclusion
-The deduction management system provides a robust foundation for configuring deduction categories, assigning employee deductions per pay period, and computing payroll impacts. Its design emphasizes auditability (created_by), prevention of duplicates (unique constraints), and clear separation of concerns across models, controllers, and UI pages. Administrators can efficiently manage deduction types, apply manual adjustments, and monitor payroll outcomes through intuitive dashboards.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The deduction management system provides a robust foundation for configuring deduction categories, assigning employee deductions per pay period, and computing payroll impacts. The enhanced system now features improved UI components with CustomComboBox for better filtering, expanded filtering capabilities across all pages, and enhanced grouping mechanisms for better data organization. Its design emphasizes auditability (created_by), prevention of duplicates (unique constraints), and clear separation of concerns across models, controllers, and UI pages. Administrators can efficiently manage deduction types, apply manual adjustments, and monitor payroll outcomes through intuitive dashboards with comprehensive filtering options.
 
 ## Appendices
 
@@ -487,22 +596,27 @@ The deduction management system provides a robust foundation for configuring ded
 - [EmployeeDeduction.php:10-58](file://app/Models/EmployeeDeduction.php#L10-L58)
 - [Employee.php:46-88](file://app/Models/Employee.php#L46-L88)
 
-### API and UI Interaction Summary
+### Enhanced API and UI Interaction Summary
 - Deduction Types
-  - GET /deduction-types → renders list
-  - POST /deduction-types → create
-  - PUT /deduction-types/{id} → update
-  - DELETE /deduction-types/{id} → delete
+  - GET /deduction-types → renders list with enhanced UI
+  - POST /deduction-types → create with validation
+  - PUT /deduction-types/{id} → update with validation
+  - DELETE /deduction-types/{id} → delete with confirmation
 - Employee Deductions
-  - GET /employee-deductions → list with filters and paginated results
-  - POST /employee-deductions → create
-  - PUT /employee-deductions/{id} → update
-  - DELETE /employee-deductions/{id} → delete
+  - GET /employee-deductions → list with enhanced filters and paginated results
+  - POST /employee-deductions → create with duplicate prevention
+  - PUT /employee-deductions/{id} → update with validation
+  - DELETE /employee-deductions/{id} → delete with confirmation
 - Payroll
-  - GET /payroll → list with computed totals
-  - GET /payroll/{id} → detailed view for an employee
+  - GET /payroll → list with enhanced filters and computed totals
+  - GET /payroll/{id} → detailed view for an employee with enhanced presentation
+- Enhanced UI Components
+  - CustomComboBox → advanced filtering with search and selection
+  - FilterProps → flexible filter interface supporting multiple criteria
 
 **Section sources**
-- [DeductionTypeController.php:11-53](file://app/Http/Controllers/DeductionTypeController.php#L11-L53)
-- [EmployeeDeductionController.php:14-106](file://app/Http/Controllers/EmployeeDeductionController.php#L14-L106)
-- [PayrollController.php:13-124](file://app/Http/Controllers/PayrollController.php#L13-L124)
+- [DeductionTypeController.php:11-55](file://app/Http/Controllers/DeductionTypeController.php#L11-L55)
+- [EmployeeDeductionController.php:16-119](file://app/Http/Controllers/EmployeeDeductionController.php#L16-L119)
+- [PayrollController.php:14-133](file://app/Http/Controllers/PayrollController.php#L14-L133)
+- [CustomComboBox.tsx:1-60](file://resources/js/components/CustomComboBox.tsx#L1-L60)
+- [filter.d.ts:1-12](file://resources/js/types/filter.d.ts#L1-L12)
