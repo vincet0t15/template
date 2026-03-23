@@ -1,14 +1,18 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Employee } from '@/types/employee';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
 import { FilterProps } from '@/types/filter';
+import type { Office } from '@/types/office';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search, User } from 'lucide-react';
@@ -23,25 +27,53 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Props {
     employees: PaginatedDataResponse<Employee>;
-    filters: FilterProps;
+    offices: Office[];
+    employmentStatuses: EmploymentStatus[];
+    filters: FilterProps & { office_id?: string; employment_status_id?: string };
 }
-export default function Employees({ employees, filters }: Props) {
+export default function Employees({ employees, offices, employmentStatuses, filters }: Props) {
     const { data, setData } = useForm({
         search: filters.search || '',
+        office_id: filters.office_id || '',
+        employment_status_id: filters.employment_status_id || '',
     });
     const [openShow, setOpenShow] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
+    const applyFilters = (overrides?: Partial<typeof data>) => {
+        const merged = { ...data, ...overrides };
+        const queryString: Record<string, string> = {};
+        if (merged.search) queryString.search = merged.search;
+        if (merged.office_id) queryString.office_id = merged.office_id;
+        if (merged.employment_status_id) queryString.employment_status_id = merged.employment_status_id;
+        router.get(route('employees.index'), queryString, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const queryString = data.search ? { search: data.search } : {};
-
-            router.get(route('employees.index'), queryString, {
-                preserveState: true,
-                preserveScroll: true,
-            });
+            applyFilters();
         }
+    };
+
+    const officeOptions = offices.map((office) => ({
+        value: office.id.toString(),
+        label: office.name,
+    }));
+
+    const handleOfficeChange = (value: string) => {
+        const newOfficeId = value === '' ? '' : value;
+        setData('office_id', newOfficeId);
+        applyFilters({ office_id: newOfficeId });
+    };
+
+    const handleEmploymentStatusChange = (value: string) => {
+        const newStatusId = value === 'all' ? '' : value;
+        setData('employment_status_id', newStatusId);
+        applyFilters({ employment_status_id: newStatusId });
     };
 
     const handleClickShow = (employee: Employee) => {
@@ -64,6 +96,29 @@ export default function Employees({ employees, filters }: Props) {
                     </Button>
 
                     <div className="flex w-full items-center gap-2 sm:w-auto">
+                        <div className="w-full">
+                            <CustomComboBox
+                                items={officeOptions}
+                                placeholder="All Offices"
+                                value={data.office_id || null}
+                                onSelect={(value) => handleOfficeChange(value ?? '')}
+                            />
+                        </div>
+
+                        <Select value={data.employment_status_id || 'all'} onValueChange={handleEmploymentStatusChange}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="All Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                {employmentStatuses.map((status) => (
+                                    <SelectItem key={status.id} value={status.id.toString()}>
+                                        {status.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
@@ -73,7 +128,7 @@ export default function Employees({ employees, filters }: Props) {
                                 placeholder="Search the employee..."
                                 className="w-full pl-8"
                                 value={data.search}
-                                onChange={(e) => setData({ search: e.target.value })}
+                                onChange={(e) => setData({ ...data, search: e.target.value })}
                                 onKeyDown={handleSearchKeyDown}
                             />
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />

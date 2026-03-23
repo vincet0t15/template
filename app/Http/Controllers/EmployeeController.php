@@ -13,22 +13,36 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-
         $search = $request->input('search');
+        $officeId = $request->input('office_id');
+        $employmentStatusId = $request->input('employment_status_id');
 
         $employees = Employee::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('first_name', 'like', '%' . $search . '%')
                     ->orWhere('last_name', 'like', '%' . $search . '%');
             })
+            ->when($officeId, function ($query) use ($officeId) {
+                $query->where('office_id', $officeId);
+            })
+            ->when($employmentStatusId, function ($query) use ($employmentStatusId) {
+                $query->where('employment_status_id', $employmentStatusId);
+            })
             ->with(['office', 'employmentStatus'])
             ->paginate(10)
             ->withQueryString();
 
+        $offices = Office::orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
+
         return Inertia::render('Employees/Index', [
             'employees' => $employees,
+            'offices' => $offices,
+            'employmentStatuses' => $employmentStatuses,
             'filters' => [
                 'search' => $search,
+                'office_id' => $officeId,
+                'employment_status_id' => $employmentStatusId,
             ]
         ]);
     }

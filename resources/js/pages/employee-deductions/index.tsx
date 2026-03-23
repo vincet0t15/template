@@ -240,7 +240,7 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                                                             key={deduction.id}
                                                             className="bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs"
                                                         >
-                                                            {deduction.deduction_type?.name}: {formatCurrency(deduction.amount)}
+                                                            {deduction.deduction_type?.name}: {formatCurrency(Number(deduction.amount))}
                                                             <button
                                                                 onClick={() => handleOpenEdit(deduction, employee)}
                                                                 className="text-primary hover:underline"
@@ -261,7 +261,9 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, fil
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right font-medium">
-                                            {employee.deductions ? formatCurrency(employee.deductions.reduce((sum, d) => sum + d.amount, 0)) : '-'}
+                                            {employee.deductions
+                                                ? formatCurrency(employee.deductions.reduce((sum, d) => sum + Number(d.amount), 0))
+                                                : '-'}
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <Button variant="default" size="sm" onClick={() => handleOpenAdd(employee)}>
