@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\Office;
@@ -14,46 +15,66 @@ class DashboardController extends Controller
     {
         $totalEmployees = Employee::count();
         $totalOffices = Office::count();
-
-        // Employees by office
-        $employeesByOffice = Office::withCount('employees')
-            ->orderBy('employees_count', 'desc')
-            ->limit(5)
-            ->get();
-
-        // Recent employees (last 5)
-        $recentEmployees = Employee::with(['office', 'employmentStatus'])
-            ->latest()
-            ->limit(5)
-            ->get();
-
+        $totalDeductionTypes = DeductionType::where('is_active', true)->count();
+        
         // Current month stats
         $currentMonth = now()->month;
         $currentYear = now()->year;
-
-        $monthlyDeductions = EmployeeDeduction::where('pay_period_month', $currentMonth)
+        
+        // Total deductions this month
+        $monthlyDeductionsCount = EmployeeDeduction::where('pay_period_month', $currentMonth)
+            ->where('pay_period_year', $currentYear)
+            ->count();
+        
+        $monthlyDeductionsTotal = EmployeeDeduction::where('pay_period_month', $currentMonth)
             ->where('pay_period_year', $currentYear)
             ->sum('amount');
-
+        
         // Employees with deductions this month
         $employeesWithDeductions = EmployeeDeduction::where('pay_period_month', $currentMonth)
             ->where('pay_period_year', $currentYear)
             ->distinct('employee_id')
             ->count('employee_id');
-
-        // RATA eligible count
-        $rataEligibleCount = Employee::where('is_rata_eligible', true)->count();
-
+        
+        // Employees by office
+        $employeesByOffice = Office::withCount('employees')
+            ->orderBy('employees_count', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Recent deductions
+        $recentDeductions = EmployeeDeduction::with(['employee', 'deductionType'])
+            ->latest()
+            ->limit(5)
+            ->get();
+        
+        // Top deduction types this month
+        $topDeductionTypes = EmployeeDeduction::where('pay_period_month', $currentMonth)
+            ->where('pay_period_year', $currentYear)
+            ->selectRaw('deduction_type_id, SUM(amount) as total_amount, COUNT(*) as count')
+            ->groupBy('deduction_type_id')
+            ->with('deductionType')
+            ->orderByDesc('total_amount')
+            ->limit(5)
+            ->get();
+        
         return Inertia::render('dashboard', [
             'stats' => [
                 'totalEmployees' => $totalEmployees,
                 'totalOffices' => $totalOffices,
-                'monthlyDeductions' => (float) $monthlyDeductions,
+                'totalDeductionTypes' => $totalDeductionTypes,
+                'monthlyDeductionsCount' => $monthlyDeductionsCount,
+                'monthlyDeductionsTotal' => (float) $monthlyDeductionsTotal,
                 'employeesWithDeductions' => $employeesWithDeductions,
-                'rataEligibleCount' => $rataEligibleCount,
             ],
             'employeesByOffice' => $employeesByOffice,
-            'recentEmployees' => $recentEmployees,
+            'recentDeductions' => $recentDeductions,
+            'topDeductionTypes' => $topDeductionTypes,
+            'currentPeriod' => [
+                'month' => $currentMonth,
+                'year' => $currentYear,
+                'monthName' => now()->format('F'),
+            ],
         ]);
     }
 }
