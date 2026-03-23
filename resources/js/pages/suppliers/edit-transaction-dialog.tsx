@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierTransaction } from '@/types/supplier';
 import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
@@ -49,21 +49,21 @@ export function EditTransactionDialog({ transaction, onClose, supplierId }: Prop
 
     return (
         <Dialog open={!!transaction} onOpenChange={onClose}>
-            <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+            <DialogContent className="max-h-[90vh] min-w-3xl overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit Transaction</DialogTitle>
                     <DialogDescription>Update the transaction record.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <TransactionFields prefix="edit" form={form} />
-                    <DialogFooter className="mt-4">
+                    <div className="mt-4 flex justify-end gap-2">
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={form.processing}>
                             Update Transaction
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
             </DialogContent>
         </Dialog>

@@ -1,19 +1,17 @@
-import { DatePicker } from '@/components/custom-date-picker';
 import PaginationData from '@/components/paginationData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Supplier, SupplierTransaction } from '@/types/supplier';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowLeft, Edit, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { CreateTransactionDialog } from './create-transaction-dialog';
+import { DeleteTransactionDialog } from './delete-transaction-dialog';
+import { EditTransactionDialog } from './edit-transaction-dialog';
 
 type PaginatedTransactions = PaginatedDataResponse<SupplierTransaction>;
 
@@ -21,48 +19,6 @@ interface Props {
     supplier: Supplier;
     transactions: PaginatedTransactions;
 }
-
-type TransactionForm = {
-    pr_date: string;
-    pr_no: string;
-    po_date: string;
-    po_no: string;
-    sale_invoice_date: string;
-    sale_invoice_no: string;
-    or_date: string;
-    or_no: string;
-    dr_date: string;
-    dr_no: string;
-    qty_period_covered: string;
-    particulars: string;
-    gross: string;
-    ewt: string;
-    vat: string;
-    net_amount: string;
-    date_processed: string;
-    remarks: string;
-};
-
-const emptyForm: TransactionForm = {
-    pr_date: '',
-    pr_no: '',
-    po_date: '',
-    po_no: '',
-    sale_invoice_date: '',
-    sale_invoice_no: '',
-    or_date: '',
-    or_no: '',
-    dr_date: '',
-    dr_no: '',
-    qty_period_covered: '',
-    particulars: '',
-    gross: '',
-    ewt: '',
-    vat: '',
-    net_amount: '',
-    date_processed: '',
-    remarks: '',
-};
 
 const formatDate = (d: string | null) => (d ? format(new Date(d), 'MM/dd/yyyy') : '-');
 const formatCurrency = (v: number) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(v);
@@ -72,258 +28,10 @@ export default function SupplierShow({ supplier, transactions }: Props) {
     const [editingTransaction, setEditingTransaction] = useState<SupplierTransaction | null>(null);
     const [deletingTransaction, setDeletingTransaction] = useState<SupplierTransaction | null>(null);
 
-    const createForm = useForm<TransactionForm>(emptyForm);
-    const editForm = useForm<TransactionForm>(emptyForm);
-    const deleteForm = useForm({});
-
-    useEffect(() => {
-        if (!isCreateOpen) createForm.reset();
-    }, [isCreateOpen]);
-
-    useEffect(() => {
-        if (editingTransaction) {
-            editForm.setData({
-                pr_date: editingTransaction.pr_date,
-                pr_no: editingTransaction.pr_no,
-                po_date: editingTransaction.po_date || '',
-                po_no: editingTransaction.po_no || '',
-                sale_invoice_date: editingTransaction.sale_invoice_date || '',
-                sale_invoice_no: editingTransaction.sale_invoice_no || '',
-                or_date: editingTransaction.or_date || '',
-                or_no: editingTransaction.or_no || '',
-                dr_date: editingTransaction.dr_date || '',
-                dr_no: editingTransaction.dr_no || '',
-                qty_period_covered: editingTransaction.qty_period_covered || '',
-                particulars: editingTransaction.particulars,
-                gross: String(editingTransaction.gross),
-                ewt: String(editingTransaction.ewt),
-                vat: String(editingTransaction.vat),
-                net_amount: String(editingTransaction.net_amount),
-                date_processed: editingTransaction.date_processed || '',
-                remarks: editingTransaction.remarks || '',
-            });
-        }
-    }, [editingTransaction]);
-
-    const handleCreate = (e: React.FormEvent) => {
-        e.preventDefault();
-        createForm.post(route('suppliers.transactions.store', supplier.id), {
-            onSuccess: () => setIsCreateOpen(false),
-        });
-    };
-
-    const handleUpdate = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (editingTransaction) {
-            editForm.put(route('suppliers.transactions.update', [supplier.id, editingTransaction.id]), {
-                onSuccess: () => setEditingTransaction(null),
-            });
-        }
-    };
-
-    const handleDelete = () => {
-        if (deletingTransaction) {
-            deleteForm.delete(route('suppliers.transactions.destroy', [supplier.id, deletingTransaction.id]), {
-                onSuccess: () => setDeletingTransaction(null),
-            });
-        }
-    };
-
     const breadcrumbs = [
         { title: 'Suppliers', href: '/suppliers' },
         { title: supplier.name, href: route('suppliers.transactions.show', supplier.id) },
     ];
-
-    const TransactionFields = ({ prefix, form }: { prefix: string; form: ReturnType<typeof useForm<TransactionForm>> }) => (
-        <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_pr_date`}>PR Date *</Label>
-                    <DatePicker id={`${prefix}_pr_date`} value={form.data.pr_date} onChange={(v) => form.setData('pr_date', v)} />
-                    {form.errors.pr_date && <p className="text-xs text-red-500">{form.errors.pr_date}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_pr_no`}>PR No. *</Label>
-                    <Input
-                        id={`${prefix}_pr_no`}
-                        value={form.data.pr_no}
-                        onChange={(e) => form.setData('pr_no', e.target.value)}
-                        placeholder="PR Number"
-                        required
-                    />
-                    {form.errors.pr_no && <p className="text-xs text-red-500">{form.errors.pr_no}</p>}
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_po_date`}>PO Date</Label>
-                    <DatePicker
-                        id={`${prefix}_po_date`}
-                        value={form.data.po_date}
-                        onChange={(v) => form.setData('po_date', v)}
-                        placeholder="Select PO date"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_po_no`}>PO No.</Label>
-                    <Input
-                        id={`${prefix}_po_no`}
-                        value={form.data.po_no}
-                        onChange={(e) => form.setData('po_no', e.target.value)}
-                        placeholder="PO Number"
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_si_date`}>Sale Invoice Date</Label>
-                    <DatePicker
-                        id={`${prefix}_si_date`}
-                        value={form.data.sale_invoice_date}
-                        onChange={(v) => form.setData('sale_invoice_date', v)}
-                        placeholder="Select invoice date"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_si_no`}>Sale Invoice No.</Label>
-                    <Input
-                        id={`${prefix}_si_no`}
-                        value={form.data.sale_invoice_no}
-                        onChange={(e) => form.setData('sale_invoice_no', e.target.value)}
-                        placeholder="Invoice Number"
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_or_date`}>OR Date</Label>
-                    <DatePicker
-                        id={`${prefix}_or_date`}
-                        value={form.data.or_date}
-                        onChange={(v) => form.setData('or_date', v)}
-                        placeholder="Select OR date"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_or_no`}>OR No.</Label>
-                    <Input
-                        id={`${prefix}_or_no`}
-                        value={form.data.or_no}
-                        onChange={(e) => form.setData('or_no', e.target.value)}
-                        placeholder="OR Number"
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_dr_date`}>D.R. Date</Label>
-                    <DatePicker
-                        id={`${prefix}_dr_date`}
-                        value={form.data.dr_date}
-                        onChange={(v) => form.setData('dr_date', v)}
-                        placeholder="Select D.R. date"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_dr_no`}>D.R. No.</Label>
-                    <Input
-                        id={`${prefix}_dr_no`}
-                        value={form.data.dr_no}
-                        onChange={(e) => form.setData('dr_no', e.target.value)}
-                        placeholder="DR Number"
-                    />
-                </div>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor={`${prefix}_qty`}>QTY / Period Covered</Label>
-                <Input
-                    id={`${prefix}_qty`}
-                    value={form.data.qty_period_covered}
-                    onChange={(e) => form.setData('qty_period_covered', e.target.value)}
-                    placeholder="Quantity or period"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor={`${prefix}_particulars`}>Particulars *</Label>
-                <Textarea
-                    id={`${prefix}_particulars`}
-                    value={form.data.particulars}
-                    onChange={(e) => form.setData('particulars', e.target.value)}
-                    rows={2}
-                    required
-                />
-                {form.errors.particulars && <p className="text-xs text-red-500">{form.errors.particulars}</p>}
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_gross`}>Gross *</Label>
-                    <Input
-                        id={`${prefix}_gross`}
-                        type="number"
-                        step="0.01"
-                        value={form.data.gross}
-                        onChange={(e) => form.setData('gross', e.target.value)}
-                        placeholder="0.00"
-                        required
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_ewt`}>EWT</Label>
-                    <Input
-                        id={`${prefix}_ewt`}
-                        type="number"
-                        step="0.01"
-                        value={form.data.ewt}
-                        onChange={(e) => form.setData('ewt', e.target.value)}
-                        placeholder="0.00"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_vat`}>VAT</Label>
-                    <Input
-                        id={`${prefix}_vat`}
-                        type="number"
-                        step="0.01"
-                        value={form.data.vat}
-                        onChange={(e) => form.setData('vat', e.target.value)}
-                        placeholder="0.00"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_net`}>Net Amount *</Label>
-                    <Input
-                        id={`${prefix}_net`}
-                        type="number"
-                        step="0.01"
-                        value={form.data.net_amount}
-                        onChange={(e) => form.setData('net_amount', e.target.value)}
-                        placeholder="0.00"
-                        required
-                    />
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_date_processed`}>Date Processed</Label>
-                    <DatePicker
-                        id={`${prefix}_date_processed`}
-                        value={form.data.date_processed}
-                        onChange={(v) => form.setData('date_processed', v)}
-                        placeholder="Select date processed"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor={`${prefix}_remarks`}>Remarks</Label>
-                    <Input
-                        id={`${prefix}_remarks`}
-                        value={form.data.remarks}
-                        onChange={(e) => form.setData('remarks', e.target.value)}
-                        placeholder="Notes"
-                    />
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -345,10 +53,8 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                                     {supplier.is_active ? 'Active' : 'Inactive'}
                                 </Badge>
                             </div>
-                            {supplier.address && <p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-sm">{supplier.address}</p>}
-                            {supplier.contact_number && (
-                                <p className="text-muted-foreground flex items-center gap-1 text-sm">{supplier.contact_number}</p>
-                            )}
+                            {supplier.address && <p className="text-muted-foreground mt-0.5 text-sm">{supplier.address}</p>}
+                            {supplier.contact_number && <p className="text-muted-foreground text-sm">{supplier.contact_number}</p>}
                         </div>
                     </div>
                     <Button size="sm" onClick={() => setIsCreateOpen(true)}>
@@ -447,75 +153,19 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                 </div>
 
                 {/* Pagination */}
-
                 <div className="mt-4">
                     <PaginationData data={transactions} />
                 </div>
             </div>
 
-            {/* Create Transaction Dialog */}
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="max-h-[90vh] min-w-3xl overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Add Transaction</DialogTitle>
-                        <DialogDescription>Add a new transaction record for {supplier.name}.</DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleCreate}>
-                        <TransactionFields prefix="create" form={createForm} />
-
-                        <div className="mt-4 flex justify-end gap-2">
-                            <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={createForm.processing}>
-                                Save Transaction
-                            </Button>
-                        </div>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {/* Edit Transaction Dialog */}
-            <Dialog open={!!editingTransaction} onOpenChange={() => setEditingTransaction(null)}>
-                <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Edit Transaction</DialogTitle>
-                        <DialogDescription>Update the transaction record.</DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleUpdate}>
-                        <TransactionFields prefix="edit" form={editForm} />
-                        <DialogFooter className="mt-4">
-                            <Button type="button" variant="outline" onClick={() => setEditingTransaction(null)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={editForm.processing}>
-                                Update Transaction
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={!!deletingTransaction} onOpenChange={() => setDeletingTransaction(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Delete Transaction</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete the transaction <strong>PR #{deletingTransaction?.pr_no}</strong>? This action cannot be
-                            undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setDeletingTransaction(null)}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={handleDelete} disabled={deleteForm.processing}>
-                            Delete
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <CreateTransactionDialog
+                open={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
+                supplierId={supplier.id}
+                supplierName={supplier.name}
+            />
+            <EditTransactionDialog transaction={editingTransaction} onClose={() => setEditingTransaction(null)} supplierId={supplier.id} />
+            <DeleteTransactionDialog transaction={deletingTransaction} onClose={() => setDeletingTransaction(null)} supplierId={supplier.id} />
         </AppLayout>
     );
 }
