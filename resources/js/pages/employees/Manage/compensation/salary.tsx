@@ -134,6 +134,7 @@ export function CompensationSalary({ employee, deductionTypes }: CompensationSal
                     defaultMonth={dialogState.month}
                     defaultYear={dialogState.year}
                     existingDeductions={dialogState.existingDeductions}
+                    takenPeriods={periods}
                 />
             )}
         </div>

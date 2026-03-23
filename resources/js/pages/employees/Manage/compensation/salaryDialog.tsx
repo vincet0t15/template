@@ -36,9 +36,10 @@ interface SalaryDialogProps {
     defaultMonth: string;
     defaultYear: string;
     existingDeductions: EmployeeDeduction[];
+    takenPeriods: string[];
 }
 
-export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultMonth, defaultYear, existingDeductions }: SalaryDialogProps) {
+export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultMonth, defaultYear, existingDeductions, takenPeriods }: SalaryDialogProps) {
     const isEditing = existingDeductions.length > 0;
 
     const { data, setData, post, processing, reset } = useForm<{
@@ -63,8 +64,17 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultM
         setData('deductions', updated);
     };
 
+    // Check if the selected period already has deductions (only relevant in Add mode)
+    const selectedPeriodKey = `${data.pay_period_year}-${String(data.pay_period_month).padStart(2, '0')}`;
+    const isPeriodTaken = !isEditing && takenPeriods.includes(selectedPeriodKey);
+
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
+
+        if (isPeriodTaken) {
+            toast.error(`Deductions for this period already exist. Use the Edit button to update them.`);
+            return;
+        }
 
         post(route('manage.employees.deductions.store', employee.id), {
             onSuccess: () => {
@@ -125,6 +135,14 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultM
                         </div>
                     </div>
 
+                    {/* Period conflict warning */}
+                    {isPeriodTaken && (
+                        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+                            Deductions for <strong>{MONTHS.find((m) => m.value === data.pay_period_month)?.label} {data.pay_period_year}</strong> already exist.
+                            Close this dialog and use the <strong>Edit</strong> button on that period to update it.
+                        </div>
+                    )}
+
                     {/* Deduction Fields */}
                     <div className="mt-4">
                         <h4 className="mb-3 text-sm font-semibold">Deduction Amounts</h4>
@@ -155,7 +173,7 @@ export function SalaryDialog({ open, onClose, employee, deductionTypes, defaultM
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" disabled={processing}>
+                        <Button type="submit" disabled={processing || isPeriodTaken}>
                             {processing ? 'Saving...' : 'Save Deductions'}
                         </Button>
                     </DialogFooter>
