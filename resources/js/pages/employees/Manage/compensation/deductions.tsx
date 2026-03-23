@@ -146,7 +146,7 @@ export function CompensationDeductions({
                         const total = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
 
                         return (
-                            <div key={periodKey} className="overflow-hidden rounded-lg border shadow-sm">
+                            <div key={periodKey} className="overflow-hidden rounded-sm border shadow-sm">
                                 <div className="bg-muted/50 flex items-center justify-between px-4 py-2">
                                     <div className="flex items-center gap-2">
                                         <Badge variant="outline" className="font-semibold">

@@ -6,6 +6,7 @@ import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { FileText, Receipt, TrendingDown } from 'lucide-react';
+import { Fragment } from 'react';
 
 interface ReportsProps {
     employee: Employee;
@@ -159,7 +160,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                                     </TableHeader>
                                     <TableBody>
                                         {deductionPeriods.map((period) => (
-                                            <>
+                                            <Fragment key={`${period.year}-${period.month}`}>
                                                 {period.items.map((d, idx) => (
                                                     <TableRow key={d.id}>
                                                         {idx === 0 && (
@@ -179,7 +180,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                                                         {formatCurrency(period.total)}
                                                     </TableCell>
                                                 </TableRow>
-                                            </>
+                                            </Fragment>
                                         ))}
                                     </TableBody>
                                 </Table>
