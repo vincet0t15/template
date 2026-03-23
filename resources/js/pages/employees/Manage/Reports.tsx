@@ -46,14 +46,14 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     // Extract available years from data
     const availableYears = useMemo(() => {
         const years = new Set<number>();
-        allDeductions.forEach(d => years.add(d.pay_period_year));
-        allClaims.forEach(c => years.add(new Date(c.claim_date).getFullYear()));
+        allDeductions.forEach((d) => years.add(d.pay_period_year));
+        allClaims.forEach((c) => years.add(new Date(c.claim_date).getFullYear()));
         return Array.from(years).sort((a, b) => b - a);
     }, [allDeductions, allClaims]);
 
     // Filter deductions based on selected month/year
     const filteredDeductions = useMemo(() => {
-        return allDeductions.filter(d => {
+        return allDeductions.filter((d) => {
             const monthMatch = !filterMonth || d.pay_period_month === parseInt(filterMonth);
             const yearMatch = !filterYear || d.pay_period_year === parseInt(filterYear);
             return monthMatch && yearMatch;
@@ -62,7 +62,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
 
     // Filter claims based on selected month/year
     const filteredClaims = useMemo(() => {
-        return allClaims.filter(c => {
+        return allClaims.filter((c) => {
             const claimDate = new Date(c.claim_date);
             const monthMatch = !filterMonth || claimDate.getMonth() + 1 === parseInt(filterMonth);
             const yearMatch = !filterYear || claimDate.getFullYear() === parseInt(filterYear);

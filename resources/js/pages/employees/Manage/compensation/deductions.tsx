@@ -143,7 +143,14 @@ export function CompensationDeductions({
                     {periods.map((periodKey) => {
                         const [year, month] = periodKey.split('-');
                         const periodDeductions = deductions[periodKey] ?? [];
-                        const total = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
+                        const totalDeductions = periodDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
+
+                        // Calculate gross pay including Salary + PERA + RATA
+                        const salary = Number(employee.latest_salary?.amount ?? 0);
+                        const pera = Number(employee.latest_pera?.amount ?? 0);
+                        const rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+                        const grossPay = salary + pera + rata;
+                        const netPay = grossPay - totalDeductions;
 
                         return (
                             <div key={periodKey} className="overflow-hidden rounded-sm border shadow-sm">
@@ -155,7 +162,10 @@ export function CompensationDeductions({
                                         <span className="text-muted-foreground text-xs">{periodDeductions.length} deduction(s)</span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-sm font-semibold text-red-600">- {formatCurrency(total)}</span>
+                                        <div className="text-right">
+                                            <span className="text-xs text-slate-500">Net Pay:</span>
+                                            <span className="ml-2 text-sm font-bold text-green-600">{formatCurrency(netPay)}</span>
+                                        </div>
                                         <Button variant="outline" onClick={() => openEditDialog(periodKey)}>
                                             <Pencil className="h-3 w-3" />
                                             Edit
@@ -166,7 +176,6 @@ export function CompensationDeductions({
                                     <TableHeader className="bg-muted/20">
                                         <TableRow>
                                             <TableHead>Deduction Type</TableHead>
-                                            <TableHead>Code</TableHead>
                                             <TableHead className="text-right">Amount</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -174,10 +183,35 @@ export function CompensationDeductions({
                                         {periodDeductions.map((d) => (
                                             <TableRow key={d.id}>
                                                 <TableCell className="font-medium">{d.deduction_type?.name ?? '—'}</TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">{d.deduction_type?.code ?? '—'}</TableCell>
                                                 <TableCell className="text-right text-red-600">- {formatCurrency(Number(d.amount))}</TableCell>
                                             </TableRow>
                                         ))}
+                                        <TableRow className="bg-slate-100 font-semibold">
+                                            <TableCell className="text-right text-xs text-slate-600">Basic Salary</TableCell>
+                                            <TableCell className="text-right text-slate-700">{formatCurrency(salary)}</TableCell>
+                                        </TableRow>
+                                        <TableRow className="bg-slate-100 font-semibold">
+                                            <TableCell className="text-right text-xs text-slate-600">PERA</TableCell>
+                                            <TableCell className="text-right text-slate-700">+ {formatCurrency(pera)}</TableCell>
+                                        </TableRow>
+                                        {employee.is_rata_eligible && (
+                                            <TableRow className="bg-slate-100 font-semibold">
+                                                <TableCell className="text-right text-xs text-slate-600">RATA</TableCell>
+                                                <TableCell className="text-right text-slate-700">+ {formatCurrency(rata)}</TableCell>
+                                            </TableRow>
+                                        )}
+                                        <TableRow className="bg-slate-200 font-bold">
+                                            <TableCell className="text-right text-xs text-slate-800">Gross Pay</TableCell>
+                                            <TableCell className="text-right text-slate-900">{formatCurrency(grossPay)}</TableCell>
+                                        </TableRow>
+                                        <TableRow className="bg-red-50 font-semibold">
+                                            <TableCell className="text-right text-xs text-red-600">Total Deductions</TableCell>
+                                            <TableCell className="text-right text-red-600">- {formatCurrency(totalDeductions)}</TableCell>
+                                        </TableRow>
+                                        <TableRow className="bg-green-100 font-bold">
+                                            <TableCell className="text-right text-sm text-green-800">Net Pay</TableCell>
+                                            <TableCell className="text-right text-green-700">{formatCurrency(netPay)}</TableCell>
+                                        </TableRow>
                                     </TableBody>
                                 </Table>
                             </div>

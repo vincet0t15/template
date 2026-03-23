@@ -76,6 +76,18 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
         day: 'numeric',
     });
 
+    // Generate filter description
+    const getFilterDescription = () => {
+        if (filterMonth && filterYear) {
+            return `${MONTHS[parseInt(filterMonth) - 1]} ${filterYear}`;
+        } else if (filterMonth) {
+            return `${MONTHS[parseInt(filterMonth) - 1]} (All Years)`;
+        } else if (filterYear) {
+            return `Year ${filterYear}`;
+        }
+        return 'All Records';
+    };
+
     return (
         <div ref={ref} className="print-container bg-white p-6">
             {/* Print Styles */}
@@ -112,7 +124,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
             <div className="mb-4 flex items-center justify-between border-b-2 border-slate-800 pb-3">
                 <div>
                     <h1 className="text-xl font-bold tracking-tight text-slate-900 uppercase">Employee Financial Report</h1>
-                    <p className="text-xs text-slate-600">Official Statement of Deductions and Claims</p>
+                    <p className="text-xs text-slate-600">Official Statement of Deductions and Claims — {getFilterDescription()}</p>
                 </div>
                 <div className="text-right">
                     <p className="text-xs font-semibold text-slate-900">Report Date: {currentDate}</p>
