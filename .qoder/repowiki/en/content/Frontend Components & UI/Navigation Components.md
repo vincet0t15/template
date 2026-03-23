@@ -15,6 +15,7 @@
 - [use-appearance.tsx](file://resources/js/hooks/use-appearance.tsx)
 - [sidebar.tsx](file://resources/js/components/ui/sidebar.tsx)
 - [NavMain2.tsx](file://resources/js/components/NavMain2.tsx)
+- [NavMenu.tsx](file://resources/js/components/NavMenu.tsx)
 - [app-shell.tsx](file://resources/js/components/app-shell.tsx)
 - [use-mobile-navigation.ts](file://resources/js/hooks/use-mobile-navigation.ts)
 - [index.ts](file://resources/js/types/index.ts)
@@ -24,10 +25,11 @@
 
 ## Update Summary
 **Changes Made**
-- Added documentation for the new 'Employees' menu item in the main navigation
-- Updated the main navigation menu section to include the new Employees entry
-- Added information about the UserRoundPen icon usage and routing integration
-- Updated component analysis to reflect the enhanced navigation structure
+- Updated documentation to reflect the replacement of NavMain2 direct import with enhanced NavMenu component in AppHeader
+- Added comprehensive documentation for the new NavMenu component with improved styling consistency and dynamic items prop acceptance
+- Updated component analysis to include NavMenu's enhanced architectural improvements
+- Revised navigation structure documentation to reflect the current implementation using NavMenu
+- Enhanced styling consistency documentation for both NavMain2 and NavMenu components
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -64,7 +66,7 @@ The navigation system is composed of reusable UI components and layout shells:
 graph TB
 subgraph "Header"
 AH["AppHeader"]
-NM["NavigationMenu"]
+NM["NavMenu"]
 NM2["NavMain2"]
 end
 subgraph "Sidebar"
@@ -105,7 +107,8 @@ UA --> AT
 
 **Diagram sources**
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 - [app-sidebar.tsx:31-56](file://resources/js/components/app-sidebar.tsx#L31-L56)
 - [sidebar.tsx:149-249](file://resources/js/components/ui/sidebar.tsx#L149-L249)
 - [navigation-menu.tsx:8-30](file://resources/js/components/ui/navigation-menu.tsx#L8-L30)
@@ -126,7 +129,7 @@ UA --> AT
 
 ## Core Components
 - Main navigation (sidebar): renders top-level items with active state tracking via the current page URL, including the new Employees section.
-- Nested navigation (header): horizontal menu with dropdowns for grouped items and active highlighting based on URL prefixes.
+- Enhanced nested navigation (header): horizontal menu with dropdowns for grouped items using the improved NavMenu component, featuring dynamic items prop acceptance and styling consistency.
 - Footer navigation: external links styled consistently with the sidebar.
 - User menu: dropdown with user info and logout action; placement adapts to mobile and collapsed sidebar states.
 - Breadcrumb: renders a navigable trail with the last item as non-clickable.
@@ -135,7 +138,8 @@ UA --> AT
 
 **Section sources**
 - [nav-main.tsx:5-24](file://resources/js/components/nav-main.tsx#L5-L24)
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 - [nav-footer.tsx:5-33](file://resources/js/components/nav-footer.tsx#L5-L33)
 - [nav-user.tsx:10-36](file://resources/js/components/nav-user.tsx#L10-L36)
 - [breadcrumbs.tsx:5-31](file://resources/js/components/breadcrumbs.tsx#L5-L31)
@@ -146,33 +150,34 @@ UA --> AT
 ## Architecture Overview
 The navigation stack integrates React components, UI primitives, and state hooks:
 - Active item tracking uses the current page URL from the routing context.
-- Nested menus are modeled with hierarchical data structures and rendered conditionally.
+- Enhanced nested menus utilize the NavMenu component with improved styling consistency and dynamic items prop acceptance.
 - Sidebar state is managed centrally and persisted across sessions.
 - Appearance state is stored locally and synchronized with system preference observers.
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
-participant AH as "AppHeader.NavMain2"
+participant AH as "AppHeader.NavMenu"
 participant NM as "NavigationMenu"
 participant UI as "ui/navigation-menu.tsx"
 participant R as "Routing Context"
 U->>AH : Click menu item
-AH->>NM : Render trigger/content
-NM->>UI : Apply styles and motion
+AH->>NM : Render trigger/content with enhanced styling
+NM->>UI : Apply consistent styles and motion
 AH->>R : Navigate to href
 R-->>AH : Update page.url
-AH->>AH : Recompute active state
+AH->>AH : Recompute active state with improved consistency
 ```
 
 **Diagram sources**
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
 
 **Section sources**
 - [app-header.tsx:92-242](file://resources/js/components/app-header.tsx#L92-L242)
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
 
 ## Detailed Component Analysis
@@ -213,6 +218,62 @@ The main navigation now includes a dedicated 'Employees' section with proper rou
 
 **Section sources**
 - [app-header.tsx:17-91](file://resources/js/components/app-header.tsx#L17-L91)
+
+### Enhanced NavMenu Component
+The NavMenu component has been significantly enhanced with improved styling consistency and dynamic items prop acceptance:
+
+- **Dynamic Items Prop**: Accepts NavGroup[] items array via props for flexible menu configuration
+- **Enhanced Styling**: Improved styling consistency with proper spacing, typography, and interactive states
+- **Conditional Rendering**: Supports both grouped items with children and direct link items
+- **Responsive Design**: Adapts to different screen sizes with proper spacing and alignment
+- **Accessibility**: Maintains proper ARIA attributes and keyboard navigation support
+
+```mermaid
+flowchart TD
+StartNM(["Render NavMenu"]) --> Props["Accept items prop"]
+Props --> Iterate["Iterate NavGroup items"]
+Iterate --> HasChildren{"Has children?"}
+HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with enhanced styling"]
+Trigger --> Content["Render NavigationMenuContent with consistent padding"]
+Content --> Children["Map children to styled NavigationMenuLink"]
+HasChildren --> |No| Direct["Render direct NavigationMenuLink with navigationMenuTriggerStyle"]
+Children --> EndNM(["Render"])
+Direct --> EndNM
+```
+
+**Diagram sources**
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+
+**Section sources**
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+
+### Enhanced NavMain2 Component
+The NavMain2 component has been enhanced with improved styling consistency and architectural improvements:
+
+- **Improved Styling Consistency**: Enhanced CSS classes for consistent hover states, active states, and spacing
+- **Dynamic Items Prop**: Accepts NavGroup[] items array via props for flexible menu configuration
+- **Enhanced Active State Tracking**: Improved active state detection using page.url.startsWith()
+- **Better Icon Handling**: Consistent icon sizing and positioning with proper className application
+- **Architectural Improvements**: Better separation of concerns and cleaner component structure
+
+```mermaid
+flowchart TD
+StartNM2(["Render NavMain2"]) --> Props2["Accept items prop"]
+Props2 --> Iterate2["Iterate NavGroup items"]
+Iterate2 --> HasChildren2{"Has children?"}
+HasChildren2 --> |Yes| Trigger2["Render NavigationMenuTrigger with enhanced styling"]
+Trigger2 --> Content2["Render NavigationMenuContent with bg-popover and shadow-md"]
+Content2 --> Children2["Map children with improved hover and active states"]
+HasChildren2 --> |No| Direct2["Render direct NavigationMenuLink with navigationMenuTriggerStyle"]
+Children2 --> EndNM2(["Render"])
+Direct2 --> EndNM2
+```
+
+**Diagram sources**
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
+
+**Section sources**
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 
 ### Footer Navigation
 - Purpose: Provides external links in the sidebar footer area.
@@ -286,29 +347,30 @@ Loop --> EndB
 **Section sources**
 - [breadcrumbs.tsx:5-31](file://resources/js/components/breadcrumbs.tsx#L5-L31)
 
-### Nested Menu Structures (Header)
-- Purpose: Horizontal navigation with dropdowns for grouped items.
+### Enhanced Nested Menu Structures (Header)
+- Purpose: Horizontal navigation with dropdowns for grouped items using the improved NavMenu component.
 - Active tracking: Highlights items whose URL matches the current route prefix.
 - Rendering: Conditional rendering for items with children vs direct links.
+- Styling consistency: Improved styling consistency across all menu items and dropdowns.
 
 ```mermaid
 flowchart TD
-StartN(["Render NavMain2"]) --> Iterate["Iterate NavGroup items"]
+StartN(["Render NavMenu"]) --> Iterate["Iterate NavGroup items"]
 Iterate --> HasChildren{"Has children?"}
-HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger"]
-Trigger --> Content["Render NavigationMenuContent"]
-Content --> Children["Map children to NavigationMenuLink"]
-HasChildren --> |No| Direct["Render direct NavigationMenuLink"]
+HasChildren --> |Yes| Trigger["Render NavigationMenuTrigger with enhanced styling"]
+Trigger --> Content["Render NavigationMenuContent with consistent padding"]
+Content --> Children["Map children to NavigationMenuLink with improved hover states"]
+HasChildren --> |No| Direct["Render direct NavigationMenuLink with navigationMenuTriggerStyle"]
 Children --> EndN(["Render"])
 Direct --> EndN
 ```
 
 **Diagram sources**
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
 
 **Section sources**
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
 - [app-header.tsx:17-86](file://resources/js/components/app-header.tsx#L17-L86)
 
 ### Appearance Settings and Theme Switching
@@ -370,17 +432,19 @@ Sheet --> EndS
 
 ## Dependency Analysis
 - Data structures: Navigation items and groups are defined in shared types.
-- Active state: Both sidebar and header components rely on the current page URL to compute active items.
+- Active state: Both NavMenu and NavMain2 components rely on the current page URL to compute active items.
 - UI primitives: Navigation menus and sidebar components depend on UI library primitives.
 - State management: Sidebar state and appearance state are isolated but influence UI rendering.
 
 ```mermaid
 graph LR
-T["types/index.ts"] --> NM2["NavMain2"]
+T["types/index.ts"] --> NM["NavMenu"]
+T --> NM2["NavMain2"]
 T --> NM3["NavMain"]
-NM2 --> UI_NM["ui/navigation-menu.tsx"]
+NM --> UI_NM["ui/navigation-menu.tsx"]
+NM2 --> UI_NM
 NM3 --> UI_SB["ui/sidebar.tsx"]
-AH["AppHeader"] --> NM2
+AH["AppHeader"] --> NM
 AS["AppSidebar"] --> NM3
 AS --> NU["NavUser"]
 AH --> BC["breadcrumbs.tsx"]
@@ -390,7 +454,8 @@ AT["AppearanceToggleTab"] --> UA
 
 **Diagram sources**
 - [index.ts:17-30](file://resources/js/types/index.ts#L17-L30)
-- [NavMain2.tsx:17-87](file://resources/js/components/NavMain2.tsx#L17-L87)
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [NavMain2.tsx:16-69](file://resources/js/components/NavMain2.tsx#L16-L69)
 - [nav-main.tsx:5-24](file://resources/js/components/nav-main.tsx#L5-L24)
 - [navigation-menu.tsx:8-30](file://resources/js/components/ui/navigation-menu.tsx#L8-L30)
 - [sidebar.tsx:149-249](file://resources/js/components/ui/sidebar.tsx#L149-L249)
@@ -417,11 +482,13 @@ AT["AppearanceToggleTab"] --> UA
 - Minimize DOM nodes in nested menus; collapse inactive branches when possible.
 - Use CSS transitions sparingly; leverage UI library animations rather than custom ones.
 - Persist and hydrate state efficiently to avoid layout shifts during initial render.
+- The enhanced NavMenu component provides better performance through improved styling consistency and reduced re-render cycles.
 
 ## Troubleshooting Guide
 - Active item not highlighted:
   - Verify the current page URL matches the item's href or URL prefix.
   - Ensure the active comparison logic uses the correct property (full URL vs prefix).
+  - Check that NavMenu and NavMain2 components are receiving the correct items prop.
 - Dropdowns misaligned on mobile:
   - Confirm the user menu's side calculation accounts for collapsed state and device type.
 - Theme not applying:
@@ -432,9 +499,14 @@ AT["AppearanceToggleTab"] --> UA
   - Verify the Employees route exists in the routing configuration.
   - Check that the UserRoundPen icon is properly imported from lucide-react.
   - Ensure the navigation item has the correct href property set to '/employees'.
+- NavMenu component not rendering:
+  - Verify that the NavMenu component is properly imported in AppHeader.
+  - Check that the items prop is being passed correctly to NavMenu.
+  - Ensure NavGroup type definition matches the expected structure.
 
 **Section sources**
 - [nav-main.tsx:13-13](file://resources/js/components/nav-main.tsx#L13-L13)
+- [NavMenu.tsx:50-50](file://resources/js/components/NavMenu.tsx#L50-L50)
 - [NavMain2.tsx:70-72](file://resources/js/components/NavMain2.tsx#L70-L72)
 - [nav-user.tsx:28-28](file://resources/js/components/nav-user.tsx#L28-L28)
 - [use-appearance.tsx:32-36](file://resources/js/hooks/use-appearance.tsx#L32-L36)
@@ -442,7 +514,7 @@ AT["AppearanceToggleTab"] --> UA
 - [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
 
 ## Conclusion
-The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. The addition of the new Employees section with UserRoundPen icon enhances the navigation capabilities while maintaining seamless integration with the existing structure. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension.
+The navigation system combines a responsive sidebar and a desktop header menu with robust active state tracking, nested structures, and theme-aware UI. The enhanced NavMenu and NavMain2 components provide improved styling consistency, dynamic items prop acceptance, and architectural improvements. The addition of the new Employees section with UserRoundPen icon enhances the navigation capabilities while maintaining seamless integration with the existing structure. Appearance settings are persisted and synchronized with system preferences, while user actions integrate seamlessly with the routing context. The modular design enables easy customization and extension with the latest architectural improvements.
 
 ## Appendices
 
@@ -461,14 +533,28 @@ The navigation system combines a responsive sidebar and a desktop header menu wi
 - Active item detection uses the current page URL from the routing context.
 - Links are wrapped with the application's router to enable client-side navigation.
 - The new Employees menu item routes to '/employees' URL with proper icon integration.
+- NavMenu component accepts dynamic items prop for flexible routing configuration.
 
 **Section sources**
 - [nav-main.tsx:6-6](file://resources/js/components/nav-main.tsx#L6-L6)
-- [NavMain2.tsx:18-18](file://resources/js/components/NavMain2.tsx#L18-L18)
+- [NavMenu.tsx:50-50](file://resources/js/components/NavMenu.tsx#L50-L50)
+- [NavMain2.tsx:16-16](file://resources/js/components/NavMain2.tsx#L16-L16)
 - [app-header.tsx:24-27](file://resources/js/components/app-header.tsx#L24-L27)
 
 ### Permission-Based Visibility
 - The provided components do not enforce permission checks. To gate visibility, wrap navigation items with conditional rendering logic based on user roles or permissions.
+
+### Enhanced NavMenu Component Details
+The NavMenu component has been significantly enhanced with the following characteristics:
+- **Dynamic Items Prop**: Accepts NavGroup[] items array via props for flexible menu configuration
+- **Enhanced Styling**: Improved styling consistency with proper spacing, typography, and interactive states
+- **Conditional Rendering**: Supports both grouped items with children and direct link items
+- **Responsive Design**: Adapts to different screen sizes with proper spacing and alignment
+- **Accessibility**: Maintains proper ARIA attributes and keyboard navigation support
+
+**Section sources**
+- [NavMenu.tsx:50-83](file://resources/js/components/NavMenu.tsx#L50-L83)
+- [app-header.tsx:221-223](file://resources/js/components/app-header.tsx#L221-L223)
 
 ### New Employees Menu Item Details
 The navigation system now includes a dedicated 'Employees' section with the following characteristics:

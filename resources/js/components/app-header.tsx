@@ -220,6 +220,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <NavigationMenuList className="flex items-center space-x-2">
                                     {/* <NavMain2 items={mainNavItems} /> */}
                                     <NavMenu items={mainNavItems} />
+                                    {/* <MenubarDemo /> */}
                                 </NavigationMenuList>
                             </NavigationMenu>
                         </div>

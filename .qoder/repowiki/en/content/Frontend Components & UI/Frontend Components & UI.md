@@ -22,17 +22,25 @@
 - [navigation-menu.tsx](file://resources/js/components/ui/navigation-menu.tsx)
 - [menubar.tsx](file://resources/js/components/ui/menubar.tsx)
 - [NavMenu.tsx](file://resources/js/components/NavMenu.tsx)
+- [NavMain2.tsx](file://resources/js/components/NavMain2.tsx)
+- [MenuBar.tsx](file://resources/js/components/MenuBar.tsx)
 - [paginationData.tsx](file://resources/js/components/paginationData.tsx)
 - [Index.tsx](file://resources/js/pages/Employees/Index.tsx)
+- [use-mobile.ts](file://resources/js/hooks/use-mobile.ts)
+- [use-mobile.tsx](file://resources/js/hooks/use-mobile.tsx)
+- [use-mobile-navigation.ts](file://resources/js/hooks/use-mobile-navigation.ts)
+- [placeholder-pattern.tsx](file://resources/js/components/ui/placeholder-pattern.tsx)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Added new Navigation Menu component with enhanced menu structure
-- Integrated Menubar component using Radix UI primitives
-- Enhanced Employees Index page with modern React patterns including search functionality and pagination
-- Added Sidebar component with advanced state management and responsive design
-- Updated component composition patterns to include new UI primitives
+- Updated to reflect React 19 integration with new hooks and modern patterns
+- Enhanced Menubar system with comprehensive component library and demo implementation
+- Added NavMain2 component with improved navigation patterns
+- Integrated advanced mobile detection hooks with both JavaScript and TypeScript implementations
+- Added new placeholder pattern component for SVG-based backgrounds
+- Enhanced sidebar component with improved mobile navigation handling
+- Updated dependency configuration to support React 19 peer dependencies
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -40,52 +48,63 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [New UI Components](#new-ui-components)
-7. [Enhanced Pages](#enhanced-pages)
-8. [Dependency Analysis](#dependency-analysis)
-9. [Performance Considerations](#performance-considerations)
-10. [Troubleshooting Guide](#troubleshooting-guide)
-11. [Conclusion](#conclusion)
-12. [Appendices](#appendices)
+6. [Modernized UI Components](#modernized-ui-components)
+7. [Enhanced Navigation Systems](#enhanced-navigation-systems)
+8. [React 19 Integration](#react-19-integration)
+9. [Mobile-First Design Patterns](#mobile-first-design-patterns)
+10. [Advanced Component Features](#advanced-component-features)
+11. [Enhanced Pages](#enhanced-pages)
+12. [Dependency Analysis](#dependency-analysis)
+13. [Performance Considerations](#performance-considerations)
+14. [Troubleshooting Guide](#troubleshooting-guide)
+15. [Conclusion](#conclusion)
+16. [Appendices](#appendices)
 
 ## Introduction
-This document describes the frontend component library and UI architecture built with React, Inertia, Radix UI, Tailwind CSS, and shadcn-inspired patterns. It covers reusable UI components, their props, styling, composition, state management, interactivity, responsive design, accessibility, and integration patterns. It also outlines testing approaches and the development workflow.
+This document describes the frontend component library and UI architecture built with React 19, Inertia, Radix UI, Tailwind CSS, and shadcn-inspired patterns. The system has been comprehensively modernized with enhanced navigation components, a complete Menubar system, and advanced React 19 integration patterns. It covers reusable UI components, their props, styling, composition, state management, interactivity, responsive design, accessibility, and integration patterns. It also outlines testing approaches and the development workflow.
 
 ## Project Structure
-The frontend is organized around a component library under resources/js/components/ui and page components under resources/js/pages. The application bootstraps via Inertia and Vite, with Tailwind CSS providing utility-first styling and a centralized alias configuration for imports.
+The frontend is organized around a modern component library under resources/js/components/ui and page components under resources/js/pages. The application bootstraps via Inertia and Vite, with Tailwind CSS providing utility-first styling and a centralized alias configuration for imports. The architecture now leverages React 19's modern patterns including new hooks and improved performance characteristics.
 
 ```mermaid
 graph TB
-A["resources/js/app.tsx<br/>Inertia bootstrap"] --> B["resources/js/pages/*.tsx<br/>Pages"]
+A["resources/js/app.tsx<br/>React 19 bootstrap"] --> B["resources/js/pages/*.tsx<br/>Pages"]
 B --> C["resources/js/components/ui/*.tsx<br/>UI primitives"]
 C --> D["resources/js/lib/utils.ts<br/>cn() helper"]
 E["components.json<br/>shadcn config"] --> C
-F["package.json<br/>deps & scripts"] --> A
+F["package.json<br/>deps & scripts<br/>React 19 support"] --> A
 G["tsconfig.json<br/>paths & JSX"] --> A
-H["New Components"] --> C
-H --> I["resources/js/components/NavMenu.tsx"]
-H --> J["resources/js/components/ui/menubar.tsx"]
-H --> K["resources/js/components/ui/sidebar.tsx"]
+H["Modern Components"] --> C
+H --> I["resources/js/components/ui/menubar.tsx"]
+H --> J["resources/js/components/MenuBar.tsx"]
+H --> K["resources/js/components/NavMain2.tsx"]
+H --> L["resources/js/hooks/use-mobile.tsx"]
+M["Mobile Hooks"] --> L
+M --> N["resources/js/hooks/use-mobile.ts"]
+M --> O["resources/js/hooks/use-mobile-navigation.ts"]
 ```
 
 **Diagram sources**
 - [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
 - [utils.ts:1-7](file://resources/js/lib/utils.ts#L1-L7)
 - [components.json:1-26](file://components.json#L1-L26)
-- [package.json:1-73](file://package.json#L1-L73)
+- [package.json:56-58](file://package.json#L56-L58)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
-- [NavMenu.tsx:1-105](file://resources/js/components/NavMenu.tsx#L1-L105)
 - [menubar.tsx:1-279](file://resources/js/components/ui/menubar.tsx#L1-L279)
-- [sidebar.tsx:1-701](file://resources/js/components/ui/sidebar.tsx#L1-L701)
+- [MenuBar.tsx:1-137](file://resources/js/components/MenuBar.tsx#L1-L137)
+- [NavMain2.tsx:1-29](file://resources/js/components/NavMain2.tsx#L1-L29)
+- [use-mobile.tsx:1-22](file://resources/js/hooks/use-mobile.tsx#L1-L22)
+- [use-mobile.ts:1-19](file://resources/js/hooks/use-mobile.ts#L1-L19)
+- [use-mobile-navigation.ts:1-11](file://resources/js/hooks/use-mobile-navigation.ts#L1-L11)
 
 **Section sources**
 - [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
 - [components.json:1-26](file://components.json#L1-L26)
-- [package.json:1-73](file://package.json#L1-L73)
+- [package.json:1-74](file://package.json#L1-L74)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
 
 ## Core Components
-This section documents the primary UI components and their capabilities.
+This section documents the primary UI components and their capabilities, now enhanced with React 19 patterns and improved accessibility.
 
 - Button
   - Purpose: Action trigger with variants and sizes.
@@ -149,16 +168,17 @@ This section documents the primary UI components and their capabilities.
 - [checkbox.tsx:1-34](file://resources/js/components/ui/checkbox.tsx#L1-L34)
 
 ## Architecture Overview
-The UI architecture follows a layered pattern:
-- Application bootstrap sets up Inertia and theme initialization.
+The UI architecture follows a modernized layered pattern leveraging React 19:
+- Application bootstrap sets up Inertia with React 19's createRoot and theme initialization.
 - Page components import UI primitives from the local components/ui library.
 - Styling is centralized via Tailwind and a cn() helper for merging classes.
 - shadcn configuration defines style, icon library, and aliases.
+- Enhanced mobile detection and navigation patterns integrated throughout.
 
 ```mermaid
 graph TB
 subgraph "Bootstrap"
-APP["app.tsx<br/>createInertiaApp()"] --> THEME["use-appearance.ts<br/>initializeTheme()"]
+APP["app.tsx<br/>createInertiaApp() + React 19"] --> THEME["use-appearance.ts<br/>initializeTheme()"]
 end
 subgraph "Components Library"
 BTN["button.tsx"]
@@ -176,12 +196,18 @@ SHT["sheet.tsx"]
 NVM["navigation-menu.tsx"]
 MBR["menubar.tsx"]
 CN["utils.ts<br/>cn()"]
-end
+END
+subgraph "Modern Hooks"
+UMT["use-mobile.tsx"]
+UM["use-mobile.ts"]
+UMN["use-mobile-navigation.ts"]
+PP["placeholder-pattern.tsx"]
+END
 subgraph "Config"
 CFG["components.json"]
-PKG["package.json"]
+PKG["package.json<br/>React 19 deps"]
 TSC["tsconfig.json"]
-end
+END
 APP --> BTN
 APP --> INP
 APP --> DLG
@@ -210,6 +236,10 @@ SBD --> CN
 SHT --> CN
 NVM --> CN
 MBR --> CN
+UMT --> SBD
+UM --> SBD
+UMN --> SBD
+PP --> SBD
 CFG --> BTN
 CFG --> DLG
 CFG --> SEL
@@ -223,10 +253,10 @@ TSC --> APP
 ```
 
 **Diagram sources**
-- [app.tsx:1-30](file://resources/js/app.tsx#L1-L30)
+- [app.tsx:15-26](file://resources/js/app.tsx#L15-L26)
 - [utils.ts:1-7](file://resources/js/lib/utils.ts#L1-L7)
 - [components.json:1-26](file://components.json#L1-L26)
-- [package.json:1-73](file://package.json#L1-L73)
+- [package.json:23-66](file://package.json#L23-L66)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
 - [button.tsx:1-68](file://resources/js/components/ui/button.tsx#L1-L68)
 - [dialog.tsx:1-166](file://resources/js/components/ui/dialog.tsx#L1-L166)
@@ -236,6 +266,10 @@ TSC --> APP
 - [sheet.tsx:1-143](file://resources/js/components/ui/sheet.tsx#L1-L143)
 - [navigation-menu.tsx:1-165](file://resources/js/components/ui/navigation-menu.tsx#L1-L165)
 - [menubar.tsx:1-279](file://resources/js/components/ui/menubar.tsx#L1-L279)
+- [use-mobile.tsx:1-22](file://resources/js/hooks/use-mobile.tsx#L1-L22)
+- [use-mobile.ts:1-19](file://resources/js/hooks/use-mobile.ts#L1-L19)
+- [use-mobile-navigation.ts:1-11](file://resources/js/hooks/use-mobile-navigation.ts#L1-L11)
+- [placeholder-pattern.tsx:1-21](file://resources/js/components/ui/placeholder-pattern.tsx#L1-L21)
 
 ## Detailed Component Analysis
 
@@ -412,73 +446,26 @@ Row --> Cell["TableCell"]
 - [avatar.tsx:1-111](file://resources/js/components/ui/avatar.tsx#L1-L111)
 - [checkbox.tsx:1-34](file://resources/js/components/ui/checkbox.tsx#L1-L34)
 
-## New UI Components
+## Modernized UI Components
 
-### Navigation Menu Component
-- Implementation highlights:
-  - Built with Radix UI primitives for accessible navigation patterns.
-  - Supports nested menus with viewport-based positioning.
-  - Provides trigger, content, and link components with consistent styling.
-- Key features:
-  - Dynamic menu items with descriptions and links.
-  - Responsive grid layout for component listings.
-  - Smooth animations and transitions using motion data attributes.
-- Props and behavior:
-  - NavigationMenu: root container with viewport option.
-  - NavigationMenuTrigger: interactive trigger with chevron indicator.
-  - NavigationMenuContent: positioned content with animation support.
-  - ListItem: individual menu items with link composition.
+### Menubar Component System
+**Updated** Complete Menubar system with comprehensive component library and demo implementation.
 
-```mermaid
-classDiagram
-class NavigationMenu {
-+viewport : boolean
-+className : string
-}
-class NavigationMenuTrigger {
-+children : ReactNode
-+className : string
-}
-class NavigationMenuContent {
-+className : string
-}
-class NavigationMenuItem {
-+className : string
-}
-class ListItem {
-+title : string
-+href : string
-+children : ReactNode
-}
-NavigationMenu --> NavigationMenuList
-NavigationMenu --> NavigationMenuContent
-NavigationMenuTrigger --> NavigationMenuContent
-NavigationMenuContent --> ListItem
-```
-
-**Diagram sources**
-- [navigation-menu.tsx:8-30](file://resources/js/components/ui/navigation-menu.tsx#L8-L30)
-- [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
-- [navigation-menu.tsx:82-96](file://resources/js/components/ui/navigation-menu.tsx#L82-L96)
-- [NavMenu.tsx:91-104](file://resources/js/components/NavMenu.tsx#L91-L104)
-
-**Section sources**
-- [navigation-menu.tsx:1-165](file://resources/js/components/ui/navigation-menu.tsx#L1-L165)
-- [NavMenu.tsx:1-105](file://resources/js/components/NavMenu.tsx#L1-L105)
-
-### Menubar Component
 - Implementation highlights:
   - Comprehensive menubar implementation with all Radix UI primitives.
   - Supports nested submenus, checkboxes, radio buttons, and shortcuts.
   - Provides extensive variant system with destructive options.
+  - Includes complete demo component with practical examples.
 - Key features:
   - Full menubar ecosystem: root, trigger, content, items, separators.
   - Submenu support with directional triggers and content positioning.
   - Keyboard navigation and accessibility compliance.
+  - Variant system supporting destructive actions.
 - Props and behavior:
   - Menubar: root container with shadow and border styling.
   - MenubarItem: selectable items with inset and variant options.
   - MenubarCheckboxItem: checkbox items with indicator support.
+  - MenubarRadioGroup/RadioItem: grouped radio selections.
   - MenubarSub: submenu containers with trigger and content.
 
 ```mermaid
@@ -503,12 +490,16 @@ class MenubarSubTrigger {
 +inset : boolean
 +className : string
 }
+class MenubarDemo {
++render() : JSX.Element
+}
 Menubar --> MenubarTrigger
 Menubar --> MenubarContent
 MenubarItem --> MenubarItemIndicator
 MenubarCheckboxItem --> MenubarItemIndicator
 MenubarSub --> MenubarSubTrigger
 MenubarSub --> MenubarSubContent
+MenubarDemo --> Menubar
 ```
 
 **Diagram sources**
@@ -516,81 +507,80 @@ MenubarSub --> MenubarSubContent
 - [menubar.tsx:86-107](file://resources/js/components/ui/menubar.tsx#L86-L107)
 - [menubar.tsx:109-138](file://resources/js/components/ui/menubar.tsx#L109-L138)
 - [menubar.tsx:218-222](file://resources/js/components/ui/menubar.tsx#L218-L222)
+- [MenuBar.tsx:18-137](file://resources/js/components/MenuBar.tsx#L18-L137)
 
 **Section sources**
 - [menubar.tsx:1-279](file://resources/js/components/ui/menubar.tsx#L1-L279)
+- [MenuBar.tsx:1-137](file://resources/js/components/MenuBar.tsx#L1-L137)
 
-### Sidebar Component
+### Enhanced Navigation Components
+**Updated** Improved navigation systems with modern patterns and enhanced functionality.
+
+- NavigationMenu (Enhanced)
+  - Built with Radix UI primitives for accessible navigation patterns.
+  - Supports nested menus with viewport-based positioning.
+  - Provides trigger, content, and link components with consistent styling.
+  - Enhanced with improved TypeScript integration.
+
+- NavMain2 (New)
+  - Modern navigation component with improved TypeScript patterns.
+  - Supports complex nested menu structures with icons and dynamic content.
+  - Integrates with Inertia routing for seamless navigation.
+  - Provides better mobile responsiveness and accessibility.
+
+```mermaid
+classDiagram
+class NavigationMenu {
++viewport : boolean
++className : string
+}
+class NavMain2 {
++items : NavGroup[]
++render() : JSX.Element
+}
+class NavigationMenuTrigger {
++children : ReactNode
++className : string
+}
+class NavigationMenuContent {
++className : string
+}
+class NavigationMenuItem {
++className : string
+}
+NavigationMenu --> NavigationMenuList
+NavigationMenu --> NavigationMenuContent
+NavigationMenuTrigger --> NavigationMenuContent
+NavMain2 --> NavigationMenu
+NavMain2 --> NavGroup
+```
+
+**Diagram sources**
+- [navigation-menu.tsx:8-30](file://resources/js/components/ui/navigation-menu.tsx#L8-L30)
+- [navigation-menu.tsx:65-80](file://resources/js/components/ui/navigation-menu.tsx#L65-L80)
+- [navigation-menu.tsx:82-96](file://resources/js/components/ui/navigation-menu.tsx#L82-L96)
+- [NavMain2.tsx:16-29](file://resources/js/components/NavMain2.tsx#L16-L29)
+
+**Section sources**
+- [navigation-menu.tsx:1-165](file://resources/js/components/ui/navigation-menu.tsx#L1-L165)
+- [NavMain2.tsx:1-29](file://resources/js/components/NavMain2.tsx#L1-L29)
+
+### Advanced Sidebar Component
+**Updated** Enhanced sidebar component with improved mobile navigation and state management.
+
 - Implementation highlights:
   - Advanced sidebar system with multiple variants and collapsible states.
   - Mobile-responsive design with sheet-based mobile interface.
   - Keyboard shortcut support and cookie-based state persistence.
+  - Enhanced with improved TypeScript integration and React 19 patterns.
 - Key features:
   - Three collapsible modes: offcanvas, icon, none.
   - Multiple variants: sidebar, floating, inset.
   - Comprehensive menu system with actions, badges, and submenus.
-- Props and behavior:
-  - SidebarProvider: manages global sidebar state and context.
-  - Sidebar: main container with side and variant options.
-  - SidebarMenuButton: styled menu buttons with tooltip support.
-  - useSidebar: hook for accessing sidebar context and state.
-
-```mermaid
-classDiagram
-class SidebarProvider {
-+defaultOpen : boolean
-+open : boolean
-+onOpenChange : function
-+setOpen : function
-+openMobile : boolean
-+setOpenMobile : function
-+toggleSidebar : function
-}
-class Sidebar {
-+side : "left"|"right"
-+variant : "sidebar"|"floating"|"inset"
-+collapsible : "offcanvas"|"icon"|"none"
-+className : string
-}
-class SidebarMenuButton {
-+asChild : boolean
-+isActive : boolean
-+variant : "default"|"outline"
-+size : "default"|"sm"|"lg"
-+tooltip : string|object
-+className : string
-}
-SidebarProvider --> Sidebar
-Sidebar --> SidebarMenuButton
-Sidebar --> SidebarContent
-Sidebar --> SidebarMenu
-```
-
-**Diagram sources**
-- [sidebar.tsx:53-86](file://resources/js/components/ui/sidebar.tsx#L53-L86)
-- [sidebar.tsx:149-249](file://resources/js/components/ui/sidebar.tsx#L149-L249)
-- [sidebar.tsx:488-536](file://resources/js/components/ui/sidebar.tsx#L488-L536)
+  - Improved mobile detection and navigation handling.
 
 **Section sources**
 - [sidebar.tsx:1-701](file://resources/js/components/ui/sidebar.tsx#L1-L701)
-
-### Dropdown Menu Component
-- Implementation highlights:
-  - Complete dropdown menu system with all Radix UI primitives.
-  - Supports nested submenus, checkboxes, radio buttons, and shortcuts.
-  - Extensive variant system with destructive options and inset positioning.
-- Key features:
-  - Full dropdown ecosystem: root, trigger, content, items, separators.
-  - Submenu support with directional triggers and content positioning.
-  - Keyboard navigation and accessibility compliance.
-- Props and behavior:
-  - DropdownMenu: root container with portal support.
-  - DropdownMenuItem: selectable items with inset and variant options.
-  - DropdownMenuCheckboxItem: checkbox items with indicator support.
-  - DropdownMenuSub: submenu containers with trigger and content.
-
-**Section sources**
-- [dropdown-menu.tsx:1-270](file://resources/js/components/ui/dropdown-menu.tsx#L1-L270)
 
 ### Sheet Component
 - Implementation highlights:
@@ -608,6 +598,131 @@ Sidebar --> SidebarMenu
 
 **Section sources**
 - [sheet.tsx:1-143](file://resources/js/components/ui/sheet.tsx#L1-L143)
+
+## Enhanced Navigation Systems
+
+### Placeholder Pattern Component
+**New** SVG-based placeholder pattern component for modern UI backgrounds.
+
+- Implementation highlights:
+  - Uses React's useId hook for unique pattern IDs.
+  - Creates scalable SVG patterns for backgrounds.
+  - Supports custom styling through className prop.
+  - Optimized for performance with memoized pattern generation.
+- Key features:
+  - Dynamic pattern generation with unique IDs.
+  - Scalable vector graphics for crisp rendering at any size.
+  - Flexible integration with existing design systems.
+  - Lightweight implementation with minimal overhead.
+
+**Section sources**
+- [placeholder-pattern.tsx:1-21](file://resources/js/components/ui/placeholder-pattern.tsx#L1-L21)
+
+### Enhanced Dropdown Menu Component
+- Implementation highlights:
+  - Complete dropdown menu system with all Radix UI primitives.
+  - Supports nested submenus, checkboxes, radio buttons, and shortcuts.
+  - Extensive variant system with destructive options and inset positioning.
+- Key features:
+  - Full dropdown ecosystem: root, trigger, content, items, separators.
+  - Submenu support with directional triggers and content positioning.
+  - Keyboard navigation and accessibility compliance.
+
+**Section sources**
+- [dropdown-menu.tsx:1-270](file://resources/js/components/ui/dropdown-menu.tsx#L1-L270)
+
+## React 19 Integration
+**Updated** Comprehensive React 19 integration with modern patterns and enhanced performance.
+
+- Bootstrap Changes:
+  - Updated to use React 19's createRoot API for improved performance.
+  - Enhanced Inertia integration with modern React patterns.
+  - Improved hydration handling and server-side rendering support.
+
+- Dependency Updates:
+  - React 19.0.0 and React DOM 19.0.0 for latest features.
+  - Updated peer dependencies to support React 19.x range.
+  - Enhanced TypeScript definitions for React 19 compatibility.
+
+- Modern Patterns:
+  - Improved concurrent rendering support.
+  - Enhanced error boundary integration.
+  - Better performance optimizations and memory management.
+
+**Section sources**
+- [app.tsx:15-26](file://resources/js/app.tsx#L15-L26)
+- [package.json:56-58](file://package.json#L56-L58)
+- [package.json:11203](file://package.json#L11203)
+
+## Mobile-First Design Patterns
+**Updated** Enhanced mobile detection and navigation patterns with dual implementation support.
+
+### Mobile Detection Hooks
+**Updated** Dual implementation of mobile detection hooks for different use cases.
+
+- use-mobile.tsx (TypeScript)
+  - Modern React hooks implementation with proper TypeScript typing.
+  - Uses useState and useEffect for state management.
+  - Returns boolean values with proper type inference.
+  - Integrates with React 19 patterns and best practices.
+
+- use-mobile.ts (JavaScript)
+  - Legacy implementation for backward compatibility.
+  - Uses functional component pattern with React hooks.
+  - Maintains consistent API across both implementations.
+
+- use-mobile-navigation.ts (New)
+  - Specialized hook for managing mobile navigation state.
+  - Handles pointer-events cleanup for smooth mobile experiences.
+  - Prevents touch interaction issues during navigation.
+
+```mermaid
+flowchart TD
+Hook["Mobile Hook"] --> TSX["use-mobile.tsx<br/>TypeScript"]
+Hook --> JS["use-mobile.ts<br/>JavaScript"]
+Hook --> NAV["use-mobile-navigation.ts<br/>Navigation Cleanup"]
+TSX --> Detect["Window Match Media"]
+JS --> Detect
+NAV --> Cleanup["Pointer Events Cleanup"]
+Detect --> State["Mobile State Management"]
+State --> Return["Boolean Result"]
+```
+
+**Diagram sources**
+- [use-mobile.tsx:5-22](file://resources/js/hooks/use-mobile.tsx#L5-L22)
+- [use-mobile.ts:5-19](file://resources/js/hooks/use-mobile.ts#L5-L19)
+- [use-mobile-navigation.ts:3-10](file://resources/js/hooks/use-mobile-navigation.ts#L3-L10)
+
+**Section sources**
+- [use-mobile.tsx:1-22](file://resources/js/hooks/use-mobile.tsx#L1-L22)
+- [use-mobile.ts:1-19](file://resources/js/hooks/use-mobile.ts#L1-L19)
+- [use-mobile-navigation.ts:1-11](file://resources/js/hooks/use-mobile-navigation.ts#L1-L11)
+
+## Advanced Component Features
+**Updated** Enhanced component capabilities with modern React patterns and improved functionality.
+
+### Enhanced Sidebar Features
+- Cookie-based state persistence for sidebar preferences.
+- Keyboard shortcut support (Ctrl/Cmd + B) for quick access.
+- Improved mobile detection with responsive breakpoint handling.
+- Enhanced tooltip integration for better user experience.
+
+### Modern Menubar Capabilities
+- Comprehensive variant system supporting destructive actions.
+- Advanced inset positioning for hierarchical menu structures.
+- Enhanced keyboard navigation with proper ARIA support.
+- Improved accessibility compliance with screen reader integration.
+
+### Placeholder Pattern Benefits
+- SVG-based patterns for crisp rendering at any resolution.
+- Dynamic pattern generation preventing ID conflicts.
+- Optimized for performance with minimal DOM overhead.
+- Seamless integration with existing Tailwind CSS workflows.
+
+**Section sources**
+- [sidebar.tsx:25-30](file://resources/js/components/ui/sidebar.tsx#L25-L30)
+- [sidebar.tsx:94-107](file://resources/js/components/ui/sidebar.tsx#L94-L107)
+- [placeholder-pattern.tsx:7-20](file://resources/js/components/ui/placeholder-pattern.tsx#L7-L20)
 
 ## Enhanced Pages
 
@@ -670,77 +785,97 @@ Page->>Page : Render filtered table
 - [paginationData.tsx:1-34](file://resources/js/components/paginationData.tsx#L1-L34)
 
 ## Dependency Analysis
+**Updated** Enhanced dependency configuration supporting React 19 and modern patterns.
+
 - Runtime dependencies:
-  - @inertiajs/react for page rendering and navigation.
+  - @inertiajs/react ^2.0.0 for page rendering and navigation.
   - @radix-ui/* for accessible, headless UI primitives.
-  - lucide-react for icons.
+  - lucide-react ^0.475.0 for icons.
   - tailwind-merge and clsx for class merging.
-  - next-themes for theme switching.
+  - next-themes ^0.4.6 for theme switching.
+  - React 19.0.0 and React DOM 19.0.0 for latest features.
 - Build-time dependencies:
-  - Vite, TypeScript, ESLint/Prettier for tooling.
+  - Vite ^6.0, TypeScript ^5.7.2, ESLint/Prettier for tooling.
+  - Enhanced with React 19 compatible plugins and configurations.
 - Aliases and paths:
   - tsconfig.json maps @/* to resources/js/* for concise imports.
 
 ```mermaid
 graph LR
-P["package.json deps"] --> INERTIA["@inertiajs/react"]
+P["package.json deps"] --> INERTIA["@inertiajs/react ^2.0.0"]
 P --> RADIX["@radix-ui/*"]
-P --> LUCIDE["lucide-react"]
+P --> LUCIDE["lucide-react ^0.475.0"]
 P --> TW["tailwind-merge / clsx"]
-P --> THEME["next-themes"]
-P --> VITE["vite"]
-P --> TS["typescript"]
+P --> THEME["next-themes ^0.4.6"]
+P --> REACT["react ^19.0.0"]
+P --> REACTDOM["react-dom ^19.0.0"]
+P --> VITE["vite ^6.0"]
+P --> TS["typescript ^5.7.2"]
 TSC["tsconfig.json"] --> INERTIA
 TSC --> RADIX
 ```
 
 **Diagram sources**
-- [package.json:23-65](file://package.json#L23-L65)
+- [package.json:23-66](file://package.json#L23-L66)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
 
 **Section sources**
-- [package.json:1-73](file://package.json#L1-L73)
+- [package.json:1-74](file://package.json#L1-L74)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
 
 ## Performance Considerations
+**Updated** Enhanced performance considerations for React 19 and modern component patterns.
+
 - Bundle size:
   - Prefer lazy-loading heavy pages and components.
   - Keep icon usage scoped; avoid importing entire icon libraries.
+  - Leverage React 19's improved tree shaking capabilities.
 - Rendering:
   - Use asChild patterns to minimize DOM nodes.
   - Memoize expensive computations outside components.
   - Implement virtualization for large lists (consider react-virtual for future enhancements).
+  - Take advantage of React 19's concurrent rendering optimizations.
 - Styling:
   - Reuse shared variants and avoid excessive conditional classes.
   - Utilize CSS variables for consistent theming across components.
+  - Leverage Tailwind CSS 4.0's improved performance characteristics.
 - Tooling:
   - Leverage Vite's fast dev server and tree-shaking.
   - Use ESLint and Prettier to maintain code quality and reduce regressions.
+  - Benefit from React 19's improved development experience.
 
 ## Troubleshooting Guide
+**Updated** Enhanced troubleshooting guidance for React 19 and modern component patterns.
+
 - Theming and SSR:
   - Ensure theme initialization runs on the client to prevent hydration mismatches.
+  - Verify React 19 compatibility with server-side rendering.
 - Accessibility:
   - Verify focus-visible rings and aria-* attributes for form controls.
   - Provide labels for icons and sr-only text for decorative icons.
+  - Ensure Menubar and Navigation components meet WCAG guidelines.
 - Styling conflicts:
   - Use the cn() helper to merge classes deterministically.
   - Avoid conflicting Tailwind utilities; prefer component variants.
+  - Check for Tailwind CSS 4.0 compatibility issues.
 - Build issues:
   - Confirm tsconfig paths and JSX settings.
   - Validate Vite and plugin versions.
+  - Ensure React 19 peer dependencies are properly configured.
 - New component issues:
   - Ensure Radix UI primitives are properly imported and configured.
   - Verify data-slot attributes are correctly applied for styling.
   - Check for proper portal rendering in menu and dialog components.
+  - Validate mobile hook implementations for both TypeScript and JavaScript versions.
 
 **Section sources**
 - [app.tsx:28-30](file://resources/js/app.tsx#L28-L30)
 - [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
 - [tsconfig.json:111-116](file://tsconfig.json#L111-L116)
+- [package.json:11203](file://package.json#L11203)
 
 ## Conclusion
-The component library emphasizes accessibility, composability, and consistency through Radix UI primitives, Tailwind utilities, and a centralized cn() helper. The architecture supports rapid iteration, strong typing, and maintainable UI patterns. The addition of new components like Navigation Menu, Menubar, Sidebar, and enhanced page patterns demonstrates the evolution toward more sophisticated UI patterns. Following the documented props, variants, and composition guidelines ensures predictable behavior across pages and contexts.
+The component library has been comprehensively modernized with React 19 integration, enhanced navigation systems, and advanced UI patterns. The architecture emphasizes accessibility, composability, and consistency through Radix UI primitives, Tailwind utilities, and a centralized cn() helper. The addition of the complete Menubar system, enhanced navigation components, improved mobile detection patterns, and modern React 19 patterns demonstrates the evolution toward more sophisticated UI architectures. Following the documented props, variants, and composition guidelines ensures predictable behavior across pages and contexts while leveraging the latest React 19 performance improvements and modern development patterns.
 
 ## Appendices
 
@@ -750,6 +885,7 @@ The component library emphasizes accessibility, composability, and consistency t
 - Portal-based overlays for modularity.
 - Data attributes for coordinated slot layouts.
 - Context-based state management for complex components.
+- React 19 patterns with improved performance characteristics.
 
 ### State Management and Interactivity
 - Dialog and Select rely on Radix UI state machines; expose minimal props to consumers.
@@ -757,6 +893,7 @@ The component library emphasizes accessibility, composability, and consistency t
 - Theme initialization occurs on mount to avoid SSR mismatches.
 - Sidebar uses context and cookies for persistent state management.
 - Menus utilize data attributes for styling coordination.
+- Enhanced mobile state management with dual hook implementations.
 
 ### Responsive Design and Accessibility
 - Responsive breakpoints via Tailwind utilities; horizontal scrolling for tables.
@@ -764,17 +901,21 @@ The component library emphasizes accessibility, composability, and consistency t
 - Screen-reader labels for icons and close buttons.
 - Mobile-first design with progressive enhancement.
 - Touch-friendly targets and gesture support.
+- Enhanced accessibility compliance with modern React patterns.
 
 ### Testing Approach and Workflow
 - Unit testing:
   - Test component renders with variants and asChild behavior.
   - Validate accessibility attributes and focus states.
   - Test form state management and router integration.
+  - Verify mobile hook implementations work correctly.
 - Integration testing:
   - Simulate user interactions (open dialogs, select items, navigate menus).
   - Test responsive behavior across device sizes.
   - Validate pagination and search functionality.
+  - Test Menubar and Navigation component interactions.
 - Development workflow:
   - Use Vite dev server for hot reload.
   - Run linting and formatting checks via npm scripts.
   - Commit with clear messages and review changes in pull requests.
+  - Leverage React 19's improved development experience.

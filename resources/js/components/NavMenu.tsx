@@ -53,7 +53,7 @@ export function NavMenu({ items = [] }: { items: NavGroup[] }) {
             <NavigationMenuList>
                 {items.map((group) =>
                     group.children?.length ? (
-                        <NavigationMenuItem className="right-auto left-0">
+                        <NavigationMenuItem key={group.title}>
                             <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
                             <NavigationMenuContent className="right-0 left-auto">
                                 <ul className="w-96">
@@ -70,7 +70,7 @@ export function NavMenu({ items = [] }: { items: NavGroup[] }) {
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                     ) : (
-                        <NavigationMenuItem>
+                        <NavigationMenuItem key={group.title}>
                             <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                                 <Link href="/docs">Docs</Link>
                             </NavigationMenuLink>
