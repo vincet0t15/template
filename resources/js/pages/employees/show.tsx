@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import type { Employee } from '@/types/employee';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -28,7 +28,7 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
 
     const handleManage = () => {
         onClose();
-        router.get(route('employees.manage.show', employee.id));
+        router.get(route('manage.employees.index', employee.id));
     };
 
     const handleDelete = () => {
@@ -51,6 +51,7 @@ export function EmployeeShow({ isOpen, onClose, employee }: EmployeeShowProps) {
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
+                <DialogTitle>Employee Details</DialogTitle>
                 <DialogContent className="bg-background w-[400px] overflow-hidden rounded-lg border p-0 shadow-lg">
                     {/* Header with Avatar */}
                     <div className="bg-muted/30 flex flex-col items-center gap-3 pt-8 pb-4">

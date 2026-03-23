@@ -9,7 +9,21 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { NavGroup, type BreadcrumbItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Banknote, Building2, Calculator, Calendar, DollarSign, LayoutGrid, Menu, Receipt, Settings, Tag, UserRoundPen, Wallet } from 'lucide-react';
+import {
+    Banknote,
+    Building2,
+    Calculator,
+    Calendar,
+    DollarSign,
+    LayoutGrid,
+    Menu,
+    MinusSquare,
+    Receipt,
+    Settings,
+    Tag,
+    UserRoundPen,
+    Wallet,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { NavMenu } from './NavMenu';
@@ -85,6 +99,11 @@ const mainNavItems: NavGroup[] = [
                 title: 'Employees',
                 href: '/settings/employees',
                 icon: Calendar,
+            },
+            {
+                title: 'Deduction Types',
+                href: '/settings/deduction-types',
+                icon: MinusSquare,
             },
         ],
     },

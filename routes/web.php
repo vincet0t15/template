@@ -6,6 +6,7 @@ use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeManage;
 use App\Http\Controllers\EmployeeSettingController;
 use App\Http\Controllers\EmploymentStatusController;
+use App\Http\Controllers\ManageEmployeeController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PeraController;
@@ -53,13 +54,6 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
     });
 
-    // DEDUCTION TYPES
-    Route::prefix('deduction-types')->group(function () {
-        Route::get('/', [DeductionTypeController::class, 'index'])->name('deduction-types.index');
-        Route::post('/', [DeductionTypeController::class, 'store'])->name('deduction-types.store');
-        Route::put('{deductionType}', [DeductionTypeController::class, 'update'])->name('deduction-types.update');
-        Route::delete('{deductionType}', [DeductionTypeController::class, 'destroy'])->name('deduction-types.destroy');
-    });
 
     // EMPLOYEE DEDUCTIONS
     Route::prefix('employee-deductions')->group(function () {
@@ -80,6 +74,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
+    // MANAGE EMPLOYEE
+    Route::prefix('manage')->group(function () {
+        Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
+    });
+
     // OFFICES
     Route::prefix('settings')->group(function () {
         // EMPLOYMENT STATUS
@@ -94,16 +93,14 @@ Route::middleware(['auth'])->group(function () {
         Route::put('offices/{office}', [OfficeController::class, 'update'])->name('offices.update');
         Route::delete('offices/{office}', [OfficeController::class, 'destroy'])->name('offices.destroy');
 
-        // EMPLOYEES
-        Route::get('employees', [EmployeeSettingController::class, 'index'])->name('employees.settings.index');
-        Route::get('employees/create', [EmployeeSettingController::class, 'create'])->name('employees.settings.create');
-        Route::post('employees', [EmployeeSettingController::class, 'store'])->name('employees.settings.store');
-        Route::put('employees/{employee}', [EmployeeSettingController::class, 'update'])->name('employees.settings.update');
-        Route::delete('employees/{employee}', [EmployeeSettingController::class, 'destroy'])->name('employees.settings.destroy');
-        Route::get('employees/{employee}', [EmployeeSettingController::class, 'show'])->name('employees.settings.show');
-
         // EMPLOYEE MANAGE
-        Route::get('employees/manage/{employee}', [EmployeeManage::class, 'show'])->name('employees.manage.show');
+        // Route::get('employees/manage/{employee}', [EmployeeManage::class, 'show'])->name('employees.manage.show');
+
+        // DEDUCTION TYPES
+        Route::get('deduction-types', [DeductionTypeController::class, 'index'])->name('deduction-types.index');
+        Route::post('deduction-types', [DeductionTypeController::class, 'store'])->name('deduction-types.store');
+        Route::put('deduction-types/{deductionType}', [DeductionTypeController::class, 'update'])->name('deduction-types.update');
+        Route::delete('deduction-types/{deductionType}', [DeductionTypeController::class, 'destroy'])->name('deduction-types.destroy');
     });
 });
 
