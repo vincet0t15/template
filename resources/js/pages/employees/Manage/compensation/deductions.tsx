@@ -1,11 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus } from 'lucide-react';
+import { Pencil, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -17,6 +18,11 @@ interface CompensationDeductionsProps {
     deductions?: Record<string, EmployeeDeduction[]>;
     periodsList?: string[];
     takenPeriods?: string[];
+    availableYears?: number[];
+    filters?: {
+        deduction_month?: string;
+        deduction_year?: string;
+    };
     pagination?: {
         current_page: number;
         last_page: number;
@@ -38,6 +44,8 @@ export function CompensationDeductions({
     deductions = {},
     periodsList = [],
     takenPeriods = [],
+    availableYears = [],
+    filters = {},
     pagination,
 }: CompensationDeductionsProps) {
     const [dialogState, setDialogState] = useState<DialogState>({
@@ -48,7 +56,23 @@ export function CompensationDeductions({
     });
 
     const goToPage = (page: number) => {
-        router.get(route('manage.employees.index', employee.id), { deduction_page: page }, { preserveState: true, preserveScroll: true });
+        router.get(
+            route('manage.employees.index', employee.id),
+            { deduction_page: page, deduction_month: filters.deduction_month, deduction_year: filters.deduction_year },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const applyFilter = (month: string | undefined, year: string | undefined) => {
+        router.get(
+            route('manage.employees.index', employee.id),
+            { deduction_month: month, deduction_year: year },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const clearFilters = () => {
+        router.get(route('manage.employees.index', employee.id), {}, { preserveState: true, preserveScroll: true });
     };
 
     const formatCurrency = (amount: number) =>
@@ -81,7 +105,51 @@ export function CompensationDeductions({
 
     return (
         <div className="space-y-4">
-            <div>
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+                <Select
+                    value={filters.deduction_month || 'all'}
+                    onValueChange={(value) => applyFilter(value === 'all' ? undefined : value, filters.deduction_year)}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Months</SelectItem>
+                        {MONTHS.map((month, index) => (
+                            <SelectItem key={month} value={String(index + 1)}>
+                                {month}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={filters.deduction_year || 'all'}
+                    onValueChange={(value) => applyFilter(filters.deduction_month, value === 'all' ? undefined : value)}
+                >
+                    <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Years</SelectItem>
+                        {availableYears.map((year) => (
+                            <SelectItem key={year} value={String(year)}>
+                                {year}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                {(filters.deduction_month || filters.deduction_year) && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                        <X className="mr-1 h-4 w-4" />
+                        Clear
+                    </Button>
+                )}
+
+                <div className="flex-1"></div>
+
                 <Button onClick={openNewDialog}>
                     <Plus className="h-4 w-4" />
                     Add Deductions

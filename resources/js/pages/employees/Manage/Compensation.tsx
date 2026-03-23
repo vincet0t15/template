@@ -13,6 +13,11 @@ interface EmployeeCompensationProps {
     deductions?: Record<string, EmployeeDeduction[]>;
     periodsList?: string[];
     takenPeriods?: string[];
+    availableYears?: number[];
+    filters?: {
+        deduction_month?: string;
+        deduction_year?: string;
+    };
     deductionPagination?: {
         current_page: number;
         last_page: number;
@@ -27,6 +32,8 @@ function EmployeeCompensation({
     deductions = {},
     periodsList = [],
     takenPeriods = [],
+    availableYears = [],
+    filters = {},
     deductionPagination,
 }: EmployeeCompensationProps) {
     return (
@@ -58,6 +65,8 @@ function EmployeeCompensation({
                         deductions={deductions}
                         periodsList={periodsList}
                         takenPeriods={takenPeriods}
+                        availableYears={availableYears}
+                        filters={filters}
                         pagination={deductionPagination}
                     />
                 </TabsContent>

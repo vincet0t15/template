@@ -26,6 +26,11 @@ interface EmployeeManageProps {
     deductions?: Record<string, EmployeeDeduction[]>;
     periodsList?: string[];
     takenPeriods?: string[];
+    availableYears?: number[];
+    filters?: {
+        deduction_month?: string;
+        deduction_year?: string;
+    };
     deductionPagination?: {
         current_page: number;
         last_page: number;
@@ -42,6 +47,8 @@ export default function EmployeeManagePage({
     deductions = {},
     periodsList = [],
     takenPeriods = [],
+    availableYears = [],
+    filters = {},
     deductionPagination,
 }: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -134,6 +141,8 @@ export default function EmployeeManagePage({
                             deductions={deductions}
                             periodsList={periodsList}
                             takenPeriods={takenPeriods}
+                            availableYears={availableYears}
+                            filters={filters}
                             deductionPagination={deductionPagination}
                         />
                     </TabsContent>

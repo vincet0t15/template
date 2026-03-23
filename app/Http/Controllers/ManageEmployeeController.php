@@ -15,6 +15,8 @@ class ManageEmployeeController extends Controller
 {
     public function index(Request $request, Employee $employee)
     {
+        $filterMonth = $request->input('deduction_month');
+        $filterYear = $request->input('deduction_year');
 
         $employee->load([
             'office',
@@ -33,14 +35,23 @@ class ManageEmployeeController extends Controller
             },
         ]);
 
-
         $periodsQuery = EmployeeDeduction::where('employee_id', $employee->id)
             ->selectRaw('pay_period_year, pay_period_month, COUNT(*) as deduction_count, SUM(amount) as total_amount')
             ->groupBy('pay_period_year', 'pay_period_month')
             ->orderBy('pay_period_year', 'desc')
             ->orderBy('pay_period_month', 'desc');
 
-        $paginatedPeriods = $periodsQuery->paginate(50);
+        // Apply month filter
+        if ($filterMonth) {
+            $periodsQuery->where('pay_period_month', $filterMonth);
+        }
+
+        // Apply year filter
+        if ($filterYear) {
+            $periodsQuery->where('pay_period_year', $filterYear);
+        }
+
+        $paginatedPeriods = $periodsQuery->paginate(50)->withQueryString();
 
         // Get all deductions for the current page's periods
         $periodsList = $paginatedPeriods->map(function ($p) {
@@ -70,6 +81,13 @@ class ManageEmployeeController extends Controller
             ->values()
             ->toArray();
 
+        // Get unique years for filter dropdown
+        $availableYears = EmployeeDeduction::where('employee_id', $employee->id)
+            ->selectRaw('DISTINCT pay_period_year as year')
+            ->orderBy('pay_period_year', 'desc')
+            ->pluck('year')
+            ->toArray();
+
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
         $deductionTypes = DeductionType::active()->get();
@@ -82,6 +100,11 @@ class ManageEmployeeController extends Controller
             'deductions' => $groupedDeductions,
             'periodsList' => $periodsList,
             'takenPeriods' => $takenPeriods,
+            'availableYears' => $availableYears,
+            'filters' => [
+                'deduction_month' => $filterMonth,
+                'deduction_year' => $filterYear,
+            ],
             'deductionPagination' => [
                 'current_page' => $paginatedPeriods->currentPage(),
                 'last_page' => $paginatedPeriods->lastPage(),
