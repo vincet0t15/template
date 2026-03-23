@@ -1,28 +1,20 @@
-
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { PlusIcon, Search } from 'lucide-react';
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { PaginatedDataResponse } from '@/types/pagination';
-import type { Office } from '@/types/office';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
 import type { FilterProps } from '@/types/filter';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import type { Office } from '@/types/office';
+import type { PaginatedDataResponse } from '@/types/pagination';
+import { Head, router, useForm } from '@inertiajs/react';
+import { PlusIcon, Search } from 'lucide-react';
 import { useState } from 'react';
 import { CreateOfficeDialog } from './create';
-import { EditOfficeDialog } from './edit';
 import { DeleteOfficeDialog } from './delete';
-import Pagination from '@/components/paginationData';
+import { EditOfficeDialog } from './edit';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -68,19 +60,15 @@ export default function Dashboard({ offices, filters }: IndexProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Offices" />
-            <div className="flex h-full flex-1 flex-col rounded-xl p-4 gap-4">
-                <Heading
-                    title="Office Management"
-                    description="Overview and maintenance of all office entries."
-                />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                <Heading title="Office Management" description="Overview and maintenance of all office entries." />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-
                     <Button onClick={() => setOpenCreateDialog(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Create Office
                     </Button>
 
-                    <div className="flex w-full sm:w-auto items-center gap-2">
+                    <div className="flex w-full items-center gap-2 sm:w-auto">
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
@@ -88,7 +76,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                             <Input
                                 id="search"
                                 placeholder="Search the offices..."
-                                className="pl-8 w-full"
+                                className="w-full pl-8"
                                 value={data.search}
                                 onChange={(e) => setData({ search: e.target.value })}
                                 onKeyDown={handleSearchKeyDown}
@@ -96,53 +84,32 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                             <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                         </div>
                     </div>
-
                 </div>
 
                 <div className="w-full overflow-hidden rounded-sm border shadow-sm">
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="font-bold text-primary">
-                                    Name
-                                </TableHead>
-                                <TableHead className="font-bold text-primary">
-                                    Code
-                                </TableHead>
+                                <TableHead className="text-primary font-bold">Name</TableHead>
+                                <TableHead className="text-primary font-bold">Code</TableHead>
 
-                                <TableHead className="font-bold text-primary text-right">
-                                    Action
-                                </TableHead>
+                                <TableHead className="text-primary text-right font-bold">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {offices.data.length > 0 ? (
                                 offices.data.map((office) => (
-                                    <TableRow
-                                        key={office.id}
-                                        className="text-sm hover:bg-muted/30"
-                                    >
-                                        <TableCell className="text-sm">
-                                            {office.name}
-                                        </TableCell>
-                                        <TableCell className="text-sm">
-                                            {office.code ?? (
-                                                <span className="text-muted-foreground">
-                                                    —
-                                                </span>
-                                            )}
-                                        </TableCell>
+                                    <TableRow key={office.id} className="hover:bg-muted/30 text-sm">
+                                        <TableCell className="text-sm">{office.name}</TableCell>
+                                        <TableCell className="text-sm">{office.code ?? <span className="text-muted-foreground">—</span>}</TableCell>
 
-                                        <TableCell className="text-sm flex items-center gap-2 justify-end">
-                                            <span
-                                                onClick={() => handleEditClick(office)}
-                                                className="text-teal-600 cursor-pointer hover:underline"
-                                            >
+                                        <TableCell className="flex items-center justify-end gap-2 text-sm">
+                                            <span onClick={() => handleEditClick(office)} className="cursor-pointer text-teal-600 hover:underline">
                                                 Edit
                                             </span>
                                             <span
                                                 onClick={() => handleDeleteClick(office)}
-                                                className="text-orange-600 cursor-pointer hover:underline"
+                                                className="cursor-pointer text-orange-600 hover:underline"
                                             >
                                                 Delete
                                             </span>
@@ -151,10 +118,7 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={4}
-                                        className="py-3 text-center text-gray-500"
-                                    >
+                                    <TableCell colSpan={4} className="py-3 text-center text-gray-500">
                                         No data available.
                                     </TableCell>
                                 </TableRow>
@@ -165,27 +129,14 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                 <div>
                     <Pagination data={offices} />
                 </div>
-                {openCreateDialog && (
-                    <CreateOfficeDialog
-                        isOpen={openCreateDialog}
-                        onClose={() => setOpenCreateDialog(false)}
-                    />
-                )}
+                {openCreateDialog && <CreateOfficeDialog isOpen={openCreateDialog} onClose={() => setOpenCreateDialog(false)} />}
 
                 {openEditDialog && selectedOffice && (
-                    <EditOfficeDialog
-                        isOpen={openEditDialog}
-                        onClose={() => setOpenEditDialog(false)}
-                        office={selectedOffice}
-                    />
+                    <EditOfficeDialog isOpen={openEditDialog} onClose={() => setOpenEditDialog(false)} office={selectedOffice} />
                 )}
 
                 {openDeleteDialog && selectedOffice && (
-                    <DeleteOfficeDialog
-                        isOpen={openDeleteDialog}
-                        onClose={() => setOpenDeleteDialog(false)}
-                        office={selectedOffice}
-                    />
+                    <DeleteOfficeDialog isOpen={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} office={selectedOffice} />
                 )}
             </div>
         </AppLayout>

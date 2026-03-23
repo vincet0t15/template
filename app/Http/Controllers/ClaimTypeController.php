@@ -12,7 +12,7 @@ class ClaimTypeController extends Controller
     {
         $claimTypes = ClaimType::orderBy('name')->get();
 
-        return Inertia::render('ClaimTypes/Index', [
+        return Inertia::render('claim-types/index', [
             'claimTypes' => $claimTypes,
         ]);
     }
