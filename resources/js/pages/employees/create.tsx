@@ -33,7 +33,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
     const photoPreviewUrlRef = useRef<string | null>(null);
 
-    const { data, setData, post, errors } = useForm<EmployeeCreateRequest>({
+    const { data, setData, post, errors, reset } = useForm<EmployeeCreateRequest>({
         first_name: '',
         middle_name: '',
         last_name: '',
@@ -92,6 +92,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
         post(route('employees.store'), {
             onSuccess: (response: { props: FlashProps }) => {
                 toast.success(response.props.flash?.success ?? 'Employee created successfully');
+                reset();
             },
             forceFormData: true,
         });
@@ -179,19 +180,19 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>First Name</Label>
-                                        <Input name="first_name" value={data.first_name} onChange={handleInputChange} />
+                                        <Input name="first_name" value={data.first_name} onChange={handleInputChange} placeholder="First Name" />
                                         {errors.first_name && <p className="text-destructive text-xs">{errors.first_name}</p>}
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Middle Name</Label>
-                                        <Input name="middle_name" value={data.middle_name} onChange={handleInputChange} />
+                                        <Input name="middle_name" value={data.middle_name} onChange={handleInputChange} placeholder="Middle Name" />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Last Name</Label>
-                                        <Input name="last_name" value={data.last_name} onChange={handleInputChange} />
+                                        <Input name="last_name" value={data.last_name} onChange={handleInputChange} placeholder="Last Name" />
                                         {errors.last_name && <p className="text-destructive text-xs">{errors.last_name}</p>}
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
@@ -214,7 +215,7 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Position</Label>
-                                        <Input name="position" value={data.position} onChange={handleInputChange} />
+                                        <Input name="position" value={data.position} onChange={handleInputChange} placeholder="Position" />
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Office</Label>
