@@ -45,6 +45,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     // PAYROLL
     Route::prefix('payroll')->group(function () {
         Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
+        Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
+        Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
+        Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
         Route::get('{employee}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 

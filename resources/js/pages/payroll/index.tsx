@@ -13,7 +13,7 @@ import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Eye, Search, User } from 'lucide-react';
+import { BarChart3, Download, Eye, FileSpreadsheet, Search, User } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -157,6 +157,38 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                         </div>
 
                         <Button onClick={handleFilterChange}>Filter</Button>
+                    </div>
+
+                    {/* Export and Reports */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const query = new URLSearchParams();
+                                if (filterData.month) query.append('month', filterData.month.toString());
+                                if (filterData.year) query.append('year', filterData.year.toString());
+                                if (filterData.office_id) query.append('office_id', filterData.office_id);
+                                if (filterData.employment_status_id) query.append('employment_status_id', filterData.employment_status_id);
+                                if (filterData.search) query.append('search', filterData.search);
+                                window.open(route('payroll.export') + '?' + query.toString(), '_blank');
+                            }}
+                        >
+                            <Download className="mr-2 h-4 w-4" />
+                            Export CSV
+                        </Button>
+                        <Button variant="outline" onClick={() => router.get(route('payroll.year-to-date'), { year: filterData.year })}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" />
+                            Year-to-Date
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() =>
+                                router.get(route('payroll.comparison'), { period1_month: filterData.month, period1_year: filterData.year })
+                            }
+                        >
+                            <BarChart3 className="mr-2 h-4 w-4" />
+                            Comparison
+                        </Button>
                     </div>
                 </div>
 
