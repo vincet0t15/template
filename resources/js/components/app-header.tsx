@@ -13,7 +13,6 @@ import {
     Banknote,
     Building2,
     Calculator,
-    Calendar,
     DollarSign,
     LayoutGrid,
     Menu,
@@ -94,11 +93,6 @@ const mainNavItems: NavGroup[] = [
                 title: 'Employment Statuses',
                 href: '/settings/employment-statuses',
                 icon: UserRoundPen,
-            },
-            {
-                title: 'Employees',
-                href: '/settings/employees',
-                icon: Calendar,
             },
             {
                 title: 'Deduction Types',
