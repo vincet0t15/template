@@ -224,9 +224,9 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
             {/* Pagination */}
             <Pagination data={claimsData} />
 
-            {/* Create/Edit Dialog */}
-
-            {openCreateDialog && <CreateClaimDialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} />}
+            {openCreateDialog && (
+                <CreateClaimDialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} employee={employee} claimTypes={claimTypes} />
+            )}
         </div>
     );
 }

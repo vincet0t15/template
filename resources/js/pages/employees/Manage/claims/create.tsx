@@ -1,45 +1,57 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ClaimForm } from '@/types/claim';
+import { Textarea } from '@/components/ui/textarea';
+import type { ClaimType } from '@/types/claimType';
+import type { Employee } from '@/types/employee';
 import { useForm } from '@inertiajs/react';
+
 interface CreateClaimDialogProps {
     open: boolean;
     onClose: () => void;
+    employee: Employee;
+    claimTypes: ClaimType[];
 }
-export function CreateClaimDialog({ open, onClose }: CreateClaimDialogProps) {
-    const { data, setData, post, processing, errors } = useForm<ClaimForm>({
-        employee_id: 0,
-        claim_type_id: 0,
-        claim_date: '',
-        amount: 0,
+
+export function CreateClaimDialog({ open, onClose, employee, claimTypes }: CreateClaimDialogProps) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        claim_type_id: '',
+        claim_date: new Date().toISOString().split('T')[0],
+        amount: '',
         purpose: '',
         remarks: '',
     });
+
+    const claimTypeItems = claimTypes.map((t) => ({ value: String(t.id), label: t.name }));
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('manage.employees.claims.store', employee.id), {
+            onSuccess: () => {
+                reset();
+                onClose();
+            },
+        });
+    };
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <form>
-                <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Edit profile</DialogTitle>
-                        <DialogDescription>Make changes to your profile here. Click save when you&apos;re done.</DialogDescription>
-                    </DialogHeader>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle>Add Claim</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="claim_type_id">Claim Type *</Label>
-                            <Select value={data.claim_type_id} onValueChange={(value) => setData('claim_type_id', value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select claim type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {claimTypes.map((type) => (
-                                        <SelectItem key={type.id} value={String(type.id)}>
-                                            {type.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Label>Claim Type *</Label>
+                            <CustomComboBox
+                                items={claimTypeItems}
+                                placeholder="Select claim type..."
+                                value={data.claim_type_id || null}
+                                onSelect={(value) => setData('claim_type_id', value ?? '')}
+                            />
                             {errors.claim_type_id && <p className="text-sm text-red-500">{errors.claim_type_id}</p>}
                         </div>
 
@@ -65,33 +77,37 @@ export function CreateClaimDialog({ open, onClose }: CreateClaimDialogProps) {
 
                         <div className="grid gap-2">
                             <Label htmlFor="purpose">Purpose *</Label>
-                            <Input
+                            <Textarea
                                 id="purpose"
                                 value={data.purpose}
                                 onChange={(e) => setData('purpose', e.target.value)}
                                 placeholder="Purpose of the claim"
+                                rows={2}
                             />
                             {errors.purpose && <p className="text-sm text-red-500">{errors.purpose}</p>}
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="remarks">Remarks</Label>
-                            <Input
+                            <Textarea
                                 id="remarks"
                                 value={data.remarks}
                                 onChange={(e) => setData('remarks', e.target.value)}
                                 placeholder="Optional remarks"
+                                rows={2}
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit">Save</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Save'}
+                        </Button>
                     </DialogFooter>
-                </DialogContent>
-            </form>
+                </form>
+            </DialogContent>
         </Dialog>
     );
 }
