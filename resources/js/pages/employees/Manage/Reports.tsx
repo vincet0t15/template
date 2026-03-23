@@ -1,3 +1,4 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { FileText, Printer, Receipt, TrendingDown } from 'lucide-react';
-import { Fragment, useRef, useState } from 'react';
+import { FileText, Printer, Receipt, TrendingDown, X } from 'lucide-react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { PrintReport } from './PrintReport';
 
 interface ReportsProps {
