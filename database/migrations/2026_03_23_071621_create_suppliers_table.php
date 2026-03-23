@@ -13,24 +13,12 @@ return new class extends Migration
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
-            $table->date('pr_date');
-            $table->string('pr_no');
-            $table->date('po_date')->nullable();
-            $table->string('po_no')->nullable();
-            $table->date('sale_invoice_date')->nullable();
-            $table->string('sale_invoice_no')->nullable();
-            $table->date('or_date')->nullable();
-            $table->string('or_no')->nullable();
-            $table->date('dr_date')->nullable();
-            $table->string('dr_no')->nullable();
-            $table->string('qty_period_covered')->nullable();
-            $table->text('particulars');
-            $table->decimal('gross', 15, 2);
-            $table->decimal('ewt', 15, 2)->default(0);
-            $table->decimal('vat', 15, 2)->default(0);
-            $table->decimal('net_amount', 15, 2);
-            $table->date('date_processed')->nullable();
+            $table->string('name');
+            $table->text('address')->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('email')->nullable();
             $table->text('remarks')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

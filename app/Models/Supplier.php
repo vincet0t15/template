@@ -7,36 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     protected $fillable = [
-        'pr_date',
-        'pr_no',
-        'po_date',
-        'po_no',
-        'sale_invoice_date',
-        'sale_invoice_no',
-        'or_date',
-        'or_no',
-        'dr_date',
-        'dr_no',
-        'qty_period_covered',
-        'particulars',
-        'gross',
-        'ewt',
-        'vat',
-        'net_amount',
-        'date_processed',
+        'name',
+        'address',
+        'contact_number',
+        'email',
         'remarks',
+        'is_active',
     ];
 
     protected $casts = [
-        'pr_date' => 'date',
-        'po_date' => 'date',
-        'sale_invoice_date' => 'date',
-        'or_date' => 'date',
-        'dr_date' => 'date',
-        'date_processed' => 'date',
-        'gross' => 'decimal:2',
-        'ewt' => 'decimal:2',
-        'vat' => 'decimal:2',
-        'net_amount' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
 }
