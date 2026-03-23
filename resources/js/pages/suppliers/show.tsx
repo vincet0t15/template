@@ -452,6 +452,7 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                     </DialogHeader>
                     <form onSubmit={handleCreate}>
                         <TransactionFields prefix="create" form={createForm} />
+
                         <div className="mt-4 flex justify-end gap-2">
                             <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                                 Cancel
