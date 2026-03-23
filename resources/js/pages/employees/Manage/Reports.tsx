@@ -103,6 +103,13 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     const totalAllDeductions = filteredDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = filteredClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
+    // Calculate total compensation components
+    const salary = Number(employee.latest_salary?.amount ?? 0);
+    const pera = Number(employee.latest_pera?.amount ?? 0);
+    const rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+    const grossPay = salary + pera + rata;
+    const netPay = grossPay - totalAllDeductions;
+
     const hasActiveFilters = filterMonth || filterYear;
 
     const clearFilters = () => {
@@ -188,29 +195,80 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
             </Dialog>
 
             {/* Summary Cards */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">Basic Salary</CardTitle>
+                        <TrendingDown className="text-muted-foreground h-4 w-4" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(salary)}</div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">PERA</CardTitle>
+                        <Receipt className="text-muted-foreground h-4 w-4" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(pera)}</div>
+                    </CardContent>
+                </Card>
+
+                {employee.is_rata_eligible && (
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium">RATA</CardTitle>
+                            <Receipt className="text-muted-foreground h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(rata)}</div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                <Card className="border-slate-200 bg-slate-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-800">Gross Pay</CardTitle>
+                        <TrendingDown className="h-4 w-4 text-slate-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-slate-900">{formatCurrency(grossPay)}</div>
+                    </CardContent>
+                </Card>
+
                 <Card className="border-red-200 bg-red-50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-red-800">Total Deductions (All Time)</CardTitle>
+                        <CardTitle className="text-sm font-medium text-red-800">Total Deductions</CardTitle>
                         <TrendingDown className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-red-700">{formatCurrency(totalAllDeductions)}</div>
-                        <p className="mt-1 text-xs text-red-600">
-                            {allDeductions.length} deduction entries across {deductionPeriods.length} period{deductionPeriods.length !== 1 ? 's' : ''}
-                        </p>
+                        <p className="mt-1 text-xs text-red-600">{filteredDeductions.length} deduction entries</p>
                     </CardContent>
                 </Card>
 
                 <Card className="border-green-200 bg-green-50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-green-800">Total Claims (All Time)</CardTitle>
+                        <CardTitle className="text-sm font-medium text-green-800">Net Pay</CardTitle>
                         <Receipt className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-700">{formatCurrency(totalAllClaims)}</div>
-                        <p className="mt-1 text-xs text-green-600">
-                            {allClaims.length} claim{allClaims.length !== 1 ? 's' : ''} recorded
+                        <div className="text-2xl font-bold text-green-700">{formatCurrency(netPay)}</div>
+                        <p className="mt-1 text-xs text-green-600">Gross Pay - Deductions</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-blue-200 bg-blue-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-blue-800">Total Claims</CardTitle>
+                        <Receipt className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-700">{formatCurrency(totalAllClaims)}</div>
+                        <p className="mt-1 text-xs text-blue-600">
+                            {filteredClaims.length} claim{filteredClaims.length !== 1 ? 's' : ''} recorded
                         </p>
                     </CardContent>
                 </Card>

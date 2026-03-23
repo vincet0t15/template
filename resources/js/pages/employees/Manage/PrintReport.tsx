@@ -70,6 +70,13 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
     const totalAllDeductions = allDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
+    // Calculate compensation components
+    const salary = Number(employee.latest_salary?.amount ?? 0);
+    const pera = Number(employee.latest_pera?.amount ?? 0);
+    const rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+    const grossPay = salary + pera + rata;
+    const netPay = grossPay - totalAllDeductions;
+
     const currentDate = new Date().toLocaleDateString('en-PH', {
         year: 'numeric',
         month: 'long',
@@ -156,24 +163,36 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
             </div>
 
             {/* Compact Summary */}
-            <div className="print-section mb-4 grid grid-cols-2 gap-4">
-                <div className="rounded border border-red-200 bg-red-50 p-3">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-red-800">Total Deductions</span>
-                        <span className="text-lg font-bold text-red-700">{formatCurrency(totalAllDeductions)}</span>
-                    </div>
-                    <p className="text-xs text-red-600">
-                        {allDeductions.length} entries • {deductionPeriods.length} period{deductionPeriods.length !== 1 ? 's' : ''}
-                    </p>
+            <div className="print-section mb-4 grid grid-cols-4 gap-3">
+                <div className="rounded border border-slate-200 bg-slate-50 p-2">
+                    <span className="text-xs font-medium text-slate-600">Basic Salary</span>
+                    <p className="text-base font-bold text-slate-900">{formatCurrency(salary)}</p>
                 </div>
-                <div className="rounded border border-green-200 bg-green-50 p-3">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-green-800">Total Claims</span>
-                        <span className="text-lg font-bold text-green-700">{formatCurrency(totalAllClaims)}</span>
+                <div className="rounded border border-slate-200 bg-slate-50 p-2">
+                    <span className="text-xs font-medium text-slate-600">PERA</span>
+                    <p className="text-base font-bold text-slate-900">{formatCurrency(pera)}</p>
+                </div>
+                {employee.is_rata_eligible && (
+                    <div className="rounded border border-slate-200 bg-slate-50 p-2">
+                        <span className="text-xs font-medium text-slate-600">RATA</span>
+                        <p className="text-base font-bold text-slate-900">{formatCurrency(rata)}</p>
                     </div>
-                    <p className="text-xs text-green-600">
-                        {allClaims.length} claim{allClaims.length !== 1 ? 's' : ''} recorded
-                    </p>
+                )}
+                <div className="rounded border border-slate-300 bg-slate-100 p-2">
+                    <span className="text-xs font-medium text-slate-700">Gross Pay</span>
+                    <p className="text-base font-bold text-slate-900">{formatCurrency(grossPay)}</p>
+                </div>
+                <div className="rounded border border-red-200 bg-red-50 p-2">
+                    <span className="text-xs font-medium text-red-600">Deductions</span>
+                    <p className="text-base font-bold text-red-700">{formatCurrency(totalAllDeductions)}</p>
+                </div>
+                <div className="rounded border border-green-200 bg-green-50 p-2">
+                    <span className="text-xs font-medium text-green-600">Net Pay</span>
+                    <p className="text-base font-bold text-green-700">{formatCurrency(netPay)}</p>
+                </div>
+                <div className="rounded border border-blue-200 bg-blue-50 p-2">
+                    <span className="text-xs font-medium text-blue-600">Claims</span>
+                    <p className="text-base font-bold text-blue-700">{formatCurrency(totalAllClaims)}</p>
                 </div>
             </div>
 
