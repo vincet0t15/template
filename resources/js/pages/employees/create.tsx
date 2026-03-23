@@ -2,7 +2,6 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -79,12 +78,12 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
         setData(name as keyof EmployeeCreateRequest, value);
     };
 
-    const handleSuffixChange = (value: string) => {
-        setData('suffix', value);
+    const handleSuffixChange = (value: string | null) => {
+        setData('suffix', value ?? '');
     };
 
-    const handleEmploymentStatusChange = (value: string) => {
-        setData('employment_status_id', value as string | number);
+    const handleEmploymentStatusChange = (value: string | null) => {
+        setData('employment_status_id', (value ?? '') as string | number);
     };
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -197,17 +196,17 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                     </div>
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Suffix</Label>
-                                        <Select value={data.suffix} onValueChange={handleSuffixChange}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Suffix" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Jr.">Jr.</SelectItem>
-                                                <SelectItem value="Sr.">Sr.</SelectItem>
-                                                <SelectItem value="II">II</SelectItem>
-                                                <SelectItem value="III">III</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <CustomComboBox
+                                            items={[
+                                                { value: 'Jr.', label: 'Jr.' },
+                                                { value: 'Sr.', label: 'Sr.' },
+                                                { value: 'II', label: 'II' },
+                                                { value: 'III', label: 'III' },
+                                            ]}
+                                            placeholder="Suffix"
+                                            value={data.suffix || null}
+                                            onSelect={handleSuffixChange}
+                                        />
                                     </div>
                                 </div>
 
@@ -233,18 +232,12 @@ export default function CreateEmployee({ employmentStatuses, offices }: CreateEm
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <div className="flex w-full flex-col gap-1">
                                         <Label>Employment Status</Label>
-                                        <Select value={String(data.employment_status_id)} onValueChange={handleEmploymentStatusChange}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select Status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {employmentStatuses.map((status) => (
-                                                    <SelectItem key={status.id} value={String(status.id)}>
-                                                        {status.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <CustomComboBox
+                                            items={employmentStatuses.map((s) => ({ value: String(s.id), label: s.name }))}
+                                            placeholder="Select Status"
+                                            value={data.employment_status_id ? String(data.employment_status_id) : null}
+                                            onSelect={handleEmploymentStatusChange}
+                                        />
                                         {errors.employment_status_id && <p className="text-destructive text-xs">{errors.employment_status_id}</p>}
                                     </div>
                                     <div className="flex w-full flex-col gap-1">

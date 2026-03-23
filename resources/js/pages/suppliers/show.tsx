@@ -1,3 +1,4 @@
+import { DatePicker } from '@/components/custom-date-picker';
 import PaginationData from '@/components/paginationData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -138,13 +139,7 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_pr_date`}>PR Date *</Label>
-                    <Input
-                        id={`${prefix}_pr_date`}
-                        type="date"
-                        value={form.data.pr_date}
-                        onChange={(e) => form.setData('pr_date', e.target.value)}
-                        required
-                    />
+                    <DatePicker id={`${prefix}_pr_date`} value={form.data.pr_date} onChange={(v) => form.setData('pr_date', v)} />
                     {form.errors.pr_date && <p className="text-xs text-red-500">{form.errors.pr_date}</p>}
                 </div>
                 <div className="space-y-2">
@@ -162,7 +157,12 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_po_date`}>PO Date</Label>
-                    <Input id={`${prefix}_po_date`} type="date" value={form.data.po_date} onChange={(e) => form.setData('po_date', e.target.value)} />
+                    <DatePicker
+                        id={`${prefix}_po_date`}
+                        value={form.data.po_date}
+                        onChange={(v) => form.setData('po_date', v)}
+                        placeholder="Select PO date"
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_po_no`}>PO No.</Label>
@@ -177,11 +177,11 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_si_date`}>Sale Invoice Date</Label>
-                    <Input
+                    <DatePicker
                         id={`${prefix}_si_date`}
-                        type="date"
                         value={form.data.sale_invoice_date}
-                        onChange={(e) => form.setData('sale_invoice_date', e.target.value)}
+                        onChange={(v) => form.setData('sale_invoice_date', v)}
+                        placeholder="Select invoice date"
                     />
                 </div>
                 <div className="space-y-2">
@@ -197,7 +197,12 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_or_date`}>OR Date</Label>
-                    <Input id={`${prefix}_or_date`} type="date" value={form.data.or_date} onChange={(e) => form.setData('or_date', e.target.value)} />
+                    <DatePicker
+                        id={`${prefix}_or_date`}
+                        value={form.data.or_date}
+                        onChange={(v) => form.setData('or_date', v)}
+                        placeholder="Select OR date"
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_or_no`}>OR No.</Label>
@@ -212,7 +217,12 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_dr_date`}>D.R. Date</Label>
-                    <Input id={`${prefix}_dr_date`} type="date" value={form.data.dr_date} onChange={(e) => form.setData('dr_date', e.target.value)} />
+                    <DatePicker
+                        id={`${prefix}_dr_date`}
+                        value={form.data.dr_date}
+                        onChange={(v) => form.setData('dr_date', v)}
+                        placeholder="Select D.R. date"
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_dr_no`}>D.R. No.</Label>
@@ -295,11 +305,11 @@ export default function SupplierShow({ supplier, transactions }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor={`${prefix}_date_processed`}>Date Processed</Label>
-                    <Input
+                    <DatePicker
                         id={`${prefix}_date_processed`}
-                        type="date"
                         value={form.data.date_processed}
-                        onChange={(e) => form.setData('date_processed', e.target.value)}
+                        onChange={(v) => form.setData('date_processed', v)}
+                        placeholder="Select date processed"
                     />
                 </div>
                 <div className="space-y-2">

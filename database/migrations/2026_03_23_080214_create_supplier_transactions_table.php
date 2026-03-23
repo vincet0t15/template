@@ -25,11 +25,11 @@ return new class extends Migration
             $table->date('dr_date')->nullable();
             $table->string('dr_no')->nullable();
             $table->string('qty_period_covered')->nullable();
-            $table->text('particulars');
+            $table->text('particulars')->nullable();
             $table->decimal('gross', 15, 2)->default(0);
-            $table->decimal('ewt', 15, 2)->default(0);
-            $table->decimal('vat', 15, 2)->default(0);
-            $table->decimal('net_amount', 15, 2)->default(0);
+            $table->decimal('ewt', 15, 2)->default(0)->nullable();
+            $table->decimal('vat', 15, 2)->default(0)->nullable();
+            $table->decimal('net_amount', 15, 2)->default(0)->nullable();
             $table->date('date_processed')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
