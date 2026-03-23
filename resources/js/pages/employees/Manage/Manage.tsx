@@ -7,6 +7,7 @@ import { Head, router } from '@inertiajs/react';
 
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
@@ -20,9 +21,10 @@ interface EmployeeManageProps {
     employee: Employee;
     employmentStatuses: EmploymentStatus[];
     offices: Office[];
+    deductionTypes: DeductionType[];
 }
 
-export default function EmployeeManagePage({ employee, employmentStatuses, offices }: EmployeeManageProps) {
+export default function EmployeeManagePage({ employee, employmentStatuses, offices, deductionTypes }: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Employees', href: '/settings/employees' },
         { title: `${employee.last_name}, ${employee.first_name}`, href: `/settings/employees/manage/${employee.id}` },
@@ -105,7 +107,7 @@ export default function EmployeeManagePage({ employee, employmentStatuses, offic
                         <Overview />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
-                        <EmployeeCompensation />
+                        <EmployeeCompensation deductionTypes={deductionTypes} />
                     </TabsContent>
                     <TabsContent value="settings" className="mt-0 outline-none">
                         <EmployeeSettings employee={employee} employmentStatuses={employmentStatuses} offices={offices} />

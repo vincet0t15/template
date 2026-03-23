@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
@@ -31,11 +32,13 @@ class ManageEmployeeController extends Controller
 
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
+        $deductionTypes = DeductionType::active()->get();
 
         return Inertia::render('Employees/Manage/Manage', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
+            'deductionTypes' => $deductionTypes,
         ]);
     }
 }

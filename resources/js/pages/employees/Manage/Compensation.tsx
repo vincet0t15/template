@@ -1,8 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { DeductionType } from '@/types/deductionType';
 import CompensationRata from './compensation/rata';
 import { CompensationSalary } from './compensation/salary';
 
-function EmployeeCompensation() {
+interface EmployeeCompensationProps {
+    deductionTypes: DeductionType[];
+}
+
+function EmployeeCompensation({ deductionTypes }: EmployeeCompensationProps) {
     return (
         <div>
             <Tabs defaultValue="salary" orientation="vertical">
@@ -13,7 +18,7 @@ function EmployeeCompensation() {
                 </TabsList>
 
                 <TabsContent value="salary">
-                    <CompensationSalary />
+                    <CompensationSalary deductionTypes={deductionTypes} />
                 </TabsContent>
                 <TabsContent value="pera"></TabsContent>
 

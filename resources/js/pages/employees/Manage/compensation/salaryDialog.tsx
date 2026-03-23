@@ -3,28 +3,40 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Field, FieldGroup } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { DeductionType } from '@/types/deductionType';
+
 interface SalaryDialogProps {
     open: boolean;
     onClose: () => void;
+    deductionTypes: DeductionType[];
 }
-export function SalaryDialog({ open, onClose }: SalaryDialogProps) {
+
+export function SalaryDialog({ open, onClose, deductionTypes }: SalaryDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <form>
                 <DialogContent className="min-w-4xl">
                     <DialogHeader>
-                        <DialogTitle>Edit profil1e</DialogTitle>
-                        <DialogDescription>Make changes to your profile here. Click save when you&apos;re done.</DialogDescription>
+                        <DialogTitle>Salary</DialogTitle>
+                        <DialogDescription>Enter salary deductions.</DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
-                        <Field>
-                            <Label htmlFor="name-1">Name</Label>
-                            <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
-                        </Field>
-                        <Field>
-                            <Label htmlFor="username-1">Username</Label>
-                            <Input id="username-1" name="username" defaultValue="@peduarte" />
-                        </Field>
+                        <div className="mt-4">
+                            <h4 className="mb-2 text-sm font-semibold">Deductions</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                {deductionTypes.map((deductionType) => (
+                                    <Field key={deductionType.id}>
+                                        <Label htmlFor={`deduction-${deductionType.id}`}>{deductionType.name}</Label>
+                                        <Input
+                                            id={`deduction-${deductionType.id}`}
+                                            name={`deductions[${deductionType.code}]`}
+                                            type="number"
+                                            placeholder={`Enter ${deductionType.name.toLowerCase()} amount`}
+                                        />
+                                    </Field>
+                                ))}
+                            </div>
+                        </div>
                     </FieldGroup>
                     <DialogFooter>
                         <DialogClose asChild>

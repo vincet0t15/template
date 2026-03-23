@@ -1,8 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { DeductionType } from '@/types/deductionType';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
+
+interface CompensationSalaryProps {
+    deductionTypes: DeductionType[];
+}
 
 const invoices = [
     {
@@ -49,14 +54,14 @@ const invoices = [
     },
 ];
 
-export function CompensationSalary() {
+export function CompensationSalary({ deductionTypes }: CompensationSalaryProps) {
     const [openSalaryDialog, setOpenSalaryDialog] = useState(false);
     return (
         <div>
             <div className="mb-4">
                 <Button onClick={() => setOpenSalaryDialog(true)}>
                     <Plus className="h-4 w-4" />
-                    Add Salary
+                    Salary Deductions
                 </Button>
             </div>
             <div className="w-full overflow-hidden rounded-sm border shadow-sm">
@@ -82,7 +87,7 @@ export function CompensationSalary() {
                 </Table>
             </div>
 
-            {openSalaryDialog && <SalaryDialog open={openSalaryDialog} onClose={() => setOpenSalaryDialog(false)} />}
+            {openSalaryDialog && <SalaryDialog open={openSalaryDialog} onClose={() => setOpenSalaryDialog(false)} deductionTypes={deductionTypes} />}
         </div>
     );
 }
