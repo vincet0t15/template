@@ -1,4 +1,3 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
@@ -71,11 +70,20 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
     }
     const deductionPeriods = Object.values(deductionsByPeriod).sort((a, b) => b.year - a.year || b.month - a.month);
 
-    // Group deductions by year for yearly totals
-    const deductionsByYear: Record<number, number> = {};
-    for (const d of allDeductions) {
-        deductionsByYear[d.pay_period_year] = (deductionsByYear[d.pay_period_year] ?? 0) + Number(d.amount);
+    // Group claims by year-month for monthly view
+    const claimsByPeriod: Record<string, { year: number; month: number; items: Claim[]; total: number }> = {};
+    for (const c of allClaims) {
+        const claimDate = new Date(c.claim_date);
+        const year = claimDate.getFullYear();
+        const month = claimDate.getMonth() + 1;
+        const key = `${year}-${String(month).padStart(2, '0')}`;
+        if (!claimsByPeriod[key]) {
+            claimsByPeriod[key] = { year, month, items: [], total: 0 };
+        }
+        claimsByPeriod[key].items.push(c);
+        claimsByPeriod[key].total += Number(c.amount);
     }
+    const claimPeriods = Object.values(claimsByPeriod).sort((a, b) => b.year - a.year || b.month - a.month);
 
     // Group claims by year
     const claimsByYearMap: Record<number, YearlyClaimRow> = {};
@@ -93,24 +101,19 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
     const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
     // Determine which compensation values to show based on filters
-    // If a specific month/year is filtered, use historical data for that period
-    // Otherwise use the latest values
     let salary: number;
     let pera: number;
     let rata: number;
 
     if (filterMonth && filterYear) {
-        // Use historical data for the specific filtered period
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), parseInt(filterMonth));
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
     } else if (filterYear) {
-        // For year-only filter, use the value at the end of that year (December)
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
     } else {
-        // No filters - use latest values
         salary = Number(employee.latest_salary?.amount ?? 0);
         pera = Number(employee.latest_pera?.amount ?? 0);
         rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
@@ -137,241 +140,290 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
         return 'All Records';
     };
 
+    // Get unique months from both deductions and claims
+    const allPeriods = new Set<string>();
+    deductionPeriods.forEach((p) => allPeriods.add(`${p.year}-${String(p.month).padStart(2, '0')}`));
+    claimPeriods.forEach((p) => allPeriods.add(`${p.year}-${String(p.month).padStart(2, '0')}`));
+    const sortedPeriods = Array.from(allPeriods).sort((a, b) => b.localeCompare(a));
+
     return (
-        <div ref={ref} className="print-container bg-white p-6">
-            {/* Print Styles */}
+        <div ref={ref} className="mx-auto min-h-screen max-w-[216mm] bg-white p-8 font-sans text-[11px] leading-[1.3] text-black print:p-0">
+            <div className="print:w-full">
+                <table className="w-full">
+                    <thead className="hidden print:table-header-group">
+                        <tr>
+                            <td>
+                                <div className="h-[9mm]"></div>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {/* Header */}
+                                <div className="mb-5 text-center">
+                                    <h2
+                                        className="m-0 text-[16px] font-bold uppercase"
+                                        style={{
+                                            fontFamily: '"Old English Text MT", "Times New Roman", serif',
+                                        }}
+                                    >
+                                        EMPLOYEE FINANCIAL REPORT
+                                    </h2>
+                                    <p className="m-[5px_0] text-[12px]">
+                                        {employee.last_name}, {employee.first_name} {employee.middle_name}
+                                    </p>
+                                    <p className="m-0 text-[11px]">
+                                        {employee.position} — {employee.office?.name || 'N/A'}
+                                    </p>
+                                    <p className="m-0 text-[10px] text-gray-500">
+                                        Period: {getFilterDescription()} • Generated: {currentDate}
+                                    </p>
+                                </div>
+
+                                {/* Summary Table */}
+                                <table className="mb-6 w-full border-collapse border border-black">
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-black p-2 font-bold">Basic Salary</td>
+                                            <td className="border border-black p-2 text-right">{formatCurrency(salary)}</td>
+                                            <td className="border border-black p-2 font-bold">PERA</td>
+                                            <td className="border border-black p-2 text-right">{formatCurrency(pera)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black p-2 font-bold">RATA</td>
+                                            <td className="border border-black p-2 text-right">
+                                                {employee.is_rata_eligible ? formatCurrency(rata) : '-'}
+                                            </td>
+                                            <td className="border border-black p-2 font-bold">Gross Pay</td>
+                                            <td className="border border-black p-2 text-right font-medium">{formatCurrency(grossPay)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black p-2 font-bold">Total Deductions</td>
+                                            <td className="border border-black p-2 text-right text-red-600">{formatCurrency(totalAllDeductions)}</td>
+                                            <td className="border border-black p-2 font-bold">Net Pay</td>
+                                            <td className="border border-black p-2 text-right font-bold text-green-600">{formatCurrency(netPay)}</td>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                            <td className="border border-black p-2 font-bold" colSpan={2}>
+                                                Total Claims
+                                            </td>
+                                            <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
+                                                {formatCurrency(totalAllClaims)}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                {/* Monthly Sections */}
+                                <div className="space-y-6">
+                                    {sortedPeriods.map((periodKey) => {
+                                        const [year, month] = periodKey.split('-').map(Number);
+                                        const deductionPeriod = deductionPeriods.find((p) => p.year === year && p.month === month);
+                                        const claimPeriod = claimPeriods.find((p) => p.year === year && p.month === month);
+
+                                        if (!deductionPeriod && !claimPeriod) return null;
+
+                                        return (
+                                            <div key={periodKey} className="break-inside-avoid">
+                                                <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-black pb-1">
+                                                    <h3 className="m-0 text-[13px] font-bold uppercase">
+                                                        {MONTHS[month - 1]} {year}
+                                                    </h3>
+                                                    <div className="text-[11px]">
+                                                        {deductionPeriod && (
+                                                            <span>
+                                                                Deductions:{' '}
+                                                                <span className="font-bold text-red-600">
+                                                                    {formatCurrency(deductionPeriod.total)}
+                                                                </span>
+                                                                {' • '}
+                                                            </span>
+                                                        )}
+                                                        {claimPeriod && (
+                                                            <span>
+                                                                Claims:{' '}
+                                                                <span className="font-bold text-green-600">{formatCurrency(claimPeriod.total)}</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Two column layout for deductions and claims */}
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    {/* Deductions Table */}
+                                                    <table className="w-full border-collapse border border-black">
+                                                        <thead>
+                                                            <tr className="bg-gray-100">
+                                                                <th className="border border-black px-2 py-1 text-left text-[10px]">
+                                                                    Deduction Type
+                                                                </th>
+                                                                <th className="w-24 border border-black px-2 py-1 text-right text-[10px]">Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {deductionPeriod ? (
+                                                                <>
+                                                                    {deductionPeriod.items.map((d) => (
+                                                                        <tr key={d.id}>
+                                                                            <td className="border border-black px-2 py-1 uppercase">
+                                                                                {d.deduction_type?.name ?? '—'}
+                                                                            </td>
+                                                                            <td className="border border-black px-2 py-1 text-right text-red-600">
+                                                                                {formatCurrency(Number(d.amount))}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                    <tr className="bg-gray-50 font-bold">
+                                                                        <td className="border border-black px-2 py-1">TOTAL</td>
+                                                                        <td className="border border-black px-2 py-1 text-right text-red-600">
+                                                                            {formatCurrency(deductionPeriod.total)}
+                                                                        </td>
+                                                                    </tr>
+                                                                </>
+                                                            ) : (
+                                                                <tr>
+                                                                    <td
+                                                                        colSpan={2}
+                                                                        className="border border-black px-2 py-2 text-center text-gray-500 italic"
+                                                                    >
+                                                                        No deductions
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+
+                                                    {/* Claims Table */}
+                                                    <table className="w-full border-collapse border border-black">
+                                                        <thead>
+                                                            <tr className="bg-gray-100">
+                                                                <th className="border border-black px-2 py-1 text-left text-[10px]">Claim</th>
+                                                                <th className="w-20 border border-black px-2 py-1 text-right text-[10px]">Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {claimPeriod ? (
+                                                                <>
+                                                                    {claimPeriod.items.map((c) => (
+                                                                        <tr key={c.id}>
+                                                                            <td className="border border-black px-2 py-1">
+                                                                                <div className="text-[10px] font-medium uppercase">
+                                                                                    {c.claim_type?.name ?? '—'}
+                                                                                </div>
+                                                                                <div className="text-[9px] text-gray-500">{c.purpose}</div>
+                                                                            </td>
+                                                                            <td className="border border-black px-2 py-1 text-right text-green-600">
+                                                                                {formatCurrency(Number(c.amount))}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                    <tr className="bg-gray-50 font-bold">
+                                                                        <td className="border border-black px-2 py-1">TOTAL</td>
+                                                                        <td className="border border-black px-2 py-1 text-right text-green-600">
+                                                                            {formatCurrency(claimPeriod.total)}
+                                                                        </td>
+                                                                    </tr>
+                                                                </>
+                                                            ) : (
+                                                                <tr>
+                                                                    <td
+                                                                        colSpan={2}
+                                                                        className="border border-black px-2 py-2 text-center text-gray-500 italic"
+                                                                    >
+                                                                        No claims
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Yearly Summary */}
+                                {(claimYears.length > 0 || deductionPeriods.length > 0) && (
+                                    <div className="mt-6 break-inside-avoid">
+                                        <div className="mb-2 border-b border-black pb-1">
+                                            <h3 className="m-0 text-[13px] font-bold uppercase">Yearly Summary</h3>
+                                        </div>
+                                        <table className="w-full border-collapse border border-black">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="border border-black px-2 py-1 text-left">Year</th>
+                                                    <th className="border border-black px-2 py-1 text-right">Total Deductions</th>
+                                                    <th className="border border-black px-2 py-1 text-right">Total Claims</th>
+                                                    <th className="border border-black px-2 py-1 text-right">Net</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {Array.from(new Set([...deductionPeriods.map((p) => p.year), ...claimYears.map((c) => c.year)]))
+                                                    .sort((a, b) => b - a)
+                                                    .map((year) => {
+                                                        const yearDeductions = deductionPeriods
+                                                            .filter((p) => p.year === year)
+                                                            .reduce((sum, p) => sum + p.total, 0);
+                                                        const yearClaims = claimYears.find((c) => c.year === year)?.total ?? 0;
+
+                                                        return (
+                                                            <tr key={year}>
+                                                                <td className="border border-black px-2 py-1 font-bold">{year}</td>
+                                                                <td className="border border-black px-2 py-1 text-right text-red-600">
+                                                                    {formatCurrency(yearDeductions)}
+                                                                </td>
+                                                                <td className="border border-black px-2 py-1 text-right text-green-600">
+                                                                    {formatCurrency(yearClaims)}
+                                                                </td>
+                                                                <td className="border border-black px-2 py-1 text-right font-bold">
+                                                                    {formatCurrency(yearClaims - yearDeductions)}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                <tr className="bg-gray-100 font-bold">
+                                                    <td className="border border-black px-2 py-1">GRAND TOTAL</td>
+                                                    <td className="border border-black px-2 py-1 text-right text-red-600">
+                                                        {formatCurrency(totalAllDeductions)}
+                                                    </td>
+                                                    <td className="border border-black px-2 py-1 text-right text-green-600">
+                                                        {formatCurrency(totalAllClaims)}
+                                                    </td>
+                                                    <td className="border border-black px-2 py-1 text-right">
+                                                        {formatCurrency(totalAllClaims - totalAllDeductions)}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {/* Footer */}
+                                <div className="mt-6 border-t border-gray-300 pt-3 text-center text-[10px] text-gray-500">
+                                    <p>This is a computer-generated report. For verification purposes, please contact HR.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <style>{`
                 @media print {
-                    @page {
-                        size: A4 landscape;
-                        margin: 10mm;
-                    }
-                    body {
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
-                        font-size: 10pt;
-                    }
-                    .print-container {
-                        padding: 0 !important;
-                    }
-                    .no-print {
-                        display: none !important;
-                    }
-                    .print-section {
-                        page-break-inside: avoid;
-                    }
+                    @page { margin: 0; size: auto; }
+                    body { margin: 0 10mm; -webkit-print-color-adjust: exact; }
                     table {
-                        font-size: 9pt;
+                        border-collapse: collapse;
                     }
-                    th, td {
-                        padding: 4px 8px !important;
+
+                    td, th {
+                        padding: 4px 6px !important;
+                        font-size: 11px;
+                        page-break-inside: avoid;
                     }
                 }
             `}</style>
-
-            {/* Compact Header */}
-            <div className="mb-4 flex items-center justify-between border-b-2 border-slate-800 pb-3">
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight text-slate-900 uppercase">Employee Financial Report</h1>
-                    <p className="text-xs text-slate-600">Official Statement of Deductions and Claims — {getFilterDescription()}</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-xs font-semibold text-slate-900">Report Date: {currentDate}</p>
-                </div>
-            </div>
-
-            {/* Compact Employee Info */}
-            <div className="print-section mb-4 rounded border border-slate-200 bg-slate-50 p-3">
-                <div className="grid grid-cols-4 gap-4 text-sm">
-                    <div>
-                        <span className="text-xs text-slate-500 uppercase">Name:</span>
-                        <p className="font-semibold">
-                            {employee.last_name}, {employee.first_name}
-                        </p>
-                    </div>
-                    <div>
-                        <span className="text-xs text-slate-500 uppercase">Position:</span>
-                        <p className="font-semibold">{employee.position}</p>
-                    </div>
-                    <div>
-                        <span className="text-xs text-slate-500 uppercase">Office:</span>
-                        <p className="font-semibold">{employee.office?.name || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-xs text-slate-500 uppercase">Status:</span>
-                        <p className="font-semibold">{employee.employment_status?.name || '—'}</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Compact Summary */}
-            <div className="print-section mb-4 grid grid-cols-4 gap-3">
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <span className="text-xs font-medium text-slate-600">Basic Salary</span>
-                    <p className="text-base font-bold text-slate-900">{formatCurrency(salary)}</p>
-                </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <span className="text-xs font-medium text-slate-600">PERA</span>
-                    <p className="text-base font-bold text-slate-900">{formatCurrency(pera)}</p>
-                </div>
-                {employee.is_rata_eligible && (
-                    <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                        <span className="text-xs font-medium text-slate-600">RATA</span>
-                        <p className="text-base font-bold text-slate-900">{formatCurrency(rata)}</p>
-                    </div>
-                )}
-                <div className="rounded border border-slate-300 bg-slate-100 p-2">
-                    <span className="text-xs font-medium text-slate-700">Gross Pay</span>
-                    <p className="text-base font-bold text-slate-900">{formatCurrency(grossPay)}</p>
-                </div>
-                <div className="rounded border border-red-200 bg-red-50 p-2">
-                    <span className="text-xs font-medium text-red-600">Deductions</span>
-                    <p className="text-base font-bold text-red-700">{formatCurrency(totalAllDeductions)}</p>
-                </div>
-                <div className="rounded border border-green-200 bg-green-50 p-2">
-                    <span className="text-xs font-medium text-green-600">Net Pay</span>
-                    <p className="text-base font-bold text-green-700">{formatCurrency(netPay)}</p>
-                </div>
-                <div className="rounded border border-blue-200 bg-blue-50 p-2">
-                    <span className="text-xs font-medium text-blue-600">Claims</span>
-                    <p className="text-base font-bold text-blue-700">{formatCurrency(totalAllClaims)}</p>
-                </div>
-            </div>
-
-            {/* Two Column Layout for Deductions and Claims */}
-            <div className="grid grid-cols-2 gap-6">
-                {/* Deductions Column */}
-                <div className="print-section">
-                    <h2 className="mb-2 border-b border-slate-200 pb-1 text-sm font-bold text-slate-900">Deductions Report</h2>
-
-                    {deductionPeriods.length === 0 ? (
-                        <p className="py-4 text-center text-xs text-slate-500">No deductions recorded.</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {/* Yearly Totals */}
-                            <div>
-                                <h3 className="mb-1 text-xs font-semibold text-slate-600 uppercase">Yearly Totals</h3>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-slate-100">
-                                            <TableHead className="h-7 text-xs font-semibold">Year</TableHead>
-                                            <TableHead className="h-7 text-right text-xs font-semibold">Total</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.entries(deductionsByYear)
-                                            .sort(([a], [b]) => Number(b) - Number(a))
-                                            .map(([year, total]) => (
-                                                <TableRow key={year}>
-                                                    <TableCell className="py-1 text-xs">{year}</TableCell>
-                                                    <TableCell className="py-1 text-right text-xs font-semibold text-red-600">
-                                                        {formatCurrency(total)}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-
-                            {/* Period Breakdown */}
-                            <div>
-                                <h3 className="mb-1 text-xs font-semibold text-slate-600 uppercase">Period Breakdown</h3>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-slate-100">
-                                            <TableHead className="h-7 text-xs font-semibold">Period</TableHead>
-                                            <TableHead className="h-7 text-xs font-semibold">Type</TableHead>
-                                            <TableHead className="h-7 text-right text-xs font-semibold">Amount</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {deductionPeriods.map((period) => (
-                                            <>
-                                                {period.items.map((d, idx) => (
-                                                    <TableRow key={d.id}>
-                                                        {idx === 0 && (
-                                                            <TableCell
-                                                                rowSpan={period.items.length + 1}
-                                                                className="py-1 align-top text-xs font-semibold"
-                                                            >
-                                                                {MONTHS[period.month - 1]} {period.year}
-                                                            </TableCell>
-                                                        )}
-                                                        <TableCell className="py-1 text-xs">{d.deduction_type?.name ?? '—'}</TableCell>
-                                                        <TableCell className="py-1 text-right text-xs text-red-600">
-                                                            {formatCurrency(Number(d.amount))}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                                <TableRow className="bg-slate-50">
-                                                    <TableCell className="py-1 text-right text-xs font-semibold text-slate-500">
-                                                        Period Total
-                                                    </TableCell>
-                                                    <TableCell className="py-1 text-right text-xs font-bold text-red-700">
-                                                        {formatCurrency(period.total)}
-                                                    </TableCell>
-                                                </TableRow>
-                                            </>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Claims Column */}
-                <div className="print-section">
-                    <h2 className="mb-2 border-b border-slate-200 pb-1 text-sm font-bold text-slate-900">Claims Report</h2>
-
-                    {claimYears.length === 0 ? (
-                        <p className="py-4 text-center text-xs text-slate-500">No claims recorded.</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {claimYears.map((yearRow) => (
-                                <div key={yearRow.year}>
-                                    <div className="mb-1 flex items-center justify-between">
-                                        <h3 className="text-xs font-semibold text-slate-600 uppercase">{yearRow.year}</h3>
-                                        <span className="text-xs font-bold text-green-700">{formatCurrency(yearRow.total)}</span>
-                                    </div>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow className="bg-slate-100">
-                                                <TableHead className="h-7 text-xs font-semibold">Date</TableHead>
-                                                <TableHead className="h-7 text-xs font-semibold">Type</TableHead>
-                                                <TableHead className="h-7 text-xs font-semibold">Purpose</TableHead>
-                                                <TableHead className="h-7 text-right text-xs font-semibold">Amount</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {yearRow.items
-                                                .sort((a, b) => new Date(b.claim_date).getTime() - new Date(a.claim_date).getTime())
-                                                .map((c) => (
-                                                    <TableRow key={c.id}>
-                                                        <TableCell className="py-1 text-xs whitespace-nowrap">
-                                                            {new Date(c.claim_date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
-                                                        </TableCell>
-                                                        <TableCell className="py-1 text-xs">{c.claim_type?.name ?? '—'}</TableCell>
-                                                        <TableCell className="max-w-[150px] truncate py-1 text-xs">{c.purpose}</TableCell>
-                                                        <TableCell className="py-1 text-right text-xs font-medium text-green-600">
-                                                            {formatCurrency(Number(c.amount))}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className="mt-6 border-t border-slate-200 pt-3 text-center text-xs text-slate-500">
-                <p>This is a computer-generated report. For verification purposes, please contact HR.</p>
-                <p>© {new Date().getFullYear()} Employee Compensation Management System</p>
-            </div>
         </div>
     );
 });
