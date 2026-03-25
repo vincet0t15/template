@@ -3,13 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { FileText, Printer, Receipt, TrendingDown, X } from 'lucide-react';
-import { Fragment, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { PrintReport } from './PrintReport';
 
 interface ReportsProps {
@@ -19,6 +18,7 @@ interface ReportsProps {
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const FULL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function formatCurrency(amount: number) {
     return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
@@ -28,13 +28,9 @@ function formatCurrency(amount: number) {
 function getEffectiveAmount(history: { amount: number; effective_date: string }[] | undefined, periodYear: number, periodMonth: number): number {
     if (!history || history.length === 0) return 0;
 
-    // Create a date for the end of the period (last day of the month)
     const periodEndDate = new Date(periodYear, periodMonth, 0);
-
-    // Sort history by effective_date descending (newest first)
     const sortedHistory = [...history].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime());
 
-    // Find the most recent record that was effective before or during this period
     for (const record of sortedHistory) {
         const effectiveDate = new Date(record.effective_date);
         if (effectiveDate <= periodEndDate) {
@@ -42,7 +38,6 @@ function getEffectiveAmount(history: { amount: number; effective_date: string }[
         }
     }
 
-    // If no record found, return the oldest one (fallback)
     return Number(sortedHistory[sortedHistory.length - 1]?.amount ?? 0);
 }
 
@@ -126,24 +121,19 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     const totalAllClaims = filteredClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
     // Determine which compensation values to show based on filters
-    // If a specific month/year is filtered, use historical data for that period
-    // Otherwise use the latest values
     let salary: number;
     let pera: number;
     let rata: number;
 
     if (filterMonth && filterYear) {
-        // Use historical data for the specific filtered period
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), parseInt(filterMonth));
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
     } else if (filterYear) {
-        // For year-only filter, use the value at the end of that year (December)
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
     } else {
-        // No filters - use latest values
         salary = Number(employee.latest_salary?.amount ?? 0);
         pera = Number(employee.latest_pera?.amount ?? 0);
         rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
@@ -194,7 +184,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
             {/* Date Filters */}
             <div className="flex flex-wrap items-center gap-3">
                 <CustomComboBox
-                    items={MONTHS.map((month, index) => ({ value: String(index + 1), label: month }))}
+                    items={FULL_MONTHS.map((month, index) => ({ value: String(index + 1), label: month }))}
                     placeholder="All Months"
                     value={filterMonth}
                     onSelect={(value) => setFilterMonth(value)}
@@ -316,99 +306,112 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                 </Card>
             </div>
 
-            {/* Deductions Report */}
-            <div className="space-y-3">
-                <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Deductions by Period</h3>
+            {/* Period Breakdown - New Design */}
+            <div className="space-y-4">
+                <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Period Breakdown</h3>
 
                 {deductionPeriods.length === 0 ? (
                     <div className="text-muted-foreground rounded-sm border py-10 text-center text-sm">No deductions recorded.</div>
                 ) : (
                     <div className="space-y-4">
-                        {/* Yearly totals */}
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Yearly Deduction Totals</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
-                                    <Table className="">
-                                        <TableHeader className="bg-muted/90 rounded-sm">
-                                            <TableRow>
-                                                <TableHead>Year</TableHead>
-                                                <TableHead className="text-right">Total Deducted</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {Object.entries(deductionsByYear)
-                                                .sort(([a], [b]) => Number(b) - Number(a))
-                                                .map(([year, total]) => (
-                                                    <TableRow key={year}>
-                                                        <TableCell className="font-medium">{year}</TableCell>
-                                                        <TableCell className="text-right font-semibold text-red-600">
-                                                            {formatCurrency(total)}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        {deductionPeriods.map((period) => {
+                            // Get compensation for this specific period
+                            const periodSalary = getEffectiveAmount(employee.salaries, period.year, period.month);
+                            const periodPera = getEffectiveAmount(employee.peras, period.year, period.month);
+                            const periodRata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, period.year, period.month) : 0;
+                            const periodGrossPay = periodSalary + periodPera + periodRata;
+                            const periodNetPay = periodGrossPay - period.total;
 
-                        {/* Per-period breakdown */}
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Period Breakdown</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                            return (
+                                <div key={`${period.year}-${period.month}`} className="overflow-hidden rounded-lg border bg-white shadow-sm">
+                                    {/* Header */}
+                                    <div className="bg-muted/30 flex items-center justify-between border-b px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold">
+                                                {FULL_MONTHS[period.month - 1]} {period.year}
+                                            </span>
+                                            <Badge variant="secondary" className="text-xs">
+                                                {period.items.length} deduction{period.items.length !== 1 ? 's' : ''}
+                                            </Badge>
+                                        </div>
+                                        <div className="text-sm">
+                                            Net Pay: <span className="font-bold text-green-600">{formatCurrency(periodNetPay)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Deductions Table */}
                                     <Table>
-                                        <TableHeader className="bg-muted/90 rounded-sm">
-                                            <TableRow>
-                                                <TableHead>Period</TableHead>
-                                                <TableHead>Deduction Type</TableHead>
-                                                <TableHead className="text-right">Amount</TableHead>
+                                        <TableHeader>
+                                            <TableRow className="bg-muted/50">
+                                                <TableHead className="font-semibold">Deduction Type</TableHead>
+                                                <TableHead className="text-right font-semibold">Amount</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {deductionPeriods.map((period) => (
-                                                <Fragment key={`${period.year}-${period.month}`}>
-                                                    {period.items.map((d, idx) => (
-                                                        <TableRow key={d.id}>
-                                                            {idx === 0 && (
-                                                                <TableCell rowSpan={period.items.length + 1} className="align-top font-medium">
-                                                                    {MONTHS[period.month - 1]} {period.year}
-                                                                </TableCell>
-                                                            )}
-                                                            <TableCell className="text-muted-foreground">{d.deduction_type?.name ?? '—'}</TableCell>
-                                                            <TableCell className="text-right text-red-600">
-                                                                {formatCurrency(Number(d.amount))}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                    <TableRow key={`total-${period.year}-${period.month}`} className="bg-muted/30">
-                                                        <TableCell className="text-right text-xs font-semibold text-slate-500 italic">
-                                                            Period Total
-                                                        </TableCell>
-                                                        <TableCell className="text-right font-bold text-red-600">
-                                                            {formatCurrency(period.total)}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </Fragment>
+                                            {period.items.map((d) => (
+                                                <TableRow key={d.id}>
+                                                    <TableCell className="uppercase">{d.deduction_type?.name ?? '—'}</TableCell>
+                                                    <TableCell className="text-right text-red-600">-{formatCurrency(Number(d.amount))}</TableCell>
+                                                </TableRow>
                                             ))}
                                         </TableBody>
                                     </Table>
+
+                                    {/* Summary Section */}
+                                    <div className="bg-muted/20 border-t">
+                                        <div className="grid grid-cols-2 divide-x">
+                                            <div className="grid grid-cols-2">
+                                                <div className="text-muted-foreground px-4 py-2 text-sm">Basic Salary</div>
+                                                <div className="px-4 py-2 text-right text-sm font-medium">{formatCurrency(periodSalary)}</div>
+                                            </div>
+                                            <div className="grid grid-cols-2">
+                                                <div className="text-muted-foreground px-4 py-2 text-sm">PERA</div>
+                                                <div className="px-4 py-2 text-right text-sm font-medium">+{formatCurrency(periodPera)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 divide-x border-t">
+                                            {employee.is_rata_eligible ? (
+                                                <>
+                                                    <div className="grid grid-cols-2">
+                                                        <div className="text-muted-foreground px-4 py-2 text-sm">RATA</div>
+                                                        <div className="px-4 py-2 text-right text-sm font-medium">+{formatCurrency(periodRata)}</div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 bg-blue-50">
+                                                        <div className="px-4 py-2 text-sm font-medium text-blue-800">Gross Pay</div>
+                                                        <div className="px-4 py-2 text-right font-bold text-blue-800">
+                                                            {formatCurrency(periodGrossPay)}
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="col-span-2 grid grid-cols-2 bg-blue-50">
+                                                    <div className="px-4 py-2 text-sm font-medium text-blue-800">Gross Pay</div>
+                                                    <div className="px-4 py-2 text-right font-bold text-blue-800">
+                                                        {formatCurrency(periodGrossPay)}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-2 divide-x border-t">
+                                            <div className="grid grid-cols-2 bg-red-50">
+                                                <div className="px-4 py-2 text-sm font-medium text-red-800">Total Deductions</div>
+                                                <div className="px-4 py-2 text-right font-bold text-red-600">-{formatCurrency(period.total)}</div>
+                                            </div>
+                                            <div className="grid grid-cols-2 bg-green-50">
+                                                <div className="px-4 py-2 text-sm font-medium text-green-800">Net Pay</div>
+                                                <div className="px-4 py-2 text-right font-bold text-green-600">{formatCurrency(periodNetPay)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            <Separator />
-
             {/* Claims Report */}
-            <div className="space-y-3">
+            <div className="space-y-4">
                 <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Claims by Year</h3>
 
                 {claimYears.length === 0 ? (

@@ -1,3 +1,6 @@
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
+
 type EmployeeData = {
     id: number;
     name: string;
@@ -65,9 +68,10 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
     return (
         <div className="mx-auto min-h-screen max-w-[216mm] bg-white p-8 font-sans text-[11px] leading-[1.3] text-black print:p-0">
             <div className="mb-4 flex justify-end print:hidden">
-                <button onClick={handlePrint} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                <Button onClick={handlePrint}>
+                    <Printer />
                     Print Report
-                </button>
+                </Button>
             </div>
 
             <div className="print:w-full">
@@ -249,20 +253,34 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
             </div>
 
             <style>{`
-                @media print {
-                    @page { margin: 0; size: auto; }
-                    body { margin: 0 10mm; -webkit-print-color-adjust: exact; }
-                    table {
-                        border-collapse: collapse;
-                    }
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 5mm;
+        }
 
-                    td, th {
-                        padding: 4px 6px !important;
-                        font-size: 11px;
-                        page-break-inside: avoid;
-                    }
-                }
-            `}</style>
+        body {
+            margin: 0;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .print-container {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            padding: 4px 6px !important;
+            font-size: 11px;
+            page-break-inside: avoid;
+        }
+    }
+`}</style>
         </div>
     );
 }
