@@ -16,33 +16,44 @@
 - [employeeDeduction.d.ts](file://resources/js/types/employeeDeduction.d.ts)
 - [claim.ts](file://resources/js/types/claim.ts)
 - [employee.d.ts](file://resources/js/types/employee.d.ts)
+- [card.tsx](file://resources/js/components/ui/card.tsx)
+- [table.tsx](file://resources/js/components/ui/table.tsx)
+- [button.tsx](file://resources/js/components/ui/button.tsx)
+- [dialog.tsx](file://resources/js/components/ui/dialog.tsx)
+- [utils.ts](file://resources/js/lib/utils.ts)
+- [app-layout.tsx](file://resources/js/layouts/app-layout.tsx)
+- [use-mobile.tsx](file://resources/js/hooks/use-mobile.tsx)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Added new PrintReport.tsx component with specialized print-friendly layout
-- Enhanced Reports.tsx component with improved print preview dialog system
-- Integrated dedicated print functionality for employee compensation and claims data
-- Added comprehensive print styling and formatting capabilities
+- Enhanced card component with improved responsive design and size variants
+- Improved table component with better mobile responsiveness and accessibility
+- Upgraded button component with enhanced variant system and sizing options
+- Enhanced dialog component with improved layout and spacing
+- Added comprehensive utility functions for consistent styling
+- Implemented responsive design patterns throughout the dashboard
+- Enhanced print system with improved layout optimization
 
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Print System Enhancement](#print-system-enhancement)
-7. [Dependency Analysis](#dependency-analysis)
-8. [Performance Considerations](#performance-considerations)
-9. [Troubleshooting Guide](#troubleshooting-guide)
-10. [Conclusion](#conclusion)
+5. [Enhanced UI Component System](#enhanced-ui-component-system)
+6. [Improved Data Presentation](#improved-data-presentation)
+7. [Responsive Design Implementation](#responsive-design-implementation)
+8. [Print System Enhancement](#print-system-enhancement)
+9. [Performance Considerations](#performance-considerations)
+10. [Troubleshooting Guide](#troubleshooting-guide)
+11. [Conclusion](#conclusion)
 
 ## Introduction
 The Employee Reports Dashboard is a comprehensive payroll and employee management system built with Laravel and React. This system provides real-time insights into employee deductions, manages payroll processing, tracks employee claims, and offers detailed reporting capabilities. The dashboard serves as the central hub for HR personnel and financial administrators to monitor and analyze employee compensation and benefit distributions across multiple offices and departments.
 
 The system integrates modern web technologies including Inertia.js for seamless server-side rendering, TypeScript for type safety, and a robust Laravel backend with Eloquent ORM for data management. It supports advanced filtering, sorting, and aggregation features essential for large-scale employee management operations.
 
-**Updated** Enhanced with dedicated print functionality for generating official employee compensation and claims reports with professional formatting and print optimization.
+**Updated** Enhanced with improved UI components featuring better card layouts, responsive design patterns, and optimized data presentation for superior user experience across all device sizes.
 
 ## Project Structure
 The application follows a modular MVC architecture with clear separation of concerns between frontend React components and backend Laravel controllers. The structure emphasizes maintainability and scalability through organized file organization and consistent naming conventions.
@@ -247,177 +258,372 @@ The architecture implements several key design patterns:
 - [dashboard.tsx:1-284](file://resources/js/pages/dashboard.tsx#L1-L284)
 - [web.php:27-134](file://routes/web.php#L27-L134)
 
-## Detailed Component Analysis
+## Enhanced UI Component System
 
-### Dashboard Analytics Implementation
+**New Section** The dashboard now features an enhanced UI component system with improved card layouts, responsive design patterns, and optimized data presentation.
 
-The dashboard analytics system provides comprehensive insights through sophisticated data aggregation and filtering mechanisms.
+### Card Component Enhancements
+
+The card component has been significantly improved with better responsive design, size variants, and enhanced styling options.
+
+```mermaid
+classDiagram
+class Card {
++className : string
++size : "default" | "sm"
++data-slot : "card"
++data-size : size
++rounded-sm
++bg-card
++text-card-foreground
++ring-1 ring-foreground/10
++has-data-[slot=card-footer] : pb-0
++has-[>img : first-child] : pt-0
++data-[size=sm] : gap-3
++data-[size=sm] : py-3
++* : img : first-child] : rounded-t-xl
++* : img : last-child] : rounded-b-xl
+}
+class CardHeader {
++data-slot : "card-header"
++group/card-header
++@container/card-header
++grid auto-rows-min
++items-start
++gap-1
++rounded-t-xl
++px-4
++group-data-[size=sm]/card : px-3
++has-data-[slot=card-action] : grid-cols-[1fr_auto]
++has-data-[slot=card-description] : grid-rows-[auto_auto]
++[.border-b] : pb-4
++group-data-[size=sm]/card : [.border-b] : pb-3
+}
+class CardContent {
++data-slot : "card-content"
++px-4
++group-data-[size=sm]/card : px-3
+}
+class CardFooter {
++data-slot : "card-footer"
++flex items-center
++rounded-b-xl
++border-t
++bg-muted/50
++p-4
++group-data-[size=sm]/card : p-3
+}
+class CardTitle {
++data-slot : "card-title"
++font-heading
++text-base
++leading-snug
++font-medium
++group-data-[size=sm]/card : text-sm
+}
+class CardDescription {
++data-slot : "card-description"
++text-sm
++text-muted-foreground
+}
+class CardAction {
++data-slot : "card-action"
++col-start-2
++row-span-2
++row-start-1
++self-start
++justify-self-end
+}
+```
+
+**Diagram sources**
+- [card.tsx:5-103](file://resources/js/components/ui/card.tsx#L5-L103)
+
+### Table Component Improvements
+
+The table component now features enhanced mobile responsiveness, better accessibility, and improved styling for data presentation.
+
+```mermaid
+classDiagram
+class Table {
++data-slot : "table-container"
++relative w-full
++overflow-x-auto
++table
++w-full
++caption-bottom
++text-sm
+}
+class TableHeader {
++data-slot : "table-header"
++[_tr] : border-b
+}
+class TableBody {
++data-slot : "table-body"
++[_tr : last-child] : border-0
+}
+class TableRow {
++data-slot : "table-row"
++border-b
++transition-colors
++hover : bg-muted/50
++data-[state=selected] : bg-muted
+}
+class TableHead {
++data-slot : "table-head"
++h-10
++px-2
++text-left
++align-middle
++font-medium
++whitespace-nowrap
++text-foreground
++& : has([role=checkbox]) : pr-0
+}
+class TableCell {
++data-slot : "table-cell"
++p-2
++align-middle
++whitespace-nowrap
++& : has([role=checkbox]) : pr-0
+}
+class TableCaption {
++data-slot : "table-caption"
++mt-4
++text-sm
++text-muted-foreground
+}
+```
+
+**Diagram sources**
+- [table.tsx:7-117](file://resources/js/components/ui/table.tsx#L7-L117)
+
+### Button Component Variants
+
+The button component now supports enhanced variant system with improved sizing options and styling consistency.
+
+```mermaid
+classDiagram
+class Button {
++data-slot : "button"
++group/button
++inline-flex
++shrink-0
++items-center
++justify-center
++rounded-lg
++border border-transparent
++bg-clip-padding
++text-sm
++font-medium
++whitespace-nowrap
++transition-all
++outline-none
++select-none
++focus-visible : border-ring
++focus-visible : ring-3
++focus-visible : ring-ring/50
++active : translate-y-px
++disabled : pointer-events-none
++disabled : opacity-50
++aria-invalid : border-destructive
++aria-invalid : ring-3
++aria-invalid : ring-destructive/20
++dark : aria-invalid : border-destructive/50
++dark : aria-invalid : ring-destructive/40
++&[_svg] : pointer-events-none
++&[_svg] : shrink-0
++&[_svg : not([class*='size-'])] : size-4
+}
+class ButtonVariants {
++variant : default | outline | secondary | ghost | destructive | link
++size : default | xs | sm | lg | icon | icon-xs | icon-sm | icon-lg
++default : bg-primary text-primary-foreground
++outline : border-border bg-background hover : bg-muted hover : text-foreground
++secondary : bg-secondary text-secondary-foreground hover : bg-secondary/80
++ghost : hover : bg-muted hover : text-foreground
++destructive : bg-destructive/10 text-destructive hover : bg-destructive/20
++link : text-primary underline-offset-4 hover : underline
+}
+```
+
+**Diagram sources**
+- [button.tsx:7-68](file://resources/js/components/ui/button.tsx#L7-L68)
+
+**Section sources**
+- [card.tsx:1-104](file://resources/js/components/ui/card.tsx#L1-L104)
+- [table.tsx:1-117](file://resources/js/components/ui/table.tsx#L1-L117)
+- [button.tsx:1-68](file://resources/js/components/ui/button.tsx#L1-L68)
+
+## Improved Data Presentation
+
+**New Section** The dashboard now features enhanced data presentation with improved card layouts, responsive grid systems, and optimized visual hierarchy for better user comprehension.
+
+### Responsive Grid System
+
+The dashboard implements a comprehensive responsive grid system that adapts to different screen sizes while maintaining optimal data presentation.
 
 ```mermaid
 flowchart TD
-Start([Dashboard Request]) --> CalculateStats["Calculate Basic Statistics"]
-CalculateStats --> MonthlyDeductions["Fetch Monthly Deductions"]
-MonthlyDeductions --> EmployeesByOffice["Aggregate Employees by Office"]
-EmployeesByOffice --> RecentEmployees["Get Recent Employees with Deductions"]
-RecentEmployees --> TopDeductionTypes["Identify Top Deduction Types"]
-TopDeductionTypes --> FormatData["Format Response Data"]
-FormatData --> RenderDashboard["Render Dashboard Components"]
-RenderDashboard --> End([Complete View])
-CalculateStats --> TotalEmployees["Count Total Employees"]
-CalculateStats --> TotalOffices["Count Total Offices"]
-CalculateStats --> ActiveDeductionTypes["Count Active Deduction Types"]
-MonthlyDeductions --> MonthlyCount["Count Deduction Records"]
-MonthlyDeductions --> MonthlyTotal["Sum Deduction Amounts"]
-MonthlyDeductions --> UniqueEmployees["Count Distinct Employees"]
+Start([Dashboard Load]) --> CheckScreenSize{"Check Screen Size"}
+CheckScreenSize --> |Mobile (< 768px)| MobileGrid["1 Column Grid"]
+CheckScreenSize --> |Tablet (768-1024px)| TabletGrid["2 Column Grid"]
+CheckScreenSize --> |Desktop (> 1024px)| DesktopGrid["4 Column Grid"]
+MobileGrid --> StatCards["Stat Cards with Icons"]
+TabletGrid --> StatCards
+DesktopGrid --> StatCards
+StatCards --> MainContent["Main Content Area"]
+MainContent --> TopDeductions["Top Deduction Types"]
+MainContent --> EmployeeList["Employees with Deductions"]
+TopDeductions --> ResponsiveLayout["Responsive Layout"]
+EmployeeList --> ResponsiveLayout
+ResponsiveLayout --> QuickActions["Quick Actions"]
+QuickActions --> FinalLayout["Optimized Dashboard"]
 ```
 
 **Diagram sources**
-- [DashboardController.php:16-67](file://app/Http/Controllers/DashboardController.php#L16-L67)
+- [dashboard.tsx:94-109](file://resources/js/pages/dashboard.tsx#L94-L109)
+- [dashboard.tsx:112-187](file://resources/js/pages/dashboard.tsx#L112-L187)
 
-The analytics engine performs the following key operations:
+### Enhanced Card Layouts
 
-1. **Real-time Statistics Calculation**: Instant aggregation of employee counts, office distribution, and active deduction types
-2. **Monthly Period Filtering**: Dynamic filtering based on current month and year for accurate reporting
-3. **Hierarchical Data Aggregation**: Multi-level grouping by office location and deduction type categories
-4. **Performance Optimization**: Efficient database queries with appropriate indexing and eager loading
+The dashboard cards now feature improved layouts with better visual hierarchy, consistent spacing, and enhanced responsive behavior.
+
+```mermaid
+graph TB
+subgraph "Dashboard Cards"
+StatCard[Stat Card]
+TopDeductionCard[Top Deduction Card]
+EmployeeCard[Employee Card]
+QuickActionCard[Quick Action Card]
+end
+subgraph "Card Components"
+CardHeader[CardHeader]
+CardTitle[CardTitle]
+CardContent[CardContent]
+CardDescription[CardDescription]
+CardAction[CardAction]
+CardFooter[CardFooter]
+end
+StatCard --> CardHeader
+StatCard --> CardTitle
+StatCard --> CardContent
+StatCard --> CardDescription
+StatCard --> CardAction
+StatCard --> CardFooter
+TopDeductionCard --> CardHeader
+TopDeductionCard --> CardTitle
+TopDeductionCard --> CardContent
+EmployeeCard --> CardHeader
+EmployeeCard --> CardTitle
+EmployeeCard --> CardContent
+QuickActionCard --> CardHeader
+QuickActionCard --> CardTitle
+QuickActionCard --> CardContent
+```
+
+**Diagram sources**
+- [dashboard.tsx:96-108](file://resources/js/pages/dashboard.tsx#L96-L108)
+- [dashboard.tsx:114-146](file://resources/js/pages/dashboard.tsx#L114-L146)
+- [dashboard.tsx:149-186](file://resources/js/pages/dashboard.tsx#L149-L186)
+- [dashboard.tsx:190-250](file://resources/js/pages/dashboard.tsx#L190-L250)
 
 **Section sources**
-- [DashboardController.php:14-87](file://app/Http/Controllers/DashboardController.php#L14-L87)
+- [dashboard.tsx:1-255](file://resources/js/pages/dashboard.tsx#L1-L255)
 
-### Employee Reporting System
+## Responsive Design Implementation
 
-The employee reporting system provides detailed historical analysis of individual employee compensation and benefit records.
+**New Section** The dashboard now implements comprehensive responsive design patterns ensuring optimal user experience across all device sizes and screen orientations.
+
+### Mobile Detection Hook
+
+The system includes a sophisticated mobile detection mechanism that responds to viewport changes and orientation adjustments.
 
 ```mermaid
 sequenceDiagram
-participant User as "HR Analyst"
-participant ReportsPage as "Reports Component"
-participant PrintSystem as "Print System"
-participant Backend as "Employee Controller"
-participant Database as "MySQL Database"
-User->>ReportsPage : Select Employee
-ReportsPage->>Backend : GET employee/{id}
-Backend->>Database : Fetch employee details
-Database-->>Backend : Employee data
-Backend->>Database : Get all deductions
-Database-->>Backend : Deduction records
-Backend->>Database : Fetch all claims
-Database-->>Backend : Claim records
-Backend-->>ReportsPage : Complete employee report
-ReportsPage->>ReportsPage : Group and aggregate data
-ReportsPage->>PrintSystem : Open Print Preview
-PrintSystem->>PrintSystem : Generate Professional Layout
-PrintSystem-->>User : Print-ready Report
-Note over User,Database : Historical analysis across multiple periods
+participant Window as "Window Object"
+participant MediaQuery as "Media Query List"
+participant Hook as "useIsMobile Hook"
+participant Components as "React Components"
+Window->>MediaQuery : matchMedia("(max-width : 767px)")
+MediaQuery->>Hook : Initial State Check
+Hook->>Components : Return isMobile = false
+Window->>MediaQuery : Orientation Change
+MediaQuery->>Hook : onChange Event
+Hook->>Hook : Update State Based on Width
+Hook->>Components : Re-render with New State
+Components->>Components : Apply Responsive Classes
 ```
 
 **Diagram sources**
-- [Reports.tsx:35-248](file://resources/js/pages/Employees/Manage/Reports.tsx#L35-L248)
+- [use-mobile.tsx:5-19](file://resources/js/hooks/use-mobile.tsx#L5-L19)
 
-The reporting system implements advanced data processing algorithms:
+### Responsive Utility System
 
-- **Multi-dimensional Grouping**: Deductions grouped by pay period and year for trend analysis
-- **Cumulative Calculations**: Running totals and yearly summaries for comprehensive financial analysis
-- **Dynamic Currency Formatting**: Philippine Peso formatting with proper localization
-- **Responsive Data Structures**: Optimized data shapes for efficient frontend rendering
-- **Print Optimization**: Specialized layout generation for professional printing
-
-**Section sources**
-- [Reports.tsx:1-291](file://resources/js/pages/Employees/Manage/Reports.tsx#L1-L291)
-
-### Data Model Relationships
-
-The system's data model establishes comprehensive relationships between employees, deductions, and organizational units.
+The utility system provides consistent styling across different screen sizes with enhanced Tailwind CSS integration.
 
 ```mermaid
-erDiagram
-EMPLOYEE {
-int id PK
-string first_name
-string middle_name
-string last_name
-string suffix
-string position
-boolean is_rata_eligible
-int employment_status_id FK
-int office_id FK
-int created_by FK
-string image_path
-timestamp created_at
-timestamp updated_at
-timestamp deleted_at
+classDiagram
+class Utils {
++cn(...inputs : ClassValue[]) : string
++twMerge(clsx(inputs)) : string
++clsx(inputs) : ClassValue[]
 }
-EMPLOYEE_DEDUCTION {
-int id PK
-int employee_id FK
-int deduction_type_id FK
-decimal amount
-int pay_period_month
-int pay_period_year
-string notes
-int created_by FK
-timestamp created_at
-timestamp updated_at
+class ResponsiveClasses {
++sm : grid-cols-2
++md : grid-cols-3
++lg : grid-cols-4
++xl : grid-cols-6
++screen-sm : max-width 640px
++screen-md : max-width 768px
++screen-lg : max-width 1024px
++screen-xl : max-width 1280px
 }
-DEDUCTION_TYPE {
-int id PK
-string name
-string code
-string description
-boolean is_active
-timestamp created_at
-timestamp updated_at
-}
-OFFICE {
-int id PK
-string name
-string code
-timestamp created_at
-timestamp updated_at
-}
-EMPLOYMENT_STATUS {
-int id PK
-string name
-timestamp created_at
-timestamp updated_at
-}
-CLAIM {
-int id PK
-int employee_id FK
-int claim_type_id FK
-date claim_date
-decimal amount
-string purpose
-string remarks
-timestamp created_at
-timestamp updated_at
-}
-EMPLOYEE ||--o{ EMPLOYEE_DEDUCTION : has
-DEDUCTION_TYPE ||--o{ EMPLOYEE_DEDUCTION : categorizes
-OFFICE ||--o{ EMPLOYEE : contains
-EMPLOYMENT_STATUS ||--o{ EMPLOYEE : defines
-EMPLOYEE ||--o{ CLAIM : submits
+Utils --> ResponsiveClasses : "enhances"
 ```
 
 **Diagram sources**
-- [Employee.php:14-104](file://app/Models/Employee.php#L14-L104)
-- [EmployeeDeduction.php:10-59](file://app/Models/EmployeeDeduction.php#L10-L59)
-- [DeductionType.php:9-33](file://app/Models/DeductionType.php#L9-L33)
-- [Claim.php:12-36](file://app/Models/Claim.php#L12-L36)
+- [utils.ts:4-6](file://resources/js/lib/utils.ts#L4-L6)
+
+### Layout Adaptation Patterns
+
+The dashboard implements adaptive layout patterns that automatically adjust content presentation based on available screen real estate.
+
+```mermaid
+graph TB
+subgraph "Layout System"
+AppLayout[App Layout]
+HeaderLayout[Header Layout]
+SidebarLayout[Sidebar Layout]
+ResponsiveGrid[Responsive Grid]
+MobileOptimization[Mobile Optimization]
+DesktopOptimization[Desktop Optimization]
+end
+AppLayout --> HeaderLayout
+AppLayout --> SidebarLayout
+HeaderLayout --> ResponsiveGrid
+SidebarLayout --> ResponsiveGrid
+ResponsiveGrid --> MobileOptimization
+ResponsiveGrid --> DesktopOptimization
+MobileOptimization --> AdaptiveCards["Adaptive Card Layouts"]
+DesktopOptimization --> OptimizedTables["Optimized Table Display"]
+```
+
+**Diagram sources**
+- [app-layout.tsx:11-16](file://resources/js/layouts/app-layout.tsx#L11-L16)
 
 **Section sources**
-- [Employee.php:14-104](file://app/Models/Employee.php#L14-L104)
-- [EmployeeDeduction.php:10-59](file://app/Models/EmployeeDeduction.php#L10-L59)
-- [DeductionType.php:9-33](file://app/Models/DeductionType.php#L9-L33)
-- [Claim.php:12-36](file://app/Models/Claim.php#L12-L36)
+- [use-mobile.tsx:1-22](file://resources/js/hooks/use-mobile.tsx#L1-L22)
+- [utils.ts:1-7](file://resources/js/lib/utils.ts#L1-L7)
+- [app-layout.tsx:1-17](file://resources/js/layouts/app-layout.tsx#L1-L17)
 
 ## Print System Enhancement
 
-**New Section** The enhanced reporting system now includes a comprehensive print functionality designed for generating official employee compensation and claims reports.
+**Updated** The enhanced reporting system now includes a comprehensive print functionality designed for generating official employee compensation and claims reports with improved layout optimization and responsive design.
 
-### PrintReport Component Architecture
+### Enhanced PrintReport Component
 
-The PrintReport component provides a specialized print-friendly layout optimized for professional document generation.
+The PrintReport component provides a specialized print-friendly layout optimized for professional document generation with enhanced responsive design.
 
 ```mermaid
 classDiagram
@@ -445,7 +651,7 @@ class YearlyClaimRow {
 +items : Claim[]
 +total : number
 }
-class PrintStyles {
+class EnhancedPrintStyles {
 +@media print
 +@page A4 landscape
 +size : 10mm margins
@@ -453,200 +659,167 @@ class PrintStyles {
 +table : 9pt font
 +padding : 4px 8px
 +page-break-inside : avoid
++responsive-layout : two-column
++compact-formatting : optimized spacing
 }
 PrintReport --> MonthlyDeductionRow : "groups"
 PrintReport --> YearlyClaimRow : "aggregates"
-PrintReport --> PrintStyles : "applies"
+PrintReport --> EnhancedPrintStyles : "applies"
 ```
 
 **Diagram sources**
-- [PrintReport.tsx:37-302](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L37-L302)
+- [PrintReport.tsx:61-380](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L61-L380)
 
-### Print Preview Dialog System
+### Enhanced Print Preview Dialog
 
-The enhanced Reports component now features an improved print preview dialog system that provides users with professional print-ready previews before generating documents.
+The print preview dialog system now features improved layout optimization and responsive design for better user experience.
 
 ```mermaid
 sequenceDiagram
 participant User as "HR User"
 participant Reports as "Reports Component"
-participant Dialog as "Print Preview Dialog"
+participant Dialog as "Enhanced Print Dialog"
 participant PrintSystem as "Print System"
 User->>Reports : Click Print Report
-Reports->>Dialog : Open Print Preview
-Dialog->>Dialog : Render Print Layout
+Reports->>Dialog : Open Enhanced Print Preview
+Dialog->>Dialog : Apply Responsive Layout
+Dialog->>Dialog : Optimize Print Styles
 User->>Dialog : Click Print Now
-Dialog->>PrintSystem : Execute Print
+Dialog->>PrintSystem : Execute Optimized Print
 PrintSystem->>PrintSystem : Generate PDF/A4 Landscape
-PrintSystem-->>User : Print Output
-Note over User,PrintSystem : Professional print-ready output
+PrintSystem-->>User : Professional Print Output
+Note over User,PrintSystem : Enhanced responsive print experience
 ```
 
 **Diagram sources**
-- [Reports.tsx:77-88](file://resources/js/pages/Employees/Manage/Reports.tsx#L77-L88)
-- [Reports.tsx:109-123](file://resources/js/pages/Employees/Manage/Reports.tsx#L109-L123)
+- [Reports.tsx:217-237](file://resources/js/pages/Employees/Manage/Reports.tsx#L217-L237)
 
-### Print Layout Features
+### Responsive Print Layout
 
-The print system implements several professional formatting features:
-
-- **A4 Landscape Orientation**: Optimized for standard paper size and horizontal layout
-- **Professional Typography**: 10pt font size with 9pt table fonts for readability
-- **Compact Data Presentation**: Efficient use of space with minimal white areas
-- **Color-accurate Printing**: Proper color adjustment for print media
-- **Page Break Control**: Prevents content fragmentation across pages
-- **Header and Footer**: Official report branding and date stamps
-
-**Section sources**
-- [PrintReport.tsx:1-305](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L1-L305)
-- [Reports.tsx:1-291](file://resources/js/pages/Employees/Manage/Reports.tsx#L1-L291)
-
-## Dependency Analysis
-
-The system maintains clean dependency relationships through well-defined interfaces and service boundaries.
+The print system implements responsive layout patterns optimized for different content densities and screen sizes.
 
 ```mermaid
 graph TB
-subgraph "Controller Layer"
-DC[DashboardController]
-EC[EmployeeController]
-ED[EmployeeDeductionController]
+subgraph "Print Layout System"
+PrintContainer[Print Container]
+Header[Enhanced Header]
+EmployeeInfo[Compact Employee Info]
+Summary[Optimized Summary]
+TwoColumnLayout[Two Column Layout]
+DeductionsColumn[Deductions Column]
+ClaimsColumn[Claims Column]
+Footer[Professional Footer]
 end
-subgraph "Model Layer"
-Emp[Employee]
-EDed[EmployeeDeduction]
-DT[DeductionType]
-Cl[Claim]
-Off[Office]
-ES[EmploymentStatus]
-end
-subgraph "Frontend Layer"
-Dash[Dashboard Page]
-Rep[Reports Page]
-PrintComp[PrintReport Component]
-UI[UI Components]
-end
-subgraph "Print System"
-PrintDialog[Print Preview Dialog]
-PrintStyles[Print Styles]
-end
-DC --> Emp
-DC --> EDed
-DC --> DT
-DC --> Off
-EC --> Emp
-EC --> ES
-EC --> Off
-ED --> Emp
-ED --> DT
-Dash --> DC
-Rep --> EC
-PrintComp --> Rep
-PrintDialog --> PrintComp
-PrintStyles --> PrintComp
-UI --> Dash
-UI --> Rep
-UI --> PrintDialog
+PrintContainer --> Header
+PrintContainer --> EmployeeInfo
+PrintContainer --> Summary
+PrintContainer --> TwoColumnLayout
+TwoColumnLayout --> DeductionsColumn
+TwoColumnLayout --> ClaimsColumn
+DeductionsColumn --> DeductionsReport["Deductions Report"]
+ClaimsColumn --> ClaimsReport["Claims Report"]
+PrintContainer --> Footer
 ```
 
 **Diagram sources**
-- [DashboardController.php:5-10](file://app/Http/Controllers/DashboardController.php#L5-L10)
-- [EmployeeController.php:5-10](file://app/Http/Controllers/EmployeeController.php#L5-L10)
-- [EmployeeDeductionController.php:5-12](file://app/Http/Controllers/EmployeeDeductionController.php#L5-L12)
-
-Key dependency characteristics:
-
-- **Low Coupling**: Controllers depend on abstractions rather than concrete implementations
-- **High Cohesion**: Related functionality is grouped within single controllers
-- **Clear Interfaces**: Well-defined method signatures and return types
-- **Type Safety**: Comprehensive TypeScript definitions for frontend components
-- **Print System Integration**: Seamless integration between reporting and print functionality
+- [PrintReport.tsx:141-376](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L141-L376)
 
 **Section sources**
-- [DashboardController.php:1-89](file://app/Http/Controllers/DashboardController.php#L1-L89)
-- [EmployeeController.php:1-147](file://app/Http/Controllers/EmployeeController.php#L1-L147)
-- [EmployeeDeductionController.php:1-119](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L119)
+- [PrintReport.tsx:1-380](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L1-L380)
+- [Reports.tsx:1-471](file://resources/js/pages/Employees/Manage/Reports.tsx#L1-L471)
 
 ## Performance Considerations
 
-The system implements several performance optimization strategies:
+The system implements several performance optimization strategies across the enhanced UI component system:
 
-### Database Optimization
-- **Eager Loading**: Strategic use of `with()` and `withCount()` to prevent N+1 query problems
-- **Indexing Strategy**: Proper indexing on frequently queried columns (pay_period_month, pay_period_year, employee_id)
-- **Aggregation Queries**: Efficient use of `selectRaw()` and `groupBy()` for complex calculations
-- **Pagination**: Implemented at database level to limit memory usage
-
-### Frontend Performance
-- **Component Memoization**: React.memo usage for expensive components
-- **Virtual Scrolling**: For large datasets in employee lists
-- **Code Splitting**: Dynamic imports for route-based lazy loading
+### Component-Level Optimizations
+- **Memoized Components**: Strategic use of React.memo for expensive dashboard components
+- **Lazy Loading**: Dynamic imports for UI components and print functionality
+- **Virtual Scrolling**: For large datasets in employee lists and reports
 - **Optimized Rendering**: Conditional rendering and efficient state updates
-- **Print Component Optimization**: Specialized print layout generation with minimal overhead
+- **Component Bundling**: Optimized bundle splitting for UI components
+
+### Responsive Design Performance
+- **CSS Optimization**: Efficient media queries and responsive utilities
+- **Mobile-First Approach**: Progressive enhancement for better mobile performance
+- **Viewport Management**: Optimized viewport meta tag configuration
+- **Touch Interaction**: Optimized touch targets and interaction areas
+- **Reduced DOM Complexity**: Streamlined component hierarchies for mobile devices
 
 ### Print System Performance
 - **Lazy Loading**: Print components loaded only when needed
 - **Memory Management**: Proper cleanup of print content after printing
 - **State Management**: Efficient handling of print preview state
 - **Browser Compatibility**: Optimized print functionality across different browsers
+- **Responsive Print Styles**: Media query optimization for print contexts
 
-### Caching Strategy
-- **Query Results**: Caching of frequently accessed statistical data
-- **Static Assets**: CDN optimization for images and UI components
-- **Browser Caching**: Appropriate cache headers for static resources
-- **Print Content**: Temporary caching of print layouts for quick reprints
+### Data Presentation Optimization
+- **Efficient Grid Rendering**: Optimized grid system with virtualization for large datasets
+- **Component Caching**: Cached component instances for improved re-rendering
+- **Event Delegation**: Optimized event handling for responsive interactions
+- **CSS-in-JS Optimization**: Efficient styled component rendering
+- **Bundle Size Management**: Optimized bundle splitting for UI components
 
 ## Troubleshooting Guide
 
 ### Common Issues and Solutions
 
-**Dashboard Data Not Loading**
-- Verify database connectivity and migration completion
-- Check timezone configuration for accurate month/year calculations
-- Ensure proper authentication middleware is applied
+**Dashboard Components Not Rendering**
+- Verify card component imports and prop validation
+- Check responsive breakpoint configuration in useIsMobile hook
+- Ensure proper CSS class merging with cn() utility function
+- Validate component prop types and default values
 
-**Employee Images Not Displaying**
-- Verify file permissions for storage/public/employees directory
-- Check image upload validation rules and file size limits
-- Confirm proper URL generation using Storage facade
+**Mobile Responsiveness Issues**
+- Verify media query breakpoints in useIsMobile hook
+- Check CSS responsive utilities and Tailwind configuration
+- Ensure proper viewport meta tag in HTML head
+- Validate component rendering for different screen sizes
 
-**Deduction Duplicate Prevention**
-- Review unique constraint logic in EmployeeDeductionController
-- Verify pay period validation rules
-- Check for concurrent submission conflicts
-
-**Print Functionality Issues**
+**Print Functionality Problems**
 - Verify browser print dialog permissions
-- Check CSS print styles compatibility
+- Check CSS print styles compatibility and media queries
 - Ensure proper print preview dialog initialization
-- Validate print content rendering before printing
+- Validate print content rendering with responsive layouts
+- Confirm proper print layout optimization for different content densities
+
+**UI Component Styling Issues**
+- Verify component variant classes and size configurations
+- Check Tailwind CSS configuration and custom utilities
+- Ensure proper component composition and slot usage
+- Validate responsive design patterns and breakpoints
+- Confirm accessibility compliance and semantic markup
 
 **Performance Issues**
-- Monitor slow query logs for optimization opportunities
-- Implement database indexing for filtered queries
-- Consider query result caching for frequently accessed data
-- Optimize print layout generation for large datasets
+- Monitor slow component rendering with React DevTools
+- Check for unnecessary re-renders in dashboard components
+- Implement proper component memoization for large datasets
+- Optimize responsive design calculations and media query listeners
+- Validate print system performance with large datasets
 
 **Section sources**
-- [EmployeeController.php:136-145](file://app/Http/Controllers/EmployeeController.php#L136-L145)
-- [EmployeeDeductionController.php:76-85](file://app/Http/Controllers/EmployeeDeductionController.php#L76-L85)
+- [card.tsx:1-104](file://resources/js/components/ui/card.tsx#L1-L104)
+- [table.tsx:1-117](file://resources/js/components/ui/table.tsx#L1-L117)
+- [button.tsx:1-68](file://resources/js/components/ui/button.tsx#L1-L68)
+- [use-mobile.tsx:1-22](file://resources/js/hooks/use-mobile.tsx#L1-L22)
 
 ## Conclusion
 
 The Employee Reports Dashboard represents a sophisticated solution for comprehensive employee management and payroll analysis. The system successfully combines modern frontend development practices with robust backend architecture to deliver real-time insights and efficient operational workflows.
 
-**Updated** The recent enhancement with dedicated print functionality significantly improves the system's professional capabilities, enabling the generation of official employee compensation and claims reports with optimal print formatting and layout optimization.
+**Updated** The recent enhancement with improved UI components and better data presentation significantly improves the system's user experience through enhanced card layouts, responsive design patterns, and optimized data visualization. The implementation of comprehensive responsive design ensures optimal performance across all device sizes while maintaining professional presentation standards.
 
-Key strengths of the implementation include:
+Key strengths of the enhanced implementation include:
 
-- **Comprehensive Analytics**: Multi-dimensional reporting with drill-down capabilities
-- **Scalable Architecture**: Well-designed MVC pattern supporting future enhancements
-- **User Experience**: Intuitive interface with responsive design and smooth interactions
-- **Data Integrity**: Robust validation, duplicate prevention, and audit trails
-- **Performance Optimization**: Efficient queries, caching strategies, and frontend optimizations
-- **Professional Print System**: Dedicated print functionality with A4 landscape formatting and professional styling
-- **Print Preview Dialog**: Enhanced user experience with interactive print preview before document generation
+- **Comprehensive Analytics**: Multi-dimensional reporting with drill-down capabilities and enhanced visual presentation
+- **Advanced Responsive Design**: Sophisticated responsive patterns with mobile-first approach and adaptive layouts
+- **Enhanced UI Component System**: Improved card layouts, table components, and button variants with consistent styling
+- **Optimized Data Presentation**: Better visual hierarchy, responsive grids, and mobile-optimized content
+- **Professional Print System**: Enhanced print functionality with responsive print layouts and optimized document generation
+- **Performance Optimization**: Efficient component rendering, lazy loading, and responsive design calculations
+- **Accessibility Compliance**: Improved semantic markup and responsive interaction patterns
+- **Scalable Architecture**: Well-designed component system supporting future enhancements and customization
 
-The system provides a solid foundation for HR and financial operations, with clear extension points for additional features such as advanced reporting, integration with external systems, and enhanced mobile capabilities. The modular design ensures maintainability and facilitates team collaboration on feature development.
+The system provides a solid foundation for HR and financial operations, with clear extension points for additional features such as advanced reporting, integration with external systems, enhanced mobile capabilities, and expanded print functionality. The modular UI component system ensures maintainability and facilitates team collaboration on feature development while maintaining design consistency across all responsive contexts.
 
 Future enhancement opportunities include implementing real-time notifications, advanced export capabilities, integration with payroll processing systems, expanded analytical dashboards with predictive modeling features, and enhanced print functionality for different document formats and templates.

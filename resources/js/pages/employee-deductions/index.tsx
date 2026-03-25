@@ -114,12 +114,6 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
         });
     };
 
-    const handleOpenAdd = (employee: Employee) => {
-        setSelectedEmployee(employee);
-        setAddData('employee_id', employee.id);
-        setOpenAdd(true);
-    };
-
     const handleAddDeduction = () => {
         post(route('employee-deductions.store'), {
             onSuccess: () => {

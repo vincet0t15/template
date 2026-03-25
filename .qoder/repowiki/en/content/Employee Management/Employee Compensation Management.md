@@ -25,19 +25,24 @@
 - [Compensation.tsx](file://resources/js/pages/Employees/Manage/Compensation.tsx)
 - [Reports.tsx](file://resources/js/pages/Employees/Manage/Reports.tsx)
 - [PrintReport.tsx](file://resources/js/pages/Employees/Manage/PrintReport.tsx)
+- [custom-date-picker.tsx](file://resources/js/components/custom-date-picker.tsx)
 - [employee.d.ts](file://resources/js/types/employee.d.ts)
 - [employeeDeduction.d.ts](file://resources/js/types/employeeDeduction.d.ts)
 - [filter.d.ts](file://resources/js/types/filter.d.ts)
 - [pagination.d.ts](file://resources/js/types/pagination.d.ts)
+- [pera.d.ts](file://resources/js/types/pera.d.ts)
+- [rata.d.ts](file://resources/js/types/rata.d.ts)
+- [salary.d.ts](file://resources/js/types/salary.d.ts)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Enhanced historical compensation calculation capabilities added to EmployeeDeductionController and PayrollController with getEffectiveAmount methods
-- Improved compensation management workflows with historical data processing for payroll calculations
-- Added comprehensive frontend integration with getEffectiveAmount implementations in Reports.tsx and PrintReport.tsx
-- Enhanced deduction management system with historical compensation calculation for accurate payroll processing
-- Improved reporting capabilities with historical compensation data for period-specific calculations
+- Enhanced with full CRUD functionality for salary, PERA, and RATA records
+- Added edit and delete capabilities with new dialog components and real-time validation
+- Implemented comprehensive form validation, error handling, and user feedback through toast notifications
+- Enhanced PERA and RATA components with professional UI design, currency formatting, and effective date display
+- Added RATA eligibility validation with conditional UI rendering
+- Improved PERA and RATA management with proper routing, controller methods, and model relationships
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -47,12 +52,15 @@
 5. [Detailed Component Analysis](#detailed-component-analysis)
 6. [Enhanced Historical Compensation System](#enhanced-historical-compensation-system)
 7. [Enhanced Deduction Management System](#enhanced-deduction-management-system)
-8. [Compensation Management Workflows](#compensation-management-workflows)
-9. [Data Models and Relationships](#data-models-and-relationships)
-10. [User Interface Components](#user-interface-components)
-11. [Performance Considerations](#performance-considerations)
-12. [Troubleshooting Guide](#troubleshooting-guide)
-13. [Conclusion](#conclusion)
+8. [Enhanced PERA and RATA Management Components](#enhanced-pera-and-rata-management-components)
+9. [Custom DatePicker Component Integration](#custom-datepicker-component-integration)
+10. [Enhanced Form Validation and User Feedback](#enhanced-form-validation-and-user-feedback)
+11. [Compensation Management Workflows](#compensation-management-workflows)
+12. [Data Models and Relationships](#data-models-and-relationships)
+13. [User Interface Components](#user-interface-components)
+14. [Performance Considerations](#performance-considerations)
+15. [Troubleshooting Guide](#troubleshooting-guide)
+16. [Conclusion](#conclusion)
 
 ## Introduction
 
@@ -95,7 +103,7 @@ Models --> Migrations
 ```
 
 **Diagram sources**
-- [web.php:1-129](file://routes/web.php#L1-L129)
+- [web.php:1-148](file://routes/web.php#L1-L148)
 - [EmployeeController.php:1-139](file://app/Http/Controllers/EmployeeController.php#L1-L139)
 
 The project is organized into several key areas:
@@ -107,7 +115,7 @@ The project is organized into several key areas:
 - **Database**: Migrations and seeders for data structure initialization
 
 **Section sources**
-- [web.php:1-129](file://routes/web.php#L1-L129)
+- [web.php:1-148](file://routes/web.php#L1-L148)
 
 ## Core Components
 
@@ -123,10 +131,10 @@ Handles comprehensive payroll calculations, including gross pay computation, ded
 Controls salary records, effective dates, amount changes, and compensation history tracking with full CRUD operations.
 
 ### PERA Management Controller
-Manages profit-sharing contributions with effective date tracking, historical records, and full CRUD functionality.
+Manages profit-sharing contributions with effective date tracking, historical records, full CRUD functionality, and comprehensive form validation with enhanced user feedback.
 
 ### RATA Management Controller
-Handles retirement allowance calculations with eligibility filtering, historical tracking, and full CRUD operations.
+Handles retirement allowance calculations with eligibility filtering, historical tracking, full CRUD operations, and professional UI design with custom date picker integration.
 
 ### Employee Deduction Controller
 Processes various deduction types applied to employee paychecks during specific pay periods with comprehensive CRUD operations, sophisticated filtering, pagination support, and enhanced historical compensation calculation capabilities for accurate payroll processing.
@@ -139,9 +147,9 @@ Each controller implements standardized CRUD operations with proper validation, 
 **Section sources**
 - [EmployeeController.php:12-139](file://app/Http/Controllers/EmployeeController.php#L12-L139)
 - [PayrollController.php:11-171](file://app/Http/Controllers/PayrollController.php#L11-L171)
-- [SalaryController.php:11-74](file://app/Http/Controllers/SalaryController.php#L11-L74)
-- [PeraController.php:11-74](file://app/Http/Controllers/PeraController.php#L11-L74)
-- [RataController.php:11-75](file://app/Http/Controllers/RataController.php#L11-L75)
+- [SalaryController.php:11-106](file://app/Http/Controllers/SalaryController.php#L11-L106)
+- [PeraController.php:11-106](file://app/Http/Controllers/PeraController.php#L11-L106)
+- [RataController.php:11-107](file://app/Http/Controllers/RataController.php#L11-L107)
 - [EmployeeDeductionController.php:12-173](file://app/Http/Controllers/EmployeeDeductionController.php#L12-L173)
 - [ManageEmployeeController.php:14-212](file://app/Http/Controllers/ManageEmployeeController.php#L14-L212)
 
@@ -162,6 +170,9 @@ Filters[Filter System]
 DeductionsTab[Deductions Tab]
 Reports[Reports Module]
 HistoricalCalc[Historical Calculation]
+DatePicker[Custom Date Picker]
+ToastNotifications[Toast Notifications]
+EndUserFeedback[User Feedback]
 end
 subgraph "Application Layer"
 Controllers[Controllers]
@@ -173,6 +184,8 @@ PayrollController[PayrollController]
 PaginationService[Pagination Service]
 FilterService[Filter Service]
 HistoricalService[Historical Compensation Service]
+PERAController[PeraController]
+RATAController[RataController]
 end
 subgraph "Domain Layer"
 Models[Domain Models]
@@ -182,6 +195,8 @@ DeductionType[DeductionType Model]
 PaginationData[Pagination Data]
 FilterData[Filter Data]
 HistoricalData[Historical Compensation Data]
+PeraModel[Pera Model]
+RataModel[Rata Model]
 end
 subgraph "Infrastructure Layer"
 Database[(Database)]
@@ -190,6 +205,8 @@ Cache[(Cache Layer)]
 PaginationEngine[Pagination Engine]
 FilterEngine[Filter Engine]
 HistoricalEngine[Historical Engine]
+DatePickerEngine[Date Picker Engine]
+ToastEngine[Toast Notification Engine]
 end
 WebUI --> Controllers
 API --> Controllers
@@ -215,6 +232,9 @@ Controllers --> Validators
 PaginationService --> PaginationEngine
 FilterService --> FilterEngine
 HistoricalService --> HistoricalEngine
+DatePicker --> DatePickerEngine
+ToastNotifications --> ToastEngine
+EndUserFeedback --> ToastEngine
 ```
 
 **Diagram sources**
@@ -222,6 +242,8 @@ HistoricalService --> HistoricalEngine
 - [PayrollController.php:1-171](file://app/Http/Controllers/PayrollController.php#L1-L171)
 - [ManageEmployeeController.php:1-212](file://app/Http/Controllers/ManageEmployeeController.php#L1-L212)
 - [EmployeeDeductionController.php:1-173](file://app/Http/Controllers/EmployeeDeductionController.php#L1-L173)
+- [PeraController.php:1-106](file://app/Http/Controllers/PeraController.php#L1-L106)
+- [RataController.php:1-107](file://app/Http/Controllers/RataController.php#L1-L107)
 
 The architecture emphasizes:
 - **Separation of Concerns**: Clear boundaries between presentation, business logic, and data access
@@ -234,6 +256,9 @@ The architecture emphasizes:
 - **Advanced Filtering**: Sophisticated filter system for deduction records
 - **Historical Compensation Processing**: Specialized service for accurate historical compensation calculations
 - **Multi-layered Historical Data**: Backend and frontend historical calculation capabilities
+- **Custom Date Picker Integration**: Professional date selection component with validation
+- **Toast Notification System**: User feedback mechanism for CRUD operations
+- **Enhanced User Experience**: Professional UI design with currency formatting and effective date display
 
 ## Detailed Component Analysis
 
@@ -368,9 +393,9 @@ Success --> End
 ```
 
 **Diagram sources**
-- [SalaryController.php:49-74](file://app/Http/Controllers/SalaryController.php#L49-L74)
-- [PeraController.php:49-74](file://app/Http/Controllers/PeraController.php#L49-L74)
-- [RataController.php:50-75](file://app/Http/Controllers/RataController.php#L50-L75)
+- [SalaryController.php:66-106](file://app/Http/Controllers/SalaryController.php#L66-L106)
+- [PeraController.php:66-106](file://app/Http/Controllers/PeraController.php#L66-L106)
+- [RataController.php:67-107](file://app/Http/Controllers/RataController.php#L67-L107)
 
 The system ensures:
 - **Audit Trail**: Every change is tracked with who made it and when
@@ -381,11 +406,12 @@ The system ensures:
 - **Sophisticated Pagination**: Efficient handling of large datasets with pagination controls
 - **Advanced Filtering**: Sophisticated filtering mechanisms for deduction records
 - **Historical Compensation Processing**: Accurate historical data processing for all compensation types
+- **Professional UI Design**: Enhanced user interfaces with currency formatting and effective date display
 
 **Section sources**
-- [SalaryController.php:36-74](file://app/Http/Controllers/SalaryController.php#L36-L74)
-- [PeraController.php:36-74](file://app/Http/Controllers/PeraController.php#L36-L74)
-- [RataController.php:37-75](file://app/Http/Controllers/RataController.php#L37-L75)
+- [SalaryController.php:66-106](file://app/Http/Controllers/SalaryController.php#L66-L106)
+- [PeraController.php:66-106](file://app/Http/Controllers/PeraController.php#L66-L106)
+- [RataController.php:67-107](file://app/Http/Controllers/RataController.php#L67-L107)
 
 ### Enhanced Manage Page Architecture
 
@@ -548,6 +574,7 @@ CheckDate --> |Yes| ReturnAmount["Return Record Amount"]
 CheckDate --> |No| CheckFallback{"Fallback Available?"}
 CheckFallback --> |Yes| ReturnOldest["Return Oldest Record Amount"]
 CheckFallback --> |No| ReturnZero
+CheckHistory --> |Yes| CreatePeriod
 ReturnAmount --> End([End])
 ReturnOldest --> End
 ReturnZero --> End
@@ -775,6 +802,322 @@ The new aggregation methods provide:
 **Section sources**
 - [ManageEmployeeController.php:128-142](file://app/Http/Controllers/ManageEmployeeController.php#L128-L142)
 
+## Enhanced PERA and RATA Management Components
+
+**Updated** The PERA and RATA management components have been completely redesigned with full CRUD operations, professional UI design, custom date picker integration, comprehensive form validation, and enhanced user feedback through toast notifications.
+
+### PERA Management Component
+
+The PERA management component provides a comprehensive interface for managing profit-sharing contributions with full CRUD functionality and professional user experience:
+
+```mermaid
+classDiagram
+class CompensationPera {
++employee : Employee
++openDialog : boolean
++editDialog : object
++peras : Pera[]
++current : Pera
++AddPeraDialog() : Component
++EditPeraDialog() : Component
++handleDelete() : void
++handleEdit() : void
++formatCurrency() : string
++formatDate() : string
+}
+class AddPeraDialog {
++data : object
++setData() : void
++post() : void
++processing : boolean
++reset() : void
++onSubmit() : void
+}
+class EditPeraDialog {
++data : object
++setData() : void
++put() : void
++processing : boolean
++reset() : void
++onSubmit() : void
+}
+class Pera {
++integer id
++integer employee_id
++decimal amount
++date effective_date
++integer created_by
++employee() : Employee
++createdBy() : User
+}
+class DatePicker {
++value : string
++onChange() : void
++placeholder : string
++className : string
+}
+CompensationPera --> AddPeraDialog : contains
+CompensationPera --> EditPeraDialog : contains
+CompensationPera --> Pera : manages
+AddPeraDialog --> DatePicker : uses
+EditPeraDialog --> DatePicker : uses
+```
+
+**Diagram sources**
+- [pera.tsx:14-260](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L14-L260)
+- [Pera.php:8-41](file://app/Models/Pera.php#L8-L41)
+
+Key features of the PERA component include:
+- **Professional UI Design**: Gradient cards with blue/purple color scheme for visual distinction
+- **Full CRUD Operations**: Complete create, read, update, and delete functionality
+- **Custom Date Picker Integration**: Professional date selection with validation and formatting
+- **Form Validation**: Client-side validation with proper error handling
+- **User Feedback**: Toast notifications for success and error states
+- **Currency Formatting**: Philippine peso formatting with proper localization
+- **Effective Date Display**: Proper date formatting with calendar icons
+- **Modal Dialogs**: Professional modal interfaces for add/edit operations
+- **Action Buttons**: Edit and delete functionality with proper icons and styling
+- **Current PERA Display**: Dedicated card for current PERA amount and effective date
+
+### RATA Management Component
+
+The RATA management component provides a comprehensive interface for managing retirement allowance with eligibility validation, full CRUD operations, and professional user experience:
+
+```mermaid
+classDiagram
+class CompensationRata {
++employee : Employee
++openDialog : boolean
++editDialog : object
++ratas : Rata[]
++current : Rata
++AddRataDialog() : Component
++EditRataDialog() : Component
++handleDelete() : void
++handleEdit() : void
++formatCurrency() : string
++formatDate() : string
+}
+class AddRataDialog {
++data : object
++setData() : void
++post() : void
++processing : boolean
++reset() : void
++onSubmit() : void
+}
+class EditRataDialog {
++data : object
++setData() : void
++put() : void
++processing : boolean
++reset() : void
++onSubmit() : void
+}
+class Rata {
++integer id
++integer employee_id
++decimal amount
++date effective_date
++integer created_by
++employee() : Employee
++createdBy() : User
+}
+class DatePicker {
++value : string
++onChange() : void
++placeholder : string
++className : string
+}
+class Employee {
++boolean is_rata_eligible : boolean
+}
+CompensationRata --> AddRataDialog : contains
+CompensationRata --> EditRataDialog : contains
+CompensationRata --> Rata : manages
+CompensationRata --> Employee : validates
+AddRataDialog --> DatePicker : uses
+EditRataDialog --> DatePicker : uses
+```
+
+**Diagram sources**
+- [rata.tsx:14-269](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L14-L269)
+- [Rata.php:8-41](file://app/Models/Rata.php#L8-L41)
+- [Employee.php:14-104](file://app/Models/Employee.php#L14-L104)
+
+Key features of the RATA component include:
+- **Eligibility Validation**: Conditional UI rendering based on employee RATA eligibility
+- **Professional UI Design**: Gradient cards with purple/violet color scheme
+- **Full CRUD Operations**: Complete create, read, update, and delete functionality
+- **Custom Date Picker Integration**: Professional date selection with validation and formatting
+- **Form Validation**: Client-side validation with proper error handling
+- **User Feedback**: Toast notifications for success and error states
+- **Currency Formatting**: Philippine peso formatting with proper localization
+- **Effective Date Display**: Proper date formatting with calendar icons
+- **Modal Dialogs**: Professional modal interfaces for add/edit operations
+- **Action Buttons**: Edit and delete functionality with proper icons and styling
+- **Current RATA Display**: Dedicated card for current RATA amount and effective date
+- **Eligibility Notice**: Informative message for non-eligible employees
+
+### Backend Controller Enhancements
+
+The backend controllers for PERA and RATA have been enhanced with comprehensive CRUD operations and validation:
+
+**PeraController**
+- **Store Method**: Validates employee_id, amount, and effective_date with numeric and date validation
+- **Update Method**: Validates and updates existing PERA records with proper authorization
+- **Destroy Method**: Deletes PERA records with proper authorization and feedback
+- **History Method**: Provides detailed history view with creator information
+- **Index Method**: Supports filtering by search, office, and employment status with pagination
+
+**RataController**
+- **Store Method**: Validates employee_id, amount, and effective_date with numeric and date validation
+- **Update Method**: Validates and updates existing RATA records with proper authorization
+- **Destroy Method**: Deletes RATA records with proper authorization and feedback
+- **History Method**: Provides detailed history view with creator information
+- **Index Method**: Filters by RATA eligibility, search, office, and employment status with pagination
+
+**Section sources**
+- [pera.tsx:18-260](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L18-L260)
+- [rata.tsx:18-269](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L18-L269)
+- [PeraController.php:66-106](file://app/Http/Controllers/PeraController.php#L66-L106)
+- [RataController.php:67-107](file://app/Http/Controllers/RataController.php#L67-L107)
+
+## Custom DatePicker Component Integration
+
+**Updated** The system now includes a custom DatePicker component that provides professional date selection with validation, formatting, and integration with the PERA and RATA management components.
+
+The custom DatePicker component offers a comprehensive date selection interface with the following features:
+
+```mermaid
+classDiagram
+class DatePicker {
++value : string
++onChange : function
++placeholder : string
++className : string
++id : string
++open : boolean
++parsedDate : Date
++handleSelect : function
++popoverTrigger : Button
++calendar : Calendar
+}
+class Calendar {
++mode : string
++selected : Date
++defaultMonth : Date
++captionLayout : string
++onSelect : function
+}
+class Popover {
++open : boolean
++onOpenChange : function
++content : PopoverContent
++trigger : PopoverTrigger
+}
+class Button {
++variant : string
++className : string
++children : ReactNode
+}
+DatePicker --> Calendar : uses
+DatePicker --> Popover : uses
+DatePicker --> Button : renders
+```
+
+**Diagram sources**
+- [custom-date-picker.tsx:11-55](file://resources/js/components/custom-date-picker.tsx#L11-L55)
+
+### Key Features of the DatePicker Component
+
+**Professional Date Selection Interface**
+- **Dropdown Calendar**: Calendar component with dropdown caption layout for month/year selection
+- **ISO String Format**: Returns dates in "yyyy-MM-dd" format for backend compatibility
+- **Validation Support**: Proper date parsing and validation with fallback handling
+- **Accessibility**: Keyboard navigation and screen reader support with proper ARIA labels
+
+**Integration with PERA and RATA Components**
+- **Form Integration**: Seamlessly integrated into PERA and RATA add/edit dialogs
+- **State Management**: Proper state synchronization with form data
+- **Error Handling**: Graceful handling of invalid dates and empty values
+- **Formatting**: Proper date formatting for display ("MM/dd/yyyy") while maintaining ISO format internally
+
+**Technical Implementation**
+- **Date Parsing**: Uses date-fns library for reliable date parsing and formatting
+- **State Management**: React state hooks for open/close state and selected date
+- **Event Handling**: Proper event handling for date selection and input changes
+- **Type Safety**: TypeScript interfaces for type-safe prop passing
+
+**User Experience Features**
+- **Visual Feedback**: Calendar icon and placeholder text for clear indication
+- **Responsive Design**: Adapts to different screen sizes and input widths
+- **Consistent Styling**: Matches the application's design system with Tailwind CSS classes
+- **Smooth Interaction**: Animated popover transitions and smooth calendar interactions
+
+**Section sources**
+- [custom-date-picker.tsx:19-55](file://resources/js/components/custom-date-picker.tsx#L19-L55)
+- [pera.tsx:59-61](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L59-L61)
+- [rata.tsx:59-61](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L59-L61)
+
+## Enhanced Form Validation and User Feedback
+
+**Updated** The system now includes comprehensive form validation, error handling, and user feedback mechanisms through toast notifications for all CRUD operations in the PERA and RATA management components.
+
+### Form Validation Implementation
+
+The PERA and RATA components implement comprehensive form validation at multiple levels:
+
+**Client-Side Validation**
+- **Required Fields**: Amount and effective_date fields are required with proper HTML5 validation
+- **Numeric Validation**: Amount field accepts only numeric values with decimal support
+- **Range Validation**: Minimum value validation (>= 0) for amount fields
+- **Date Validation**: Effective_date validation with proper date format requirements
+- **Real-time Feedback**: Immediate validation feedback during form input
+
+**Backend Validation**
+- **Server-side Validation**: Laravel validation rules for data integrity
+- **Unique Constraints**: Prevention of duplicate effective dates for the same employee
+- **Authorization**: Proper authorization checks for CRUD operations
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+
+### Toast Notification System
+
+The system implements a comprehensive toast notification system for user feedback:
+
+```mermaid
+flowchart TD
+UserAction["User Action"] --> FormSubmit["Form Submission"]
+FormSubmit --> Validation["Validation Check"]
+Validation --> Valid{"Valid?"}
+Valid --> |No| ShowError["Show Error Toast"]
+Valid --> |Yes| ProcessRequest["Process Request"]
+ProcessRequest --> Success{"Success?"}
+Success --> |No| ShowError
+Success --> |Yes| ShowSuccess["Show Success Toast"]
+ShowError --> End([End])
+ShowSuccess --> End
+```
+
+**Toast Notification Types**
+- **Success Notifications**: Confirmation of successful operations (add/update/delete)
+- **Error Notifications**: Error messages for failed operations with validation errors
+- **Confirmation Dialogs**: Delete confirmation with user consent
+- **Processing States**: Loading indicators during form submission
+
+**Notification Content**
+- **PERA Operations**: "PERA added successfully", "PERA updated successfully", "Failed to add PERA", "Failed to update PERA", "PERA record deleted successfully", "Failed to delete PERA record"
+- **RATA Operations**: "RATA added successfully", "RATA updated successfully", "Failed to add RATA", "Failed to update RATA", "RATA record deleted successfully", "Failed to delete RATA record"
+- **User Feedback**: Professional messaging with clear action outcomes
+
+**Section sources**
+- [pera.tsx:25-35](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L25-L35)
+- [pera.tsx:95-107](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L95-L107)
+- [pera.tsx:167-174](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L167-L174)
+- [rata.tsx:25-35](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L25-L35)
+- [rata.tsx:95-107](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L95-L107)
+- [rata.tsx:167-174](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L167-L174)
+
 ## Compensation Management Workflows
 
 ### Employee Onboarding Workflow
@@ -791,9 +1134,8 @@ UploadPhoto --> SetupCompensation["Setup Initial Compensation"]
 SetupCompensation --> AddSalary["Add First Salary Record"]
 AddSalary --> ConfigureDeductions["Configure Tax & Other Deductions"]
 ConfigureDeductions --> SetupPerf["Setup PERA Eligibility"]
-ConfigureDeductions --> SetupRata["Setup RATA Eligibility"]
-SetupPerf --> CompleteOnboarding["Onboarding Complete"]
-SetupRata --> CompleteOnboarding
+SetupPerf --> SetupRata["Setup RATA Eligibility"]
+SetupRata --> CompleteOnboarding["Onboarding Complete"]
 ```
 
 ### Enhanced Pay Period Processing Workflow
@@ -875,6 +1217,35 @@ Success --> End([End])
 **Diagram sources**
 - [ManageEmployeeController.php:178-210](file://app/Http/Controllers/ManageEmployeeController.php#L178-L210)
 - [salaryDialog.tsx:80-98](file://resources/js/pages/Employees/Manage/compensation/salaryDialog.tsx#L80-L98)
+
+### Enhanced PERA and RATA Management Workflow
+
+The enhanced PERA and RATA management system provides streamlined workflows for compensation record management with full CRUD operations, custom date picker integration, and comprehensive user feedback:
+
+```mermaid
+flowchart TD
+Start([PERA/RATA Management]) --> ViewCurrent["View Current Record"]
+ViewCurrent --> AddRecord["Add New Record"]
+AddRecord --> SelectDate["Select Effective Date"]
+SelectDate --> EnterAmount["Enter Amount"]
+EnterAmount --> ValidateForm["Validate Form"]
+ValidateForm --> Valid{"Valid?"}
+Valid --> |No| ShowErrors["Show Validation Errors"]
+Valid --> |Yes| SubmitForm["Submit Form"]
+SubmitForm --> ShowSuccess["Show Success Toast"]
+ShowSuccess --> UpdateUI["Update UI"]
+UpdateUI --> ViewHistory["View History"]
+ViewHistory --> EditRecord["Edit Existing Record"]
+EditRecord --> DeleteRecord["Delete Record"]
+DeleteRecord --> ConfirmDelete["Confirm Delete"]
+ConfirmDelete --> ShowDeleteToast["Show Delete Toast"]
+ShowDeleteToast --> End([End])
+ShowErrors --> End
+```
+
+**Diagram sources**
+- [pera.tsx:18-260](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L18-L260)
+- [rata.tsx:18-269](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L18-L269)
 
 ### Sophisticated Pagination and Filtering Workflow
 
@@ -1099,15 +1470,20 @@ The system implements comprehensive data validation at multiple levels with enha
 - **Filter Validation**: Month/year range validation, filter parameter sanitization, and historical data filtering validation
 - **New Aggregation Validation**: Data integrity checks for allDeductions and allClaims methods with historical accuracy
 - **Historical Compensation Validation**: Sophisticated validation for historical data processing and calculation accuracy
+- **PERA/RATA Validation**: Custom validation rules for profit-sharing and retirement allowance records
+- **Date Picker Validation**: Proper date validation and formatting for effective dates
+- **Toast Notification Validation**: Proper error handling and user feedback for all operations
 
 **Section sources**
 - [Employee.php:27-29](file://app/Models/Employee.php#L27-L29)
 - [Salary.php:20-24](file://app/Models/Salary.php#L20-L24)
 - [EmployeeDeduction.php:20-24](file://app/Models/EmployeeDeduction.php#L20-L24)
+- [Pera.php:17-20](file://app/Models/Pera.php#L17-L20)
+- [Rata.php:17-20](file://app/Models/Rata.php#L17-L20)
 
 ## User Interface Components
 
-The frontend components provide intuitive interfaces for managing employee compensation with comprehensive deduction management, sophisticated pagination, advanced filtering capabilities, and historical compensation calculation for accurate period-specific processing:
+The frontend components provide intuitive interfaces for managing employee compensation with comprehensive deduction management, sophisticated pagination, advanced filtering capabilities, and historical compensation calculation for accurate period-specific processing.
 
 ### Enhanced Employee Management Interface
 - **Employee Listing**: Searchable grid with sorting and filtering capabilities, pagination, and historical data display
@@ -1119,23 +1495,18 @@ The frontend components provide intuitive interfaces for managing employee compe
 - **Integrated Deductions Tab**: New dedicated tab for comprehensive deduction management within main Manage page with historical data processing
 - **Streamlined Compensation Interface**: Simplified compensation section without complex deduction management, historical calculation display
 - **Historical Compensation Display**: Real-time historical compensation calculation in all interfaces
-
-### Comprehensive Payroll Interface
-- **Payroll Dashboard**: Summary view with gross pay, deductions, and net pay metrics, filtering, and historical compensation calculation
-- **Payroll Detail View**: Individual employee payroll breakdown with advanced filtering and historical data accuracy
-- **Filter Controls**: Month/year selection and office filtering with clear options and historical calculation support
-- **Export Capabilities**: Payroll report generation and export with pagination support and historical data accuracy
-- **Historical Payroll Processing**: Accurate historical compensation calculation for past pay periods
+- **Professional PERA/RATA Interfaces**: Enhanced UI design with gradient cards, currency formatting, and effective date display
 
 ### Enhanced Compensation Management Interfaces
 - **Salary Management**: Historical salary tracking with effective date management, full CRUD operations, and historical calculation display
-- **PERA Management**: Profit-sharing contribution tracking and history with full CRUD operations and historical data processing
-- **RATA Management**: Retirement allowance calculation and history with full CRUD operations and historical compensation calculation
+- **PERA Management**: Profit-sharing contribution tracking and history with full CRUD operations, custom date picker integration, and comprehensive user feedback
+- **RATA Management**: Retirement allowance calculation and history with full CRUD operations, eligibility validation, custom date picker integration, and professional UI design
 - **Deduction Management**: Comprehensive deduction type configuration and assignment with period-based organization, pagination, filtering, and historical compensation calculation
 - **Deduction Dialog**: Interactive dialog for adding and editing deductions with real-time validation, conflict detection, and historical data processing
 - **Pagination Controls**: Professional pagination interface with page navigation, record counting, and historical data grouping
 - **Integrated Deduction Management**: Direct integration of CompensationDeductions component into main Manage page with historical compensation calculation
 - **Historical Compensation Integration**: Seamless integration of historical compensation calculation across all management interfaces
+- **Custom Date Picker Integration**: Professional date selection component with validation and formatting
 
 ### Advanced Deduction Management Components
 - **Deduction Groups**: Period-based grouping of deductions for better organization with pagination and historical compensation calculation
@@ -1148,6 +1519,14 @@ The frontend components provide intuitive interfaces for managing employee compe
 - **New Deductions Tab**: Dedicated tab for comprehensive deduction management within main interface with historical compensation processing
 - **Historical Calculation Integration**: Real-time historical compensation calculation in all deduction management interfaces
 
+### Custom DatePicker Component
+- **Professional Date Selection**: Dropdown calendar with month/year selection and proper validation
+- **Integration Support**: Seamless integration with PERA and RATA management components
+- **State Management**: Proper state synchronization with form data and validation
+- **Error Handling**: Graceful handling of invalid dates and empty values
+- **Formatting Support**: Proper date formatting for display while maintaining ISO format internally
+- **Accessibility**: Keyboard navigation and screen reader support with proper ARIA labels
+
 ### Responsive Design Features
 - **Mobile Optimization**: Touch-friendly interfaces for mobile devices with responsive filter controls and historical data display
 - **Accessibility**: Screen reader support and keyboard navigation with ARIA labels and historical data accessibility
@@ -1156,20 +1535,21 @@ The frontend components provide intuitive interfaces for managing employee compe
 - **Enhanced User Experience**: Streamlined workflows for deduction management with sophisticated filtering, pagination, and historical compensation calculation
 - **Integrated Navigation**: Seamless tab-based navigation for all management functions with historical data integration
 - **Historical Data Display**: Consistent historical compensation calculation across all user interfaces
+- **Professional Styling**: Consistent design system with gradient cards, proper spacing, and responsive layouts
 
 ## Performance Considerations
 
-The system implements several performance optimization strategies with enhanced deduction management, sophisticated pagination, advanced filtering, and historical compensation calculation capabilities:
+The system implements several performance optimization strategies with enhanced deduction management, sophisticated pagination, advanced filtering, and historical compensation calculation capabilities.
 
 ### Database Optimization
 - **Eager Loading**: Strategic use of with() to prevent N+1 query problems with historical data loading
 - **Indexing Strategy**: Proper indexing on frequently queried columns including pay_period_month, pay_period_year, and effective_date
-- **Pagination**: Efficient pagination for large datasets with optimized query patterns and historical data processing
 - **Query Optimization**: Optimized queries with appropriate joins, filters, and historical data retrieval
 - **Deduction Query Optimization**: Efficient querying of period-specific deductions with pagination support and historical calculation
 - **Filter Optimization**: Optimized filtering queries for month/year combinations with historical data accuracy
 - **New Aggregation Queries**: Efficient data aggregation for allDeductions and allClaims without pagination overhead and historical processing
 - **Historical Query Optimization**: Optimized historical data queries with effective_date filtering and calculation optimization
+- **PERA/RATA Query Optimization**: Efficient querying of PERA and RATA records with proper indexing and filtering
 
 ### Caching Strategy
 - **Model Caching**: Frequently accessed lookup data cached in memory with historical data caching
@@ -1179,6 +1559,7 @@ The system implements several performance optimization strategies with enhanced 
 - **Pagination Data Caching**: Paginated deduction data cached for improved navigation performance with historical accuracy
 - **Aggregated Data Caching**: Overview and report data cached for improved performance with historical calculation caching
 - **Historical Data Caching**: Historical compensation data cached for improved calculation performance
+- **PERA/RATA Data Caching**: PERA and RATA records cached for improved management interface performance
 
 ### Frontend Performance
 - **Component Lazy Loading**: Dynamic imports for route-based code splitting with historical data component loading
@@ -1190,6 +1571,7 @@ The system implements several performance optimization strategies with enhanced 
 - **Filter State Management**: Optimized filter state management with real-time updates and historical calculation
 - **Integrated Component Performance**: Optimized performance for integrated CompensationDeductions component with historical calculation
 - **Historical Calculation Performance**: Optimized client-side historical compensation calculation with caching and performance optimization
+- **DatePicker Performance**: Optimized date picker component with efficient state management and rendering
 
 ### Scalability Considerations
 - **Horizontal Scaling**: Stateless controllers support load balancing with historical calculation scaling
@@ -1200,6 +1582,7 @@ The system implements several performance optimization strategies with enhanced 
 - **Pagination Scalability**: Efficient pagination for large datasets with optimized query patterns and historical data
 - **Aggregation Scalability**: Optimized data aggregation for large-scale reporting with historical calculation
 - **Historical Data Scalability**: Efficient historical data processing and calculation for large-scale historical compensation tracking
+- **PERA/RATA Scalability**: Efficient historical data processing for large-scale PERA and RATA management
 
 ## Troubleshooting Guide
 
@@ -1219,6 +1602,16 @@ The system implements several performance optimization strategies with enhanced 
 - **New Issue**: Verify new allDeductions and allClaims aggregation methods are working correctly
 - **New Issue**: Validate historical compensation calculation accuracy for payroll processing
 
+**PERA/RATA Management Issues**
+- **Issue**: Custom date picker not displaying properly in PERA/RATA dialogs
+- **Solution**: Verify DatePicker component import and proper prop passing
+- **Issue**: Form validation not working for PERA/RATA inputs
+- **Solution**: Check validation rules and ensure proper form submission handling
+- **Issue**: Toast notifications not appearing for PERA/RATA operations
+- **Solution**: Verify toast library import and proper notification configuration
+- **Issue**: RATA eligibility validation not working
+- **Solution**: Check employee.is_rata_eligible property and conditional UI rendering
+
 **Performance Issues**
 - Monitor database query performance and optimize slow queries with historical data optimization
 - Implement proper indexing on frequently filtered columns including pay_period_month, pay_period_year, and effective_date
@@ -1234,6 +1627,7 @@ The system implements several performance optimization strategies with enhanced 
 - Ensure proper cleanup of soft-deleted records with historical data retention
 - Validate deduction period uniqueness constraints with historical calculation validation
 - Check pagination parameter validation and boundary conditions with historical data
+- Verify filter parameter validation for month/year filtering with historical accuracy
 - **New Issue**: Verify data integrity of new aggregation methods with historical accuracy
 - **New Issue**: Validate historical compensation calculation data integrity
 
@@ -1269,6 +1663,14 @@ The system implements several performance optimization strategies with enhanced 
 - **New Issue**: Check historical calculation performance and accuracy for large datasets
 - **New Issue**: Ensure historical data consistency across backend and frontend calculations
 - **New Issue**: Validate historical calculation edge cases and fallback handling
+
+**Custom DatePicker Issues**
+- **Issue**: DatePicker component not rendering properly
+- **Solution**: Verify component import and proper prop configuration
+- **Issue**: Date formatting issues in PERA/RATA components
+- **Solution**: Check date parsing and formatting logic in DatePicker component
+- **Issue**: Validation errors with date selection
+- **Solution**: Verify date validation and error handling in form components
 
 ### Debugging Tools and Techniques
 
@@ -1307,10 +1709,22 @@ The system implements several performance optimization strategies with enhanced 
 - **New Issue**: Test historical calculation edge cases and error handling
 - **New Issue**: Validate historical data consistency and accuracy
 
+**PERA/RATA Management Debugging**
+- **Issue**: Debug form validation issues in PERA/RATA components
+- **Solution**: Check validation rules and error handling in form components
+- **Issue**: Debug toast notification issues for PERA/RATA operations
+- **Solution**: Verify toast library configuration and notification triggers
+- **Issue**: Debug custom date picker integration issues
+- **Solution**: Check DatePicker component integration and prop passing
+- **Issue**: Debug eligibility validation issues for RATA component
+- **Solution**: Verify employee.is_rata_eligible property and conditional rendering
+
 **Section sources**
 - [EmployeeController.php:69-83](file://app/Http/Controllers/EmployeeController.php#L69-L83)
 - [PayrollController.php:48-67](file://app/Http/Controllers/PayrollController.php#L48-L67)
 - [ManageEmployeeController.php:178-210](file://app/Http/Controllers/ManageEmployeeController.php#L178-L210)
+- [pera.tsx:25-35](file://resources/js/pages/Employees/Manage/compensation/pera.tsx#L25-L35)
+- [rata.tsx:25-35](file://resources/js/pages/Employees/Manage/compensation/rata.tsx#L25-L35)
 
 ## Conclusion
 
@@ -1324,13 +1738,17 @@ Key strengths of the system include:
 - **Advanced Filtering**: Sophisticated month/year filtering with clear filter options, real-time updates, and historical data accuracy
 - **Audit Trail**: Complete tracking of all compensation changes with enhanced deduction management and historical accuracy
 - **Flexible Payroll Processing**: Configurable deduction types and period-based calculations with advanced filtering and historical compensation accuracy
-- **Enhanced User Interface**: Intuitive management interfaces with responsive design, professional styling, comprehensive pagination controls, and historical compensation display
-- **Performance Optimization**: Efficient data handling, caching strategies, optimized deduction processing, pagination performance, and historical calculation optimization
-- **Security**: Comprehensive validation and authorization controls with enhanced deduction security, pagination validation, and historical data security
-- **Streamlined Workflows**: Professional interfaces for deduction management with real-time validation, conflict detection, sophisticated pagination, and historical compensation calculation
+- **Enhanced User Interface**: Intuitive management interfaces with responsive design, professional styling, comprehensive pagination controls, historical compensation display, and custom date picker integration
+- **Performance Optimization**: Efficient data handling, caching strategies, optimized deduction processing, pagination performance, historical calculation optimization, and PERA/RATA management performance
+- **Security**: Comprehensive validation and authorization controls with enhanced deduction security, pagination validation, historical data security, and PERA/RATA security
+- **Streamlined Workflows**: Professional interfaces for deduction management with real-time validation, conflict detection, sophisticated pagination, historical compensation calculation, and custom date picker integration
 - **Integrated Management**: Seamless integration of deduction management into main employee management interface with historical data processing
 - **Enhanced Reporting**: New data aggregation methods for comprehensive reporting and overview functionality with historical compensation accuracy
 - **Historical Compensation Processing**: Sophisticated historical calculation capabilities across backend and frontend components for accurate period-specific processing
 - **Multi-layered Historical Data**: Backend and frontend historical calculation capabilities with consistent accuracy and performance
+- **Professional UI Design**: Enhanced user interfaces with gradient cards, currency formatting, effective date display, and professional styling
+- **Custom Date Picker Integration**: Professional date selection component with validation, formatting, and seamless integration
+- **Comprehensive Form Validation**: Multi-level validation with client-side and server-side validation, error handling, and user feedback
+- **Toast Notification System**: Professional user feedback mechanism for all CRUD operations with success and error notifications
 
-The system is well-positioned for enterprise deployment with proper monitoring, backup procedures, disaster recovery planning, and historical data management. Future enhancements could include advanced reporting capabilities with historical analysis, integration with external payroll systems with historical data synchronization, enhanced analytics features with historical trend analysis, expanded deduction type management capabilities, improved pagination performance optimizations, further integration of management workflows, and enhanced historical compensation calculation algorithms.
+The system is well-positioned for enterprise deployment with proper monitoring, backup procedures, disaster recovery planning, and historical data management. Future enhancements could include advanced reporting capabilities with historical analysis, integration with external payroll systems with historical data synchronization, enhanced analytics features with historical trend analysis, expanded deduction type management capabilities, improved pagination performance optimizations, further integration of management workflows, enhanced historical compensation calculation algorithms, and expanded custom date picker functionality.

@@ -14,24 +14,31 @@
 - [EmployeeDeduction.php](file://app/Models/EmployeeDeduction.php)
 - [payroll/index.tsx](file://resources/js/pages/payroll/index.tsx)
 - [payroll/show.tsx](file://resources/js/pages/payroll/show.tsx)
+- [payroll/comparison.tsx](file://resources/js/pages/payroll/comparison.tsx)
+- [payroll/year-to-date.tsx](file://resources/js/pages/payroll/year-to-date.tsx)
 - [payroll.d.ts](file://resources/js/types/payroll.d.ts)
+- [Reports.tsx](file://resources/js/pages/Employees/Manage/Reports.tsx)
+- [PrintReport.tsx](file://resources/js/pages/Employees/Manage/PrintReport.tsx)
+- [salaries/history.tsx](file://resources/js/pages/salaries/history.tsx)
+- [peras/history.tsx](file://resources/js/pages/peras/history.tsx)
+- [ratas/history.tsx](file://resources/js/pages/ratas/history.tsx)
 - [2026_03_22_115109_create_peras_table.php](file://database/migrations/2026_03_22_115109_create_peras_table.php)
 - [2026_03_22_115111_create_ratas_table.php](file://database/migrations/2026_03_22_115111_create_ratas_table.php)
 - [2026_03_22_115112_create_employee_deductions_table.php](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php)
 - [2026_03_23_084856_create_salaries_table.php](file://database/migrations/2026_03_23_084856_create_salaries_table.php)
-- [Reports.tsx](file://resources/js/pages/Employees/Manage/Reports.tsx)
-- [salaries/history.tsx](file://resources/js/pages/salaries/history.tsx)
-- [peras/history.tsx](file://resources/js/pages/peras/history.tsx)
-- [ratas/history.tsx](file://resources/js/pages/ratas/history.tsx)
+- [web.php](file://routes/web.php)
 </cite>
 
 ## Update Summary
 **Changes Made**
 - Enhanced salary management functionality with new dedicated salaries table migration
 - Improved payroll computation engine with enhanced numerical precision handling
-- Updated payroll reports & analytics with comprehensive employee reporting capabilities
-- Modernized frontend components with enhanced UI/UX for payroll management
-- Added comprehensive reporting features for deductions and claims analysis
+- **Added comprehensive reporting features**: CSV export functionality, year-to-date analysis, and period comparison reports
+- **Enhanced frontend interfaces**: Improved data visualization and user experience across multiple report components
+- **Modernized payroll reporting**: Added CSV export, year-to-date analysis, and comparison reports with enhanced UI components
+- **Expanded reporting capabilities**: New dedicated report pages with advanced filtering and visualization features
+- **Enhanced employee reporting**: Comprehensive analytics with print preview functionality and detailed breakdowns
+- **Improved user experience**: Streamlined navigation, enhanced filtering, and responsive design across all reporting interfaces
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -42,17 +49,18 @@
 6. [Enhanced Salary Management](#enhanced-salary-management)
 7. [Improved Payroll Computation Engine](#improved-payroll-computation-engine)
 8. [Advanced Payroll Reports & Analytics](#advanced-payroll-reports--analytics)
-9. [Numerical Precision Improvements](#numerical-precision-improvements)
-10. [Dependency Analysis](#dependency-analysis)
-11. [Performance Considerations](#performance-considerations)
-12. [Troubleshooting Guide](#troubleshooting-guide)
-13. [Conclusion](#conclusion)
-14. [Appendices](#appendices)
+9. [Enhanced Reporting Features](#enhanced-reporting-features)
+10. [Numerical Precision Improvements](#numerical-precision-improvements)
+11. [Dependency Analysis](#dependency-analysis)
+12. [Performance Considerations](#performance-considerations)
+13. [Troubleshooting Guide](#troubleshooting-guide)
+14. [Conclusion](#conclusion)
+15. [Appendices](#appendices)
 
 ## Introduction
 This document describes the payroll system that computes employee compensation, manages payments, and maintains administrative records. It covers the salary structure, payment types (PERA and RATA), deduction management, payroll computation algorithms, tax calculations, benefit deductions, payroll generation, payment tracking, historical records, salary adjustments, payment scheduling, payroll reporting, compliance, audit trails, and the user interface for payroll management, batch processing, and payment distribution.
 
-**Updated** Enhanced with modernized salary management functionality, improved payroll computation engine, and comprehensive payroll reports & analytics capabilities.
+**Updated** Enhanced with modernized salary management functionality, improved payroll computation engine, comprehensive payroll reports & analytics capabilities, and expanded reporting features including CSV export, year-to-date analysis, and period comparison reports.
 
 ## Project Structure
 The payroll system is implemented as a Laravel backend with Inertia.js frontend:
@@ -60,12 +68,12 @@ The payroll system is implemented as a Laravel backend with Inertia.js frontend:
 - Eloquent models define the data schema and relationships for employees, salaries, PERA, RATA, and deductions with decimal casting.
 - Frontend pages render payroll summaries, details, and related histories with currency formatting.
 - Migrations define database schemas for payroll entities with precise monetary storage.
-- Advanced reporting components provide comprehensive analytics and historical analysis.
+- **Enhanced** Advanced reporting components provide comprehensive analytics, CSV export functionality, year-to-date analysis, and period comparison reports with improved user experience.
 
 ```mermaid
 graph TB
 subgraph "Backend"
-PC["PayrollController<br/>Enhanced Numerical Precision"]
+PC["PayrollController<br/>Enhanced Numerical Precision<br/>CSV Export<br/>Year-to-Date<br/>Comparison Reports"]
 RC["RataController"]
 PEC["PeraController"]
 SC["SalaryController"]
@@ -77,10 +85,13 @@ DM["DeductionType model"]
 EDM["EmployeeDeduction model<br/>Decimal Casting"]
 end
 subgraph "Frontend"
-PI["payroll/index.tsx"]
+PI["payroll/index.tsx<br/>CSV Export Button"]
 PS["payroll/show.tsx"]
+PCOMP["payroll/comparison.tsx<br/>Enhanced UI"]
+PYTD["payroll/year-to-date.tsx<br/>Enhanced UI"]
 PT["payroll.d.ts"]
 REP["Reports.tsx<br/>Comprehensive Analytics"]
+PR["PrintReport.tsx<br/>Print Preview"]
 SH["salaries/history.tsx"]
 PH["peras/history.tsx"]
 RH["ratas/history.tsx"]
@@ -105,9 +116,13 @@ PS --> PM
 PS --> RM
 PS --> EDM
 PS --> DM
+PCOMP --> PC
+PYTD --> PC
 REP --> EM
 REP --> EDM
+REP --> PR
 REP --> PT
+PR --> REP
 SH --> SM
 PH --> PM
 RH --> RM
@@ -128,8 +143,11 @@ PT --> PS
 - [EmployeeDeduction.php:20-24](file://app/Models/EmployeeDeduction.php#L20-L24)
 - [payroll/index.tsx:49-217](file://resources/js/pages/payroll/index.tsx#L49-L217)
 - [payroll/show.tsx:55-248](file://resources/js/pages/payroll/show.tsx#L55-L248)
+- [payroll/comparison.tsx:1-490](file://resources/js/pages/payroll/comparison.tsx#L1-L490)
+- [payroll/year-to-date.tsx:1-325](file://resources/js/pages/payroll/year-to-date.tsx#L1-L325)
 - [payroll.d.ts:7-35](file://resources/js/types/payroll.d.ts#L7-L35)
 - [Reports.tsx:35-248](file://resources/js/pages/Employees/Manage/Reports.tsx#L35-L248)
+- [PrintReport.tsx:1-380](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L1-L380)
 - [salaries/history.tsx:26-104](file://resources/js/pages/salaries/history.tsx#L26-L104)
 - [peras/history.tsx:26-104](file://resources/js/pages/peras/history.tsx#L26-L104)
 - [ratas/history.tsx:26-104](file://resources/js/pages/ratas/history.tsx#L26-L104)
@@ -145,10 +163,13 @@ PT --> PS
 - Enhanced salary management supports adding/removing salary records with effective dates and soft-deletion using decimal casting for monetary accuracy.
 - PERA and RATA management supports adding/removing payment records with effective dates and eligibility filtering with precise decimal storage.
 - Deduction management stores period-specific deductions linked to deduction types and tracks creators with decimal precision.
-- Comprehensive reporting provides detailed analytics on deductions, claims, and employee compensation trends.
-- UI provides payroll summary and detail views with filtering, currency formatting, and pagination.
+- **Enhanced** Comprehensive reporting provides detailed analytics on deductions, claims, and employee compensation trends with CSV export functionality.
+- **Enhanced** UI provides payroll summary and detail views with filtering, currency formatting, pagination, and enhanced reporting interfaces.
+- **New** CSV export functionality allows downloading payroll summaries in CSV format with totals and filtering options.
+- **New** Year-to-date analysis provides cumulative payroll totals for the entire year with monthly breakdowns.
+- **New** Period comparison reports enable comparing payroll data between two different periods with detailed differences.
 
-**Updated** Enhanced with modernized salary management functionality and advanced reporting capabilities for comprehensive payroll analytics.
+**Updated** Enhanced with modernized salary management functionality, advanced reporting capabilities, CSV export functionality, year-to-date analysis, and period comparison reports.
 
 Key computations with precision improvements:
 - Gross pay = current salary + current PERA + current RATA (explicitly cast to float)
@@ -161,11 +182,12 @@ Key computations with precision improvements:
 - [payroll/show.tsx:74-79](file://resources/js/pages/payroll/show.tsx#L74-L79)
 
 ## Architecture Overview
-The system follows a layered architecture with enhanced numerical precision:
-- Presentation layer: Inertia.js pages for payroll summary and detail with currency formatting.
+The system follows a layered architecture with enhanced numerical precision and expanded reporting capabilities:
+- Presentation layer: Inertia.js pages for payroll summary, detail, and reporting with currency formatting and enhanced UI components.
 - Application layer: Controllers handle requests, apply filters, load related data, and compute payroll metrics with explicit float casting for accuracy.
 - Domain layer: Eloquent models encapsulate business entities and relationships with decimal casting for monetary precision.
 - Data layer: Migrations define normalized schemas with appropriate constraints and decimal precision.
+- **Enhanced** Reporting layer: Specialized report controllers and views for CSV export, year-to-date analysis, and period comparisons.
 
 ```mermaid
 sequenceDiagram
@@ -440,7 +462,9 @@ DeductionType "1" --o{ EmployeeDeduction : "has many"
 ### Payroll UI Components
 - Payroll Summary: Filters by month, year, office, and search; displays computed gross and net pay per employee with enhanced precision.
 - Payroll Details: Shows salary, PERA, RATA, total deductions, and net pay for a selected period; includes history tables with accurate currency formatting.
-- Enhanced Reports: Comprehensive analytics showing deduction trends, claim analysis, and employee compensation insights.
+- **Enhanced** Reports: Comprehensive analytics showing deduction trends, claim analysis, and employee compensation insights with CSV export functionality.
+- **New** Comparison Reports: Detailed comparison between two periods with summary cards, difference analysis, and enhanced filtering.
+- **New** Year-to-Date Reports: Cumulative payroll analysis with monthly breakdowns and detailed component totals.
 
 ```mermaid
 sequenceDiagram
@@ -560,6 +584,111 @@ Render --> End(["Display analytics dashboard"])
 **Section sources**
 - [Reports.tsx:35-248](file://resources/js/pages/Employees/Manage/Reports.tsx#L35-L248)
 
+## Enhanced Reporting Features
+
+### CSV Export Functionality
+The system now includes comprehensive CSV export capabilities for payroll data:
+
+#### Key Features:
+- **Export Button**: Prominent CSV export button in payroll summary interface
+- **Filter Preservation**: Export includes current filters (month, year, office, search)
+- **Complete Data**: Exports all payroll data including totals and summary rows
+- **Formatted Output**: Proper currency formatting and decimal precision in exported files
+
+#### Export Process:
+- **Dynamic Query Building**: Builds export query based on current filter selections
+- **Streamed Response**: Uses streamed response for large datasets to prevent memory issues
+- **Header Information**: Includes period, generation timestamp, and column headers
+- **Totals Calculation**: Automatically calculates and includes totals row in export
+
+#### CSV Format:
+- **Standard Headers**: Employee Name, Position, Office, Employment Status, Salary, PERA, RATA, Gross Pay, Deductions, Net Pay
+- **Currency Formatting**: Proper PHP currency formatting with two decimal places
+- **Totals Row**: Includes comprehensive totals for all monetary columns
+
+### Year-to-Date Analysis
+The system provides detailed year-to-date payroll analysis with comprehensive visualization:
+
+#### Key Features:
+- **Monthly Breakdown**: Shows payroll totals for each month of the selected year
+- **Summary Cards**: Displays total gross pay, total deductions, and total net pay
+- **Employee Tables**: Lists all employees with monthly net pay breakdowns
+- **Detailed Totals**: Shows year-to-date totals by compensation component
+
+#### Data Processing:
+- **Historical Analysis**: Processes salary, PERA, and RATA history for the entire year
+- **Monthly Aggregation**: Calculates monthly totals for each employee
+- **Cumulative Totals**: Maintains running totals throughout the year
+- **Eligibility Handling**: Properly handles RATA eligibility for each employee
+
+#### UI Components:
+- **Filter Controls**: Year selection, office filtering, employment status filtering, and search
+- **Summary Cards**: Visual cards showing key year-to-date metrics
+- **Interactive Tables**: Scrollable tables with responsive design
+- **Currency Formatting**: Consistent Philippine peso formatting throughout
+
+### Period Comparison Reports
+The system enables comprehensive comparison between two different payroll periods:
+
+#### Key Features:
+- **Dual Period Selection**: Configurable period 1 and period 2 with month and year selection
+- **Summary Comparison**: Side-by-side comparison of payroll totals between periods
+- **Detailed Employee Comparison**: Line-by-line comparison of individual employee payroll
+- **Difference Analysis**: Visual indication of increases, decreases, and no-change scenarios
+
+#### Comparison Logic:
+- **Historical Data**: Uses effective amounts for both periods based on historical records
+- **Deduction Comparison**: Compares deductions for both selected periods
+- **Net Pay Analysis**: Calculates and displays differences in net pay
+- **Visual Indicators**: Uses arrows and color coding for positive/negative changes
+
+#### UI Enhancements:
+- **Comparison Cards**: Three-card layout showing period 1, period 2, and difference
+- **Enhanced Tables**: Dual-period tables with difference columns
+- **Filter Integration**: Same filtering capabilities as other payroll reports
+- **Responsive Design**: Optimized for both desktop and mobile viewing
+
+### Enhanced Frontend Interfaces
+The reporting components feature improved user experience and data visualization:
+
+#### Common UI Patterns:
+- **Breadcrumb Navigation**: Clear navigation back to payroll overview
+- **Filter Panels**: Consistent filter controls across all report types
+- **Summary Cards**: Visual cards for key metrics and comparisons
+- **Interactive Tables**: Scrollable tables with hover effects and responsive design
+
+#### Data Visualization:
+- **Color Coding**: Green for positive values, red for negative values, gray for neutral
+- **Icon Integration**: Up/down arrows and trend indicators for changes
+- **Currency Formatting**: Consistent Philippine peso formatting with proper styling
+- **Responsive Layouts**: Grid-based layouts that adapt to screen size
+
+### Print Preview Functionality
+The system includes comprehensive print preview capabilities for employee reports:
+
+#### Key Features:
+- **Print Dialog**: Modal dialog with print preview functionality
+- **Print Styles**: Custom CSS for optimal print formatting
+- **Two-Column Layout**: Deductions and claims in separate columns
+- **Compact Design**: Optimized for A4 landscape printing
+
+#### Print Optimization:
+- **Page Breaks**: Controlled page breaks for report sections
+- **Font Sizing**: Reduced font sizes for compact printing
+- **Color Adjustments**: Print-friendly color schemes
+- **Header/Footer**: Professional report headers and footers
+
+**Section sources**
+- [payroll/index.tsx:162-193](file://resources/js/pages/payroll/index.tsx#L162-L193)
+- [PayrollController.php:172-302](file://app/Http/Controllers/PayrollController.php#L172-L302)
+- [PayrollController.php:304-424](file://app/Http/Controllers/PayrollController.php#L304-L424)
+- [PayrollController.php:426-568](file://app/Http/Controllers/PayrollController.php#L426-L568)
+- [payroll/comparison.tsx:1-490](file://resources/js/pages/payroll/comparison.tsx#L1-L490)
+- [payroll/year-to-date.tsx:1-325](file://resources/js/pages/payroll/year-to-date.tsx#L1-L325)
+- [Reports.tsx:1-471](file://resources/js/pages/Employees/Manage/Reports.tsx#L1-L471)
+- [PrintReport.tsx:1-380](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L1-L380)
+- [web.php:45-52](file://routes/web.php#L45-L52)
+
 ## Numerical Precision Improvements
 
 ### Enhanced Monetary Calculations
@@ -595,9 +724,13 @@ The payroll system now implements critical numerical precision improvements thro
 - UI pages depend on typed props and Inertia routing to controllers with accurate numerical data.
 - Deduction uniqueness is enforced at the database level via a composite unique index.
 - All monetary calculations benefit from explicit float casting for mathematical accuracy.
-- Reports component depends on comprehensive data aggregation from multiple sources.
+- **Enhanced** Reports component depends on comprehensive data aggregation from multiple sources.
+- **New** CSV export functionality depends on streamed response handling and filter preservation.
+- **New** Year-to-date reports require historical data processing across entire years.
+- **New** Comparison reports need dual-period data processing and difference calculations.
+- **New** Print preview functionality depends on dialog components and custom print styles.
 
-**Updated** Enhanced dependency relationships now include numerical precision considerations across all components and advanced reporting capabilities.
+**Updated** Enhanced dependency relationships now include numerical precision considerations across all components, advanced reporting capabilities, and new specialized report processing.
 
 ```mermaid
 graph LR
@@ -612,8 +745,12 @@ PC --> DM["DeductionType"]
 SC["SalaryController@store"] --> SM
 PEC["PeraController@store"] --> PM
 RC["RataController@store"] --> RM
+PCSV["CSV Export"] --> PC
+PYTD["Year-to-Date"] --> PC
+PCOMP["Comparison Report"] --> PC
 REP["Reports.tsx<br/>Analytics"] --> EM
 REP --> EDM
+REP --> PR["PrintReport.tsx"]
 REP --> PT["payroll.d.ts"]
 SH["salaries/history.tsx"] --> SM
 PH["peras/history.tsx"] --> PM
@@ -641,6 +778,10 @@ RH["ratas/history.tsx"] --> RM
 - **Updated** Decimal casting in database models ensures consistent precision without additional runtime conversions.
 - **Updated** Dedicated salaries table improves query performance for salary history operations.
 - **Updated** Reports component uses efficient grouping algorithms for large datasets.
+- **New** CSV export uses streamed responses to handle large datasets efficiently.
+- **New** Year-to-date processing optimizes historical data queries with proper indexing.
+- **New** Comparison reports implement efficient dual-period data processing with caching strategies.
+- **New** Print preview functionality uses forward refs for optimal rendering performance.
 
 ## Troubleshooting Guide
 - Deduction duplicates: The unique index prevents inserting the same deduction type for the same employee in the same pay period. Remove or adjust existing records before re-inserting.
@@ -651,6 +792,10 @@ RH["ratas/history.tsx"] --> RM
 - **Updated** Data type consistency: Ensure database decimal casting is properly configured for all monetary fields to maintain precision.
 - **Updated** Salary history conflicts: Ensure effective dates don't overlap when adding new salary records.
 - **Updated** Reports performance: Large datasets may require filtering by date ranges for optimal performance.
+- **New** CSV export issues: Ensure proper memory allocation for large exports; consider reducing filter scope if memory issues occur.
+- **New** Year-to-date calculation errors: Verify historical data completeness for the selected year; check effective date ranges for salary, PERA, and RATA records.
+- **New** Comparison report discrepancies: Ensure both periods have complete historical data; check for eligibility changes affecting RATA calculations.
+- **New** Print preview issues: Verify print dialog functionality; ensure proper CSS styles are loaded for print optimization.
 
 **Section sources**
 - [2026_03_22_115112_create_employee_deductions_table.php:25-26](file://database/migrations/2026_03_22_115112_create_employee_deductions_table.php#L25-L26)
@@ -662,7 +807,7 @@ RH["ratas/history.tsx"] --> RM
 ## Conclusion
 The payroll system provides a robust foundation for managing salary, PERA, and RATA payments, applying period-specific deductions, computing gross and net pay, and maintaining historical records. Its modular design, typed UI components, and normalized database schema support scalability, maintainability, and compliance through audit trails and unique constraints.
 
-**Updated** The recent enhancements include modernized salary management functionality with dedicated tables, improved payroll computation engine with enhanced precision, and comprehensive payroll reports & analytics capabilities that provide deep insights into employee compensation trends and organizational payroll patterns.
+**Updated** The recent enhancements include modernized salary management functionality with dedicated tables, improved payroll computation engine with enhanced precision, comprehensive payroll reports & analytics capabilities, CSV export functionality, year-to-date analysis, and period comparison reports that provide deep insights into employee compensation trends and organizational payroll patterns. The expanded reporting features significantly enhance the system's analytical capabilities and user experience, while the new print preview functionality provides professional reporting options for employee documentation.
 
 ## Appendices
 
@@ -685,6 +830,8 @@ The payroll system provides a robust foundation for managing salary, PERA, and R
 - RATA table: employee foreign key, amount (decimal:2), effective date, creator.
 - Employee Deductions table: employee/deduction type foreign keys, amount (decimal:2), pay period month/year, notes, creator; unique constraint on employee/deduction type/month/year.
 - **Updated** Salaries table: employee foreign key, amount (decimal:15,2), effective date, end date, creator; supports salary history tracking.
+- **New** CSV export requires additional temporary processing for streamed response generation.
+- **New** Print preview functionality requires specialized CSS and component architecture.
 
 **Updated** All monetary fields now use decimal casting with two decimal places for consistent precision.
 
@@ -713,6 +860,15 @@ The payroll system provides a robust foundation for managing salary, PERA, and R
 - **Compensation Trends**: Salary change visualization and trend analysis
 - **Summary Metrics**: Color-coded cards with trend indicators
 - **Export Ready**: Structured data format for external reporting tools
+- **CSV Export**: Streamed response generation with filter preservation
+- **Year-to-Date Analysis**: Monthly breakdown with cumulative totals
+- **Period Comparison**: Dual-period analysis with difference visualization
+- **Enhanced UI**: Responsive design with improved user experience
+- **Print Preview**: Professional report formatting with print optimization
+- **Dialog Components**: Modal interfaces for enhanced user interaction
 
 **Section sources**
 - [Reports.tsx:35-248](file://resources/js/pages/Employees/Manage/Reports.tsx#L35-L248)
+- [payroll/comparison.tsx:1-490](file://resources/js/pages/payroll/comparison.tsx#L1-L490)
+- [payroll/year-to-date.tsx:1-325](file://resources/js/pages/payroll/year-to-date.tsx#L1-L325)
+- [PrintReport.tsx:1-380](file://resources/js/pages/Employees/Manage/PrintReport.tsx#L1-L380)
