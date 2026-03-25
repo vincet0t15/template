@@ -1,8 +1,8 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -26,6 +26,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const MONTHS = [
+    { value: 0, label: 'All' },
     { value: 1, label: 'January' },
     { value: 2, label: 'February' },
     { value: 3, label: 'March' },
@@ -87,7 +88,7 @@ export default function PayrollShow({ employee, salaryHistory, peraHistory, rata
     };
 
     const getMonthName = (month: number) => {
-        return MONTHS.find((m) => m.value === month)?.label || '';
+        return MONTHS.find((m) => m.value === month)?.label || 'All';
     };
 
     const currentSalary = Number(salaryHistory[0]?.amount) || 0;
@@ -129,18 +130,14 @@ export default function PayrollShow({ employee, salaryHistory, peraHistory, rata
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Select value={filterData.month.toString()} onValueChange={(value) => setFilterData('month', parseInt(value))}>
-                        <SelectTrigger className="w-[140px]">
-                            <SelectValue placeholder="Month" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {MONTHS.map((month) => (
-                                <SelectItem key={month.value} value={month.value.toString()}>
-                                    {month.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="w-[140px]">
+                        <CustomComboBox
+                            items={MONTHS.map((month) => ({ value: month.value.toString(), label: month.label }))}
+                            placeholder="Month"
+                            value={filterData.month.toString()}
+                            onSelect={(value) => setFilterData('month', value ? parseInt(value) : 0)}
+                        />
+                    </div>
 
                     <Input
                         type="number"
@@ -155,7 +152,10 @@ export default function PayrollShow({ employee, salaryHistory, peraHistory, rata
                         variant="outline"
                         onClick={() => {
                             const query = new URLSearchParams();
-                            query.append('month', filterData.month.toString());
+                            // Only add month if not "All" (0)
+                            if (filterData.month !== 0) {
+                                query.append('month', filterData.month.toString());
+                            }
                             query.append('year', filterData.year.toString());
                             query.append('employee_id', employee.id.toString());
                             window.open(route('payroll.print') + '?' + query.toString(), '_blank');

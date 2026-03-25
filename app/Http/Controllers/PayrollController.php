@@ -452,8 +452,8 @@ class PayrollController extends Controller
         // Build monthly data
         $monthlyData = [];
 
-        // If specific month is provided, only show that month
-        $monthsToProcess = $month ? [$month] : range(1, 12);
+        // If specific month is provided (and not 0/All), only show that month
+        $monthsToProcess = ($month && $month != 0) ? [$month] : range(1, 12);
 
         foreach ($monthsToProcess as $monthNum) {
             $monthEmployees = [];

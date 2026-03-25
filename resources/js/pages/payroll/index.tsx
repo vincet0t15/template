@@ -13,7 +13,7 @@ import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
-import { BarChart3, Download, Eye, FileSpreadsheet, Search, User } from 'lucide-react';
+import { BarChart3, Download, FileSpreadsheet, Search, User } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -203,7 +203,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                 <TableHead className="text-primary text-right font-bold">Gross Pay</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Deductions</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Net Pay</TableHead>
-                                <TableHead className="text-primary w-[80px] text-center font-bold">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -212,7 +211,14 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm dark:border-slate-700">
+                                                <Avatar
+                                                    onClick={() =>
+                                                        router.get(
+                                                            route('payroll.show', employee.id) + `?month=${filters.month}&year=${filters.year}`,
+                                                        )
+                                                    }
+                                                    className="h-10 w-10 cursor-pointer border-2 border-slate-200 shadow-sm dark:border-slate-700"
+                                                >
                                                     {employee.image_path ? (
                                                         <AvatarImage
                                                             src={employee.image_path ?? undefined}
@@ -242,17 +248,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                         <TableCell className="text-destructive text-right">{formatCurrency(employee.total_deductions)}</TableCell>
                                         <TableCell className="text-right font-bold text-green-600 dark:text-green-400">
                                             {formatCurrency(employee.net_pay)}
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                    router.get(route('payroll.show', employee.id) + `?month=${filters.month}&year=${filters.year}`)
-                                                }
-                                            >
-                                                <Eye className="h-4 w-4" />
-                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))
