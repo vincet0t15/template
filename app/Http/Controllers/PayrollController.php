@@ -424,6 +424,108 @@ class PayrollController extends Controller
     }
 
     /**
+     * Print report - monthly payroll breakdown
+     */
+    public function print(Request $request)
+    {
+        $year = $request->input('year', now()->year);
+        $officeId = $request->input('office_id');
+
+        $employees = Employee::query()
+            ->with(['employmentStatus', 'office'])
+            ->when($officeId, function ($query, $officeId) {
+                $query->where('office_id', $officeId);
+            })
+            ->orderBy('last_name', 'asc')
+            ->get();
+
+        $officeName = null;
+        if ($officeId) {
+            $officeName = Office::find($officeId)?->name;
+        }
+
+        // Build monthly data
+        $monthlyData = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $monthEmployees = [];
+            $totals = [
+                'salary' => 0,
+                'pera' => 0,
+                'rata' => 0,
+                'gross_pay' => 0,
+                'deductions' => 0,
+                'net_pay' => 0,
+            ];
+
+            foreach ($employees as $employee) {
+                // Get compensation history
+                $salaries = $employee->salaries()
+                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc')
+                    ->get();
+
+                $peras = $employee->peras()
+                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc')
+                    ->get();
+
+                $ratas = $employee->ratas()
+                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc')
+                    ->get();
+
+                // Get deductions for this month
+                $deductions = $employee->deductions()
+                    ->where('pay_period_month', $month)
+                    ->where('pay_period_year', $year)
+                    ->sum('amount');
+
+                $salary = $this->getEffectiveAmount($salaries, $year, $month);
+                $pera = $this->getEffectiveAmount($peras, $year, $month);
+                $rata = $employee->is_rata_eligible ? $this->getEffectiveAmount($ratas, $year, $month) : 0;
+                $grossPay = $salary + $pera + $rata;
+                $netPay = $grossPay - $deductions;
+
+                // Only include employees with compensation
+                if ($salary > 0 || $pera > 0 || $rata > 0 || $deductions > 0) {
+                    $monthEmployees[] = [
+                        'id' => $employee->id,
+                        'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
+                        'position' => $employee->position,
+                        'office' => $employee->office?->name ?? 'N/A',
+                        'salary' => $salary,
+                        'pera' => $pera,
+                        'rata' => $rata,
+                        'gross_pay' => $grossPay,
+                        'deductions' => $deductions,
+                        'net_pay' => $netPay,
+                    ];
+
+                    $totals['salary'] += $salary;
+                    $totals['pera'] += $pera;
+                    $totals['rata'] += $rata;
+                    $totals['gross_pay'] += $grossPay;
+                    $totals['deductions'] += $deductions;
+                    $totals['net_pay'] += $netPay;
+                }
+            }
+
+            $monthlyData[] = [
+                'month' => $month,
+                'year' => $year,
+                'employees' => $monthEmployees,
+                'totals' => $totals,
+            ];
+        }
+
+        return Inertia::render('payroll/print', [
+            'year' => (int) $year,
+            'monthlyData' => $monthlyData,
+            'office' => $officeName,
+        ]);
+    }
+
+    /**
      * Comparison report between two periods
      */
     public function comparison(Request $request)

@@ -48,6 +48,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
         Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
         Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
+        Route::get('print', [PayrollController::class, 'print'])->name('payroll.print');
         Route::get('{employee}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 
