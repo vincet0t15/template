@@ -429,12 +429,17 @@ class PayrollController extends Controller
     public function print(Request $request)
     {
         $year = $request->input('year', now()->year);
+        $month = $request->input('month');
         $officeId = $request->input('office_id');
+        $employeeId = $request->input('employee_id');
 
         $employees = Employee::query()
             ->with(['employmentStatus', 'office'])
             ->when($officeId, function ($query, $officeId) {
                 $query->where('office_id', $officeId);
+            })
+            ->when($employeeId, function ($query, $employeeId) {
+                $query->where('id', $employeeId);
             })
             ->orderBy('last_name', 'asc')
             ->get();
@@ -446,7 +451,11 @@ class PayrollController extends Controller
 
         // Build monthly data
         $monthlyData = [];
-        for ($month = 1; $month <= 12; $month++) {
+
+        // If specific month is provided, only show that month
+        $monthsToProcess = $month ? [$month] : range(1, 12);
+
+        foreach ($monthsToProcess as $monthNum) {
             $monthEmployees = [];
             $totals = [
                 'salary' => 0,
@@ -460,29 +469,29 @@ class PayrollController extends Controller
             foreach ($employees as $employee) {
                 // Get compensation history
                 $salaries = $employee->salaries()
-                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->where('effective_date', '<=', now()->setDate($year, $monthNum, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc')
                     ->get();
 
                 $peras = $employee->peras()
-                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->where('effective_date', '<=', now()->setDate($year, $monthNum, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc')
                     ->get();
 
                 $ratas = $employee->ratas()
-                    ->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->where('effective_date', '<=', now()->setDate($year, $monthNum, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc')
                     ->get();
 
                 // Get deductions for this month
                 $deductions = $employee->deductions()
-                    ->where('pay_period_month', $month)
+                    ->where('pay_period_month', $monthNum)
                     ->where('pay_period_year', $year)
                     ->sum('amount');
 
-                $salary = $this->getEffectiveAmount($salaries, $year, $month);
-                $pera = $this->getEffectiveAmount($peras, $year, $month);
-                $rata = $employee->is_rata_eligible ? $this->getEffectiveAmount($ratas, $year, $month) : 0;
+                $salary = $this->getEffectiveAmount($salaries, $year, $monthNum);
+                $pera = $this->getEffectiveAmount($peras, $year, $monthNum);
+                $rata = $employee->is_rata_eligible ? $this->getEffectiveAmount($ratas, $year, $monthNum) : 0;
                 $grossPay = $salary + $pera + $rata;
                 $netPay = $grossPay - $deductions;
 
@@ -511,7 +520,7 @@ class PayrollController extends Controller
             }
 
             $monthlyData[] = [
-                'month' => $month,
+                'month' => $monthNum,
                 'year' => $year,
                 'employees' => $monthEmployees,
                 'totals' => $totals,

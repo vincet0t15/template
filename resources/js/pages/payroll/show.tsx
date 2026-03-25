@@ -12,7 +12,7 @@ import type { Pera } from '@/types/pera';
 import type { Rata } from '@/types/rata';
 import type { Salary } from '@/types/salary';
 import { Head, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, Printer, User } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -150,6 +150,20 @@ export default function PayrollShow({ employee, salaryHistory, peraHistory, rata
                     />
 
                     <Button onClick={handleFilterChange}>View</Button>
+
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            const query = new URLSearchParams();
+                            query.append('month', filterData.month.toString());
+                            query.append('year', filterData.year.toString());
+                            query.append('employee_id', employee.id.toString());
+                            window.open(route('payroll.print') + '?' + query.toString(), '_blank');
+                        }}
+                    >
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print
+                    </Button>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
