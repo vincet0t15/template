@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Head } from '@inertiajs/react';
 import { Printer } from 'lucide-react';
 
 type EmployeeData = {
@@ -66,7 +67,8 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
     );
 
     return (
-        <div className="mx-auto min-h-screen max-w-[216mm] bg-white p-8 font-sans text-[11px] leading-[1.3] text-black print:p-0">
+        <div className="mx-auto min-h-screen bg-white p-4 font-sans text-[11px] leading-[1.3] text-black print:max-w-none print:p-0">
+            <Head title="Payroll Report" />
             <div className="mb-4 flex justify-end print:hidden">
                 <Button onClick={handlePrint}>
                     <Printer />
@@ -74,8 +76,8 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
                 </Button>
             </div>
 
-            <div className="print:w-full">
-                <table className="w-full">
+            <div className="mx-auto w-[10in] print:w-full">
+                <table className="w-full border-0">
                     <thead className="hidden print:table-header-group">
                         <tr>
                             <td>
@@ -253,33 +255,37 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
             </div>
 
             <style>{`
-    @media print {
-        @page {
-            size: A4 landscape;
-            margin: 5mm;
-        }
+            @media print {
+                @page {
+                    size: A4 landscape;
+                    margin: 2mm;
+                }
 
-        body {
-            margin: 0;
-            -webkit-print-color-adjust: exact;
-        }
+                body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
 
-        .print-container {
-            width: 100%;
-            max-width: 100%;
-        }
+                .print-container {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
 
-        td, th {
-            padding: 4px 6px !important;
-            font-size: 11px;
-            page-break-inside: avoid;
-        }
-    }
+                td, th {
+                    padding: 2px 4px !important;
+                    font-size: 10px;
+                    page-break-inside: avoid;
+                }
+            }
 `}</style>
         </div>
     );
