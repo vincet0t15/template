@@ -2,25 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class AccountController extends Controller
 {
     public function index(Request $request)
     {
         $users = User::query()
-            ->with('role')
-            ->select(['id', 'name', 'username', 'is_active', 'is_super_admin', 'role_id', 'created_at'])
+            ->select(['id', 'name', 'username', 'is_active', 'is_super_admin', 'created_at'])
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'username' => $user->username,
+                    'is_active' => $user->is_active,
+                    'is_super_admin' => $user->is_super_admin,
+                    'roles' => $user->getRoleNames(),
+                    'created_at' => $user->created_at,
+                ];
+            });
 
         $roles = Role::query()
-            ->select(['id', 'name', 'display_name'])
-            ->orderBy('display_name')
-            ->get();
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get()
+            ->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ];
+            });
 
         return Inertia::render('Accounts/index', [
             'users' => $users,
@@ -33,10 +49,23 @@ class AccountController extends Controller
         $validated = $request->validate([
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
-            'role_id' => 'nullable|exists:roles,id',
+            'roles' => 'array',
+            'roles.*' => 'string|exists:roles,name',
         ]);
 
-        $user->update($validated);
+        if (isset($validated['is_active'])) {
+            $user->is_active = $validated['is_active'];
+        }
+
+        if (isset($validated['is_super_admin'])) {
+            $user->is_super_admin = $validated['is_super_admin'];
+        }
+
+        $user->save();
+
+        if (isset($validated['roles'])) {
+            $user->syncRoles($validated['roles']);
+        }
 
         return redirect()->back()->with('success', 'Account updated successfully');
     }

@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -13,54 +14,86 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = [
-            [
-                'name' => 'admin',
-                'display_name' => 'Administrator',
-                'description' => 'Full access to all system features',
-                'permissions' => ['*'],
-            ],
-            [
-                'name' => 'hr_manager',
-                'display_name' => 'HR Manager',
-                'description' => 'Manage employees, payroll, and HR settings',
-                'permissions' => [
-                    'employees.view',
-                    'employees.manage',
-                    'payroll.view',
-                    'payroll.manage',
-                    'claims.manage',
-                    'deductions.manage',
-                ],
-            ],
-            [
-                'name' => 'accountant',
-                'display_name' => 'Accountant',
-                'description' => 'View and manage payroll and financial data',
-                'permissions' => [
-                    'employees.view',
-                    'payroll.view',
-                    'payroll.manage',
-                    'suppliers.view',
-                    'suppliers.manage',
-                ],
-            ],
-            [
-                'name' => 'viewer',
-                'display_name' => 'Viewer',
-                'description' => 'View-only access to employees and payroll',
-                'permissions' => [
-                    'employees.view',
-                    'payroll.view',
-                ],
-            ],
+        // Create permissions
+        $permissions = [
+            // Employee permissions
+            'employees.view',
+            'employees.create',
+            'employees.edit',
+            'employees.delete',
+
+            // Payroll permissions
+            'payroll.view',
+            'payroll.export',
+            'payroll.manage',
+
+            // Supplier permissions
+            'suppliers.view',
+            'suppliers.manage',
+
+            // Claims permissions
+            'claims.view',
+            'claims.manage',
+
+            // Deductions permissions
+            'deductions.view',
+            'deductions.manage',
+
+            // Settings permissions
+            'settings.view',
+            'settings.manage',
+
+            // Accounts permissions
+            'accounts.view',
+            'accounts.manage',
+
+            // Roles & Permissions
+            'roles.view',
+            'roles.manage',
+            'permissions.view',
+            'permissions.manage',
         ];
 
-        foreach ($roles as $role) {
-            Role::firstOrCreate(
-                ['name' => $role['name']],
-                $role
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(
+                ['name' => $permission, 'guard_name' => 'web']
             );
         }
+
+        // Create roles
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminRole->syncPermissions(Permission::all());
+
+        $hrManagerRole = Role::firstOrCreate(['name' => 'hr_manager', 'guard_name' => 'web']);
+        $hrManagerRole->syncPermissions([
+            'employees.view',
+            'employees.create',
+            'employees.edit',
+            'employees.delete',
+            'payroll.view',
+            'payroll.export',
+            'payroll.manage',
+            'claims.view',
+            'claims.manage',
+            'deductions.view',
+            'deductions.manage',
+        ]);
+
+        $accountantRole = Role::firstOrCreate(['name' => 'accountant', 'guard_name' => 'web']);
+        $accountantRole->syncPermissions([
+            'employees.view',
+            'payroll.view',
+            'payroll.export',
+            'payroll.manage',
+            'suppliers.view',
+            'suppliers.manage',
+            'deductions.view',
+        ]);
+
+        $viewerRole = Role::firstOrCreate(['name' => 'viewer', 'guard_name' => 'web']);
+        $viewerRole->syncPermissions([
+            'employees.view',
+            'payroll.view',
+        ]);
     }
 }

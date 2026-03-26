@@ -111,7 +111,6 @@ export default function EmployeeManagePage({
                             <AvatarImage src={employee.image_path} alt={employee.last_name} className="object-cover" />
                             <AvatarFallback className="rounded-2xl bg-slate-100 text-xl">{getInitials()}</AvatarFallback>
                         </Avatar>
-
                         <div className="space-y-1">
                             <div className="flex items-center gap-3">
                                 <h1 className="text-3xl font-bold tracking-tight text-slate-900 uppercase">

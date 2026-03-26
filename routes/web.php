@@ -14,8 +14,10 @@ use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\ManageEmployeeController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PeraController;
 use App\Http\Controllers\RataController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
@@ -41,128 +43,137 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     // EMPLOYEES - View Only
-    Route::prefix('employees')->group(function () {
-        Route::get('/', [EmployeeController::class, 'index'])->name('employees.index');
-        Route::get('{employee}', [EmployeeController::class, 'show'])->name('employees.show');
-    });
+    Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
+
+    // EMPLOYEES - Create (requires employees.create permission) - MUST come before {employee} routes
+    Route::middleware(['permission:employees.create'])->get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+    Route::middleware(['permission:employees.create'])->post('employees', [EmployeeController::class, 'store'])->name('employees.store');
 
     // EMPLOYEE PRINT REPORT
     Route::get('employees/{employee}/print', [ManageEmployeeController::class, 'print'])->name('employees.print');
 
-    // ============================================
-    // ADMIN ONLY ROUTES
-    // ============================================
-    Route::middleware(['admin'])->group(function () {
+    // EMPLOYEES - View/Edit/Delete (parameterized routes must be last)
+    Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+    Route::middleware(['permission:employees.edit'])->put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+    Route::middleware(['permission:employees.delete'])->delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
-        // SUPPLIERS - Full CRUD
-        Route::prefix('suppliers')->group(function () {
-            Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
-            Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
-            Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
-            Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+    // SUPPLIERS - Full CRUD (requires suppliers.manage permission)
+    Route::middleware(['permission:suppliers.manage'])->prefix('suppliers')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
+        Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+        Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
-            // Supplier Transactions
-            Route::get('{supplier}/transactions', [SupplierTransactionController::class, 'show'])->name('suppliers.transactions.show');
-            Route::post('{supplier}/transactions', [SupplierTransactionController::class, 'store'])->name('suppliers.transactions.store');
-            Route::put('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'update'])->name('suppliers.transactions.update');
-            Route::delete('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'destroy'])->name('suppliers.transactions.destroy');
-        });
+        // Supplier Transactions
+        Route::get('{supplier}/transactions', [SupplierTransactionController::class, 'show'])->name('suppliers.transactions.show');
+        Route::post('{supplier}/transactions', [SupplierTransactionController::class, 'store'])->name('suppliers.transactions.store');
+        Route::put('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'update'])->name('suppliers.transactions.update');
+        Route::delete('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'destroy'])->name('suppliers.transactions.destroy');
+    });
 
-        // PAYROLL - Admin Features
-        Route::prefix('payroll')->group(function () {
-            Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
-            Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
-            Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
-        });
 
-        // SALARIES - Full CRUD
-        Route::prefix('salaries')->group(function () {
-            Route::get('/', [SalaryController::class, 'index'])->name('salaries.index');
-            Route::get('history/{employee}', [SalaryController::class, 'history'])->name('salaries.history');
-            Route::post('/', [SalaryController::class, 'store'])->name('salaries.store');
-            Route::delete('{salary}', [SalaryController::class, 'destroy'])->name('salaries.destroy');
-        });
 
-        // PERA - Full CRUD
-        Route::prefix('peras')->group(function () {
-            Route::get('/', [PeraController::class, 'index'])->name('peras.index');
-            Route::get('history/{employee}', [PeraController::class, 'history'])->name('peras.history');
-            Route::post('/', [PeraController::class, 'store'])->name('peras.store');
-            Route::delete('{pera}', [PeraController::class, 'destroy'])->name('peras.destroy');
-        });
+    // PAYROLL - Admin Features (requires payroll.export permission)
+    Route::middleware(['permission:payroll.export'])->prefix('payroll')->group(function () {
+        Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
+        Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
+        Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
+    });
 
-        // RATA - Full CRUD
-        Route::prefix('ratas')->group(function () {
-            Route::get('/', [RataController::class, 'index'])->name('ratas.index');
-            Route::get('history/{employee}', [RataController::class, 'history'])->name('ratas.history');
-            Route::post('/', [RataController::class, 'store'])->name('ratas.store');
-            Route::delete('{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
-        });
+    // SALARIES - Full CRUD (requires employees.manage permission)
+    Route::middleware(['permission:employees.manage'])->prefix('salaries')->group(function () {
+        Route::get('/', [SalaryController::class, 'index'])->name('salaries.index');
+        Route::get('history/{employee}', [SalaryController::class, 'history'])->name('salaries.history');
+        Route::post('/', [SalaryController::class, 'store'])->name('salaries.store');
+        Route::delete('{salary}', [SalaryController::class, 'destroy'])->name('salaries.destroy');
+    });
 
-        // EMPLOYEE DEDUCTIONS - Full CRUD
-        Route::prefix('employee-deductions')->group(function () {
-            Route::get('/', [EmployeeDeductionController::class, 'index'])->name('employee-deductions.index');
-            Route::post('/', [EmployeeDeductionController::class, 'store'])->name('employee-deductions.store');
-            Route::put('{employeeDeduction}', [EmployeeDeductionController::class, 'update'])->name('employee-deductions.update');
-            Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
-        });
+    // PERA - Full CRUD (requires employees.manage permission)
+    Route::middleware(['permission:employees.manage'])->prefix('peras')->group(function () {
+        Route::get('/', [PeraController::class, 'index'])->name('peras.index');
+        Route::get('history/{employee}', [PeraController::class, 'history'])->name('peras.history');
+        Route::post('/', [PeraController::class, 'store'])->name('peras.store');
+        Route::delete('{pera}', [PeraController::class, 'destroy'])->name('peras.destroy');
+    });
 
-        // EMPLOYEES - Full CRUD
-        Route::prefix('employees')->group(function () {
-            Route::get('create', [EmployeeController::class, 'create'])->name('employees.create');
-            Route::post('/', [EmployeeController::class, 'store'])->name('employees.store');
-            Route::put('{employee}', [EmployeeController::class, 'update'])->name('employees.update');
-            Route::delete('{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
-        });
+    // RATA - Full CRUD (requires employees.manage permission)
+    Route::middleware(['permission:employees.manage'])->prefix('ratas')->group(function () {
+        Route::get('/', [RataController::class, 'index'])->name('ratas.index');
+        Route::get('history/{employee}', [RataController::class, 'history'])->name('ratas.history');
+        Route::post('/', [RataController::class, 'store'])->name('ratas.store');
+        Route::delete('{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
+    });
 
-        // MANAGE EMPLOYEE
-        Route::prefix('manage')->group(function () {
-            Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
-            Route::post('employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
+    // EMPLOYEE DEDUCTIONS - Full CRUD (requires deductions.manage permission)
+    Route::middleware(['permission:deductions.manage'])->prefix('employee-deductions')->group(function () {
+        Route::get('/', [EmployeeDeductionController::class, 'index'])->name('employee-deductions.index');
+        Route::post('/', [EmployeeDeductionController::class, 'store'])->name('employee-deductions.store');
+        Route::put('{employeeDeduction}', [EmployeeDeductionController::class, 'update'])->name('employee-deductions.update');
+        Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
+    });
 
-            // CLAIMS
-            Route::get('employees/{employee}/claims', [ClaimController::class, 'index'])->name('manage.employees.claims.index');
-            Route::post('employees/{employee}/claims', [ClaimController::class, 'store'])->name('manage.employees.claims.store');
-            Route::put('employees/{employee}/claims/{claim}', [ClaimController::class, 'update'])->name('manage.employees.claims.update');
-            Route::delete('employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
-        });
+    // MANAGE EMPLOYEE (requires employees.manage permission)
+    Route::middleware(['permission:employees.manage'])->prefix('manage')->group(function () {
+        Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
+        Route::post('employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
 
-        // SETTINGS - All Configuration
-        Route::prefix('settings')->group(function () {
-            // EMPLOYMENT STATUS
-            Route::get('employment-statuses', [EmploymentStatusController::class, 'index'])->name('employment-statuses.index');
-            Route::post('employment-statuses', [EmploymentStatusController::class, 'store'])->name('employment-statuses.store');
-            Route::put('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'update'])->name('employment-statuses.update');
-            Route::delete('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'destroy'])->name('employment-statuses.destroy');
+        // CLAIMS
+        Route::get('employees/{employee}/claims', [ClaimController::class, 'index'])->name('manage.employees.claims.index');
+        Route::post('employees/{employee}/claims', [ClaimController::class, 'store'])->name('manage.employees.claims.store');
+        Route::put('employees/{employee}/claims/{claim}', [ClaimController::class, 'update'])->name('manage.employees.claims.update');
+        Route::delete('employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
+    });
 
-            // OFFICES
-            Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
-            Route::post('offices', [OfficeController::class, 'store'])->name('offices.store');
-            Route::put('offices/{office}', [OfficeController::class, 'update'])->name('offices.update');
-            Route::delete('offices/{office}', [OfficeController::class, 'destroy'])->name('offices.destroy');
+    // SETTINGS - All Configuration (requires settings.manage permission)
+    Route::middleware(['permission:settings.manage'])->prefix('settings')->group(function () {
+        // EMPLOYMENT STATUS
+        Route::get('employment-statuses', [EmploymentStatusController::class, 'index'])->name('employment-statuses.index');
+        Route::post('employment-statuses', [EmploymentStatusController::class, 'store'])->name('employment-statuses.store');
+        Route::put('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'update'])->name('employment-statuses.update');
+        Route::delete('employment-statuses/{employmentStatus}', [EmploymentStatusController::class, 'destroy'])->name('employment-statuses.destroy');
 
-            // DEDUCTION TYPES
-            Route::get('deduction-types', [DeductionTypeController::class, 'index'])->name('deduction-types.index');
-            Route::post('deduction-types', [DeductionTypeController::class, 'store'])->name('deduction-types.store');
-            Route::put('deduction-types/{deductionType}', [DeductionTypeController::class, 'update'])->name('deduction-types.update');
-            Route::delete('deduction-types/{deductionType}', [DeductionTypeController::class, 'destroy'])->name('deduction-types.destroy');
+        // OFFICES
+        Route::get('offices', [OfficeController::class, 'index'])->name('offices.index');
+        Route::post('offices', [OfficeController::class, 'store'])->name('offices.store');
+        Route::put('offices/{office}', [OfficeController::class, 'update'])->name('offices.update');
+        Route::delete('offices/{office}', [OfficeController::class, 'destroy'])->name('offices.destroy');
 
-            // DOCUMENT TYPES
-            Route::get('document-types', [DocumentTypeController::class, 'index'])->name('document-types.index');
-            Route::post('document-types', [DocumentTypeController::class, 'store'])->name('document-types.store');
-            Route::put('document-types/{documentType}', [DocumentTypeController::class, 'update'])->name('document-types.update');
-            Route::delete('document-types/{documentType}', [DocumentTypeController::class, 'destroy'])->name('document-types.destroy');
+        // DEDUCTION TYPES
+        Route::get('deduction-types', [DeductionTypeController::class, 'index'])->name('deduction-types.index');
+        Route::post('deduction-types', [DeductionTypeController::class, 'store'])->name('deduction-types.store');
+        Route::put('deduction-types/{deductionType}', [DeductionTypeController::class, 'update'])->name('deduction-types.update');
+        Route::delete('deduction-types/{deductionType}', [DeductionTypeController::class, 'destroy'])->name('deduction-types.destroy');
 
-            // CLAIM TYPES
-            Route::get('claim-types', [ClaimTypeController::class, 'index'])->name('claim-types.index');
-            Route::post('claim-types', [ClaimTypeController::class, 'store'])->name('claim-types.store');
-            Route::put('claim-types/{claimType}', [ClaimTypeController::class, 'update'])->name('claim-types.update');
-            Route::delete('claim-types/{claimType}', [ClaimTypeController::class, 'destroy'])->name('claim-types.destroy');
-        });
+        // DOCUMENT TYPES
+        Route::get('document-types', [DocumentTypeController::class, 'index'])->name('document-types.index');
+        Route::post('document-types', [DocumentTypeController::class, 'store'])->name('document-types.store');
+        Route::put('document-types/{documentType}', [DocumentTypeController::class, 'update'])->name('document-types.update');
+        Route::delete('document-types/{documentType}', [DocumentTypeController::class, 'destroy'])->name('document-types.destroy');
 
-        // ACCOUNTS - User Management
-        Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
-        Route::put('accounts/{user}', [AccountController::class, 'update'])->name('accounts.update');
+        // CLAIM TYPES
+        Route::get('claim-types', [ClaimTypeController::class, 'index'])->name('claim-types.index');
+        Route::post('claim-types', [ClaimTypeController::class, 'store'])->name('claim-types.store');
+        Route::put('claim-types/{claimType}', [ClaimTypeController::class, 'update'])->name('claim-types.update');
+        Route::delete('claim-types/{claimType}', [ClaimTypeController::class, 'destroy'])->name('claim-types.destroy');
+    });
+
+    // ACCOUNTS - User Management (requires accounts.manage permission)
+    Route::middleware(['permission:accounts.manage'])->get('accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::middleware(['permission:accounts.manage'])->put('accounts/{user}', [AccountController::class, 'update'])->name('accounts.update');
+
+    // ROLES & PERMISSIONS (requires roles.manage and permissions.manage)
+    Route::middleware(['permission:roles.manage'])->prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('roles.index');
+        Route::post('/', [RoleController::class, 'store'])->name('roles.store');
+        Route::put('{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    });
+
+    Route::middleware(['permission:permissions.manage'])->prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::post('/', [PermissionController::class, 'store'])->name('permissions.store');
+        Route::put('{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
 });
 

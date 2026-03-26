@@ -1,17 +1,20 @@
-import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Shield, User, Users } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Edit, Shield, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface Role {
     id: number;
     name: string;
-    display_name: string;
 }
 
 interface User {
@@ -20,8 +23,7 @@ interface User {
     username: string;
     is_active: boolean;
     is_super_admin: boolean;
-    role_id: number | null;
-    role?: Role;
+    roles: string[];
     created_at: string;
 }
 
@@ -39,6 +41,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
     const [updating, setUpdating] = useState<number | null>(null);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const roleForm = useForm({
+        roles: [] as string[],
+    });
 
     const handleToggle = (userId: number, field: 'is_active' | 'is_super_admin', value: boolean) => {
         setUpdating(userId);
@@ -52,22 +59,30 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
         );
     };
 
-    const handleRoleChange = (userId: number, roleId: string | null) => {
-        setUpdating(userId);
-        router.put(
-            route('accounts.update', userId),
-            { role_id: roleId ? parseInt(roleId) : null },
-            {
-                preserveScroll: true,
-                onFinish: () => setUpdating(null),
-            },
-        );
+    const openRoleDialog = (user: User) => {
+        setEditingUser(user);
+        roleForm.setData({
+            roles: user.roles,
+        });
     };
 
-    const roleItems = roles.map((role) => ({
-        value: role.id.toString(),
-        label: role.display_name,
-    }));
+    const handleRoleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingUser) return;
+
+        roleForm.put(route('accounts.update', editingUser.id), {
+            onSuccess: () => {
+                setEditingUser(null);
+                roleForm.reset();
+            },
+        });
+    };
+
+    const toggleRole = (roleName: string) => {
+        const current = roleForm.data.roles;
+        const updated = current.includes(roleName) ? current.filter((r) => r !== roleName) : [...current, roleName];
+        roleForm.setData('roles', updated);
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -89,7 +104,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                 <TableHead className="w-[50px]"></TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Username</TableHead>
-                                <TableHead>Role</TableHead>
+                                <TableHead>Roles</TableHead>
                                 <TableHead className="text-center">Active</TableHead>
                                 <TableHead className="text-center">Super Admin</TableHead>
                                 <TableHead className="text-right">Created</TableHead>
@@ -119,13 +134,18 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{user.username}</TableCell>
                                         <TableCell>
-                                            <div className="w-[160px]">
-                                                <CustomComboBox
-                                                    items={roleItems}
-                                                    placeholder="Select role..."
-                                                    value={user.role_id?.toString() ?? ''}
-                                                    onSelect={(value) => handleRoleChange(user.id, value)}
-                                                />
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {user.roles.map((role) => (
+                                                        <Badge key={role} variant="secondary" className="text-xs capitalize">
+                                                            {role.replace(/_/g, ' ')}
+                                                        </Badge>
+                                                    ))}
+                                                    {user.roles.length === 0 && <span className="text-muted-foreground text-xs">No roles</span>}
+                                                </div>
+                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openRoleDialog(user)}>
+                                                    <Edit className="h-3 w-3" />
+                                                </Button>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-center">
@@ -171,6 +191,43 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                         <span>Regular user</span>
                     </div>
                 </div>
+
+                {/* Role Assignment Dialog */}
+                <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+                    <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle>Assign Roles</DialogTitle>
+                            <DialogDescription>Manage roles for {editingUser?.name}</DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleRoleSubmit} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>Roles</Label>
+                                <div className="grid grid-cols-2 gap-3 rounded-md border p-4">
+                                    {roles.map((role) => (
+                                        <div key={role.id} className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id={`role-${role.id}`}
+                                                checked={roleForm.data.roles.includes(role.name)}
+                                                onCheckedChange={() => toggleRole(role.name)}
+                                            />
+                                            <Label htmlFor={`role-${role.id}`} className="text-sm font-normal capitalize">
+                                                {role.name.replace(/_/g, ' ')}
+                                            </Label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={roleForm.processing}>
+                                    Save Roles
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
