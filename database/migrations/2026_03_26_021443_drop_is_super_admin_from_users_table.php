@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username')->unique()->after('name');
-            $table->boolean('is_active')->default(false)->after('password');
-            $table->dropColumn(['email', 'email_verified_at']);
+            $table->dropColumn('is_super_admin');
         });
     }
 
@@ -24,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('email')->unique()->after('name');
-            $table->timestamp('email_verified_at')->nullable()->after('email');
-            $table->dropColumn(['username', 'is_active']);
+            $table->boolean('is_super_admin')->default(false)->after('is_active');
         });
     }
 };

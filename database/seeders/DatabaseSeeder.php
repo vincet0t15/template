@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
             'username' => 'admin',
             'password' => Hash::make('admin123'),
             'is_active' => true,
-            'is_super_admin' => true,
         ]);
 
         $adminUser->assignRole('admin');
