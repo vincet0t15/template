@@ -88,5 +88,56 @@ class RoleSeeder extends Seeder
         // Create roles
         $adminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions(Permission::all());
+
+        $hrManagerRole = Role::firstOrCreate(['name' => 'hr_manager', 'guard_name' => 'web']);
+        $hrManagerRole->syncPermissions([
+            'employees.view',
+            'employees.create',
+            'employees.edit',
+            'employees.delete',
+            'employees.manage',
+            'salaries.view',
+            'salaries.create',
+            'salaries.edit',
+            'salaries.delete',
+            'peras.view',
+            'peras.create',
+            'peras.edit',
+            'peras.delete',
+            'ratas.view',
+            'ratas.create',
+            'ratas.edit',
+            'ratas.delete',
+            'payroll.view',
+            'payroll.export',
+            'payroll.manage',
+            'claims.view',
+            'claims.create',
+            'claims.edit',
+            'claims.delete',
+            'claims.manage',
+            'deductions.view',
+            'deductions.create',
+            'deductions.edit',
+            'deductions.delete',
+            'deductions.manage',
+        ]);
+
+        $accountantRole = Role::firstOrCreate(['name' => 'accountant', 'guard_name' => 'web']);
+        $accountantRole->syncPermissions([
+            'employees.view',
+            'payroll.view',
+            'payroll.export',
+            'payroll.manage',
+            'suppliers.view',
+            'suppliers.manage',
+            'deductions.view',
+        ]);
+
+        $viewerRole = Role::firstOrCreate(['name' => 'viewer', 'guard_name' => 'web']);
+        $viewerRole->syncPermissions([
+            'employees.view',
+            'payroll.view',
+        ]);
     }
 }
