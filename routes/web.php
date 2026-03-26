@@ -80,29 +80,29 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
     });
 
-    // SALARIES - Full CRUD (requires employees.manage permission)
-    Route::middleware(['permission:employees.manage'])->prefix('salaries')->group(function () {
+    // SALARIES - Full CRUD (requires salaries.* permissions)
+    Route::middleware(['permission:salaries.view'])->prefix('salaries')->group(function () {
         Route::get('/', [SalaryController::class, 'index'])->name('salaries.index');
         Route::get('history/{employee}', [SalaryController::class, 'history'])->name('salaries.history');
-        Route::post('/', [SalaryController::class, 'store'])->name('salaries.store');
-        Route::delete('{salary}', [SalaryController::class, 'destroy'])->name('salaries.destroy');
     });
+    Route::middleware(['permission:salaries.create'])->post('salaries', [SalaryController::class, 'store'])->name('salaries.store');
+    Route::middleware(['permission:salaries.delete'])->delete('salaries/{salary}', [SalaryController::class, 'destroy'])->name('salaries.destroy');
 
-    // PERA - Full CRUD (requires employees.manage permission)
-    Route::middleware(['permission:employees.manage'])->prefix('peras')->group(function () {
+    // PERA - Full CRUD (requires peras.* permissions)
+    Route::middleware(['permission:peras.view'])->prefix('peras')->group(function () {
         Route::get('/', [PeraController::class, 'index'])->name('peras.index');
         Route::get('history/{employee}', [PeraController::class, 'history'])->name('peras.history');
-        Route::post('/', [PeraController::class, 'store'])->name('peras.store');
-        Route::delete('{pera}', [PeraController::class, 'destroy'])->name('peras.destroy');
     });
+    Route::middleware(['permission:peras.create'])->post('peras', [PeraController::class, 'store'])->name('peras.store');
+    Route::middleware(['permission:peras.delete'])->delete('peras/{pera}', [PeraController::class, 'destroy'])->name('peras.destroy');
 
-    // RATA - Full CRUD (requires employees.manage permission)
-    Route::middleware(['permission:employees.manage'])->prefix('ratas')->group(function () {
+    // RATA - Full CRUD (requires ratas.* permissions)
+    Route::middleware(['permission:ratas.view'])->prefix('ratas')->group(function () {
         Route::get('/', [RataController::class, 'index'])->name('ratas.index');
         Route::get('history/{employee}', [RataController::class, 'history'])->name('ratas.history');
-        Route::post('/', [RataController::class, 'store'])->name('ratas.store');
-        Route::delete('{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
     });
+    Route::middleware(['permission:ratas.create'])->post('ratas', [RataController::class, 'store'])->name('ratas.store');
+    Route::middleware(['permission:ratas.delete'])->delete('ratas/{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
 
     // EMPLOYEE DEDUCTIONS - Full CRUD (requires deductions.manage permission)
     Route::middleware(['permission:deductions.manage'])->prefix('employee-deductions')->group(function () {

@@ -23,6 +23,24 @@ class RoleSeeder extends Seeder
             'employees.delete',
             'employees.manage',
 
+            // Salary permissions
+            'salaries.view',
+            'salaries.create',
+            'salaries.edit',
+            'salaries.delete',
+
+            // PERA permissions
+            'peras.view',
+            'peras.create',
+            'peras.edit',
+            'peras.delete',
+
+            // RATA permissions
+            'ratas.view',
+            'ratas.create',
+            'ratas.edit',
+            'ratas.delete',
+
             // Payroll permissions
             'payroll.view',
             'payroll.export',
@@ -72,6 +90,18 @@ class RoleSeeder extends Seeder
             'employees.edit',
             'employees.delete',
             'employees.manage',
+            'salaries.view',
+            'salaries.create',
+            'salaries.edit',
+            'salaries.delete',
+            'peras.view',
+            'peras.create',
+            'peras.edit',
+            'peras.delete',
+            'ratas.view',
+            'ratas.create',
+            'ratas.edit',
+            'ratas.delete',
             'payroll.view',
             'payroll.export',
             'payroll.manage',
