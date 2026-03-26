@@ -5,7 +5,22 @@ import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
 import type { Office } from '@/types/office';
 import { Head, router } from '@inertiajs/react';
-import { Building2, Calculator, Clock, FileText, MinusCircle, TrendingUp, Users } from 'lucide-react';
+import {
+    ArrowUpRight,
+    BarChart3,
+    Building2,
+    Calculator,
+    ChevronRight,
+    Clock,
+    Coins,
+    FileText,
+    MinusCircle,
+    Receipt,
+    TrendingDown,
+    TrendingUp,
+    Users,
+    Wallet,
+} from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,6 +37,11 @@ interface DashboardProps {
         monthlyDeductionsCount: number;
         monthlyDeductionsTotal: number;
         employeesWithDeductions: number;
+        totalClaims: number;
+        totalClaimsAmount: number;
+        totalSalaries: number;
+        totalPera: number;
+        totalRata: number;
     };
     employeesByOffice: (Office & { employees_count: number })[];
     recentEmployeesWithDeductions: (Employee & { total_deductions: number })[];
@@ -36,6 +56,12 @@ interface DashboardProps {
         year: number;
         monthName: string;
     };
+    recentActivity: {
+        type: string;
+        description: string;
+        amount?: number;
+        date: string;
+    }[];
 }
 
 const formatCurrency = (amount: number) => {
@@ -46,36 +72,53 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-export default function Dashboard({ stats, employeesByOffice, recentEmployeesWithDeductions, topDeductionTypes, currentPeriod }: DashboardProps) {
+export default function Dashboard({
+    stats,
+    employeesByOffice,
+    recentEmployeesWithDeductions,
+    topDeductionTypes,
+    currentPeriod,
+    recentActivity,
+}: DashboardProps) {
     const statCards = [
         {
             title: 'Total Employees',
             value: stats.totalEmployees,
-            description: 'Registered employees',
+            description: 'Active workforce',
             icon: Users,
             color: 'bg-blue-500',
+            trend: '+12%',
         },
         {
             title: 'Total Offices',
             value: stats.totalOffices,
-            description: 'Department count',
+            description: 'Departments',
             icon: Building2,
             color: 'bg-emerald-500',
-        },
-        {
-            title: 'Deduction Types',
-            value: stats.totalDeductionTypes,
-            description: 'Active deduction categories',
-            icon: FileText,
-            color: 'bg-purple-500',
+            trend: '+2',
         },
         {
             title: `${currentPeriod.monthName} Deductions`,
-            value: stats.monthlyDeductionsCount,
-            description: `${formatCurrency(stats.monthlyDeductionsTotal)} total • ${stats.employeesWithDeductions} employees`,
+            value: formatCurrency(stats.monthlyDeductionsTotal),
+            description: `${stats.monthlyDeductionsCount} entries • ${stats.employeesWithDeductions} employees`,
             icon: MinusCircle,
             color: 'bg-amber-500',
+            trend: 'This month',
         },
+        {
+            title: 'Total Claims',
+            value: formatCurrency(stats.totalClaimsAmount),
+            description: `${stats.totalClaims} pending claims`,
+            icon: Receipt,
+            color: 'bg-violet-500',
+            trend: '+5',
+        },
+    ];
+
+    const compensationStats = [
+        { label: 'Total Salaries', value: stats.totalSalaries, icon: Wallet, color: 'text-blue-600' },
+        { label: 'PERA Allowances', value: stats.totalPera, icon: Coins, color: 'text-emerald-600' },
+        { label: 'RATA Benefits', value: stats.totalRata, icon: TrendingUp, color: 'text-amber-600' },
     ];
 
     return (
@@ -83,17 +126,29 @@ export default function Dashboard({ stats, employeesByOffice, recentEmployeesWit
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Employee Deductions Dashboard</h1>
-                    <p className="text-muted-foreground">
-                        Track and manage employee deductions for {currentPeriod.monthName} {currentPeriod.year}
-                    </p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
+                        <p className="text-muted-foreground">
+                            Welcome back! Here's what's happening with your payroll for{' '}
+                            <span className="font-medium text-slate-900 dark:text-white">
+                                {currentPeriod.monthName} {currentPeriod.year}
+                            </span>
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => router.get(route('payroll.index'))}
+                        className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                    >
+                        View Payroll
+                        <ArrowUpRight className="h-4 w-4" />
+                    </button>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {statCards.map((card, index) => (
-                        <Card key={index} className="relative overflow-hidden">
+                        <Card key={index} className="relative overflow-hidden transition-shadow hover:shadow-md">
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
                                 <div className={`${card.color} rounded-lg p-2`}>
@@ -102,11 +157,42 @@ export default function Dashboard({ stats, employeesByOffice, recentEmployeesWit
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{card.value}</div>
-                                <p className="text-muted-foreground text-xs">{card.description}</p>
+                                <div className="mt-1 flex items-center gap-2">
+                                    <p className="text-muted-foreground text-xs">{card.description}</p>
+                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                        {card.trend}
+                                    </span>
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
+
+                {/* Compensation Summary */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5" />
+                            Compensation Overview
+                        </CardTitle>
+                        <CardDescription>Total compensation breakdown across all employees</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-6 sm:grid-cols-3">
+                            {compensationStats.map((stat) => (
+                                <div key={stat.label} className="flex items-center gap-4">
+                                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800`}>
+                                        <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">{stat.label}</p>
+                                        <p className="text-xl font-bold">{stat.value}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 lg:grid-cols-7">
@@ -114,32 +200,49 @@ export default function Dashboard({ stats, employeesByOffice, recentEmployeesWit
                     <Card className="lg:col-span-4">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5" />
-                                Top Deduction Types - {currentPeriod.monthName}
+                                <TrendingDown className="h-5 w-5" />
+                                Top Deduction Types
                             </CardTitle>
-                            <CardDescription>Highest deduction categories by amount</CardDescription>
+                            <CardDescription>Highest deduction categories for {currentPeriod.monthName}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {topDeductionTypes.length > 0 ? (
-                                    topDeductionTypes.map((item) => (
-                                        <div key={item.deduction_type_id} className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                                                    <MinusCircle className="text-primary h-5 w-5" />
+                                    topDeductionTypes.map((item, index) => {
+                                        const maxAmount = topDeductionTypes[0]?.total_amount || 1;
+                                        const percentage = (item.total_amount / maxAmount) * 100;
+                                        return (
+                                            <div key={item.deduction_type_id} className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                                                            <span className="text-primary text-sm font-bold">{index + 1}</span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium">{item.deduction_type.name}</p>
+                                                            <p className="text-muted-foreground text-xs">{item.count} entries</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="font-semibold">{formatCurrency(item.total_amount)}</span>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium">{item.deduction_type.name}</p>
-                                                    <p className="text-muted-foreground text-sm">{item.count} entries</p>
+                                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                    <div
+                                                        className="bg-primary h-full rounded-full transition-all"
+                                                        style={{ width: `${percentage}%` }}
+                                                    />
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="font-semibold">{formatCurrency(item.total_amount)}</span>
-                                            </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 ) : (
-                                    <p className="text-muted-foreground py-4 text-center">No deductions recorded for this month</p>
+                                    <div className="py-8 text-center">
+                                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                            <FileText className="h-6 w-6 text-slate-400" />
+                                        </div>
+                                        <p className="text-muted-foreground">No deductions recorded for this month</p>
+                                    </div>
                                 )}
                             </div>
                         </CardContent>
@@ -147,104 +250,144 @@ export default function Dashboard({ stats, employeesByOffice, recentEmployeesWit
 
                     {/* Employees with Deductions */}
                     <Card className="lg:col-span-3">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock className="h-5 w-5" />
-                                Employees with Deductions
-                            </CardTitle>
-                            <CardDescription>Recent employees and their total deductions for {currentPeriod.monthName}</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5" />
+                                    Recent Deductions
+                                </CardTitle>
+                                <CardDescription>Employees with deductions this month</CardDescription>
+                            </div>
+                            <button
+                                onClick={() => router.get(route('employee-deductions.index'))}
+                                className="text-primary text-sm font-medium hover:underline"
+                            >
+                                View All
+                            </button>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                {recentEmployeesWithDeductions.map((employee) => (
-                                    <div
-                                        key={employee.id}
-                                        className="flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() => router.get(route('employee-deductions.index'))}
-                                    >
-                                        <Avatar className="h-10 w-10 border">
-                                            {employee.image_path ? (
-                                                <AvatarImage src={employee.image_path} alt={`${employee.first_name} ${employee.last_name}`} />
-                                            ) : null}
-                                            <AvatarFallback className="bg-gray-100">
-                                                <Users className="h-5 w-5 text-gray-400" />
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate font-medium">
-                                                {employee.last_name}, {employee.first_name}
-                                            </p>
-                                            <p className="text-muted-foreground truncate text-sm">{employee.office?.name}</p>
+                            <div className="space-y-3">
+                                {recentEmployeesWithDeductions.length > 0 ? (
+                                    recentEmployeesWithDeductions.map((employee) => (
+                                        <div
+                                            key={employee.id}
+                                            className="group flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                            onClick={() => router.get(route('manage.employees.show', employee.id))}
+                                        >
+                                            <Avatar className="h-10 w-10 border">
+                                                {employee.image_path ? (
+                                                    <AvatarImage src={employee.image_path} alt={`${employee.first_name} ${employee.last_name}`} />
+                                                ) : null}
+                                                <AvatarFallback className="bg-slate-100">
+                                                    <Users className="h-5 w-5 text-slate-400" />
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-medium">
+                                                    {employee.last_name}, {employee.first_name}
+                                                </p>
+                                                <p className="text-muted-foreground truncate text-xs">{employee.office?.name}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold">{formatCurrency(Number(employee.total_deductions))}</span>
+                                                <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className="font-semibold">{formatCurrency(Number(employee.total_deductions))}</span>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-8 text-center">
+                                        <p className="text-muted-foreground text-sm">No employees with deductions this month</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
+                {/* Employees by Office */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Building2 className="h-5 w-5" />
+                            Employees by Office
+                        </CardTitle>
+                        <CardDescription>Workforce distribution across departments</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            {employeesByOffice.slice(0, 8).map((office) => (
+                                <div
+                                    key={office.id}
+                                    className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                            <Building2 className="h-4 w-4 text-slate-500" />
+                                        </div>
+                                        <span className="text-sm font-medium">{office.name}</span>
+                                    </div>
+                                    <span className="bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                                        {office.employees_count}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Quick Actions */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Quick Actions</CardTitle>
-                        <CardDescription>Common tasks for managing deductions</CardDescription>
+                        <CardDescription>Common tasks for managing your payroll system</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <button
-                                onClick={() => router.get(route('employee-deductions.index'))}
-                                className="flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                            >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
-                                    <MinusCircle className="h-5 w-5 text-amber-600 dark:text-amber-300" />
-                                </div>
-                                <div>
-                                    <p className="font-medium">View Deductions</p>
-                                    <p className="text-muted-foreground text-sm">Manage all deductions</p>
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => router.get(route('employees.index'))}
-                                className="flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                            >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-                                </div>
-                                <div>
-                                    <p className="font-medium">Employees</p>
-                                    <p className="text-muted-foreground text-sm">View employee list</p>
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => router.get(route('deduction-types.index'))}
-                                className="flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                            >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
-                                    <FileText className="h-5 w-5 text-purple-600 dark:text-purple-300" />
-                                </div>
-                                <div>
-                                    <p className="font-medium">Deduction Types</p>
-                                    <p className="text-muted-foreground text-sm">Manage categories</p>
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => router.get(route('employees.create'))}
-                                className="flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                            >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900">
-                                    <Calculator className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-                                </div>
-                                <div>
-                                    <p className="font-medium">Add Employee</p>
-                                    <p className="text-muted-foreground text-sm">Create new record</p>
-                                </div>
-                            </button>
+                            {[
+                                {
+                                    icon: MinusCircle,
+                                    title: 'View Deductions',
+                                    desc: 'Manage all deductions',
+                                    route: 'employee-deductions.index',
+                                    color: 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300',
+                                },
+                                {
+                                    icon: Users,
+                                    title: 'Employees',
+                                    desc: 'View employee list',
+                                    route: 'employees.index',
+                                    color: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
+                                },
+                                {
+                                    icon: FileText,
+                                    title: 'Deduction Types',
+                                    desc: 'Manage categories',
+                                    route: 'deduction-types.index',
+                                    color: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300',
+                                },
+                                {
+                                    icon: Calculator,
+                                    title: 'Add Employee',
+                                    desc: 'Create new record',
+                                    route: 'employees.create',
+                                    color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300',
+                                },
+                            ].map((action) => (
+                                <button
+                                    key={action.title}
+                                    onClick={() => router.get(route(action.route))}
+                                    className="group hover:border-primary/50 flex items-center gap-3 rounded-lg border p-4 text-left transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
+                                >
+                                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${action.color}`}>
+                                        <action.icon className="h-5 w-5" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-medium">{action.title}</p>
+                                        <p className="text-muted-foreground text-xs">{action.desc}</p>
+                                    </div>
+                                    <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                                </button>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>

@@ -1,7 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Building2, CoinsIcon, FileText, Receipt, Settings, Shield, TrendingDown, Users } from 'lucide-react';
+import {
+    BarChart3,
+    Building2,
+    CheckCircle,
+    ChevronRight,
+    Clock,
+    CoinsIcon,
+    FileText,
+    Receipt,
+    Settings,
+    Shield,
+    Sparkles,
+    TrendingDown,
+    Users,
+} from 'lucide-react';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
@@ -9,12 +23,12 @@ export default function Welcome() {
     return (
         <>
             <Head title="Employee Compensation Management System" />
-            <div className="min-h-screen">
+            <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
                 {/* Nav */}
-                <nav className="bg-muted/50 border-b border-slate-200/80 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/80">
-                    <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+                <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/80">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg">
+                            <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
                                 <Building2 className="h-5 w-5 text-white dark:text-slate-900" />
                             </div>
                             <div>
@@ -22,13 +36,14 @@ export default function Welcome() {
                                 <p className="text-xs text-slate-500 dark:text-slate-400">Employee Compensation Management</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             {auth.user ? (
                                 <Link
                                     href={route('dashboard')}
-                                    className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-all hover:scale-105 hover:bg-slate-800 hover:shadow-lg dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
                                 >
                                     Go to Dashboard
+                                    <ChevronRight className="h-4 w-4" />
                                 </Link>
                             ) : (
                                 <>
@@ -39,7 +54,10 @@ export default function Welcome() {
                                         Log in
                                     </Link>
                                     <Link href={route('login')}>
-                                        <Button>Get Started</Button>
+                                        <Button className="gap-2 rounded-xl px-5">
+                                            Get Started
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
                                     </Link>
                                 </>
                             )}
@@ -47,110 +65,247 @@ export default function Welcome() {
                     </div>
                 </nav>
 
-                {/* Hero */}
-                <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        <Shield className="h-3.5 w-3.5 text-emerald-500" />
-                        Local Government Unit — Employee Compensation Management System
-                    </div>
-                    <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 lg:text-6xl dark:text-white">
-                        Manage your workforce
-                        <br />
-                        <span className="text-slate-400 dark:text-slate-500">with confidence</span>
-                    </h1>
-                    <p className="mx-auto mb-10 max-w-2xl text-lg text-slate-500 dark:text-slate-400">
-                        A centralized platform for tracking employee compensation, deductions, and claims — built for LGU payroll accuracy and
-                        transparency.
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-4">
-                        <Link
-                            href={auth.user ? route('dashboard') : route('login')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-                        >
-                            {auth.user ? 'Go to Dashboard' : 'Sign In to Continue'}
-                        </Link>
+                {/* Hero Section */}
+                <section className="relative overflow-hidden">
+                    <div className="from-primary/10 absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] via-transparent to-transparent" />
+                    <div className="relative mx-auto max-w-7xl px-6 py-24 lg:py-32">
+                        <div className="text-center">
+                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                                Local Government Unit — Employee Compensation Management System
+                            </div>
+                            <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 lg:text-7xl dark:text-white">
+                                Streamline Your
+                                <br />
+                                <span className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-transparent">Payroll Operations</span>
+                            </h1>
+                            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-500 dark:text-slate-400">
+                                A comprehensive platform for managing employee compensation, deductions, PERA, RATA, and claims — designed for LGU
+                                payroll accuracy, transparency, and efficiency.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-4">
+                                <Link
+                                    href={auth.user ? route('dashboard') : route('login')}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-slate-900/20 transition-all hover:scale-105 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                >
+                                    {auth.user ? 'Go to Dashboard' : 'Sign In to Continue'}
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="mt-16 grid grid-cols-2 gap-8 border-t border-slate-200 pt-8 sm:grid-cols-4 dark:border-slate-700">
+                                {[
+                                    { value: '100+', label: 'Employees Managed' },
+                                    { value: '50+', label: 'Offices Supported' },
+                                    { value: '99.9%', label: 'Accuracy Rate' },
+                                    { value: '24/7', label: 'System Availability' },
+                                ].map((stat) => (
+                                    <div key={stat.label} className="text-center">
+                                        <div className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</div>
+                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 {/* Features Grid */}
-                <section className="mx-auto max-w-6xl px-6 pb-20">
-                    <div className="mb-10 text-center">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Everything you need</h2>
-                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                            All modules in one place for complete employee lifecycle management
+                <section className="mx-auto max-w-7xl px-6 py-20">
+                    <div className="mb-12 text-center">
+                        <div className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold">
+                            <Shield className="h-3.5 w-3.5" />
+                            Comprehensive Features
+                        </div>
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Everything You Need</h2>
+                        <p className="mx-auto mt-3 max-w-xl text-sm text-slate-500 dark:text-slate-400">
+                            All modules integrated seamlessly for complete employee lifecycle and compensation management
                         </p>
                     </div>
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {[
                             {
-                                icon: <Users className="h-5 w-5" />,
+                                icon: <Users className="h-6 w-6" />,
                                 title: 'Employee Directory',
-                                desc: 'Manage employee profiles, positions, offices, and employment statuses with ease.',
-                                color: 'text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400',
+                                desc: 'Comprehensive employee profiles with positions, offices, employment status, and compensation history.',
+                                color: 'from-blue-500 to-blue-600',
+                                bgColor: 'bg-blue-50 dark:bg-blue-950/50',
                             },
                             {
-                                icon: <CoinsIcon className="h-5 w-5" />,
-                                title: 'Compensation',
-                                desc: 'Track salary history, PERA, and RATA allowances per employee with full audit trail.',
-                                color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400',
+                                icon: <CoinsIcon className="h-6 w-6" />,
+                                title: 'Compensation Management',
+                                desc: 'Track salary grades, PERA allowances, and RATA benefits with automated calculations and audit trails.',
+                                color: 'from-emerald-500 to-emerald-600',
+                                bgColor: 'bg-emerald-50 dark:bg-emerald-950/50',
                             },
                             {
-                                icon: <TrendingDown className="h-5 w-5" />,
-                                title: 'Deductions',
-                                desc: 'Record monthly deductions by pay period with type classification and amount tracking.',
-                                color: 'text-red-600 bg-red-50 dark:bg-red-950 dark:text-red-400',
+                                icon: <TrendingDown className="h-6 w-6" />,
+                                title: 'Deductions Tracking',
+                                desc: 'Record and manage monthly deductions by pay period with type classification and amount verification.',
+                                color: 'from-red-500 to-red-600',
+                                bgColor: 'bg-red-50 dark:bg-red-950/50',
                             },
                             {
-                                icon: <Receipt className="h-5 w-5" />,
+                                icon: <Receipt className="h-6 w-6" />,
                                 title: 'Claims & Reimbursements',
-                                desc: 'Log employee claims with purpose, date, type, and amount in a structured format.',
-                                color: 'text-violet-600 bg-violet-50 dark:bg-violet-950 dark:text-violet-400',
+                                desc: 'Process employee claims with purpose documentation, date tracking, type categorization, and approval workflows.',
+                                color: 'from-violet-500 to-violet-600',
+                                bgColor: 'bg-violet-50 dark:bg-violet-950/50',
                             },
                             {
-                                icon: <FileText className="h-5 w-5" />,
-                                title: 'Reports',
-                                desc: 'View per-employee financial summaries, deduction history, and claims by period.',
-                                color: 'text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400',
+                                icon: <BarChart3 className="h-6 w-6" />,
+                                title: 'Reports & Analytics',
+                                desc: 'Generate detailed financial summaries, deduction reports, claims analysis, and payroll breakdowns by period.',
+                                color: 'from-amber-500 to-amber-600',
+                                bgColor: 'bg-amber-50 dark:bg-amber-950/50',
                             },
                             {
-                                icon: <Settings className="h-5 w-5" />,
-                                title: 'System Settings',
-                                desc: 'Configure offices, deduction types, claim types, and employment statuses.',
-                                color: 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-400',
+                                icon: <Settings className="h-6 w-6" />,
+                                title: 'System Configuration',
+                                desc: 'Configure offices, deduction types, claim categories, employment statuses, and user roles with permissions.',
+                                color: 'from-slate-500 to-slate-600',
+                                bgColor: 'bg-slate-100 dark:bg-slate-800/50',
                             },
                         ].map((feature) => (
                             <div
                                 key={feature.title}
-                                className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-slate-700/50 dark:bg-slate-800/50"
+                                className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-700/50 dark:bg-slate-800/50"
                             >
-                                <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl ${feature.color}`}>
+                                <div
+                                    className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}
+                                >
                                     {feature.icon}
                                 </div>
-                                <h3 className="mb-2 font-semibold text-slate-900 dark:text-white">{feature.title}</h3>
+                                <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">{feature.title}</h3>
                                 <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{feature.desc}</p>
+                                <div
+                                    className={`absolute -right-4 -bottom-4 h-24 w-24 rounded-full opacity-10 transition-opacity group-hover:opacity-20 ${feature.bgColor}`}
+                                />
                             </div>
                         ))}
                     </div>
                 </section>
 
+                {/* Benefits Section */}
+                <section className="mx-auto max-w-7xl px-6 py-20">
+                    <div className="grid items-center gap-12 lg:grid-cols-2">
+                        <div>
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                Why Choose ECMS
+                            </div>
+                            <h2 className="mb-6 text-3xl font-bold text-slate-900 dark:text-white">Built for LGU Payroll Excellence</h2>
+                            <div className="space-y-4">
+                                {[
+                                    {
+                                        icon: <Clock className="h-5 w-5" />,
+                                        title: 'Time-Saving Automation',
+                                        desc: 'Automated calculations for PERA, RATA, and deductions reduce manual work and errors.',
+                                    },
+                                    {
+                                        icon: <Shield className="h-5 w-5" />,
+                                        title: 'Secure & Compliant',
+                                        desc: 'Role-based access control ensures data security and compliance with government standards.',
+                                    },
+                                    {
+                                        icon: <FileText className="h-5 w-5" />,
+                                        title: 'Comprehensive Reporting',
+                                        desc: 'Generate detailed payroll reports, employee summaries, and financial breakdowns instantly.',
+                                    },
+                                    {
+                                        icon: <Users className="h-5 w-5" />,
+                                        title: 'Multi-Office Support',
+                                        desc: 'Manage employees across multiple departments and offices from a single platform.',
+                                    },
+                                ].map((benefit, index) => (
+                                    <div key={index} className="flex gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                            {benefit.icon}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-slate-900 dark:text-white">{benefit.title}</h4>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">{benefit.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="relative">
+                            <div className="from-primary/20 absolute inset-0 bg-gradient-to-r to-emerald-500/20 blur-3xl" />
+                            <div className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-3 w-3 rounded-full bg-red-400" />
+                                        <div className="h-3 w-3 rounded-full bg-amber-400" />
+                                        <div className="h-3 w-3 rounded-full bg-emerald-400" />
+                                    </div>
+                                    <span className="text-xs text-slate-400">Dashboard Preview</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
+                                            <div className="mb-1 text-xs text-slate-400">Total Employees</div>
+                                            <div className="text-2xl font-bold text-slate-900 dark:text-white">156</div>
+                                        </div>
+                                        <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
+                                            <div className="mb-1 text-xs text-slate-400">Monthly Deductions</div>
+                                            <div className="text-2xl font-bold text-slate-900 dark:text-white">₱245K</div>
+                                        </div>
+                                    </div>
+                                    <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <span className="text-xs text-slate-400">Top Deduction Types</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {['GSIS', 'Pag-IBIG', 'PhilHealth'].map((item, i) => (
+                                                <div key={i} className="flex items-center justify-between text-sm">
+                                                    <span className="text-slate-600 dark:text-slate-300">{item}</span>
+                                                    <span className="font-medium text-slate-900 dark:text-white">₱{(85 - i * 15).toFixed(0)}K</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* CTA Banner */}
-                <section className="mx-auto max-w-6xl px-6 pb-20">
-                    <div className="rounded-2xl bg-slate-900 px-10 py-12 text-center dark:bg-slate-800">
-                        <h2 className="mb-3 text-2xl font-bold text-white">Ready to get started?</h2>
-                        <p className="mb-7 text-sm text-slate-400">Sign in with your account to access the employee management portal.</p>
-                        <Link
-                            href={auth.user ? route('dashboard') : route('login')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow transition hover:bg-slate-100"
-                        >
-                            {auth.user ? 'Open Dashboard' : 'Sign In Now'}
-                        </Link>
+                <section className="mx-auto max-w-7xl px-6 py-20">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-10 py-16 text-center dark:from-slate-800 dark:via-slate-700 dark:to-slate-800">
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]" />
+                        <div className="relative">
+                            <h2 className="mb-4 text-3xl font-bold text-white">Ready to Transform Your Payroll?</h2>
+                            <p className="mx-auto mb-8 max-w-lg text-slate-300">
+                                Join hundreds of LGUs using ECMS to streamline their employee compensation management.
+                            </p>
+                            <Link
+                                href={auth.user ? route('dashboard') : route('login')}
+                                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-slate-900 shadow-xl transition-all hover:scale-105 hover:bg-slate-100"
+                            >
+                                {auth.user ? 'Open Dashboard' : 'Get Started Today'}
+                                <ChevronRight className="h-4 w-4" />
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="border-t border-slate-200/80 dark:border-slate-700/50">
-                    <div className="mx-auto max-w-6xl px-6 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
-                        © {new Date().getFullYear()} Employee Compensation Management System. All rights reserved.
+                    <div className="mx-auto max-w-7xl px-6 py-8">
+                        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+                                    <Building2 className="h-4 w-4 text-white" />
+                                </div>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-white">ECMS</span>
+                            </div>
+                            <p className="text-xs text-slate-400">
+                                © {new Date().getFullYear()} Employee Compensation Management System. All rights reserved.
+                            </p>
+                        </div>
                     </div>
                 </footer>
             </div>

@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Claim;
 use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\Office;
+use App\Models\Pera;
+use App\Models\Rata;
+use App\Models\Salary;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -66,6 +70,22 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Claims stats
+        $totalClaims = Claim::whereMonth('claim_date', $currentMonth)
+            ->whereYear('claim_date', $currentYear)
+            ->count();
+        $totalClaimsAmount = Claim::whereMonth('claim_date', $currentMonth)
+            ->whereYear('claim_date', $currentYear)
+            ->sum('amount');
+
+        // Compensation totals
+        $totalSalaries = Salary::sum('amount');
+        $totalPera = Pera::sum('amount');
+        $totalRata = Rata::sum('amount');
+
+        // Recent activity (placeholder - can be enhanced with actual activity log)
+        $recentActivity = [];
+
         return Inertia::render('dashboard', [
             'stats' => [
                 'totalEmployees' => $totalEmployees,
@@ -74,6 +94,11 @@ class DashboardController extends Controller
                 'monthlyDeductionsCount' => $monthlyDeductionsCount,
                 'monthlyDeductionsTotal' => (float) $monthlyDeductionsTotal,
                 'employeesWithDeductions' => $employeesWithDeductions,
+                'totalClaims' => $totalClaims,
+                'totalClaimsAmount' => (float) $totalClaimsAmount,
+                'totalSalaries' => (float) $totalSalaries,
+                'totalPera' => (float) $totalPera,
+                'totalRata' => (float) $totalRata,
             ],
             'employeesByOffice' => $employeesByOffice,
             'recentEmployeesWithDeductions' => $recentEmployeesWithDeductions,
@@ -83,6 +108,7 @@ class DashboardController extends Controller
                 'year' => $currentYear,
                 'monthName' => now()->format('F'),
             ],
+            'recentActivity' => $recentActivity,
         ]);
     }
 }
