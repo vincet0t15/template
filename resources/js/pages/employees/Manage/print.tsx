@@ -159,7 +159,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                 </Button>
             </div>
 
-            <div className="print:w-full">
+            <div className="mx-auto w-[8in] print:w-full">
                 <table className="w-full border-0">
                     <thead className="hidden print:table-header-group">
                         <tr>
@@ -227,7 +227,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                 </table>
 
                                 {/* Monthly Sections */}
-                                <div className="space-y-6">
+                                <div className="space-y-8">
                                     {sortedPeriods.map((periodKey) => {
                                         const [year, month] = periodKey.split('-').map(Number);
                                         const deductionPeriod = deductionPeriods.find((p) => p.year === year && p.month === month);
@@ -237,118 +237,95 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
 
                                         return (
                                             <div key={periodKey} className="break-inside-avoid">
-                                                <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-black pb-1">
+                                                {/* Month Header */}
+                                                <div className="mb-2 flex items-baseline justify-between border-b border-black pb-1">
                                                     <h3 className="m-0 text-[13px] font-bold uppercase">
                                                         {MONTHS[month - 1]} {year}
                                                     </h3>
-                                                    <div className="text-[11px]">
-                                                        {deductionPeriod && (
-                                                            <span>
-                                                                Deductions:{' '}
-                                                                <span className="font-bold text-red-600">
-                                                                    {formatCurrency(deductionPeriod.total)}
-                                                                </span>
-                                                                {' • '}
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    {deductionPeriod && (
+                                                        <div className="text-[11px]">
+                                                            Deductions:{' '}
+                                                            <span className="font-bold text-red-600">{formatCurrency(deductionPeriod.total)}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
 
-                                                {/* Two column layout for deductions and claims */}
-                                                <div className="flex flex-col gap-4">
-                                                    {/* Deductions Table */}
-                                                    <table className="w-full border-collapse border border-black">
+                                                {/* Deductions Table */}
+                                                {deductionPeriod && (
+                                                    <table className="mb-4 w-full border-collapse border border-black">
                                                         <thead>
                                                             <tr className="bg-gray-100">
-                                                                <th className="border border-black px-2 py-1 text-left text-[10px]">
+                                                                <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">
                                                                     Deduction Type
                                                                 </th>
-                                                                <th className="w-24 border border-black px-2 py-1 text-right text-[10px]">Amount</th>
+                                                                <th className="w-28 border border-black px-2 py-1 text-right text-[10px] font-semibold">
+                                                                    Amount
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {deductionPeriod ? (
-                                                                <>
-                                                                    {deductionPeriod.items.map((d) => (
-                                                                        <tr key={d.id}>
-                                                                            <td className="border border-black px-2 py-1 uppercase">
-                                                                                {d.deduction_type?.name ?? '—'}
-                                                                            </td>
-                                                                            <td className="border border-black px-2 py-1 text-right text-red-600">
-                                                                                {formatCurrency(Number(d.amount))}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                    <tr className="bg-gray-50 font-bold">
-                                                                        <td className="border border-black px-2 py-1">TOTAL</td>
-                                                                        <td className="border border-black px-2 py-1 text-right text-red-600">
-                                                                            {formatCurrency(deductionPeriod.total)}
-                                                                        </td>
-                                                                    </tr>
-                                                                </>
-                                                            ) : (
-                                                                <tr>
-                                                                    <td
-                                                                        colSpan={2}
-                                                                        className="border border-black px-2 py-2 text-center text-gray-500 italic"
-                                                                    >
-                                                                        No deductions
+                                                            {deductionPeriod.items.map((d) => (
+                                                                <tr key={d.id}>
+                                                                    <td className="border border-black px-2 py-1 text-[10px] uppercase">
+                                                                        {d.deduction_type?.name ?? '—'}
+                                                                    </td>
+                                                                    <td className="border border-black px-2 py-1 text-right text-[10px] text-red-600">
+                                                                        {formatCurrency(Number(d.amount))}
                                                                     </td>
                                                                 </tr>
-                                                            )}
+                                                            ))}
+                                                            <tr className="bg-gray-50 font-bold">
+                                                                <td className="border border-black px-2 py-1 text-[10px] uppercase">TOTAL</td>
+                                                                <td className="border border-black px-2 py-1 text-right text-[10px] text-red-600">
+                                                                    {formatCurrency(deductionPeriod.total)}
+                                                                </td>
+                                                            </tr>
                                                         </tbody>
                                                     </table>
+                                                )}
 
-                                                    {/* Claims Table */}
-                                                    {claimPeriod && (
-                                                        <span>
+                                                {/* Claims Section */}
+                                                {claimPeriod && (
+                                                    <>
+                                                        <div className="mb-2 text-[11px]">
                                                             Claims:{' '}
                                                             <span className="font-bold text-green-600">{formatCurrency(claimPeriod.total)}</span>
-                                                        </span>
-                                                    )}
-                                                    <table className="w-full border-collapse border border-black">
-                                                        <thead>
-                                                            <tr className="bg-gray-100">
-                                                                <th className="border border-black px-2 py-1 text-left text-[10px]">Claim</th>
-                                                                <th className="w-20 border border-black px-2 py-1 text-right text-[10px]">Amount</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {claimPeriod ? (
-                                                                <>
-                                                                    {claimPeriod.items.map((c) => (
-                                                                        <tr key={c.id}>
-                                                                            <td className="border border-black px-2 py-1">
-                                                                                <div className="text-[10px] font-medium uppercase">
-                                                                                    {c.claim_type?.name ?? '—'}
-                                                                                </div>
-                                                                                <div className="text-[9px] text-gray-500">{c.purpose}</div>
-                                                                            </td>
-                                                                            <td className="border border-black px-2 py-1 text-right text-green-600">
-                                                                                {formatCurrency(Number(c.amount))}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                    <tr className="bg-gray-50 font-bold">
-                                                                        <td className="border border-black px-2 py-1">TOTAL</td>
-                                                                        <td className="border border-black px-2 py-1 text-right text-green-600">
-                                                                            {formatCurrency(claimPeriod.total)}
+                                                        </div>
+                                                        <table className="w-full border-collapse border border-black">
+                                                            <thead>
+                                                                <tr className="bg-gray-100">
+                                                                    <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">
+                                                                        Claim
+                                                                    </th>
+                                                                    <th className="w-28 border border-black px-2 py-1 text-right text-[10px] font-semibold">
+                                                                        Amount
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {claimPeriod.items.map((c) => (
+                                                                    <tr key={c.id}>
+                                                                        <td className="border border-black px-2 py-1">
+                                                                            <div className="text-[10px] font-medium uppercase">
+                                                                                {c.claim_type?.name ?? '—'}
+                                                                            </div>
+                                                                            <div className="text-[9px] text-gray-500">{c.purpose}</div>
+                                                                        </td>
+                                                                        <td className="border border-black px-2 py-1 text-right text-[10px] text-green-600">
+                                                                            {formatCurrency(Number(c.amount))}
                                                                         </td>
                                                                     </tr>
-                                                                </>
-                                                            ) : (
-                                                                <tr>
-                                                                    <td
-                                                                        colSpan={2}
-                                                                        className="border border-black px-2 py-2 text-center text-gray-500 italic"
-                                                                    >
-                                                                        No claims
+                                                                ))}
+                                                                <tr className="bg-gray-50 font-bold">
+                                                                    <td className="border border-black px-2 py-1 text-[10px] uppercase">TOTAL</td>
+                                                                    <td className="border border-black px-2 py-1 text-right text-[10px] text-green-600">
+                                                                        {formatCurrency(claimPeriod.total)}
                                                                     </td>
                                                                 </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                            </tbody>
+                                                        </table>
+                                                    </>
+                                                )}
                                             </div>
                                         );
                                     })}
