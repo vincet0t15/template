@@ -21,6 +21,7 @@ class RoleSeeder extends Seeder
             'employees.create',
             'employees.edit',
             'employees.delete',
+            'employees.manage',
 
             // Payroll permissions
             'payroll.view',
@@ -70,6 +71,7 @@ class RoleSeeder extends Seeder
             'employees.create',
             'employees.edit',
             'employees.delete',
+            'employees.manage',
             'payroll.view',
             'payroll.export',
             'payroll.manage',
