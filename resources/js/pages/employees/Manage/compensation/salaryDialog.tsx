@@ -99,7 +99,7 @@ export function SalaryDialog({
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-h-[95vh] min-w-2xl overflow-y-auto">
+            <DialogContent className="max-h-[95vh] min-w-3xl overflow-y-auto">
                 <form onSubmit={onSubmit}>
                     <DialogHeader>
                         <DialogTitle>{isEditing ? 'Edit Salary Deductions' : 'Add Salary Deductions'}</DialogTitle>
@@ -158,7 +158,7 @@ export function SalaryDialog({
                     {/* Deduction Fields */}
                     <div className="mt-4">
                         <h4 className="mb-3 text-sm font-semibold">Deduction Amounts</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             {deductionTypes.map((deductionType, index) => (
                                 <div key={deductionType.id} className="flex flex-col gap-1">
                                     <Label htmlFor={`deduction-${deductionType.id}`}>
