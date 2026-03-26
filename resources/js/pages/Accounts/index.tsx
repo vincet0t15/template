@@ -1,3 +1,4 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,17 +8,26 @@ import { Head, router } from '@inertiajs/react';
 import { Shield, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
+interface Role {
+    id: number;
+    name: string;
+    display_name: string;
+}
+
 interface User {
     id: number;
     name: string;
     username: string;
     is_active: boolean;
     is_super_admin: boolean;
+    role_id: number | null;
+    role?: Role;
     created_at: string;
 }
 
 interface AccountsIndexProps {
     users: User[];
+    roles: Role[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function AccountsIndex({ users }: AccountsIndexProps) {
+export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
     const [updating, setUpdating] = useState<number | null>(null);
 
     const handleToggle = (userId: number, field: 'is_active' | 'is_super_admin', value: boolean) => {
@@ -41,6 +51,23 @@ export default function AccountsIndex({ users }: AccountsIndexProps) {
             },
         );
     };
+
+    const handleRoleChange = (userId: number, roleId: string | null) => {
+        setUpdating(userId);
+        router.put(
+            route('accounts.update', userId),
+            { role_id: roleId ? parseInt(roleId) : null },
+            {
+                preserveScroll: true,
+                onFinish: () => setUpdating(null),
+            },
+        );
+    };
+
+    const roleItems = roles.map((role) => ({
+        value: role.id.toString(),
+        label: role.display_name,
+    }));
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,15 +89,16 @@ export default function AccountsIndex({ users }: AccountsIndexProps) {
                                 <TableHead className="w-[50px]"></TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Username</TableHead>
+                                <TableHead>Role</TableHead>
                                 <TableHead className="text-center">Active</TableHead>
-                                <TableHead className="text-center">Admin</TableHead>
+                                <TableHead className="text-center">Super Admin</TableHead>
                                 <TableHead className="text-right">Created</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
+                                    <TableCell colSpan={7} className="text-muted-foreground h-24 text-center">
                                         No accounts found.
                                     </TableCell>
                                 </TableRow>
@@ -90,6 +118,16 @@ export default function AccountsIndex({ users }: AccountsIndexProps) {
                                             <div className="font-medium">{user.name}</div>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{user.username}</TableCell>
+                                        <TableCell>
+                                            <div className="w-[160px]">
+                                                <CustomComboBox
+                                                    items={roleItems}
+                                                    placeholder="Select role..."
+                                                    value={user.role_id?.toString() ?? ''}
+                                                    onSelect={(value) => handleRoleChange(user.id, value)}
+                                                />
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="text-center">
                                             <Switch
                                                 checked={user.is_active}

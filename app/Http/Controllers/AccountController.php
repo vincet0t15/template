@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,12 +12,19 @@ class AccountController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
-            ->select(['id', 'name', 'username', 'is_active', 'is_super_admin', 'created_at'])
+            ->with('role')
+            ->select(['id', 'name', 'username', 'is_active', 'is_super_admin', 'role_id', 'created_at'])
             ->orderBy('name')
+            ->get();
+
+        $roles = Role::query()
+            ->select(['id', 'name', 'display_name'])
+            ->orderBy('display_name')
             ->get();
 
         return Inertia::render('Accounts/index', [
             'users' => $users,
+            'roles' => $roles,
         ]);
     }
 
@@ -25,6 +33,7 @@ class AccountController extends Controller
         $validated = $request->validate([
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         $user->update($validated);

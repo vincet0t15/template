@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'password',
         'is_active',
         'is_super_admin',
+        'role_id',
     ];
 
     /**
@@ -47,5 +49,28 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
         ];
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role?->name === $roleName;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+        return $this->role?->hasPermission($permission) ?? false;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->is_super_admin || $this->hasRole('admin');
     }
 }
