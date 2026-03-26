@@ -112,17 +112,22 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
     });
 
-    // MANAGE EMPLOYEE (requires employees.manage permission)
+    // MANAGE EMPLOYEE (requires employees.manage permission for view)
     Route::middleware(['permission:employees.manage'])->prefix('manage')->group(function () {
         Route::get('employees/{employee}', [ManageEmployeeController::class, 'index'])->name('manage.employees.index');
-        Route::post('employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
-
-        // CLAIMS
-        Route::get('employees/{employee}/claims', [ClaimController::class, 'index'])->name('manage.employees.claims.index');
-        Route::post('employees/{employee}/claims', [ClaimController::class, 'store'])->name('manage.employees.claims.store');
-        Route::put('employees/{employee}/claims/{claim}', [ClaimController::class, 'update'])->name('manage.employees.claims.update');
-        Route::delete('employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
     });
+
+    // EMPLOYEE DEDUCTIONS in Manage
+    Route::middleware(['permission:deductions.create'])->post('manage/employees/{employee}/deductions', [ManageEmployeeController::class, 'storeDeduction'])->name('manage.employees.deductions.store');
+
+    // CLAIMS - View
+    Route::middleware(['permission:claims.view'])->get('manage/employees/{employee}/claims', [ClaimController::class, 'index'])->name('manage.employees.claims.index');
+    // CLAIMS - Create
+    Route::middleware(['permission:claims.create'])->post('manage/employees/{employee}/claims', [ClaimController::class, 'store'])->name('manage.employees.claims.store');
+    // CLAIMS - Edit
+    Route::middleware(['permission:claims.edit'])->put('manage/employees/{employee}/claims/{claim}', [ClaimController::class, 'update'])->name('manage.employees.claims.update');
+    // CLAIMS - Delete
+    Route::middleware(['permission:claims.delete'])->delete('manage/employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
 
     // SETTINGS - All Configuration (requires settings.manage permission)
     Route::middleware(['permission:settings.manage'])->prefix('settings')->group(function () {

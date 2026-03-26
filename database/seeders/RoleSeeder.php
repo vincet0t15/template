@@ -52,10 +52,16 @@ class RoleSeeder extends Seeder
 
             // Claims permissions
             'claims.view',
+            'claims.create',
+            'claims.edit',
+            'claims.delete',
             'claims.manage',
 
             // Deductions permissions
             'deductions.view',
+            'deductions.create',
+            'deductions.edit',
+            'deductions.delete',
             'deductions.manage',
 
             // Settings permissions
@@ -106,8 +112,14 @@ class RoleSeeder extends Seeder
             'payroll.export',
             'payroll.manage',
             'claims.view',
+            'claims.create',
+            'claims.edit',
+            'claims.delete',
             'claims.manage',
             'deductions.view',
+            'deductions.create',
+            'deductions.edit',
+            'deductions.delete',
             'deductions.manage',
         ]);
 
