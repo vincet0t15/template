@@ -10,7 +10,7 @@ class CheckPermission
 {
     /**
      * Handle an incoming request.
-     * Super admins bypass all permission checks.
+     * Admin role bypasses all permission checks.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -18,8 +18,8 @@ class CheckPermission
     {
         $user = $request->user();
 
-        // Super admins bypass all permission checks
-        if ($user && $user->is_super_admin) {
+        // Admin role bypasses all permission checks
+        if ($user && $user->hasRole('admin')) {
             return $next($request);
         }
 

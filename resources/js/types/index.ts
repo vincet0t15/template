@@ -42,7 +42,6 @@ export interface User {
     username: string;
     avatar?: string;
     is_active: boolean;
-    is_super_admin: boolean;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...

@@ -23,7 +23,6 @@ class User extends Authenticatable
         'username',
         'password',
         'is_active',
-        'is_super_admin',
     ];
 
     /**
@@ -46,12 +45,11 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'is_active' => 'boolean',
-            'is_super_admin' => 'boolean',
         ];
     }
 
     public function isAdmin(): bool
     {
-        return $this->is_super_admin || $this->hasRole('admin');
+        return $this->hasRole('admin');
     }
 }

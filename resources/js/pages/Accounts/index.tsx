@@ -22,7 +22,6 @@ interface User {
     name: string;
     username: string;
     is_active: boolean;
-    is_super_admin: boolean;
     roles: string[];
     created_at: string;
 }
@@ -47,7 +46,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
         roles: [] as string[],
     });
 
-    const handleToggle = (userId: number, field: 'is_active' | 'is_super_admin', value: boolean) => {
+    const handleToggle = (userId: number, field: 'is_active', value: boolean) => {
         setUpdating(userId);
         router.put(
             route('accounts.update', userId),
@@ -106,14 +105,13 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                 <TableHead>Username</TableHead>
                                 <TableHead>Roles</TableHead>
                                 <TableHead className="text-center">Active</TableHead>
-                                <TableHead className="text-center">Super Admin</TableHead>
                                 <TableHead className="text-right">Created</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {users.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-muted-foreground h-24 text-center">
+                                    <TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
                                         No accounts found.
                                     </TableCell>
                                 </TableRow>
@@ -122,7 +120,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                     <TableRow key={user.id} className={!user.is_active ? 'bg-muted/30' : undefined}>
                                         <TableCell>
                                             <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-                                                {user.is_super_admin ? (
+                                                {user.roles.includes('admin') ? (
                                                     <Shield className="text-primary h-4 w-4" />
                                                 ) : (
                                                     <User className="text-muted-foreground h-4 w-4" />
@@ -155,13 +153,6 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                                 disabled={updating === user.id}
                                             />
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            <Switch
-                                                checked={user.is_super_admin}
-                                                onCheckedChange={(checked) => handleToggle(user.id, 'is_super_admin', checked)}
-                                                disabled={updating === user.id}
-                                            />
-                                        </TableCell>
                                         <TableCell className="text-muted-foreground text-right">
                                             {new Date(user.created_at).toLocaleDateString('en-PH', {
                                                 year: 'numeric',
@@ -182,7 +173,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                         <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-full">
                             <Shield className="text-primary h-3 w-3" />
                         </div>
-                        <span>Admin user</span>
+                        <span>Has admin role</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-full">

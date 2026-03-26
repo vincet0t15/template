@@ -12,7 +12,7 @@ class AccountController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
-            ->select(['id', 'name', 'username', 'is_active', 'is_super_admin', 'created_at'])
+            ->select(['id', 'name', 'username', 'is_active', 'created_at'])
             ->orderBy('name')
             ->get()
             ->map(function ($user) {
@@ -21,7 +21,6 @@ class AccountController extends Controller
                     'name' => $user->name,
                     'username' => $user->username,
                     'is_active' => $user->is_active,
-                    'is_super_admin' => $user->is_super_admin,
                     'roles' => $user->getRoleNames(),
                     'created_at' => $user->created_at,
                 ];
@@ -48,17 +47,12 @@ class AccountController extends Controller
     {
         $validated = $request->validate([
             'is_active' => 'boolean',
-            'is_super_admin' => 'boolean',
             'roles' => 'array',
             'roles.*' => 'string|exists:roles,name',
         ]);
 
         if (isset($validated['is_active'])) {
             $user->is_active = $validated['is_active'];
-        }
-
-        if (isset($validated['is_super_admin'])) {
-            $user->is_super_admin = $validated['is_super_admin'];
         }
 
         $user->save();
