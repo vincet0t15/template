@@ -148,8 +148,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     // ACCOUNTS
-
     Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::put('accounts/{user}', [AccountController::class, 'update'])->name('accounts.update');
 });
 
 // require __DIR__ . '/settings.php';
