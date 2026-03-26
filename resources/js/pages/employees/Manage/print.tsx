@@ -1,10 +1,12 @@
 import PrintFFooter from '@/components/print-footer';
+import { Button } from '@/components/ui/button';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { forwardRef } from 'react';
+import { Head } from '@inertiajs/react';
+import { Printer } from 'lucide-react';
 
-interface PrintReportProps {
+interface PrintReportPageProps {
     employee: Employee;
     allDeductions: EmployeeDeduction[];
     allClaims: Claim[];
@@ -27,13 +29,9 @@ function formatDate(dateString: string) {
 function getEffectiveAmount(history: { amount: number; effective_date: string }[] | undefined, periodYear: number, periodMonth: number): number {
     if (!history || history.length === 0) return 0;
 
-    // Create a date for the end of the period (last day of the month)
     const periodEndDate = new Date(periodYear, periodMonth, 0);
-
-    // Sort history by effective_date descending (newest first)
     const sortedHistory = [...history].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime());
 
-    // Find the most recent record that was effective before or during this period
     for (const record of sortedHistory) {
         const effectiveDate = new Date(record.effective_date);
         if (effectiveDate <= periodEndDate) {
@@ -41,7 +39,6 @@ function getEffectiveAmount(history: { amount: number; effective_date: string }[
         }
     }
 
-    // If no record found, return the oldest one (fallback)
     return Number(sortedHistory[sortedHistory.length - 1]?.amount ?? 0);
 }
 
@@ -58,7 +55,7 @@ interface YearlyClaimRow {
     total: number;
 }
 
-export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ employee, allDeductions, allClaims, filterMonth, filterYear }, ref) => {
+export default function EmployeePrintReport({ employee, allDeductions, allClaims, filterMonth, filterYear }: PrintReportPageProps) {
     // Group deductions by year-month
     const deductionsByPeriod: Record<string, MonthlyDeductionRow> = {};
     for (const d of allDeductions) {
@@ -147,10 +144,23 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
     claimPeriods.forEach((p) => allPeriods.add(`${p.year}-${String(p.month).padStart(2, '0')}`));
     const sortedPeriods = Array.from(allPeriods).sort((a, b) => b.localeCompare(a));
 
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
-        <div ref={ref} className="mx-auto min-h-screen max-w-[216mm] bg-white p-8 font-sans text-[11px] leading-[1.3] text-black print:p-0">
+        <div className="mx-auto min-h-screen bg-white p-4 font-sans text-[11px] leading-[1.3] text-black print:max-w-none print:p-0">
+            <Head title={`Print Report - ${employee.last_name}, ${employee.first_name}`} />
+
+            <div className="mb-4 flex justify-end print:hidden">
+                <Button onClick={handlePrint}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print Report
+                </Button>
+            </div>
+
             <div className="print:w-full">
-                <table className="w-full">
+                <table className="w-full border-0">
                     <thead className="hidden print:table-header-group">
                         <tr>
                             <td>
@@ -241,17 +251,11 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
                                                                 {' • '}
                                                             </span>
                                                         )}
-                                                        {claimPeriod && (
-                                                            <span>
-                                                                Claims:{' '}
-                                                                <span className="font-bold text-green-600">{formatCurrency(claimPeriod.total)}</span>
-                                                            </span>
-                                                        )}
                                                     </div>
                                                 </div>
 
                                                 {/* Two column layout for deductions and claims */}
-                                                <div className="grid grid-cols-2 gap-4">
+                                                <div className="flex flex-col gap-4">
                                                     {/* Deductions Table */}
                                                     <table className="w-full border-collapse border border-black">
                                                         <thead>
@@ -296,6 +300,12 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
                                                     </table>
 
                                                     {/* Claims Table */}
+                                                    {claimPeriod && (
+                                                        <span>
+                                                            Claims:{' '}
+                                                            <span className="font-bold text-green-600">{formatCurrency(claimPeriod.total)}</span>
+                                                        </span>
+                                                    )}
                                                     <table className="w-full border-collapse border border-black">
                                                         <thead>
                                                             <tr className="bg-gray-100">
@@ -425,6 +435,4 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(({ emplo
             `}</style>
         </div>
     );
-});
-
-PrintReport.displayName = 'PrintReport';
+}

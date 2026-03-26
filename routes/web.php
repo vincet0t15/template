@@ -110,6 +110,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('employees/{employee}/claims/{claim}', [ClaimController::class, 'destroy'])->name('manage.employees.claims.destroy');
     });
 
+    // EMPLOYEE PRINT REPORT
+    Route::get('employees/{employee}/print', [ManageEmployeeController::class, 'print'])->name('employees.print');
+
     // OFFICES
     Route::prefix('settings')->group(function () {
         // EMPLOYMENT STATUS

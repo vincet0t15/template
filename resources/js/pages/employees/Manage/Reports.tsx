@@ -2,14 +2,12 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { FileText, Printer, Receipt, TrendingDown, X } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
-import { PrintReport } from './PrintReport';
+import { useMemo, useState } from 'react';
 
 interface ReportsProps {
     employee: Employee;
@@ -55,10 +53,8 @@ interface YearlyClaimRow {
 }
 
 function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
-    const [showPrintPreview, setShowPrintPreview] = useState(false);
     const [filterMonth, setFilterMonth] = useState<string | null>(null);
     const [filterYear, setFilterYear] = useState<string | null>(null);
-    const printRef = useRef<HTMLDivElement>(null);
 
     // Extract available years from data
     const availableYears = useMemo(() => {
@@ -150,16 +146,10 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     };
 
     const handlePrint = () => {
-        const printContent = printRef.current;
-        if (!printContent) return;
-
-        const originalContents = document.body.innerHTML;
-        const printContents = printContent.innerHTML;
-
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload();
+        const query = new URLSearchParams();
+        if (filterMonth) query.append('month', filterMonth);
+        if (filterYear) query.append('year', filterYear);
+        window.open(`/employees/${employee.id}/print?${query.toString()}`, '_blank');
     };
 
     return (
@@ -175,7 +165,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                         </p>
                     </div>
                 </div>
-                <Button onClick={() => setShowPrintPreview(true)}>
+                <Button onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" />
                     Print Report
                 </Button>
@@ -202,29 +192,6 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                     </Button>
                 )}
             </div>
-
-            {/* Print Preview Dialog */}
-            <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
-                <DialogContent className="max-h-[90vh] min-w-[90vw] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center justify-between">
-                            <span>Print Preview</span>
-                            <Button onClick={handlePrint} size="sm">
-                                <Printer className="mr-2 h-4 w-4" />
-                                Print Now
-                            </Button>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <PrintReport
-                        ref={printRef}
-                        employee={employee}
-                        allDeductions={filteredDeductions}
-                        allClaims={filteredClaims}
-                        filterMonth={filterMonth}
-                        filterYear={filterYear}
-                    />
-                </DialogContent>
-            </Dialog>
 
             {/* Summary Cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

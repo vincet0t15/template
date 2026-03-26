@@ -207,4 +207,63 @@ class ManageEmployeeController extends Controller
 
         return redirect()->back()->with('success', 'Deductions saved successfully');
     }
+
+    public function print(Request $request, Employee $employee)
+    {
+        $filterMonth = $request->input('month');
+        $filterYear = $request->input('year');
+
+        $employee->load([
+            'office',
+            'employmentStatus',
+            'latestSalary',
+            'latestPera',
+            'latestRata',
+            'salaries' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'peras' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'ratas' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+        ]);
+
+        // Get all deductions
+        $deductionsQuery = EmployeeDeduction::with('deductionType')
+            ->where('employee_id', $employee->id);
+
+        if ($filterMonth) {
+            $deductionsQuery->where('pay_period_month', $filterMonth);
+        }
+        if ($filterYear) {
+            $deductionsQuery->where('pay_period_year', $filterYear);
+        }
+
+        $allDeductions = $deductionsQuery->orderBy('pay_period_year', 'desc')
+            ->orderBy('pay_period_month', 'desc')
+            ->get();
+
+        // Get all claims
+        $claimsQuery = Claim::with('claimType')
+            ->where('employee_id', $employee->id);
+
+        if ($filterMonth) {
+            $claimsQuery->whereMonth('claim_date', $filterMonth);
+        }
+        if ($filterYear) {
+            $claimsQuery->whereYear('claim_date', $filterYear);
+        }
+
+        $allClaims = $claimsQuery->orderBy('claim_date', 'desc')->get();
+
+        return Inertia::render('Employees/Manage/print', [
+            'employee' => $employee,
+            'allDeductions' => $allDeductions,
+            'allClaims' => $allClaims,
+            'filterMonth' => $filterMonth,
+            'filterYear' => $filterYear,
+        ]);
+    }
 }
