@@ -1,8 +1,8 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
@@ -114,33 +114,21 @@ export function SalaryDialog({
                     <div className="mt-4 grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <Label>Month</Label>
-                            <Select value={data.pay_period_month} onValueChange={(v) => setData('pay_period_month', v)} disabled={isEditing}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select month" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {MONTHS.map((m) => (
-                                        <SelectItem key={m.value} value={m.value}>
-                                            {m.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <CustomComboBox
+                                items={MONTHS}
+                                placeholder="Select month"
+                                value={data.pay_period_month}
+                                onSelect={(value) => !isEditing && setData('pay_period_month', value ?? '')}
+                            />
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label>Year</Label>
-                            <Select value={data.pay_period_year} onValueChange={(v) => setData('pay_period_year', v)} disabled={isEditing}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select year" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {YEARS.map((y) => (
-                                        <SelectItem key={y} value={String(y)}>
-                                            {y}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <CustomComboBox
+                                items={YEARS.map((y) => ({ value: String(y), label: String(y) }))}
+                                placeholder="Select year"
+                                value={data.pay_period_year}
+                                onSelect={(value) => !isEditing && setData('pay_period_year', value ?? '')}
+                            />
                         </div>
                     </div>
 
