@@ -86,7 +86,7 @@ class RoleSeeder extends Seeder
         }
 
         // Create roles
-        $adminRole = Role::firstOrCreate(['name' => 'superadmin', 'guard_name' => 'web']);
+        $adminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions(Permission::all());
     }
 }
