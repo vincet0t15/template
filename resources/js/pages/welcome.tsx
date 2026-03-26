@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Building2, CoinsIcon, FileText, Receipt, Settings, Shield, TrendingDown, Users } from 'lucide-react';
@@ -10,10 +11,10 @@ export default function Welcome() {
             <Head title="Employee Compensation Management System" />
             <div className="min-h-screen">
                 {/* Nav */}
-                <nav className="border-b border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/80">
+                <nav className="bg-muted/50 border-b border-slate-200/80 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/80">
                     <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 dark:bg-white">
+                            <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg">
                                 <Building2 className="h-5 w-5 text-white dark:text-slate-900" />
                             </div>
                             <div>
@@ -37,11 +38,8 @@ export default function Welcome() {
                                     >
                                         Log in
                                     </Link>
-                                    <Link
-                                        href={route('login')}
-                                        className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-                                    >
-                                        Get Started
+                                    <Link href={route('login')}>
+                                        <Button>Get Started</Button>
                                     </Link>
                                 </>
                             )}
