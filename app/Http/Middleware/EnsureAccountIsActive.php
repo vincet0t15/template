@@ -11,18 +11,17 @@ class EnsureAccountIsActive
 {
     /**
      * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && ! Auth::user()->is_active) {
+        $user = $request->user();
+
+        if ($user && !$user->is_active) {
             Auth::logout();
 
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect()->route('login')->withErrors([
-                'username' => 'Your account is inactive. Please contact an administrator.',
-            ]);
+            return redirect()->route('login')->with('error', 'Your account has been deactivated. Please contact an administrator.');
         }
 
         return $next($request);
