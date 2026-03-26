@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimTypeController;
 use App\Http\Controllers\DashboardController;
@@ -145,6 +146,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::put('claim-types/{claimType}', [ClaimTypeController::class, 'update'])->name('claim-types.update');
         Route::delete('claim-types/{claimType}', [ClaimTypeController::class, 'destroy'])->name('claim-types.destroy');
     });
+
+    // ACCOUNTS
+
+    Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
 });
 
 // require __DIR__ . '/settings.php';

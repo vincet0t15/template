@@ -22,6 +22,7 @@ import {
     ReceiptCent,
     Settings,
     Truck,
+    UserCheck,
     UserRoundPen,
     Wallet,
 } from 'lucide-react';
@@ -110,6 +111,11 @@ const mainNavItems: NavGroup[] = [
                 title: 'Claim Types',
                 href: '/settings/claim-types',
                 icon: ReceiptCent,
+            },
+            {
+                title: 'Accounts',
+                href: '/accounts',
+                icon: UserCheck,
             },
         ],
     },
