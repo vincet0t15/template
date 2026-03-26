@@ -11,6 +11,7 @@ import { router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { CreateClaimDialog } from './create';
+import { DeleteClaimDialog } from './delete';
 import { EditClaimDialog } from './edit';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -42,7 +43,8 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
         path: '',
         links: [],
     };
-
+    const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const applyFilter = (newFilters: Partial<ClaimFilters>) => {
         router.get(route('manage.employees.claims.index', employee.id), { ...filters, ...newFilters }, { preserveState: true, preserveScroll: true });
     };
@@ -55,6 +57,10 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
         setEditDialogState({ open: true, claim });
     };
 
+    const OnclickDelete = (claim: Claim) => {
+        setSelectedClaim(claim);
+        setOpenDeleteDialog(true);
+    };
     const closeEditDialog = () => {
         setEditDialogState({ open: false, claim: null });
     };
@@ -146,7 +152,7 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                                             <Button variant="ghost" size="icon" onClick={() => openEditDialog(claim)}>
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" onClick={() => handleDelete(claim)}>
+                                            <Button variant="ghost" size="icon" onClick={() => OnclickDelete(claim)}>
                                                 <Trash2 className="h-4 w-4 text-red-500" />
                                             </Button>
                                         </div>
@@ -173,6 +179,10 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                     claim={editDialogState.claim}
                     claimTypes={claimTypes}
                 />
+            )}
+
+            {openDeleteDialog && selectedClaim && (
+                <DeleteClaimDialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} claim={selectedClaim} />
             )}
         </div>
     );

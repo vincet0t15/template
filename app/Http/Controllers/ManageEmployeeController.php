@@ -208,6 +208,18 @@ class ManageEmployeeController extends Controller
         return redirect()->back()->with('success', 'Deductions saved successfully');
     }
 
+    public function destroyDeduction(Employee $employee, EmployeeDeduction $deduction)
+    {
+        // Ensure the deduction belongs to the employee
+        if ($deduction->employee_id !== $employee->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $deduction->delete();
+
+        return redirect()->back()->with('success', 'Deduction deleted successfully');
+    }
+
     public function print(Request $request, Employee $employee)
     {
         $filterMonth = $request->input('month');

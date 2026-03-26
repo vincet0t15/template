@@ -6,7 +6,7 @@ import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus, X } from 'lucide-react';
+import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -125,6 +125,14 @@ export function CompensationDeductions({
 
     const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
 
+    const handleDeleteDeduction = (deductionId: number) => {
+        if (confirm('Are you sure you want to delete this deduction?')) {
+            router.delete(route('manage.employees.deductions.destroy', [employee.id, deductionId]), {
+                preserveScroll: true,
+            });
+        }
+    };
+
     const periods = periodsList;
     const currentPage = pagination?.current_page ?? 1;
     const lastPage = pagination?.last_page ?? 1;
@@ -205,6 +213,7 @@ export function CompensationDeductions({
                                         <TableRow>
                                             <TableHead>Deduction Type</TableHead>
                                             <TableHead className="text-right">Amount</TableHead>
+                                            <TableHead className="w-[60px]"></TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -212,32 +221,54 @@ export function CompensationDeductions({
                                             <TableRow key={d.id}>
                                                 <TableCell className="font-medium">{d.deduction_type?.name ?? '—'}</TableCell>
                                                 <TableCell className="text-right text-red-600">- {formatCurrency(Number(d.amount))}</TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-7 w-7 text-red-500 hover:text-red-700"
+                                                        onClick={() => handleDeleteDeduction(d.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                         <TableRow className="bg-slate-100 font-semibold">
-                                            <TableCell className="text-right text-xs text-slate-600">Basic Salary</TableCell>
+                                            <TableCell colSpan={2} className="text-right text-xs text-slate-600">
+                                                Basic Salary
+                                            </TableCell>
                                             <TableCell className="text-right text-slate-700">{formatCurrency(salary)}</TableCell>
                                         </TableRow>
                                         <TableRow className="bg-slate-100 font-semibold">
-                                            <TableCell className="text-right text-xs text-slate-600">PERA</TableCell>
+                                            <TableCell colSpan={2} className="text-right text-xs text-slate-600">
+                                                PERA
+                                            </TableCell>
                                             <TableCell className="text-right text-slate-700">+ {formatCurrency(pera)}</TableCell>
                                         </TableRow>
                                         {employee.is_rata_eligible && (
                                             <TableRow className="bg-slate-100 font-semibold">
-                                                <TableCell className="text-right text-xs text-slate-600">RATA</TableCell>
+                                                <TableCell colSpan={2} className="text-right text-xs text-slate-600">
+                                                    RATA
+                                                </TableCell>
                                                 <TableCell className="text-right text-slate-700">+ {formatCurrency(rata)}</TableCell>
                                             </TableRow>
                                         )}
                                         <TableRow className="bg-slate-200 font-bold">
-                                            <TableCell className="text-right text-xs text-slate-800">Gross Pay</TableCell>
+                                            <TableCell colSpan={2} className="text-right text-xs text-slate-800">
+                                                Gross Pay
+                                            </TableCell>
                                             <TableCell className="text-right text-slate-900">{formatCurrency(grossPay)}</TableCell>
                                         </TableRow>
                                         <TableRow className="bg-red-50 font-semibold">
-                                            <TableCell className="text-right text-xs text-red-600">Total Deductions</TableCell>
+                                            <TableCell colSpan={2} className="text-right text-xs text-red-600">
+                                                Total Deductions
+                                            </TableCell>
                                             <TableCell className="text-right text-red-600">- {formatCurrency(totalDeductions)}</TableCell>
                                         </TableRow>
                                         <TableRow className="bg-green-100 font-bold">
-                                            <TableCell className="text-right text-sm text-green-800">Net Pay</TableCell>
+                                            <TableCell colSpan={2} className="text-right text-sm text-green-800">
+                                                Net Pay
+                                            </TableCell>
                                             <TableCell className="text-right text-green-700">{formatCurrency(netPay)}</TableCell>
                                         </TableRow>
                                     </TableBody>
