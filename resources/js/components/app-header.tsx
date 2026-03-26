@@ -28,8 +28,6 @@ import {
     UserRoundPen,
     Wallet,
 } from 'lucide-react';
-import AppLogo from './app-logo';
-import AppLogoIcon from './app-logo-icon';
 import { NavMenu } from './NavMenu';
 
 const mainNavItems: NavGroup[] = [
@@ -156,14 +154,15 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <SheetContent side="left" className="bg-sidebar flex h-full w-64 flex-col items-stretch justify-between">
                                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                                 <SheetHeader className="flex justify-start p-4 text-left">
-                                    <div className="flex w-full items-center gap-3">
-                                        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-9 w-9 items-center justify-center rounded-md">
-                                            <AppLogoIcon className="h-5 w-5 fill-current text-white dark:text-black" />
+                                    <Link href="/dashboard" className="flex w-full items-center gap-3">
+                                        <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
+                                            <Building2 className="h-5 w-5 text-white dark:text-slate-900" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-foreground text-sm leading-tight font-semibold">Employee & Supplier Expense System</p>
+                                            <p className="text-sm leading-none font-bold text-slate-900 dark:text-white">ECMS</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">Employee Compensation Management</p>
                                         </div>
-                                    </div>
+                                    </Link>
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col">
                                     <nav className="flex flex-1 flex-col gap-2 p-2 text-sm">
@@ -252,8 +251,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="relative contents">
                         {/* Left: Logo */}
                         <div className="flex items-center justify-self-start">
-                            <Link href="/dashboard" prefetch className="flex items-center space-x-2">
-                                <AppLogo />
+                            <Link href="/dashboard" prefetch className="flex items-center gap-3">
+                                <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
+                                    <Building2 className="h-5 w-5 text-white dark:text-slate-900" />
+                                </div>
+                                <div className="hidden min-w-0 sm:block">
+                                    <p className="text-sm leading-none font-bold text-slate-900 dark:text-white">ECMS</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Employee Compensation Management</p>
+                                </div>
                             </Link>
                         </div>
 
