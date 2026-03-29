@@ -17,7 +17,7 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-        if (! $user || ! $user->hasRole('admin')) {
+        if (! $user || ! $user->hasRole('super admin')) {
             return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
         }
 

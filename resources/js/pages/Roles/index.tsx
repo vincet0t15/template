@@ -158,7 +158,7 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
                                                 <Button variant="ghost" size="icon" onClick={() => openEditDialog(role)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
-                                                {role.name !== 'admin' && (
+                                                {role.name !== 'super admin' && (
                                                     <Button variant="ghost" size="icon" onClick={() => setDeletingRole(role)}>
                                                         <Trash2 className="h-4 w-4 text-red-500" />
                                                     </Button>

@@ -120,7 +120,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                     <TableRow key={user.id} className={!user.is_active ? 'bg-muted/30' : undefined}>
                                         <TableCell>
                                             <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-                                                {user.roles.includes('admin') ? (
+                                                {user.roles.includes('super admin') ? (
                                                     <Shield className="text-primary h-4 w-4" />
                                                 ) : (
                                                     <User className="text-muted-foreground h-4 w-4" />

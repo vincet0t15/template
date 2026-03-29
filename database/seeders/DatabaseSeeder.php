@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $adminUser->assignRole('admin');
+        $adminUser->assignRole('super admin');
 
         $this->call([
             EmployeeStatusSeeder::class,

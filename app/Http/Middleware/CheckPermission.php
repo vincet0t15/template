@@ -19,7 +19,7 @@ class CheckPermission
         $user = $request->user();
 
         // Admin role bypasses all permission checks
-        if ($user && $user->hasRole('admin')) {
+        if ($user && $user->hasRole('super admin')) {
             return $next($request);
         }
 
