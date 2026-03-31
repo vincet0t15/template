@@ -253,6 +253,14 @@ export function CompensationSalary({ employee, sourceOfFundCodes }: Compensation
                             <CalendarIcon className="h-3 w-3" />
                             Effective {formatDate(current.effective_date)}
                         </p>
+                        {current.source_of_fund_code && (
+                            <div className="mt-2 rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
+                                <p className="text-xs font-medium text-emerald-800 dark:text-emerald-300">Fund: {current.source_of_fund_code.code}</p>
+                                {current.source_of_fund_code.description && (
+                                    <p className="mt-0.5 text-xs text-emerald-700 dark:text-emerald-400">{current.source_of_fund_code.description}</p>
+                                )}
+                            </div>
+                        )}
                     </>
                 ) : (
                     <p className="text-muted-foreground text-sm">No salary record yet.</p>
@@ -270,6 +278,7 @@ export function CompensationSalary({ employee, sourceOfFundCodes }: Compensation
                             <TableHeader className="bg-muted/50">
                                 <TableRow>
                                     <TableHead>Amount</TableHead>
+                                    <TableHead>Source of Fund</TableHead>
                                     <TableHead>Effective Date</TableHead>
                                     <TableHead className="w-[100px] text-right">Actions</TableHead>
                                 </TableRow>
@@ -278,6 +287,20 @@ export function CompensationSalary({ employee, sourceOfFundCodes }: Compensation
                                 {salaries.map((s, i) => (
                                     <TableRow key={s.id} className={i === 0 ? 'font-semibold' : ''}>
                                         <TableCell>{formatCurrency(s.amount)}</TableCell>
+                                        <TableCell>
+                                            {s.source_of_fund_code ? (
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-slate-900 dark:text-slate-100">
+                                                        {s.source_of_fund_code.code}
+                                                    </span>
+                                                    {s.source_of_fund_code.description && (
+                                                        <span className="text-muted-foreground text-xs">{s.source_of_fund_code.description}</span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-muted-foreground text-sm">Not Assigned</span>
+                                            )}
+                                        </TableCell>
                                         <TableCell className="text-muted-foreground text-sm">{formatDate(s.effective_date)}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">

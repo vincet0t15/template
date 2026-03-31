@@ -29,7 +29,8 @@ class ManageEmployeeController extends Controller
             'latestPera',
             'latestRata',
             'salaries' => function ($query) {
-                $query->orderBy('effective_date', 'desc');
+                $query->orderBy('effective_date', 'desc')
+                    ->with('sourceOfFundCode');
             },
             'peras' => function ($query) {
                 $query->orderBy('effective_date', 'desc');

@@ -14,6 +14,12 @@ export interface Salary {
         id: number;
         name: string;
     };
+    source_of_fund_code?: {
+        id: number;
+        code: string;
+        description: string | null;
+        status: boolean;
+    } | null;
 }
 
 export interface SalaryCreateRequest {

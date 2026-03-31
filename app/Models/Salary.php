@@ -15,6 +15,8 @@ class Salary extends Model
         'effective_date',
         'end_date',
         'created_by',
+        'source_of_fund_code_id',
+
     ];
 
     protected $casts = [

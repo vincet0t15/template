@@ -88,14 +88,17 @@ class SalaryController extends Controller
 
     public function update(Request $request, Salary $salary)
     {
+
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
             'effective_date' => 'required|date',
+            'source_of_fund_code_id' => 'nullable|exists:source_of_fund_codes,id',
         ]);
 
         $salary->update([
             'amount' => $validated['amount'],
             'effective_date' => $validated['effective_date'],
+            'source_of_fund_code_id' => $validated['source_of_fund_code_id'] ?? null,
         ]);
 
         return redirect()->back()->with('success', 'Salary record updated successfully');
