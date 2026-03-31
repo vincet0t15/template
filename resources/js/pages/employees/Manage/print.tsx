@@ -102,19 +102,23 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
     let salary: number;
     let pera: number;
     let rata: number;
+    let showGrossAndNet: boolean = true;
 
     if (filterMonth && filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), parseInt(filterMonth));
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
+        showGrossAndNet = true; // Specific period - calculations make sense
     } else if (filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
         pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
+        showGrossAndNet = true; // Year-end rates - can show annual snapshot
     } else {
         salary = Number(employee.latest_salary?.amount ?? 0);
         pera = Number(employee.latest_pera?.amount ?? 0);
         rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
+        showGrossAndNet = false; // All time - gross/net comparison doesn't make sense
     }
 
     const grossPay = salary + pera + rata;
@@ -206,22 +210,39 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                             <td className="border border-black p-2 text-right">
                                                 {employee.is_rata_eligible ? formatCurrency(rata) : '-'}
                                             </td>
-                                            <td className="border border-black p-2 font-bold">Gross Pay</td>
-                                            <td className="border border-black p-2 text-right font-medium">{formatCurrency(grossPay)}</td>
+                                            {showGrossAndNet && (
+                                                <>
+                                                    <td className="border border-black p-2 font-bold">Gross Pay</td>
+                                                    <td className="border border-black p-2 text-right font-medium">{formatCurrency(grossPay)}</td>
+                                                </>
+                                            )}
                                         </tr>
-                                        <tr>
-                                            <td className="border border-black p-2 font-bold">Total Deductions</td>
-                                            <td className="border border-black p-2 text-right text-red-600">{formatCurrency(totalAllDeductions)}</td>
-                                            <td className="border border-black p-2 font-bold">Net Pay</td>
-                                            <td className="border border-black p-2 text-right font-bold text-green-600">{formatCurrency(netPay)}</td>
-                                        </tr>
+                                        {showGrossAndNet && (
+                                            <tr>
+                                                <td className="border border-black p-2 font-bold">Total Deductions</td>
+                                                <td className="border border-black p-2 text-right text-red-600">
+                                                    {formatCurrency(totalAllDeductions)}
+                                                </td>
+                                                <td className="border border-black p-2 font-bold">Net Pay</td>
+                                                <td className="border border-black p-2 text-right font-bold text-green-600">
+                                                    {formatCurrency(netPay)}
+                                                </td>
+                                            </tr>
+                                        )}
                                         <tr className="bg-gray-50">
-                                            <td className="border border-black p-2 font-bold" colSpan={2}>
+                                            <td className="border border-black p-2 font-bold" colSpan={showGrossAndNet ? 2 : 4}>
                                                 Total Claims
                                             </td>
-                                            <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
-                                                {formatCurrency(totalAllClaims)}
-                                            </td>
+                                            {!showGrossAndNet && (
+                                                <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
+                                                    {formatCurrency(totalAllClaims)}
+                                                </td>
+                                            )}
+                                            {showGrossAndNet && (
+                                                <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
+                                                    {formatCurrency(totalAllClaims)}
+                                                </td>
+                                            )}
                                         </tr>
                                     </tbody>
                                 </table>
