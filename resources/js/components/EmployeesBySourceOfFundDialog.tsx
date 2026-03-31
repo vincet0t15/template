@@ -89,7 +89,7 @@ export function EmployeesBySourceOfFundDialog({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-h-[80vh] max-w-4xl">
+            <DialogContent className="max-h-[80vh] max-w-4xl overflow-hidden">
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -109,19 +109,19 @@ export function EmployeesBySourceOfFundDialog({
                     </div>
                 </DialogHeader>
 
-                {loading ? (
-                    <div className="py-8 text-center">
-                        <div className="mb-3 inline-flex h-12 w-12 animate-pulse items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                            <div className="h-6 w-6 text-slate-400" />
+                <div className="mt-4 max-h-[calc(80vh-120px)] overflow-y-auto pr-2">
+                    {loading ? (
+                        <div className="py-8 text-center">
+                            <div className="mb-3 inline-flex h-12 w-12 animate-pulse items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                <div className="h-6 w-6 text-slate-400" />
+                            </div>
+                            <p className="text-muted-foreground">Loading employees...</p>
                         </div>
-                        <p className="text-muted-foreground">Loading employees...</p>
-                    </div>
-                ) : employees.length > 0 ? (
-                    <>
-                        <div className="mb-4 flex items-center gap-2 text-sm">
-                            <Badge variant="secondary">{totalCount} employees</Badge>
-                        </div>
-                        <div className="max-h-[60vh] overflow-y-auto">
+                    ) : employees.length > 0 ? (
+                        <>
+                            <div className="mb-4 flex items-center gap-2 text-sm">
+                                <Badge variant="secondary">{totalCount} employees</Badge>
+                            </div>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -150,16 +150,16 @@ export function EmployeesBySourceOfFundDialog({
                                     ))}
                                 </TableBody>
                             </Table>
+                        </>
+                    ) : (
+                        <div className="py-8 text-center">
+                            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                <X className="h-6 w-6 text-slate-400" />
+                            </div>
+                            <p className="text-muted-foreground">No employees found for this source of fund in the selected period</p>
                         </div>
-                    </>
-                ) : (
-                    <div className="py-8 text-center">
-                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                            <X className="h-6 w-6 text-slate-400" />
-                        </div>
-                        <p className="text-muted-foreground">No employees found for this source of fund in the selected period</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </DialogContent>
         </Dialog>
     );
