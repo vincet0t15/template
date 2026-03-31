@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -44,21 +45,33 @@ class ReportController extends Controller
         $employeeQuery = Salary::query()
             ->where('source_of_fund_code_id', $sourceOfFundCodeId);
 
-        if ($year) {
+        // Only apply year filter if provided and not empty
+        if ($year && $year !== '') {
             $employeeQuery->whereYear('effective_date', $year);
         }
 
-        if ($month) {
+        // Only apply month filter if provided and not empty
+        if ($month && $month !== '') {
             $employeeQuery->whereMonth('effective_date', $month);
         }
 
         $employeeIds = $employeeQuery->distinct()->pluck('employee_id');
+
+        // Debug: Log the query for troubleshooting
+        Log::info('Filtering employees:', [
+            'source_of_fund_code_id' => $sourceOfFundCodeId,
+            'month' => $month,
+            'year' => $year,
+            'employee_ids_found' => $employeeIds->count(),
+        ]);
 
         // Get employees with their details
         $employees = Employee::whereIn('id', $employeeIds)
             ->with(['office', 'employmentStatus'])
             ->orderBy('last_name', 'asc')
             ->get();
+
+        Log::info('Employees returned:', ['count' => $employees->count()]);
 
         return response()->json(['employees' => $employees]);
     }
