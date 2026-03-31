@@ -10,14 +10,16 @@ class DeductionTypeController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->query('search');
+
+
+        $search = $request->input('search');
+
         $deductionTypes = DeductionType::query()
-            ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('code', 'like', '%' . $search . '%');
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
             })
-            ->orderBy('name', 'asc')
-            ->paginate(10)
+            ->paginate(50)
             ->withQueryString();
 
         return Inertia::render('deduction-types/index', [
