@@ -1,7 +1,7 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
@@ -129,6 +129,11 @@ export default function Dashboard({
             });
         }, 300);
     };
+
+    const yearOptions = years.map((year) => ({
+        value: year.toString(),
+        label: year.toString(),
+    }));
     const statCards = [
         {
             title: 'Total Employees',
@@ -186,30 +191,20 @@ export default function Dashboard({
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Select value={filterData.month} onValueChange={(value) => handleFilterChange('month', value)}>
-                            <SelectTrigger className="w-[150px]">
-                                <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {months.map((m) => (
-                                    <SelectItem key={m.value} value={m.value}>
-                                        {m.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select value={filterData.year} onValueChange={(value) => handleFilterChange('year', value)}>
-                            <SelectTrigger className="w-[100px]">
-                                <SelectValue placeholder="Year" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {years.map((y) => (
-                                    <SelectItem key={y} value={y.toString()}>
-                                        {y}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <CustomComboBox
+                            items={months}
+                            placeholder="All Months"
+                            value={filterData.month || null}
+                            onSelect={(value) => handleFilterChange('month', value ?? '')}
+                            showClear={true}
+                        />
+                        <CustomComboBox
+                            items={yearOptions}
+                            placeholder="All Years"
+                            value={filterData.year || null}
+                            onSelect={(value) => handleFilterChange('year', value ?? '')}
+                            showClear={true}
+                        />
                         <Button onClick={() => router.get(route('payroll.index'))}>
                             View Payroll
                             <ArrowUpRight />

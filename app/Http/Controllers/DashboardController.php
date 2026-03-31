@@ -19,8 +19,17 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // Get month and year from request, default to current
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
+        // If empty, fetch all data
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Use defaults only if both are provided
+        $useFilters = !empty($month) && !empty($year);
+
+        if (!$useFilters) {
+            $month = now()->month;
+            $year = now()->year;
+        }
 
         $totalEmployees = Employee::count();
         $totalOffices = Office::count();
@@ -30,19 +39,23 @@ class DashboardController extends Controller
         $currentMonth = $month;
         $currentYear = $year;
 
-        // Total deductions this month
-        $monthlyDeductionsCount = EmployeeDeduction::where('pay_period_month', $currentMonth)
-            ->where('pay_period_year', $currentYear)
-            ->count();
+        // Total deductions this month (or all if no filter)
+        $monthlyDeductionsQuery = EmployeeDeduction::query();
+        if ($useFilters) {
+            $monthlyDeductionsQuery->where('pay_period_month', $currentMonth)
+                ->where('pay_period_year', $currentYear);
+        }
+        $monthlyDeductionsCount = $monthlyDeductionsQuery->count();
 
-        $monthlyDeductionsTotal = EmployeeDeduction::where('pay_period_month', $currentMonth)
-            ->where('pay_period_year', $currentYear)
-            ->sum('amount');
+        $monthlyDeductionsTotal = $monthlyDeductionsQuery->sum('amount');
 
-        // Employees with deductions this month
-        $employeesWithDeductions = EmployeeDeduction::where('pay_period_month', $currentMonth)
-            ->where('pay_period_year', $currentYear)
-            ->distinct('employee_id')
+        // Employees with deductions this month (or all if no filter)
+        $employeesWithDeductionsQuery = EmployeeDeduction::query();
+        if ($useFilters) {
+            $employeesWithDeductionsQuery->where('pay_period_month', $currentMonth)
+                ->where('pay_period_year', $currentYear);
+        }
+        $employeesWithDeductions = $employeesWithDeductionsQuery->distinct('employee_id')
             ->count('employee_id');
 
         // Employees by office
@@ -51,23 +64,34 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Recent employees with their total deductions this month
-        $recentEmployeesWithDeductions = Employee::with(['office', 'employmentStatus'])
-            ->withSum(['deductions as total_deductions' => function ($query) use ($currentMonth, $currentYear) {
+        // Recent employees with their total deductions this month (or all if no filter)
+        $recentEmployeesQuery = Employee::with(['office', 'employmentStatus'])
+            ->withSum(['deductions as total_deductions' => function ($query) use ($currentMonth, $currentYear, $useFilters) {
+                if ($useFilters) {
+                    $query->where('pay_period_month', $currentMonth)
+                        ->where('pay_period_year', $currentYear);
+                }
+            }], 'amount');
+
+        if ($useFilters) {
+            $recentEmployeesQuery->whereHas('deductions', function ($query) use ($currentMonth, $currentYear) {
                 $query->where('pay_period_month', $currentMonth)
                     ->where('pay_period_year', $currentYear);
-            }], 'amount')
-            ->whereHas('deductions', function ($query) use ($currentMonth, $currentYear) {
-                $query->where('pay_period_month', $currentMonth)
-                    ->where('pay_period_year', $currentYear);
-            })
+            });
+        }
+
+        $recentEmployeesWithDeductions = $recentEmployeesQuery
             ->latest()
             ->limit(5)
             ->get();
 
-        // Top deduction types this month
-        $topDeductionTypes = EmployeeDeduction::where('pay_period_month', $currentMonth)
-            ->where('pay_period_year', $currentYear)
+        // Top deduction types this month (or all if no filter)
+        $topDeductionTypesQuery = EmployeeDeduction::query();
+        if ($useFilters) {
+            $topDeductionTypesQuery->where('pay_period_month', $currentMonth)
+                ->where('pay_period_year', $currentYear);
+        }
+        $topDeductionTypes = $topDeductionTypesQuery
             ->selectRaw('deduction_type_id, SUM(amount) as total_amount, COUNT(*) as count')
             ->groupBy('deduction_type_id')
             ->with('deductionType')
@@ -75,29 +99,35 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Claims stats
-        $totalClaims = Claim::whereMonth('claim_date', $currentMonth)
-            ->whereYear('claim_date', $currentYear)
-            ->count();
-        $totalClaimsAmount = Claim::whereMonth('claim_date', $currentMonth)
-            ->whereYear('claim_date', $currentYear)
-            ->sum('amount');
+        // Claims stats (or all if no filter)
+        $claimsQuery = Claim::query();
+        if ($useFilters) {
+            $claimsQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+        $totalClaims = $claimsQuery->count();
+        $totalClaimsAmount = $claimsQuery->sum('amount');
 
         // Compensation totals
         $totalSalaries = Salary::sum('amount');
         $totalPera = Pera::sum('amount');
         $totalRata = Rata::sum('amount');
 
-        // Source of Fund breakdown for selected month/year - Include ALL funds (even with 0 amount)
+        // Source of Fund breakdown for selected month/year (or all if no filter)
         $allSourceOfFundCodes = SourceOfFundCode::where('status', true)
             ->orderBy('code')
             ->get();
 
-        $salariesBySourceOfFund = Salary::selectRaw('source_of_fund_code_id, SUM(amount) as total_amount')
-            ->whereYear('effective_date', $year)
-            ->when($month, function ($query) use ($month) {
-                $query->whereMonth('effective_date', $month);
-            })
+        $salariesQuery = Salary::selectRaw('source_of_fund_code_id, SUM(amount) as total_amount');
+
+        if ($useFilters) {
+            $salariesQuery->whereYear('effective_date', $year);
+            if ($month) {
+                $salariesQuery->whereMonth('effective_date', $month);
+            }
+        }
+
+        $salariesBySourceOfFund = $salariesQuery
             ->groupBy('source_of_fund_code_id')
             ->with('sourceOfFundCode')
             ->get()
