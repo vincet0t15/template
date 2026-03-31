@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
+import axios from 'axios';
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
 
@@ -33,13 +34,14 @@ interface Props {
 }
 
 export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [] }: Props) {
-    const { data, setData, get } = useForm({
+    const { data, setData } = useForm({
         source_of_fund_code_id: '',
         month: '',
         year: new Date().getFullYear().toString(),
     });
 
     const [loading, setLoading] = useState(false);
+    const [filteredEmployees, setFilteredEmployees] = useState<typeof employees>([]);
 
     const handleGenerate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,13 +59,16 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
         if (data.month) params.month = data.month;
         if (data.year) params.year = data.year;
 
-        // Fetch updated employee list based on filters
-        router.get(route('reports.employees-by-source-of-fund.print'), params, {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['employees'],
-            onFinish: () => setLoading(false),
-        });
+        // Fetch updated employee list based on filters using axios POST
+        axios
+            .post(route('reports.employees-by-source-of-fund.filter'), params)
+            .then((response) => {
+                setFilteredEmployees(response.data.employees);
+            })
+            .catch((error) => {
+                console.error('Error fetching employees:', error);
+            })
+            .finally(() => setLoading(false));
     };
 
     const months = [
@@ -197,11 +202,11 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                 </div>
 
                 {/* Employee List Display */}
-                {employees.length > 0 && (
+                {(filteredEmployees.length > 0 || employees.length > 0) && (
                     <div className="bg-card rounded-lg border shadow-sm">
                         <div className="bg-muted/50 border-b px-6 py-4">
                             <h3 className="text-lg font-semibold">
-                                Employees {data.source_of_fund_code_id ? `(${employees.length})` : `- All Employees (${employees.length})`}
+                                Employees {data.source_of_fund_code_id ? `(${filteredEmployees.length})` : `- All Employees (${employees.length})`}
                             </h3>
                             {data.source_of_fund_code_id && (
                                 <p className="text-muted-foreground text-sm">
@@ -223,7 +228,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {employees.map((employee, index) => (
+                                    {(data.source_of_fund_code_id ? filteredEmployees : employees).map((employee, index) => (
                                         <tr key={employee.id} className="hover:bg-muted/30 border-b last:border-0">
                                             <td className="px-4 py-3 text-sm">{index + 1}</td>
                                             <td className="px-4 py-3 text-sm">

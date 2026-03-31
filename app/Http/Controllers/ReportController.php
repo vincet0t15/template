@@ -25,6 +25,44 @@ class ReportController extends Controller
         ]);
     }
 
+    public function getFilteredEmployees(Request $request)
+    {
+        $sourceOfFundCodeId = $request->input('source_of_fund_code_id');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        if (!$sourceOfFundCodeId) {
+            // Return all employees if no filter
+            $employees = Employee::with(['office', 'employmentStatus'])
+                ->orderBy('last_name', 'asc')
+                ->get();
+
+            return response()->json(['employees' => $employees]);
+        }
+
+        // Get employee IDs who have salaries from this source of fund
+        $employeeQuery = Salary::query()
+            ->where('source_of_fund_code_id', $sourceOfFundCodeId);
+
+        if ($year) {
+            $employeeQuery->whereYear('effective_date', $year);
+        }
+
+        if ($month) {
+            $employeeQuery->whereMonth('effective_date', $month);
+        }
+
+        $employeeIds = $employeeQuery->distinct()->pluck('employee_id');
+
+        // Get employees with their details
+        $employees = Employee::whereIn('id', $employeeIds)
+            ->with(['office', 'employmentStatus'])
+            ->orderBy('last_name', 'asc')
+            ->get();
+
+        return response()->json(['employees' => $employees]);
+    }
+
     public function employeesBySourceOfFundPrint(Request $request)
     {
         $sourceOfFundCodeId = $request->input('source_of_fund_code_id');
