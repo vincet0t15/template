@@ -75,10 +75,14 @@ Route::middleware(['auth', 'active'])->group(function () {
 
 
     // PAYROLL - Admin Features (requires payroll.export permission)
-    Route::middleware(['permission:payroll.export'])->prefix('payroll')->group(function () {
-        Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
+    Route::prefix('payroll')->group(function () {
         Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
         Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
+    });
+
+    // PAYROLL - Export (requires payroll.export permission)
+    Route::middleware(['permission:payroll.export'])->prefix('payroll')->group(function () {
+        Route::get('export', [PayrollController::class, 'export'])->name('payroll.export');
     });
 
     // SALARIES - Full CRUD (requires salaries.* permissions)
