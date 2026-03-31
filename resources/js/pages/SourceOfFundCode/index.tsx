@@ -1,11 +1,11 @@
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldGroup } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -17,6 +17,7 @@ import { Loader2, Pencil, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CreateSourceOfFundCode } from './create';
+import { DeleteSourceOfFundCode } from './delete';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Source of Fund Code',
@@ -34,7 +35,7 @@ export default function SourceOfFundCode({ sourceOfFundCodes, filters }: SourceO
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [selectedSource, setSelectedSource] = useState<SourceOfFundCodeType | null>(null);
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
-
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const {
         data: editData,
         setData: setEditData,
@@ -71,13 +72,8 @@ export default function SourceOfFundCode({ sourceOfFundCodes, filters }: SourceO
     };
 
     const handleDelete = (source: SourceOfFundCodeType) => {
-        if (confirm('Are you sure you want to delete this source of fund code?')) {
-            router.delete(route('source-of-fund-codes.destroy', source.id), {
-                onSuccess: (response: { props: FilterProps }) => {
-                    toast.success(response.props.flash?.success);
-                },
-            });
-        }
+        setSelectedSource(source);
+        setOpenDeleteDialog(true);
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -210,13 +206,9 @@ export default function SourceOfFundCode({ sourceOfFundCodes, filters }: SourceO
                                         placeholder="Enter description"
                                     />
                                 </Field>
-                                <Field orientation="horizontal">
+                                <Field orientation="horizontal" className="mb-4">
                                     <Label htmlFor="edit-status">Status</Label>
-                                    <Switch
-                                        id="edit-status"
-                                        checked={editData.status}
-                                        onCheckedChange={(checked) => setEditData('status', checked)}
-                                    />
+                                    <Checkbox checked={editData.status} onCheckedChange={(checked) => setEditData('status', Boolean(checked))} />
                                 </Field>
                             </FieldGroup>
                             <DialogFooter>
@@ -237,6 +229,11 @@ export default function SourceOfFundCode({ sourceOfFundCodes, filters }: SourceO
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                {/* DELETE DIALOG */}
+                {openDeleteDialog && selectedSource && (
+                    <DeleteSourceOfFundCode isOpen={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} sourceOfFundCode={selectedSource} />
+                )}
             </div>
         </AppLayout>
     );
