@@ -5,7 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -41,38 +41,23 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
 
     const [loading, setLoading] = useState(false);
 
-    // Load all employees by default when component mounts
-    useEffect(() => {
-        // Show all employees on initial load (already passed from backend)
-        // No need to make an API call
-    }, []);
+    const handleGenerate = (e: React.FormEvent) => {
+        e.preventDefault();
 
-    // Auto-load employees when filters change (only if source of fund is selected)
-    useEffect(() => {
-        // Only auto-load if source of fund code is selected
-        if (data.source_of_fund_code_id) {
-            const timer = setTimeout(() => {
-                loadEmployees();
-            }, 500); // Debounce 500ms
-
-            return () => clearTimeout(timer);
-        }
-    }, [data.source_of_fund_code_id, data.month, data.year]);
-
-    const loadEmployees = () => {
         if (!data.source_of_fund_code_id) {
-            // If no source of fund selected, don't make the call
-            // Backend will return all employees on initial page load
             return;
         }
 
         setLoading(true);
 
-        const params: Record<string, string> = {};
-        params.source_of_fund_code_id = data.source_of_fund_code_id;
+        const params: Record<string, string> = {
+            source_of_fund_code_id: data.source_of_fund_code_id,
+        };
+
         if (data.month) params.month = data.month;
         if (data.year) params.year = data.year;
 
+        // Fetch updated employee list based on filters
         router.get(route('reports.employees-by-source-of-fund.print'), params, {
             preserveState: true,
             preserveScroll: true,
@@ -134,9 +119,17 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
             <Head title="Employee List by Source of Fund" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading title="Employee List by Source of Fund" description="Filter and print employees by their salary source of fund code" />
-
+                <div className="text-left text-sm">
+                    <p className="font-semibold">Instructions:</p>
+                    <ul className="text-muted-foreground mt-2 list-inside list-disc space-y-1">
+                        <li>Select a source of fund code from the dropdown</li>
+                        <li>Optionally select a specific month (leave empty for all months)</li>
+                        <li>Select the year</li>
+                        <li>Click "Generate Report" to preview or "Print Report" to print directly</li>
+                    </ul>
+                </div>
                 <div className="bg-card rounded-lg border p-6 shadow-sm">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleGenerate} className="space-y-4">
                         <div className="grid gap-4 md:grid-cols-3">
                             {/* Source of Fund */}
                             <div className="space-y-2">
@@ -201,25 +194,6 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                             </button>
                         </div>
                     </form>
-                </div>
-
-                <div className="bg-card rounded-lg border p-6 text-center shadow-sm">
-                    <div className="bg-muted mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full">
-                        <FileText className="text-muted-foreground h-8 w-8" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Select Filters Above</h3>
-                    <p className="text-muted-foreground mt-2">
-                        Choose a source of fund code and optionally specify a month and year to generate the employee list report.
-                    </p>
-                    <div className="mt-4 text-left text-sm">
-                        <p className="font-semibold">Instructions:</p>
-                        <ul className="text-muted-foreground mt-2 list-inside list-disc space-y-1">
-                            <li>Select a source of fund code from the dropdown</li>
-                            <li>Optionally select a specific month (leave empty for all months)</li>
-                            <li>Select the year</li>
-                            <li>Click "Generate Report" to preview or "Print Report" to print directly</li>
-                        </ul>
-                    </div>
                 </div>
 
                 {/* Employee List Display */}
