@@ -95,6 +95,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('history/{employee}', [SalaryController::class, 'history'])->name('salaries.history');
     });
     Route::middleware(['permission:salaries.create'])->post('salaries', [SalaryController::class, 'store'])->name('salaries.store');
+    Route::middleware(['permission:salaries.edit'])->put('salaries/{salary}', [SalaryController::class, 'update'])->name('salaries.update');
     Route::middleware(['permission:salaries.delete'])->delete('salaries/{salary}', [SalaryController::class, 'destroy'])->name('salaries.destroy');
 
     // PERA - Full CRUD (requires peras.* permissions)
@@ -103,6 +104,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('history/{employee}', [PeraController::class, 'history'])->name('peras.history');
     });
     Route::middleware(['permission:peras.create'])->post('peras', [PeraController::class, 'store'])->name('peras.store');
+    Route::middleware(['permission:peras.edit'])->put('peras/{pera}', [PeraController::class, 'update'])->name('peras.update');
     Route::middleware(['permission:peras.delete'])->delete('peras/{pera}', [PeraController::class, 'destroy'])->name('peras.destroy');
 
     // RATA - Full CRUD (requires ratas.* permissions)
@@ -111,6 +113,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('history/{employee}', [RataController::class, 'history'])->name('ratas.history');
     });
     Route::middleware(['permission:ratas.create'])->post('ratas', [RataController::class, 'store'])->name('ratas.store');
+    Route::middleware(['permission:ratas.edit'])->put('ratas/{rata}', [RataController::class, 'update'])->name('ratas.update');
     Route::middleware(['permission:ratas.delete'])->delete('ratas/{rata}', [RataController::class, 'destroy'])->name('ratas.destroy');
 
     // EMPLOYEE DEDUCTIONS - Full CRUD (requires deductions.manage permission)
