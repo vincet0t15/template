@@ -34,8 +34,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // REPORTS
-    Route::prefix('reports')->group(function () {
+    // REPORTS - View and print reports (requires employees.source_of_fund.view permission)
+    Route::prefix('reports')->middleware(['permission:employees.source_of_fund.view'])->group(function () {
         Route::get('employees-by-source-of-fund', [ReportController::class, 'employeesBySourceOfFund'])->name('reports.employees-by-source-of-fund');
         Route::get('employees-by-source-of-fund/print', [ReportController::class, 'employeesBySourceOfFundPrint'])->name('reports.employees-by-source-of-fund.print');
     });

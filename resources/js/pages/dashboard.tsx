@@ -16,8 +16,10 @@ import {
     Clock,
     Coins,
     FileText,
+    Key,
     MinusCircle,
     Receipt,
+    Shield,
     TrendingDown,
     TrendingUp,
     Users,
@@ -455,6 +457,20 @@ export default function Dashboard({
                                     desc: 'Create new record',
                                     route: 'employees.create',
                                     color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300',
+                                },
+                                {
+                                    icon: Shield,
+                                    title: 'Roles',
+                                    desc: 'Manage user roles',
+                                    route: 'roles.index',
+                                    color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300',
+                                },
+                                {
+                                    icon: Key,
+                                    title: 'Permissions',
+                                    desc: 'Manage permissions',
+                                    route: 'permissions.index',
+                                    color: 'bg-rose-100 text-rose-600 dark:bg-rose-900 dark:text-rose-300',
                                 },
                             ].map((action) => (
                                 <button
