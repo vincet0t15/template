@@ -1,10 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
 import type { Office } from '@/types/office';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     ArrowUpRight,
     BarChart3,
@@ -21,6 +23,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
+import { ChartBarLabel } from './chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,6 +45,15 @@ interface DashboardProps {
         totalSalaries: number;
         totalPera: number;
         totalRata: number;
+    };
+    salariesBySourceOfFund: {
+        code: string;
+        description: string | null;
+        total_amount: number;
+    }[];
+    filters: {
+        month: number;
+        year: number;
     };
     employeesByOffice: (Office & { employees_count: number })[];
     recentEmployeesWithDeductions: (Employee & { total_deductions: number })[];
@@ -74,12 +86,50 @@ const formatCurrency = (amount: number) => {
 
 export default function Dashboard({
     stats,
+    salariesBySourceOfFund,
+    filters,
     employeesByOffice,
     recentEmployeesWithDeductions,
     topDeductionTypes,
     currentPeriod,
     recentActivity,
 }: DashboardProps) {
+    const {
+        data: filterData,
+        setData: setFilterData,
+        get,
+    } = useForm({
+        month: filters.month.toString(),
+        year: filters.year.toString(),
+    });
+
+    const months = [
+        { value: '1', label: 'January' },
+        { value: '2', label: 'February' },
+        { value: '3', label: 'March' },
+        { value: '4', label: 'April' },
+        { value: '5', label: 'May' },
+        { value: '6', label: 'June' },
+        { value: '7', label: 'July' },
+        { value: '8', label: 'August' },
+        { value: '9', label: 'September' },
+        { value: '10', label: 'October' },
+        { value: '11', label: 'November' },
+        { value: '12', label: 'December' },
+    ];
+
+    const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+
+    console.log(salariesBySourceOfFund);
+    const handleFilterChange = (field: string, value: string) => {
+        setFilterData(field as keyof typeof filterData, value);
+        setTimeout(() => {
+            get(route('dashboard'), {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        }, 300);
+    };
     const statCards = [
         {
             title: 'Total Employees',
@@ -132,17 +182,40 @@ export default function Dashboard({
                         <p className="text-muted-foreground">
                             Welcome back! Here's what's happening with your payroll for{' '}
                             <span className="font-medium text-slate-900 dark:text-white">
-                                {currentPeriod.monthName} {currentPeriod.year}
+                                {months.find((m) => m.value === filterData.month)?.label || currentPeriod.monthName} {filterData.year}
                             </span>
                         </p>
                     </div>
-                    <button
-                        onClick={() => router.get(route('payroll.index'))}
-                        className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-                    >
-                        View Payroll
-                        <ArrowUpRight className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Select value={filterData.month} onValueChange={(value) => handleFilterChange('month', value)}>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {months.map((m) => (
+                                    <SelectItem key={m.value} value={m.value}>
+                                        {m.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={filterData.year} onValueChange={(value) => handleFilterChange('year', value)}>
+                            <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {years.map((y) => (
+                                    <SelectItem key={y} value={y.toString()}>
+                                        {y}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Button onClick={() => router.get(route('payroll.index'))}>
+                            View Payroll
+                            <ArrowUpRight />
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Stats Grid */}
@@ -191,6 +264,23 @@ export default function Dashboard({
                                 </div>
                             ))}
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* Source of Fund Breakdown */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5" />
+                            Salaries by Source of Fund
+                        </CardTitle>
+                        <CardDescription>
+                            Total salary amounts grouped by fund code for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
+                            {filterData.year}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartBarLabel sourceOfFund={salariesBySourceOfFund} />
                     </CardContent>
                 </Card>
 

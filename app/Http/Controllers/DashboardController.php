@@ -10,6 +10,7 @@ use App\Models\Office;
 use App\Models\Pera;
 use App\Models\Rata;
 use App\Models\Salary;
+use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,13 +18,17 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        // Get month and year from request, default to current
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
+
         $totalEmployees = Employee::count();
         $totalOffices = Office::count();
         $totalDeductionTypes = DeductionType::where('is_active', true)->count();
 
         // Current month stats
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
+        $currentMonth = $month;
+        $currentYear = $year;
 
         // Total deductions this month
         $monthlyDeductionsCount = EmployeeDeduction::where('pay_period_month', $currentMonth)
@@ -83,6 +88,27 @@ class DashboardController extends Controller
         $totalPera = Pera::sum('amount');
         $totalRata = Rata::sum('amount');
 
+        // Source of Fund breakdown for selected month/year
+        $salariesBySourceOfFund = Salary::selectRaw('source_of_fund_code_id, SUM(amount) as total_amount')
+            ->whereYear('effective_date', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('effective_date', $month);
+            })
+            ->groupBy('source_of_fund_code_id')
+            ->with('sourceOfFundCode')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'code' => $item->sourceOfFundCode?->code ?? 'Unfunded',
+                    'description' => $item->sourceOfFundCode?->description,
+                    'total_amount' => (float) $item->total_amount,
+                ];
+            })
+            ->filter(function ($item) {
+                return $item['code'] !== null;
+            })
+            ->values();
+
         // Recent activity (placeholder - can be enhanced with actual activity log)
         $recentActivity = [];
 
@@ -99,6 +125,11 @@ class DashboardController extends Controller
                 'totalSalaries' => (float) $totalSalaries,
                 'totalPera' => (float) $totalPera,
                 'totalRata' => (float) $totalRata,
+            ],
+            'salariesBySourceOfFund' => $salariesBySourceOfFund,
+            'filters' => [
+                'month' => (int) $month,
+                'year' => (int) $year,
             ],
             'employeesByOffice' => $employeesByOffice,
             'recentEmployeesWithDeductions' => $recentEmployeesWithDeductions,
