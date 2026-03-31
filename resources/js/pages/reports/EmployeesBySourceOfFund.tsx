@@ -106,34 +106,28 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes }: Props) {
                             {/* Month */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Month (Optional)</label>
-                                <select
-                                    className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                                    value={data.month}
-                                    onChange={(e) => setData('month', e.target.value)}
-                                >
-                                    <option value="">All Months</option>
-                                    {months.map((month) => (
-                                        <option key={month.value} value={month.value}>
-                                            {month.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <CustomComboBox
+                                    items={months}
+                                    placeholder="All Months"
+                                    value={data.month || null}
+                                    onSelect={(value) => setData('month', value ?? '')}
+                                    showClear={true}
+                                />
                             </div>
 
                             {/* Year */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Year</label>
-                                <select
-                                    className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                                    value={data.year}
-                                    onChange={(e) => setData('year', e.target.value)}
-                                >
-                                    {years.map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    ))}
-                                </select>
+                                <CustomComboBox
+                                    items={years.map((year) => ({
+                                        value: year.toString(),
+                                        label: year.toString(),
+                                    }))}
+                                    placeholder="Select year"
+                                    value={data.year || null}
+                                    onSelect={(value) => setData('year', value ?? '')}
+                                    showClear={false}
+                                />
                             </div>
                         </div>
 
