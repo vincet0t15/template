@@ -174,7 +174,7 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
 
                 {/* Create Dialog */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                    <DialogContent className="max-h-[90vh] min-w-3xl overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Create Role</DialogTitle>
                             <DialogDescription>Create a new role and assign permissions</DialogDescription>
