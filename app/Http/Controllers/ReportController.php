@@ -14,8 +14,14 @@ class ReportController extends Controller
     {
         $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
+        // Get all employees by default
+        $employees = Employee::with(['office', 'employmentStatus'])
+            ->orderBy('last_name', 'asc')
+            ->get();
+
         return Inertia::render('reports/EmployeesBySourceOfFund', [
             'sourceOfFundCodes' => $sourceOfFundCodes,
+            'employees' => $employees,
         ]);
     }
 

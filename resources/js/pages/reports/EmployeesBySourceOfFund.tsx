@@ -5,7 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,9 +20,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Props {
     sourceOfFundCodes: SourceOfFundCode[];
+    employees?: {
+        id: number;
+        first_name: string;
+        middle_name: string | null;
+        last_name: string;
+        suffix: string | null;
+        position: string | null;
+        office: { name: string } | null;
+        employment_status: { name: string } | null;
+    }[];
 }
 
-export default function EmployeesBySourceOfFund({ sourceOfFundCodes }: Props) {
+export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [] }: Props) {
     const { data, setData, get } = useForm({
         source_of_fund_code_id: '',
         month: '',
@@ -30,6 +40,46 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes }: Props) {
     });
 
     const [loading, setLoading] = useState(false);
+
+    // Load all employees by default when component mounts
+    useEffect(() => {
+        // Show all employees on initial load (already passed from backend)
+        // No need to make an API call
+    }, []);
+
+    // Auto-load employees when filters change (only if source of fund is selected)
+    useEffect(() => {
+        // Only auto-load if source of fund code is selected
+        if (data.source_of_fund_code_id) {
+            const timer = setTimeout(() => {
+                loadEmployees();
+            }, 500); // Debounce 500ms
+
+            return () => clearTimeout(timer);
+        }
+    }, [data.source_of_fund_code_id, data.month, data.year]);
+
+    const loadEmployees = () => {
+        if (!data.source_of_fund_code_id) {
+            // If no source of fund selected, don't make the call
+            // Backend will return all employees on initial page load
+            return;
+        }
+
+        setLoading(true);
+
+        const params: Record<string, string> = {};
+        params.source_of_fund_code_id = data.source_of_fund_code_id;
+        if (data.month) params.month = data.month;
+        if (data.year) params.year = data.year;
+
+        router.get(route('reports.employees-by-source-of-fund.print'), params, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['employees'],
+            onFinish: () => setLoading(false),
+        });
+    };
 
     const months = [
         { value: '1', label: 'January' },
@@ -171,6 +221,52 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes }: Props) {
                         </ul>
                     </div>
                 </div>
+
+                {/* Employee List Display */}
+                {employees.length > 0 && (
+                    <div className="bg-card rounded-lg border shadow-sm">
+                        <div className="bg-muted/50 border-b px-6 py-4">
+                            <h3 className="text-lg font-semibold">
+                                Employees {data.source_of_fund_code_id ? `(${employees.length})` : `- All Employees (${employees.length})`}
+                            </h3>
+                            {data.source_of_fund_code_id && (
+                                <p className="text-muted-foreground text-sm">
+                                    Filtered by: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
+                                    {data.month && ` • ${months.find((m) => m.value === data.month)?.label}`}
+                                    {data.year && ` • ${data.year}`}
+                                </p>
+                            )}
+                        </div>
+                        <div className="max-h-[600px] overflow-auto">
+                            <table className="w-full">
+                                <thead className="bg-muted/50 sticky top-0">
+                                    <tr>
+                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">#</th>
+                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Employee Name</th>
+                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Position</th>
+                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Office</th>
+                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {employees.map((employee, index) => (
+                                        <tr key={employee.id} className="hover:bg-muted/30 border-b last:border-0">
+                                            <td className="px-4 py-3 text-sm">{index + 1}</td>
+                                            <td className="px-4 py-3 text-sm">
+                                                {[employee.first_name, employee.middle_name, employee.last_name, employee.suffix]
+                                                    .filter(Boolean)
+                                                    .join(' ')}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm">{employee.position || '—'}</td>
+                                            <td className="px-4 py-3 text-sm">{employee.office?.name || '—'}</td>
+                                            <td className="px-4 py-3 text-sm">{employee.employment_status?.name || '—'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );
