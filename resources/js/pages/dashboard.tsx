@@ -120,7 +120,6 @@ export default function Dashboard({
 
     const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
 
-    console.log(salariesBySourceOfFund);
     const handleFilterChange = (field: string, value: string) => {
         setFilterData(field as keyof typeof filterData, value);
         setTimeout(() => {
