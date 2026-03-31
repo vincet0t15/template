@@ -42,23 +42,36 @@ export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
             </CardHeader>
             <CardContent>
                 {sourceOfFund.length > 0 ? (
-                    <ChartContainer config={chartConfig} className="h-[250px]">
+                    <ChartContainer config={chartConfig} className="min-h-[250px] lg:h-[300px]">
                         <BarChart
                             accessibilityLayer
                             data={sourceOfFund}
                             margin={{
                                 top: 20,
+                                bottom: sourceOfFund.length > 8 ? 80 : 40,
+                                left: -10,
+                                right: 10,
                             }}
                         >
                             <CartesianGrid vertical={false} />
-                            <XAxis dataKey="code" tickLine={false} tickMargin={10} axisLine={false} />
+                            <XAxis
+                                dataKey="code"
+                                tickLine={false}
+                                tickMargin={sourceOfFund.length > 10 ? 5 : 10}
+                                axisLine={false}
+                                angle={sourceOfFund.length > 6 ? -45 : 0}
+                                textAnchor={sourceOfFund.length > 6 ? 'end' : 'middle'}
+                                interval={0}
+                                tick={{ fontSize: sourceOfFund.length > 10 ? 10 : 12 }}
+                                height={sourceOfFund.length > 8 ? 60 : 40}
+                            />
                             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                            <Bar dataKey="total_amount" fill="var(--color-total_amount)" radius={8}>
+                            <Bar dataKey="total_amount" fill="var(--color-total_amount)" radius={[4, 4, 0, 0]}>
                                 <LabelList
                                     position="top"
                                     offset={10}
                                     className="fill-foreground"
-                                    fontSize={12}
+                                    fontSize={sourceOfFund.length > 10 ? 10 : 12}
                                     formatter={(value) => formatCurrency(Number(value))}
                                 />
                             </Bar>
