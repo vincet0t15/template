@@ -54,6 +54,7 @@ export default function Employees({ employees, offices, employmentStatuses, sour
         if (merged.search) queryString.search = merged.search;
         if (merged.office_id) queryString.office_id = merged.office_id;
         if (merged.employment_status_id) queryString.employment_status_id = merged.employment_status_id;
+        if (merged.source_of_fund_code_id) queryString.source_of_fund_code_id = merged.source_of_fund_code_id;
         router.get(route('employees.index'), queryString, {
             preserveState: true,
             preserveScroll: true,
