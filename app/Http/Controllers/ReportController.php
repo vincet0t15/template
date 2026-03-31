@@ -15,7 +15,18 @@ class ReportController extends Controller
     {
         $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
+        // Get available years for the selected source of fund (or all if none selected)
+        $availableYears = [];
+        if ($request->input('source_of_fund_code_id')) {
+            $availableYears = Salary::query()
+                ->where('source_of_fund_code_id', $request->input('source_of_fund_code_id'))
+                ->selectRaw('DISTINCT YEAR(effective_date) as year')
+                ->orderBy('year', 'desc')
+                ->pluck('year')
+                ->toArray();
+        }
 
+        // Get all employees by default
         $employees = Employee::with(['office', 'employmentStatus'])
             ->orderBy('last_name', 'asc')
             ->when($request->input('source_of_fund_code_id'), function ($query) use ($request) {
@@ -35,10 +46,15 @@ class ReportController extends Controller
             })
             ->get();
 
-
         return Inertia::render('reports/EmployeesBySourceOfFund', [
             'sourceOfFundCodes' => $sourceOfFundCodes,
             'employees' => $employees,
+            'filters' => [
+                'source_of_fund_code_id' => $request->input('source_of_fund_code_id'),
+                'month' => $request->input('month'),
+                'year' => $request->input('year'),
+            ],
+            'availableYears' => $availableYears,
         ]);
     }
 

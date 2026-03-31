@@ -35,9 +35,10 @@ interface Props {
         month?: string;
         year?: string;
     };
+    availableYears?: number[];
 }
 
-export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [], filters = {} }: Props) {
+export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [], filters = {}, availableYears = [] }: Props) {
     const { data, setData } = useForm({
         source_of_fund_code_id: filters.source_of_fund_code_id || '',
         month: filters.month || '',
@@ -73,7 +74,8 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
         { value: '12', label: 'December' },
     ];
 
-    const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+    // Use available years from backend, or generate default range if none selected
+    const years = availableYears.length > 0 ? availableYears : Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
 
     const handlePrint = () => {
         if (!data.source_of_fund_code_id) {
