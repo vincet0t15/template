@@ -32,6 +32,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/employees-by-source-of-fund/{sourceOfFundCodeId}', [DashboardController::class, 'employeesBySourceOfFund'])->name('dashboard.employees-by-source-of-fund');
 
     // ============================================
     // ALL USERS (Authenticated & Active)

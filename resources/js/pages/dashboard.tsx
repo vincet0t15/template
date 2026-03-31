@@ -279,7 +279,11 @@ export default function Dashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ChartBarLabel sourceOfFund={salariesBySourceOfFund} />
+                        <ChartBarLabel
+                            sourceOfFund={salariesBySourceOfFund}
+                            month={filterData.month ? parseInt(filterData.month.toString()) : undefined}
+                            year={filterData.year ? parseInt(filterData.year.toString()) : undefined}
+                        />
                     </CardContent>
                 </Card>
 

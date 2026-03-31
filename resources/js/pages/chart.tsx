@@ -3,8 +3,10 @@
 import { TrendingUp } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from 'recharts';
 
+import { EmployeesBySourceOfFundDialog } from '@/components/EmployeesBySourceOfFundDialog';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { useState } from 'react';
 
 export const description = 'Source of Fund Bar Chart';
 
@@ -28,11 +30,30 @@ export interface ChartBarLabelProps {
         code: string;
         description: string | null;
         total_amount: number;
+        id?: number; // Add optional id for clicking
     }[];
+    month?: number;
+    year?: number;
 }
 
-export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
+export function ChartBarLabel({ sourceOfFund, month, year }: ChartBarLabelProps) {
     const total = sourceOfFund.reduce((sum, item) => sum + item.total_amount, 0);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedFund, setSelectedFund] = useState<{ id: number; code: string; description: string | null } | null>(null);
+
+    const handleBarClick = (data: any) => {
+        if (data && data.activePayload && data.activePayload[0]) {
+            const fundData = data.activePayload[0].payload;
+            if (fundData.id) {
+                setSelectedFund({
+                    id: fundData.id,
+                    code: fundData.code,
+                    description: fundData.description,
+                });
+                setDialogOpen(true);
+            }
+        }
+    };
 
     return (
         <Card>
@@ -52,6 +73,7 @@ export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
                                 left: -10,
                                 right: 10,
                             }}
+                            onClick={handleBarClick}
                         >
                             <CartesianGrid vertical={false} />
                             <XAxis
@@ -96,6 +118,14 @@ export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
                     </div>
                 </CardFooter>
             )}
+            <EmployeesBySourceOfFundDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                sourceOfFundCodeId={selectedFund?.id || null}
+                sourceOfFundCode={selectedFund || undefined}
+                month={month}
+                year={year}
+            />
         </Card>
     );
 }
