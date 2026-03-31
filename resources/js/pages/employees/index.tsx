@@ -25,17 +25,25 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface SourceOfFundCode {
+    id: number;
+    code: string;
+    description: string | null;
+}
+
 interface Props {
     employees: PaginatedDataResponse<Employee>;
     offices: Office[];
     employmentStatuses: EmploymentStatus[];
-    filters: FilterProps & { office_id?: string; employment_status_id?: string };
+    sourceOfFundCodes: SourceOfFundCode[];
+    filters: FilterProps & { office_id?: string; employment_status_id?: string; source_of_fund_code_id?: string };
 }
-export default function Employees({ employees, offices, employmentStatuses, filters }: Props) {
+export default function Employees({ employees, offices, employmentStatuses, sourceOfFundCodes, filters }: Props) {
     const { data, setData } = useForm({
         search: filters.search || '',
         office_id: filters.office_id || '',
         employment_status_id: filters.employment_status_id || '',
+        source_of_fund_code_id: filters.source_of_fund_code_id || '',
     });
     const [openShow, setOpenShow] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -74,6 +82,12 @@ export default function Employees({ employees, offices, employmentStatuses, filt
         const newStatusId = value === 'all' ? '' : value;
         setData('employment_status_id', newStatusId);
         applyFilters({ employment_status_id: newStatusId });
+    };
+
+    const handleSourceOfFundChange = (value: string) => {
+        const newSourceOfFundId = value === '' ? '' : value;
+        setData('source_of_fund_code_id', newSourceOfFundId);
+        applyFilters({ source_of_fund_code_id: newSourceOfFundId });
     };
 
     const handleClickShow = (employee: Employee) => {
@@ -118,6 +132,30 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                                 ))}
                             </SelectContent>
                         </Select>
+
+                        <CustomComboBox
+                            items={sourceOfFundCodes.map((fund) => ({
+                                value: fund.id.toString(),
+                                label: `${fund.code} - ${fund.description || ''}`,
+                            }))}
+                            placeholder="All Source of Fund"
+                            value={data.source_of_fund_code_id || null}
+                            onSelect={(value) => handleSourceOfFundChange(value ?? '')}
+                        />
+
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const params = new URLSearchParams();
+                                if (data.search) params.set('search', data.search);
+                                if (data.office_id) params.set('office_id', data.office_id);
+                                if (data.employment_status_id) params.set('employment_status_id', data.employment_status_id);
+                                if (data.source_of_fund_code_id) params.set('source_of_fund_code_id', data.source_of_fund_code_id);
+                                window.open(`/employees/print?${params.toString()}`, '_blank');
+                            }}
+                        >
+                            Print
+                        </Button>
 
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">

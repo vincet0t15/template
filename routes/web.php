@@ -47,6 +47,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // EMPLOYEES - View Only
     Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('employees/print', [EmployeeController::class, 'print'])->name('employees.print');
 
     // EMPLOYEES - Create (requires employees.create permission) - MUST come before {employee} routes
     Route::middleware(['permission:employees.create'])->get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
