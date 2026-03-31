@@ -19,10 +19,14 @@ interface SourceOfFundCode {
 
 interface Props {
     employees: Employee[];
-    sourceOfFundCode: SourceOfFundCode | null;
+    sourceOfFundCode: SourceOfFundCode;
+    filters: {
+        month: string | null;
+        year: string | null;
+    };
 }
 
-export default function Print({ employees, sourceOfFundCode }: Props) {
+export default function EmployeesBySourceOfFundPrint({ employees, sourceOfFundCode, filters }: Props) {
     const getFullName = (employee: Employee) => {
         const parts = [employee.first_name, employee.middle_name, employee.last_name, employee.suffix].filter(Boolean);
         return parts.join(' ');
@@ -34,9 +38,20 @@ export default function Print({ employees, sourceOfFundCode }: Props) {
         day: 'numeric',
     });
 
+    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const getFilterDescription = () => {
+        if (filters.month && filters.year) {
+            return `${MONTHS[parseInt(filters.month) - 1]} ${filters.year}`;
+        } else if (filters.year) {
+            return `Year ${filters.year}`;
+        }
+        return 'All Months';
+    };
+
     return (
         <div className="mx-auto min-h-screen bg-white p-4 font-sans text-[11px] leading-[1.3] text-black print:max-w-none print:p-0">
-            <Head title="Employee List - Print" />
+            <Head title={`Employee List - ${sourceOfFundCode.code}`} />
 
             <div className="mb-4 flex justify-end print:hidden">
                 <button onClick={() => window.print()} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
@@ -66,13 +81,11 @@ export default function Print({ employees, sourceOfFundCode }: Props) {
                                     >
                                         EMPLOYEE LIST BY SOURCE OF FUND
                                     </h2>
-                                    {sourceOfFundCode && (
-                                        <>
-                                            <p className="m-[5px_0] text-[14px] font-bold">{sourceOfFundCode.code}</p>
-                                            {sourceOfFundCode.description && <p className="m-0 text-[12px]">{sourceOfFundCode.description}</p>}
-                                        </>
-                                    )}
-                                    <p className="m-0 text-[10px] text-gray-500">Generated: {currentDate}</p>
+                                    <p className="m-[5px_0] text-[14px] font-bold">{sourceOfFundCode.code}</p>
+                                    {sourceOfFundCode.description && <p className="m-0 text-[12px]">{sourceOfFundCode.description}</p>}
+                                    <p className="m-0 text-[10px] text-gray-500">
+                                        Period: {getFilterDescription()} • Generated: {currentDate}
+                                    </p>
                                 </div>
 
                                 {/* Employee Table */}

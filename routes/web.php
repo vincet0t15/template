@@ -18,6 +18,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PeraController;
 use App\Http\Controllers\RataController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\SourceOfFundCodeController;
@@ -32,7 +33,12 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('dashboard/employees-by-source-of-fund/{sourceOfFundCodeId}', [DashboardController::class, 'employeesBySourceOfFund'])->name('dashboard.employees-by-source-of-fund');
+
+    // REPORTS
+    Route::prefix('reports')->group(function () {
+        Route::get('employees-by-source-of-fund', [ReportController::class, 'employeesBySourceOfFund'])->name('reports.employees-by-source-of-fund');
+        Route::get('employees-by-source-of-fund/print', [ReportController::class, 'employeesBySourceOfFundPrint'])->name('reports.employees-by-source-of-fund.print');
+    });
 
     // ============================================
     // ALL USERS (Authenticated & Active)
@@ -47,7 +53,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // EMPLOYEES - View Only
     Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
-    Route::get('employees/print', [EmployeeController::class, 'print'])->name('employees.print');
 
     // EMPLOYEES - Create (requires employees.create permission) - MUST come before {employee} routes
     Route::middleware(['permission:employees.create'])->get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');

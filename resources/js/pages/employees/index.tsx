@@ -25,25 +25,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface SourceOfFundCode {
-    id: number;
-    code: string;
-    description: string | null;
-}
-
 interface Props {
     employees: PaginatedDataResponse<Employee>;
     offices: Office[];
     employmentStatuses: EmploymentStatus[];
-    sourceOfFundCodes: SourceOfFundCode[];
-    filters: FilterProps & { office_id?: string; employment_status_id?: string; source_of_fund_code_id?: string };
+    filters: FilterProps & { office_id?: string; employment_status_id?: string };
 }
-export default function Employees({ employees, offices, employmentStatuses, sourceOfFundCodes, filters }: Props) {
+export default function Employees({ employees, offices, employmentStatuses, filters }: Props) {
     const { data, setData } = useForm({
         search: filters.search || '',
         office_id: filters.office_id || '',
         employment_status_id: filters.employment_status_id || '',
-        source_of_fund_code_id: filters.source_of_fund_code_id || '',
     });
     const [openShow, setOpenShow] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -54,7 +46,6 @@ export default function Employees({ employees, offices, employmentStatuses, sour
         if (merged.search) queryString.search = merged.search;
         if (merged.office_id) queryString.office_id = merged.office_id;
         if (merged.employment_status_id) queryString.employment_status_id = merged.employment_status_id;
-        if (merged.source_of_fund_code_id) queryString.source_of_fund_code_id = merged.source_of_fund_code_id;
         router.get(route('employees.index'), queryString, {
             preserveState: true,
             preserveScroll: true,
@@ -85,13 +76,6 @@ export default function Employees({ employees, offices, employmentStatuses, sour
         applyFilters({ employment_status_id: newStatusId });
     };
 
-    const handleSourceOfFundChange = (value: string) => {
-        // Empty string means "All" - clear the filter
-        const newSourceOfFundId = value === '' ? '' : value;
-        setData('source_of_fund_code_id', newSourceOfFundId);
-        applyFilters({ source_of_fund_code_id: newSourceOfFundId });
-    };
-
     const handleClickShow = (employee: Employee) => {
         setSelectedEmployee(employee);
         setOpenShow(true);
@@ -114,16 +98,15 @@ export default function Employees({ employees, offices, employmentStatuses, sour
                     <div className="flex w-full items-center gap-2 sm:w-auto">
                         <div className="w-full">
                             <CustomComboBox
-                                items={[{ value: '', label: 'All Offices' }, ...officeOptions]}
+                                items={officeOptions}
                                 placeholder="All Offices"
                                 value={data.office_id || null}
                                 onSelect={(value) => handleOfficeChange(value ?? '')}
-                                showClear={true}
                             />
                         </div>
 
                         <Select value={data.employment_status_id || 'all'} onValueChange={handleEmploymentStatusChange}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-[280px]">
                                 <SelectValue placeholder="All Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -136,35 +119,7 @@ export default function Employees({ employees, offices, employmentStatuses, sour
                             </SelectContent>
                         </Select>
 
-                        <CustomComboBox
-                            items={[
-                                { value: '', label: 'All Source of Fund' },
-                                ...sourceOfFundCodes.map((fund) => ({
-                                    value: fund.id.toString(),
-                                    label: `${fund.code} - ${fund.description || ''}`,
-                                })),
-                            ]}
-                            placeholder="All Source of Fund"
-                            value={data.source_of_fund_code_id || null}
-                            onSelect={(value) => handleSourceOfFundChange(value ?? '')}
-                            showClear={true}
-                        />
-
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                const params = new URLSearchParams();
-                                if (data.search) params.set('search', data.search);
-                                if (data.office_id) params.set('office_id', data.office_id);
-                                if (data.employment_status_id) params.set('employment_status_id', data.employment_status_id);
-                                if (data.source_of_fund_code_id) params.set('source_of_fund_code_id', data.source_of_fund_code_id);
-                                window.open(`/employees/print?${params.toString()}`, '_blank');
-                            }}
-                        >
-                            Print
-                        </Button>
-
-                        <div className="relative w-full sm:w-[250px]">
+                        <div className="relative w-full sm:w-[450px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
                             </Label>

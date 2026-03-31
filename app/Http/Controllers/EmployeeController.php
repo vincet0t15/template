@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
-use App\Models\Salary;
-use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -18,21 +16,8 @@ class EmployeeController extends Controller
         $search = $request->input('search');
         $officeId = $request->input('office_id');
         $employmentStatusId = $request->input('employment_status_id');
-        $sourceOfFundCodeId = $request->input('source_of_fund_code_id');
 
-        // Get employees filtered by source of fund if provided
-        $employeeQuery = Employee::query();
-
-        if ($sourceOfFundCodeId) {
-            // Get employee IDs who have salaries from this source of fund
-            $employeeIds = Salary::where('source_of_fund_code_id', $sourceOfFundCodeId)
-                ->distinct()
-                ->pluck('employee_id');
-
-            $employeeQuery->whereIn('id', $employeeIds);
-        }
-
-        $employees = $employeeQuery
+        $employees = Employee::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('first_name', 'like', '%' . $search . '%')
                     ->orWhere('last_name', 'like', '%' . $search . '%');
@@ -49,69 +34,15 @@ class EmployeeController extends Controller
 
         $offices = Office::orderBy('name')->get();
         $employmentStatuses = EmploymentStatus::orderBy('name')->get();
-        $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
         return Inertia::render('Employees/Index', [
             'employees' => $employees,
             'offices' => $offices,
             'employmentStatuses' => $employmentStatuses,
-            'sourceOfFundCodes' => $sourceOfFundCodes,
             'filters' => [
                 'search' => $search,
                 'office_id' => $officeId,
                 'employment_status_id' => $employmentStatusId,
-                'source_of_fund_code_id' => $sourceOfFundCodeId,
-            ]
-        ]);
-    }
-
-    public function print(Request $request)
-    {
-        $search = $request->input('search');
-        $officeId = $request->input('office_id');
-        $employmentStatusId = $request->input('employment_status_id');
-        $sourceOfFundCodeId = $request->input('source_of_fund_code_id');
-
-        // Get employees filtered by source of fund if provided
-        $employeeQuery = Employee::query();
-
-        if ($sourceOfFundCodeId) {
-            // Get employee IDs who have salaries from this source of fund
-            $employeeIds = Salary::where('source_of_fund_code_id', $sourceOfFundCodeId)
-                ->distinct()
-                ->pluck('employee_id');
-
-            $employeeQuery->whereIn('id', $employeeIds);
-        }
-
-        $employees = $employeeQuery
-            ->when($search, function ($query) use ($search) {
-                $query->where('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%');
-            })
-            ->when($officeId, function ($query) use ($officeId) {
-                $query->where('office_id', $officeId);
-            })
-            ->when($employmentStatusId, function ($query) use ($employmentStatusId) {
-                $query->where('employment_status_id', $employmentStatusId);
-            })
-            ->with(['office', 'employmentStatus'])
-            ->orderBy('last_name', 'asc')
-            ->get();
-
-        $sourceOfFundCode = null;
-        if ($sourceOfFundCodeId) {
-            $sourceOfFundCode = SourceOfFundCode::find($sourceOfFundCodeId);
-        }
-
-        return Inertia::render('Employees/print', [
-            'employees' => $employees,
-            'sourceOfFundCode' => $sourceOfFundCode,
-            'filters' => [
-                'search' => $search,
-                'office_id' => $officeId,
-                'employment_status_id' => $employmentStatusId,
-                'source_of_fund_code_id' => $sourceOfFundCodeId,
             ]
         ]);
     }

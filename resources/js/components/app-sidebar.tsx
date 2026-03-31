@@ -43,6 +43,11 @@ const mainNavItems: NavGroup[] = [
                 href: '/suppliers',
                 icon: Truck,
             },
+            {
+                title: 'Employee List by Source of Fund',
+                href: '/reports/employees-by-source-of-fund',
+                icon: Receipt,
+            },
         ],
     },
 
