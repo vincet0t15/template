@@ -6,7 +6,7 @@ import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -43,9 +43,19 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
     const [loading, setLoading] = useState(false);
     const [filteredEmployees, setFilteredEmployees] = useState<typeof employees>([]);
 
-    const handleGenerate = (e: React.FormEvent) => {
-        e.preventDefault();
+    // Auto-generate report when filters change
+    useEffect(() => {
+        // Only auto-load if source of fund code is selected
+        if (data.source_of_fund_code_id) {
+            const timer = setTimeout(() => {
+                handleAutoGenerate();
+            }, 500); // Debounce 500ms
 
+            return () => clearTimeout(timer);
+        }
+    }, [data.source_of_fund_code_id, data.month, data.year]);
+
+    const handleAutoGenerate = () => {
         if (!data.source_of_fund_code_id) {
             return;
         }
@@ -134,7 +144,13 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                     </ul>
                 </div>
                 <div className="bg-card rounded-lg border p-6 shadow-sm">
-                    <form onSubmit={handleGenerate} className="space-y-4">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleAutoGenerate();
+                        }}
+                        className="space-y-4"
+                    >
                         <div className="grid gap-4 md:grid-cols-3">
                             {/* Source of Fund */}
                             <div className="space-y-2">
