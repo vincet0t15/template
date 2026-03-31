@@ -15,7 +15,7 @@ export function NavMain({ items = [] }: { items: NavGroup[] }) {
                         {group.children?.map((item) => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton asChild isActive={isCurrentUrl(item.href)} tooltip={{ children: item.title }} className="">
-                                    <Link href={item.href} prefetch>
+                                    <Link href={item.href} prefetch preserveScroll>
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
                                     </Link>
