@@ -6,6 +6,7 @@ export interface SourceOfFundCode {
 }
 
 export interface SourceOfFundCodeCreate {
+    [key: string]: any;
     code: string;
     description: string;
     status: boolean;
