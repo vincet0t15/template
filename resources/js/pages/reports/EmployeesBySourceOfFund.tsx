@@ -1,12 +1,11 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
-import axios from 'axios';
-import { FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,54 +30,32 @@ interface Props {
         office: { name: string } | null;
         employment_status: { name: string } | null;
     }[];
+    filters?: {
+        source_of_fund_code_id?: string;
+        month?: string;
+        year?: string;
+    };
 }
 
-export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [] }: Props) {
+export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [], filters = {} }: Props) {
     const { data, setData } = useForm({
-        source_of_fund_code_id: '',
-        month: '',
-        year: new Date().getFullYear().toString(),
+        source_of_fund_code_id: filters.source_of_fund_code_id || '',
+        month: filters.month || '',
+        year: filters.year || new Date().getFullYear().toString(),
     });
 
     const [loading, setLoading] = useState(false);
-    const [filteredEmployees, setFilteredEmployees] = useState<typeof employees>([]);
 
-    // Auto-generate report when filters change
-    useEffect(() => {
-        // Only auto-load if source of fund code is selected
-        if (data.source_of_fund_code_id) {
-            const timer = setTimeout(() => {
-                handleAutoGenerate();
-            }, 500); // Debounce 500ms
-
-            return () => clearTimeout(timer);
-        }
-    }, [data.source_of_fund_code_id, data.month, data.year]);
-
-    const handleAutoGenerate = () => {
-        if (!data.source_of_fund_code_id) {
-            return;
-        }
-
-        setLoading(true);
-
-        const params: Record<string, string> = {
-            source_of_fund_code_id: data.source_of_fund_code_id,
-        };
-
-        if (data.month) params.month = data.month;
-        if (data.year) params.year = data.year;
-
-        // Fetch updated employee list based on filters using axios POST
-        axios
-            .post(route('reports.employees-by-source-of-fund.filter'), params)
-            .then((response) => {
-                setFilteredEmployees(response.data.employees);
-            })
-            .catch((error) => {
-                console.error('Error fetching employees:', error);
-            })
-            .finally(() => setLoading(false));
+    const applyFilters = (overrides?: Partial<typeof data>) => {
+        const merged = { ...data, ...overrides };
+        const queryString: Record<string, string> = {};
+        if (merged.source_of_fund_code_id) queryString.source_of_fund_code_id = merged.source_of_fund_code_id;
+        if (merged.month) queryString.month = merged.month;
+        if (merged.year) queryString.year = merged.year;
+        router.get(route('reports.employees-by-source-of-fund'), queryString, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     const months = [
@@ -98,22 +75,6 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
 
     const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
-        const params: Record<string, string> = {};
-        if (data.source_of_fund_code_id) params.source_of_fund_code_id = data.source_of_fund_code_id;
-        if (data.month) params.month = data.month;
-        if (data.year) params.year = data.year;
-
-        router.get(route('reports.employees-by-source-of-fund.print'), params, {
-            preserveState: true,
-            preserveScroll: true,
-            onFinish: () => setLoading(false),
-        });
-    };
-
     const handlePrint = () => {
         if (!data.source_of_fund_code_id) {
             alert('Please select a source of fund code');
@@ -128,7 +89,23 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
         const queryString = new URLSearchParams(params).toString();
         window.open(`/reports/employees-by-source-of-fund/print?${queryString}`, '_blank');
     };
+    const handleSourceOfFundChange = (value: string) => {
+        const newSourceId = value === '' ? '' : value;
+        setData('source_of_fund_code_id', newSourceId);
+        applyFilters({ source_of_fund_code_id: newSourceId });
+    };
 
+    const handleMonthChange = (value: string) => {
+        const newMonth = value === '' ? '' : value;
+        setData('month', newMonth);
+        applyFilters({ month: newMonth });
+    };
+
+    const handleYearChange = (value: string) => {
+        const newYear = value === '' ? '' : value;
+        setData('year', newYear);
+        applyFilters({ year: newYear });
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employee List by Source of Fund" />
@@ -144,86 +121,61 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                     </ul>
                 </div>
                 <div className="bg-card rounded-lg border p-6 shadow-sm">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleAutoGenerate();
-                        }}
-                        className="space-y-4"
-                    >
-                        <div className="grid gap-4 md:grid-cols-3">
-                            {/* Source of Fund */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Source of Fund Code</label>
-                                <CustomComboBox
-                                    items={sourceOfFundCodes.map((fund) => ({
-                                        value: fund.id.toString(),
-                                        label: `${fund.code} - ${fund.description || ''}`,
-                                    }))}
-                                    placeholder="Select source of fund"
-                                    value={data.source_of_fund_code_id || null}
-                                    onSelect={(value) => setData('source_of_fund_code_id', value ?? '')}
-                                    showClear={true}
-                                />
-                            </div>
-
-                            {/* Month */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Month (Optional)</label>
-                                <CustomComboBox
-                                    items={months}
-                                    placeholder="All Months"
-                                    value={data.month || null}
-                                    onSelect={(value) => setData('month', value ?? '')}
-                                    showClear={true}
-                                />
-                            </div>
-
-                            {/* Year */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Year</label>
-                                <CustomComboBox
-                                    items={years.map((year) => ({
-                                        value: year.toString(),
-                                        label: year.toString(),
-                                    }))}
-                                    placeholder="Select year"
-                                    value={data.year || null}
-                                    onSelect={(value) => setData('year', value ?? '')}
-                                    showClear={false}
-                                />
-                            </div>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        {/* Source of Fund */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Source of Fund Code</label>
+                            <CustomComboBox
+                                items={sourceOfFundCodes.map((fund) => ({
+                                    value: fund.id.toString(),
+                                    label: `${fund.code} - ${fund.description || ''}`,
+                                }))}
+                                placeholder="Select source of fund"
+                                value={data.source_of_fund_code_id || null}
+                                onSelect={(value) => handleSourceOfFundChange(value ?? '')}
+                                showClear={true}
+                            />
                         </div>
 
-                        <div className="flex gap-2">
-                            <button
-                                type="submit"
-                                disabled={loading || !data.source_of_fund_code_id}
-                                className="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                            >
-                                <FileText className="mr-2 h-4 w-4" />
-                                {loading ? 'Loading...' : 'Generate Report'}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={handlePrint}
-                                disabled={!data.source_of_fund_code_id}
-                                className="border-input bg-background ring-offset-background hover:bg-accent focus-visible:ring-ring inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                            >
-                                Print Report
-                            </button>
+                        {/* Month */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Month (Optional)</label>
+                            <CustomComboBox
+                                items={months}
+                                placeholder="All Months"
+                                value={data.month || null}
+                                onSelect={(value) => handleMonthChange(value ?? '')}
+                                showClear={true}
+                            />
                         </div>
-                    </form>
+
+                        {/* Year */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Year</label>
+                            <CustomComboBox
+                                items={years.map((year) => ({
+                                    value: year.toString(),
+                                    label: year.toString(),
+                                }))}
+                                placeholder="Select year"
+                                value={data.year || null}
+                                onSelect={(value) => handleYearChange(value ?? '')}
+                                showClear={false}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                        <Button type="button" onClick={handlePrint} disabled={!data.source_of_fund_code_id}>
+                            Print Report
+                        </Button>
+                    </div>
                 </div>
-
                 {/* Employee List Display */}
-                {(filteredEmployees.length > 0 || employees.length > 0) && (
+                {employees.length > 0 && (
                     <div className="bg-card rounded-lg border shadow-sm">
                         <div className="bg-muted/50 border-b px-6 py-4">
-                            <h3 className="text-lg font-semibold">
-                                Employees {data.source_of_fund_code_id ? `(${filteredEmployees.length})` : `- All Employees (${employees.length})`}
-                            </h3>
+                            <h3 className="text-lg font-semibold">Employees - All Employees ({employees.length})</h3>
                             {data.source_of_fund_code_id && (
                                 <p className="text-muted-foreground text-sm">
                                     Filtered by: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
@@ -244,7 +196,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {(data.source_of_fund_code_id ? filteredEmployees : employees).map((employee, index) => (
+                                    {employees.map((employee: any, index: number) => (
                                         <tr key={employee.id} className="hover:bg-muted/30 border-b last:border-0">
                                             <td className="px-4 py-3 text-sm">{index + 1}</td>
                                             <td className="px-4 py-3 text-sm">

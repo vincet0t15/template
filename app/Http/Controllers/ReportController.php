@@ -11,14 +11,30 @@ use Inertia\Inertia;
 
 class ReportController extends Controller
 {
-    public function employeesBySourceOfFund()
+    public function employeesBySourceOfFund(Request $request)
     {
         $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
-        // Get all employees by default
+
         $employees = Employee::with(['office', 'employmentStatus'])
             ->orderBy('last_name', 'asc')
+            ->when($request->input('source_of_fund_code_id'), function ($query) use ($request) {
+                $query->whereHas('salaries', function ($query) use ($request) {
+                    $query->where('source_of_fund_code_id', $request->input('source_of_fund_code_id'));
+
+                    // Only apply year filter if provided and not empty
+                    if ($request->input('year') && $request->input('year') !== '') {
+                        $query->whereYear('effective_date', $request->input('year'));
+                    }
+
+                    // Only apply month filter if provided and not empty
+                    if ($request->input('month') && $request->input('month') !== '' && $request->input('month') !== '00') {
+                        $query->whereMonth('effective_date', $request->input('month'));
+                    }
+                });
+            })
             ->get();
+
 
         return Inertia::render('reports/EmployeesBySourceOfFund', [
             'sourceOfFundCodes' => $sourceOfFundCodes,
@@ -26,55 +42,7 @@ class ReportController extends Controller
         ]);
     }
 
-    public function getFilteredEmployees(Request $request)
-    {
-        $sourceOfFundCodeId = $request->input('source_of_fund_code_id');
-        $month = $request->input('month');
-        $year = $request->input('year');
 
-        if (!$sourceOfFundCodeId) {
-            // Return all employees if no filter
-            $employees = Employee::with(['office', 'employmentStatus'])
-                ->orderBy('last_name', 'asc')
-                ->get();
-
-            return response()->json(['employees' => $employees]);
-        }
-
-        // Get employee IDs who have salaries from this source of fund
-        $employeeQuery = Salary::query()
-            ->where('source_of_fund_code_id', $sourceOfFundCodeId);
-
-        // Only apply year filter if provided and not empty
-        if ($year && $year !== '') {
-            $employeeQuery->whereYear('effective_date', $year);
-        }
-
-        // Only apply month filter if provided and not empty
-        if ($month && $month !== '') {
-            $employeeQuery->whereMonth('effective_date', $month);
-        }
-
-        $employeeIds = $employeeQuery->distinct()->pluck('employee_id');
-
-        // Debug: Log the query for troubleshooting
-        Log::info('Filtering employees:', [
-            'source_of_fund_code_id' => $sourceOfFundCodeId,
-            'month' => $month,
-            'year' => $year,
-            'employee_ids_found' => $employeeIds->count(),
-        ]);
-
-        // Get employees with their details
-        $employees = Employee::whereIn('id', $employeeIds)
-            ->with(['office', 'employmentStatus'])
-            ->orderBy('last_name', 'asc')
-            ->get();
-
-        Log::info('Employees returned:', ['count' => $employees->count()]);
-
-        return response()->json(['employees' => $employees]);
-    }
 
     public function employeesBySourceOfFundPrint(Request $request)
     {

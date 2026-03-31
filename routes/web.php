@@ -38,7 +38,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::prefix('reports')->group(function () {
         Route::get('employees-by-source-of-fund', [ReportController::class, 'employeesBySourceOfFund'])->name('reports.employees-by-source-of-fund');
         Route::get('employees-by-source-of-fund/print', [ReportController::class, 'employeesBySourceOfFundPrint'])->name('reports.employees-by-source-of-fund.print');
-        Route::post('employees-by-source-of-fund/filter', [ReportController::class, 'getFilteredEmployees'])->name('reports.employees-by-source-of-fund.filter');
     });
 
     // ============================================
