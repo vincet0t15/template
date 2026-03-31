@@ -28,74 +28,120 @@ export default function Print({ employees, sourceOfFundCode }: Props) {
         return parts.join(' ');
     };
 
+    const currentDate = new Date().toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
     return (
-        <div className="p-8">
+        <div className="mx-auto min-h-screen bg-white p-4 font-sans text-[11px] leading-[1.3] text-black print:max-w-none print:p-0">
             <Head title="Employee List - Print" />
 
-            <div className="mb-8 text-center">
-                <h1 className="text-2xl font-bold">Employee List</h1>
-                {sourceOfFundCode && (
-                    <div className="mt-2">
-                        <p className="text-lg font-semibold">Source of Fund: {sourceOfFundCode.code}</p>
-                        {sourceOfFundCode.description && <p className="text-muted-foreground">{sourceOfFundCode.description}</p>}
-                    </div>
-                )}
+            <div className="mb-4 flex justify-end print:hidden">
+                <button onClick={() => window.print()} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    Print Report
+                </button>
             </div>
 
-            <table className="w-full border-collapse">
-                <thead>
-                    <tr className="border-b-2 border-black">
-                        <th className="py-2 text-left font-bold">#</th>
-                        <th className="py-2 text-left font-bold">Employee Name</th>
-                        <th className="py-2 text-left font-bold">Position</th>
-                        <th className="py-2 text-left font-bold">Office</th>
-                        <th className="py-2 text-left font-bold">Employment Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {employees.length > 0 ? (
-                        employees.map((employee, index) => (
-                            <tr key={employee.id} className="border-b border-gray-300">
-                                <td className="py-2">{index + 1}</td>
-                                <td className="py-2">{getFullName(employee)}</td>
-                                <td className="py-2">{employee.position || '-'}</td>
-                                <td className="py-2">{employee.office?.name || '-'}</td>
-                                <td className="py-2">{employee.employment_status?.name || '-'}</td>
-                            </tr>
-                        ))
-                    ) : (
+            <div className="mx-auto w-[8in] print:w-full">
+                <table className="w-full border-0">
+                    <thead className="hidden print:table-header-group">
                         <tr>
-                            <td colSpan={5} className="text-muted-foreground py-4 text-center">
-                                No employees found
+                            <td>
+                                <div className="h-[9mm]"></div>
                             </td>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {/* Header */}
+                                <div className="mb-5 text-center">
+                                    <h2
+                                        className="m-0 text-[16px] font-bold uppercase"
+                                        style={{
+                                            fontFamily: '"Old English Text MT", "Times New Roman", serif',
+                                        }}
+                                    >
+                                        EMPLOYEE LIST BY SOURCE OF FUND
+                                    </h2>
+                                    {sourceOfFundCode && (
+                                        <>
+                                            <p className="m-[5px_0] text-[14px] font-bold">{sourceOfFundCode.code}</p>
+                                            {sourceOfFundCode.description && <p className="m-0 text-[12px]">{sourceOfFundCode.description}</p>}
+                                        </>
+                                    )}
+                                    <p className="m-0 text-[10px] text-gray-500">Generated: {currentDate}</p>
+                                </div>
 
-            <div className="mt-8 flex justify-between">
-                <div>
-                    <p className="font-semibold">Total Employees: {employees.length}</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-muted-foreground text-sm">Printed on: {new Date().toLocaleString()}</p>
-                </div>
+                                {/* Employee Table */}
+                                <table className="w-full border-collapse border border-black">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th
+                                                className="border border-black px-2 py-1 text-left text-[10px] font-semibold"
+                                                style={{ width: '40px' }}
+                                            >
+                                                #
+                                            </th>
+                                            <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Employee Name</th>
+                                            <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Position</th>
+                                            <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Office</th>
+                                            <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Employment Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {employees.length > 0 ? (
+                                            employees.map((employee, index) => (
+                                                <tr key={employee.id}>
+                                                    <td className="border border-black px-2 py-1 text-[10px]">{index + 1}</td>
+                                                    <td className="border border-black px-2 py-1 text-[10px] uppercase">{getFullName(employee)}</td>
+                                                    <td className="border border-black px-2 py-1 text-[10px]">{employee.position || '—'}</td>
+                                                    <td className="border border-black px-2 py-1 text-[10px]">{employee.office?.name || '—'}</td>
+                                                    <td className="border border-black px-2 py-1 text-[10px]">
+                                                        {employee.employment_status?.name || '—'}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={5} className="border border-black px-2 py-4 text-center text-[10px] text-gray-500">
+                                                    No employees found
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {employees.length > 0 && (
+                                            <tr className="bg-gray-100 font-bold">
+                                                <td className="border border-black px-2 py-1 text-[10px]" colSpan={5}>
+                                                    TOTAL: {employees.length} EMPLOYEE{employees.length !== 1 ? 'S' : ''}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+
+                                {/* Footer */}
+                                <div className="mt-8 text-center text-[9px] text-gray-500">
+                                    <p>This is a computer-generated report and does not require a signature.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <style>{`
                 @media print {
-                    body * {
-                        visibility: hidden;
+                    @page { margin: 0; size: auto; }
+                    body { margin: 0 10mm; -webkit-print-color-adjust: exact; }
+                    table {
+                        border-collapse: collapse;
                     }
-                    .p-8, .p-8 * {
-                        visibility: visible;
-                    }
-                    .p-8 {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        padding: 20px;
+                    td, th {
+                        padding: 4px 6px !important;
+                        font-size: 11px;
+                        page-break-inside: avoid;
                     }
                 }
             `}</style>
