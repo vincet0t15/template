@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
 use App\Models\Salary;
+use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -37,11 +38,13 @@ class SalaryController extends Controller
 
         $offices = Office::orderBy('name')->get();
         $employmentStatuses = EmploymentStatus::orderBy('name')->get();
+        $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
         return Inertia::render('salaries/index', [
             'employees' => $employees,
             'offices' => $offices,
             'employmentStatuses' => $employmentStatuses,
+            'sourceOfFundCodes' => $sourceOfFundCodes,
             'filters' => [
                 'search' => $search,
                 'office_id' => $officeId,
@@ -69,12 +72,14 @@ class SalaryController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0',
             'effective_date' => 'required|date',
+            'source_of_fund_code_id' => 'nullable|exists:source_of_fund_codes,id',
         ]);
 
         Salary::create([
             'employee_id' => $validated['employee_id'],
             'amount' => $validated['amount'],
             'effective_date' => $validated['effective_date'],
+            'source_of_fund_code_id' => $validated['source_of_fund_code_id'] ?? null,
             'created_by' => Auth::id(),
         ]);
 

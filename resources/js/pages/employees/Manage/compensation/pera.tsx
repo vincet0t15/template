@@ -180,8 +180,7 @@ export default function CompensationPera({ employee }: CompensationPeraProps) {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">PERA</h3>
+            <div className="flex items-center justify-end">
                 <Button onClick={() => setOpenDialog(true)}>
                     <Plus className="h-4 w-4" />
                     Add PERA

@@ -6,9 +6,10 @@ import { CompensationSalary } from './compensation/salary';
 
 interface EmployeeCompensationProps {
     employee: Employee;
+    sourceOfFundCodes?: { id: number; code: string; description: string | null; status: boolean }[];
 }
 
-function EmployeeCompensation({ employee }: EmployeeCompensationProps) {
+function EmployeeCompensation({ employee, sourceOfFundCodes }: EmployeeCompensationProps) {
     return (
         <div>
             <Tabs defaultValue="salary" orientation="vertical">
@@ -19,7 +20,7 @@ function EmployeeCompensation({ employee }: EmployeeCompensationProps) {
                 </TabsList>
 
                 <TabsContent value="salary">
-                    <CompensationSalary employee={employee} />
+                    <CompensationSalary employee={employee} sourceOfFundCodes={sourceOfFundCodes} />
                 </TabsContent>
 
                 <TabsContent value="pera">

@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
+use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -93,6 +94,7 @@ class ManageEmployeeController extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
         $deductionTypes = DeductionType::active()->get();
+        $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
 
 
         $claimMonth = $request->input('claim_month');
@@ -145,6 +147,7 @@ class ManageEmployeeController extends Controller
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
             'deductionTypes' => $deductionTypes,
+            'sourceOfFundCodes' => $sourceOfFundCodes,
             'deductions' => $groupedDeductions,
             'periodsList' => $periodsList,
             'takenPeriods' => $takenPeriods,

@@ -29,10 +29,11 @@ interface SalariesProps {
     employees: PaginatedDataResponse<Employee>;
     offices: Office[];
     employmentStatuses: EmploymentStatus[];
+    sourceOfFundCodes: { id: number; code: string; description: string | null; status: boolean }[];
     filters: FilterProps & { office_id?: string; employment_status_id?: string };
 }
 
-export default function SalariesIndex({ employees, offices, employmentStatuses, filters }: SalariesProps) {
+export default function SalariesIndex({ employees, offices, employmentStatuses, sourceOfFundCodes, filters }: SalariesProps) {
     const { data: filterData, setData: setFilterData } = useForm({
         search: filters.search || '',
         office_id: filters.office_id || '',
@@ -52,10 +53,15 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
         employee_id: 0,
         amount: '',
         effective_date: new Date().toISOString().split('T')[0],
+        source_of_fund_code_id: null as number | null,
     });
 
     const officeOptions = offices.map((o) => ({ value: o.id.toString(), label: o.name }));
     const employmentStatusOptions = employmentStatuses.map((s) => ({ value: s.id.toString(), label: s.name }));
+    const sourceOfFundOptions = sourceOfFundCodes.map((fund) => ({
+        value: fund.id.toString(),
+        label: `${fund.code} - ${fund.description || 'No description'}`,
+    }));
 
     const applyFilters = () => {
         const queryString: Record<string, string> = {};
@@ -242,6 +248,16 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                                     onChange={(e) => setSalaryData('effective_date', e.target.value)}
                                 />
                                 {errors.effective_date && <p className="text-destructive text-sm">{errors.effective_date}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="source_of_fund_code_id">Source of Fund Code (Optional)</Label>
+                                <CustomComboBox
+                                    items={sourceOfFundOptions}
+                                    placeholder="Select source of fund..."
+                                    value={salaryData.source_of_fund_code_id?.toString() || null}
+                                    onSelect={(value) => setSalaryData('source_of_fund_code_id', value ? parseInt(value) : null)}
+                                />
+                                {errors.source_of_fund_code_id && <p className="text-destructive text-sm">{errors.source_of_fund_code_id}</p>}
                             </div>
                         </div>
                         <DialogFooter>

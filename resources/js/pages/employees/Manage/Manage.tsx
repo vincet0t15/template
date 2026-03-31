@@ -29,6 +29,7 @@ interface EmployeeManageProps {
     employmentStatuses: EmploymentStatus[];
     offices: Office[];
     deductionTypes: DeductionType[];
+    sourceOfFundCodes?: { id: number; code: string; description: string | null; status: boolean }[];
     deductions?: Record<string, EmployeeDeduction[]>;
     periodsList?: string[];
     takenPeriods?: string[];
@@ -60,6 +61,7 @@ export default function EmployeeManagePage({
     employmentStatuses,
     offices,
     deductionTypes,
+    sourceOfFundCodes,
     deductions = {},
     periodsList = [],
     takenPeriods = [],
@@ -168,7 +170,7 @@ export default function EmployeeManagePage({
                         />
                     </TabsContent>
                     <TabsContent value="compensation" className="mt-0 outline-none">
-                        <EmployeeCompensation employee={employee} />
+                        <EmployeeCompensation employee={employee} sourceOfFundCodes={sourceOfFundCodes} />
                     </TabsContent>
                     <TabsContent value="deductions" className="mt-0 outline-none">
                         <CompensationDeductions

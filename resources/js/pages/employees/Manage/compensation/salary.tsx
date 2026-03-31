@@ -1,4 +1,5 @@
 import { DatePicker } from '@/components/custom-date-picker';
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,13 +14,25 @@ import { toast } from 'sonner';
 
 interface CompensationSalaryProps {
     employee: Employee;
+    sourceOfFundCodes?: { id: number; code: string; description: string | null; status: boolean }[];
 }
 
-function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: () => void; employee: Employee }) {
+function AddSalaryDialog({
+    open,
+    onClose,
+    employee,
+    sourceOfFundCodes,
+}: {
+    open: boolean;
+    onClose: () => void;
+    employee: Employee;
+    sourceOfFundCodes?: { id: number; code: string; description: string | null; status: boolean }[];
+}) {
     const { data, setData, post, processing, reset } = useForm({
         employee_id: employee.id,
         amount: '',
         effective_date: new Date().toISOString().split('T')[0],
+        source_of_fund_code_id: null as number | null,
     });
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -59,6 +72,20 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
                             <Label>Effective Date</Label>
                             <DatePicker value={data.effective_date} onChange={(value) => setData('effective_date', value)} />
                         </div>
+                        <div className="flex flex-col gap-1">
+                            <Label>Source of Fund Code (Optional)</Label>
+                            <CustomComboBox
+                                items={
+                                    sourceOfFundCodes?.map((fund) => ({
+                                        value: fund.id.toString(),
+                                        label: `${fund.code} - ${fund.description || 'No description'}`,
+                                    })) || []
+                                }
+                                placeholder="Select source of fund..."
+                                value={data.source_of_fund_code_id?.toString() || null}
+                                onSelect={(value) => setData('source_of_fund_code_id', value ? parseInt(value) : null)}
+                            />
+                        </div>
                     </div>
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
@@ -76,10 +103,21 @@ function AddSalaryDialog({ open, onClose, employee }: { open: boolean; onClose: 
     );
 }
 
-function EditSalaryDialog({ open, onClose, salary }: { open: boolean; onClose: () => void; salary: Salary | null }) {
+function EditSalaryDialog({
+    open,
+    onClose,
+    salary,
+    sourceOfFundCodes,
+}: {
+    open: boolean;
+    onClose: () => void;
+    salary: Salary | null;
+    sourceOfFundCodes?: { id: number; code: string; description: string | null; status: boolean }[];
+}) {
     const { data, setData, put, processing, reset } = useForm({
         amount: '',
         effective_date: '',
+        source_of_fund_code_id: null as number | null,
     });
 
     // Update form data when salary changes
@@ -88,6 +126,7 @@ function EditSalaryDialog({ open, onClose, salary }: { open: boolean; onClose: (
             setData({
                 amount: salary.amount?.toString() || '',
                 effective_date: salary.effective_date || '',
+                source_of_fund_code_id: (salary as any).source_of_fund_code_id ?? null,
             });
         }
     }, [salary]);
@@ -131,6 +170,20 @@ function EditSalaryDialog({ open, onClose, salary }: { open: boolean; onClose: (
                             <Label>Effective Date</Label>
                             <DatePicker value={data.effective_date} onChange={(value: string) => setData('effective_date', value)} />
                         </div>
+                        <div className="flex flex-col gap-1">
+                            <Label>Source of Fund Code (Optional)</Label>
+                            <CustomComboBox
+                                items={
+                                    sourceOfFundCodes?.map((fund) => ({
+                                        value: fund.id.toString(),
+                                        label: `${fund.code} - ${fund.description || 'No description'}`,
+                                    })) || []
+                                }
+                                placeholder="Select source of fund..."
+                                value={data.source_of_fund_code_id?.toString() || null}
+                                onSelect={(value) => setData('source_of_fund_code_id', value ? parseInt(value) : null)}
+                            />
+                        </div>
                     </div>
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
@@ -155,7 +208,7 @@ const formatCurrency = (amount: number | undefined) => {
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
 
-export function CompensationSalary({ employee }: CompensationSalaryProps) {
+export function CompensationSalary({ employee, sourceOfFundCodes }: CompensationSalaryProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [editDialog, setEditDialog] = useState<{ open: boolean; salary: Salary | null }>({
         open: false,
@@ -180,8 +233,7 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Salary</h3>
+            <div className="flex items-center justify-end">
                 <Button onClick={() => setOpenDialog(true)}>
                     <Plus className="h-4 w-4" />
                     Add Salary
@@ -250,9 +302,16 @@ export function CompensationSalary({ employee }: CompensationSalaryProps) {
                 )}
             </div>
 
-            {openDialog && <AddSalaryDialog open={openDialog} onClose={() => setOpenDialog(false)} employee={employee} />}
+            {openDialog && (
+                <AddSalaryDialog open={openDialog} onClose={() => setOpenDialog(false)} employee={employee} sourceOfFundCodes={sourceOfFundCodes} />
+            )}
             {editDialog.open && editDialog.salary && (
-                <EditSalaryDialog open={editDialog.open} onClose={() => setEditDialog({ open: false, salary: null })} salary={editDialog.salary} />
+                <EditSalaryDialog
+                    open={editDialog.open}
+                    onClose={() => setEditDialog({ open: false, salary: null })}
+                    salary={editDialog.salary}
+                    sourceOfFundCodes={sourceOfFundCodes}
+                />
             )}
         </div>
     );

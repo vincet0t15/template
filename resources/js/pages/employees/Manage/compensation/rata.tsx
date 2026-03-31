@@ -180,8 +180,7 @@ export default function CompensationRata({ employee }: CompensationRataProps) {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">RATA</h3>
+            <div className="flex items-center justify-end">
                 {employee.is_rata_eligible && (
                     <Button onClick={() => setOpenDialog(true)}>
                         <Plus className="h-4 w-4" />
