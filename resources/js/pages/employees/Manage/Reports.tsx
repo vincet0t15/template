@@ -122,12 +122,22 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
         return history.reduce((sum, record) => sum + Number(record.amount), 0);
     }
 
+    // Helper function to sum compensation for a specific year
+    function sumCompensationForYear(history: { amount: number; effective_date: string }[] | undefined, year: number): number {
+        if (!history || history.length === 0) return 0;
+        return history.reduce((sum, record) => {
+            const recordYear = new Date(record.effective_date).getFullYear();
+            return recordYear === year ? sum + Number(record.amount) : sum;
+        }, 0);
+    }
+
     // Determine which compensation values to show based on filters
     let salary: number;
     let pera: number;
     let rata: number;
     let showGrossAndNet: boolean = true;
     let isAllTimeView: boolean = false;
+    let isYearlyView: boolean = false;
 
     if (filterMonth && filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
@@ -135,10 +145,12 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
         showGrossAndNet = true; // Specific period - calculations make sense
     } else if (filterYear) {
-        salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
-        pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
-        rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
-        showGrossAndNet = true; // Year-end rates - can show annual snapshot
+        // Year only - sum ALL records within that year
+        salary = sumCompensationForYear(employee.salaries, parseInt(filterYear));
+        pera = sumCompensationForYear(employee.peras, parseInt(filterYear));
+        rata = employee.is_rata_eligible ? sumCompensationForYear(employee.ratas, parseInt(filterYear)) : 0;
+        showGrossAndNet = true;
+        isYearlyView = true;
     } else {
         // All time - sum ALL salary/pera/rata across all periods
         salary = sumCompensation(employee.salaries);
@@ -248,6 +260,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                     <CardContent>
                         <div className="text-2xl font-bold text-slate-900">{formatCurrency(grossPay)}</div>
                         {isAllTimeView && <p className="mt-1 text-xs text-slate-600">Sum of all periods</p>}
+                        {isYearlyView && <p className="mt-1 text-xs text-slate-600">Total for {filterYear}</p>}
                     </CardContent>
                 </Card>
 
@@ -271,6 +284,7 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                         <div className="text-2xl font-bold text-green-700">{formatCurrency(netPay)}</div>
                         <p className="mt-1 text-xs text-green-600">Gross Pay - Deductions</p>
                         {isAllTimeView && <p className="mt-1 text-xs text-green-600">Sum of all periods</p>}
+                        {isYearlyView && <p className="mt-1 text-xs text-green-600">Total for {filterYear}</p>}
                     </CardContent>
                 </Card>
 

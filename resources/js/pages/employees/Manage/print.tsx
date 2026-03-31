@@ -104,12 +104,22 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
         return history.reduce((sum, record) => sum + Number(record.amount), 0);
     }
 
+    // Helper function to sum compensation for a specific year
+    function sumCompensationForYear(history: { amount: number; effective_date: string }[] | undefined, year: number): number {
+        if (!history || history.length === 0) return 0;
+        return history.reduce((sum, record) => {
+            const recordYear = new Date(record.effective_date).getFullYear();
+            return recordYear === year ? sum + Number(record.amount) : sum;
+        }, 0);
+    }
+
     // Determine which compensation values to show based on filters
     let salary: number;
     let pera: number;
     let rata: number;
     let showGrossAndNet: boolean = true;
     let isAllTimeView: boolean = false;
+    let isYearlyView: boolean = false;
 
     if (filterMonth && filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
@@ -117,10 +127,12 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), parseInt(filterMonth)) : 0;
         showGrossAndNet = true; // Specific period - calculations make sense
     } else if (filterYear) {
-        salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), 12);
-        pera = getEffectiveAmount(employee.peras, parseInt(filterYear), 12);
-        rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
-        showGrossAndNet = true; // Year-end rates - can show annual snapshot
+        // Year only - sum ALL records within that year
+        salary = sumCompensationForYear(employee.salaries, parseInt(filterYear));
+        pera = sumCompensationForYear(employee.peras, parseInt(filterYear));
+        rata = employee.is_rata_eligible ? sumCompensationForYear(employee.ratas, parseInt(filterYear)) : 0;
+        showGrossAndNet = true;
+        isYearlyView = true;
     } else {
         // All time - sum ALL salary/pera/rata across all periods
         salary = sumCompensation(employee.salaries);
@@ -212,23 +224,23 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                             <td className="border border-black p-2 font-bold">Basic Salary</td>
                                             <td className="border border-black p-2 text-right">
                                                 {formatCurrency(salary)}
-                                                {isAllTimeView && ' *'}
+                                                {(isAllTimeView || isYearlyView) && ' *'}
                                             </td>
                                             <td className="border border-black p-2 font-bold">PERA</td>
                                             <td className="border border-black p-2 text-right">
                                                 {formatCurrency(pera)}
-                                                {isAllTimeView && ' *'}
+                                                {(isAllTimeView || isYearlyView) && ' *'}
                                             </td>
                                         </tr>
                                         <tr>
                                             <td className="border border-black p-2 font-bold">RATA</td>
                                             <td className="border border-black p-2 text-right">
-                                                {employee.is_rata_eligible ? formatCurrency(rata) + (isAllTimeView ? ' *' : '') : '-'}
+                                                {employee.is_rata_eligible ? formatCurrency(rata) + (isAllTimeView || isYearlyView ? ' *' : '') : '-'}
                                             </td>
                                             <td className="border border-black p-2 font-bold">Gross Pay</td>
                                             <td className="border border-black p-2 text-right font-medium">
                                                 {formatCurrency(grossPay)}
-                                                {isAllTimeView && ' *'}
+                                                {(isAllTimeView || isYearlyView) && ' *'}
                                             </td>
                                         </tr>
                                         <tr>
@@ -237,7 +249,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                             <td className="border border-black p-2 font-bold">Net Pay</td>
                                             <td className="border border-black p-2 text-right font-bold text-green-600">
                                                 {formatCurrency(netPay)}
-                                                {isAllTimeView && ' *'}
+                                                {(isAllTimeView || isYearlyView) && ' *'}
                                             </td>
                                         </tr>
                                         <tr className="bg-gray-50">
@@ -246,7 +258,8 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                                 colSpan={4}
                                                 style={{ textAlign: 'center', fontSize: '9px' }}
                                             >
-                                                * Sum of all recorded periods
+                                                {isAllTimeView && '* Sum of all recorded periods'}
+                                                {isYearlyView && `* Total for year ${filterYear}`}
                                             </td>
                                         </tr>
                                         <tr className="bg-gray-50">
