@@ -85,6 +85,7 @@ export default function Employees({ employees, offices, employmentStatuses, sour
     };
 
     const handleSourceOfFundChange = (value: string) => {
+        // Empty string means "All" - clear the filter
         const newSourceOfFundId = value === '' ? '' : value;
         setData('source_of_fund_code_id', newSourceOfFundId);
         applyFilters({ source_of_fund_code_id: newSourceOfFundId });
@@ -112,10 +113,11 @@ export default function Employees({ employees, offices, employmentStatuses, sour
                     <div className="flex w-full items-center gap-2 sm:w-auto">
                         <div className="w-full">
                             <CustomComboBox
-                                items={officeOptions}
+                                items={[{ value: '', label: 'All Offices' }, ...officeOptions]}
                                 placeholder="All Offices"
                                 value={data.office_id || null}
                                 onSelect={(value) => handleOfficeChange(value ?? '')}
+                                showClear={true}
                             />
                         </div>
 
@@ -134,13 +136,17 @@ export default function Employees({ employees, offices, employmentStatuses, sour
                         </Select>
 
                         <CustomComboBox
-                            items={sourceOfFundCodes.map((fund) => ({
-                                value: fund.id.toString(),
-                                label: `${fund.code} - ${fund.description || ''}`,
-                            }))}
+                            items={[
+                                { value: '', label: 'All Source of Fund' },
+                                ...sourceOfFundCodes.map((fund) => ({
+                                    value: fund.id.toString(),
+                                    label: `${fund.code} - ${fund.description || ''}`,
+                                })),
+                            ]}
                             placeholder="All Source of Fund"
                             value={data.source_of_fund_code_id || null}
                             onSelect={(value) => handleSourceOfFundChange(value ?? '')}
+                            showClear={true}
                         />
 
                         <Button

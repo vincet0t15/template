@@ -10,8 +10,9 @@ interface CustomComboBoxProps {
     value?: string | null;
     defaultValue?: string | null;
     onSelect?: (value: string | null) => void;
+    showClear?: boolean;
 }
-export function CustomComboBox({ items, placeholder, value, defaultValue, onSelect }: CustomComboBoxProps) {
+export function CustomComboBox({ items, placeholder, value, defaultValue, onSelect, showClear = false }: CustomComboBoxProps) {
     const selectedItem = value == null ? null : (items.find((item) => item.value === value) ?? null);
 
     const defaultSelectedItem = defaultValue == null ? null : (items.find((item) => item.value === defaultValue) ?? null);
@@ -24,7 +25,7 @@ export function CustomComboBox({ items, placeholder, value, defaultValue, onSele
             defaultValue={defaultValue === undefined ? undefined : defaultSelectedItem}
             onValueChange={(item: CustomComboBoxItem | null) => onSelect?.(item?.value ?? null)}
         >
-            <ComboboxInput placeholder={placeholder} />
+            <ComboboxInput placeholder={placeholder} showClear={showClear} />
             <ComboboxContent>
                 <ComboboxEmpty>No items found.</ComboboxEmpty>
                 <ComboboxList>
