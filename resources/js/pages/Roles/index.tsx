@@ -230,7 +230,7 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
 
                 {/* Edit Dialog */}
                 <Dialog open={!!editingRole} onOpenChange={() => setEditingRole(null)}>
-                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                    <DialogContent className="max-h-[90vh] min-w-3xl overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Edit Role</DialogTitle>
                             <DialogDescription>Update role name and permissions</DialogDescription>

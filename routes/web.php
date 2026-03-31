@@ -185,6 +185,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // SOURCE OF FUNDS CODE
     Route::middleware(['permission:source_of_fund_codes.view'])->get('source-of-fund-codes', [SourceOfFundCodeController::class, 'index'])->name('source-of-fund-codes.index');
+    Route::middleware(['permission:source_of_fund_codes.store'])->post('source-of-fund-codes', [SourceOfFundCodeController::class, 'store'])->name('source-of-fund-codes.store');
 });
 
 // require __DIR__ . '/settings.php';

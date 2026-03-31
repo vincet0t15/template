@@ -7,7 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { SourceOfFundCodeCreate } from '@/types/sourceOfFundCOde';
 import { useForm } from '@inertiajs/react';
-import { ChangeEventHandler } from 'react';
+import { Loader2 } from 'lucide-react';
+import { ChangeEventHandler, FormEventHandler } from 'react';
+import { toast } from 'sonner';
 interface CreateSourceOfFundCodeProps {
     open: boolean;
     onClose: (open: boolean) => void;
@@ -25,6 +27,17 @@ export function CreateSourceOfFundCode({ open, onClose }: CreateSourceOfFundCode
 
     const onCheckedChange = (value: boolean | 'indeterminate') => {
         setData('status', typeof value === 'boolean' ? value : false);
+    };
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('source-of-fund-codes.store'), {
+            onSuccess: (response: { props: FlashProps }) => {
+                toast.success(response.props.flash?.success);
+                reset();
+                onClose(true);
+            },
+        });
     };
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -52,7 +65,16 @@ export function CreateSourceOfFundCode({ open, onClose }: CreateSourceOfFundCode
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Create Source of Fund Code</Button>
+                        <Button type="submit" onClick={submit} disabled={processing}>
+                            {processing ? (
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Creating...
+                                </span>
+                            ) : (
+                                'Create'
+                            )}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </form>

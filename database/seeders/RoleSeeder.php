@@ -80,7 +80,7 @@ class RoleSeeder extends Seeder
 
             // Source of Fund Codes permissions
             'source_of_fund_codes.view',
-            'source_of_fund_codes.create',
+            'source_of_fund_codes.store',
             'source_of_fund_codes.edit',
             'source_of_fund_codes.delete',
             'source_of_fund_codes.manage',
