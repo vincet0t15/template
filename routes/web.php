@@ -47,7 +47,11 @@ Route::middleware(['auth', 'active'])->group(function () {
     // PAYROLL - View Only
     Route::prefix('payroll')->group(function () {
         Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
+        // Specific routes MUST come before dynamic {employee} route
         Route::get('print', [PayrollController::class, 'print'])->name('payroll.print');
+        Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
+        Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
+        // Dynamic employee route must be last
         Route::get('{employee}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 
@@ -84,12 +88,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
 
-
-    // PAYROLL - Admin Features (requires payroll.export permission)
-    Route::prefix('payroll')->group(function () {
-        Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
-        Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
-    });
 
     // PAYROLL - Export (requires payroll.export permission)
     Route::middleware(['permission:payroll.export'])->prefix('payroll')->group(function () {
