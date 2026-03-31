@@ -10,8 +10,6 @@ class DeductionTypeController extends Controller
 {
     public function index(Request $request)
     {
-
-
         $search = $request->input('search');
 
         $deductionTypes = DeductionType::query()
@@ -19,6 +17,7 @@ class DeductionTypeController extends Controller
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%");
             })
+            ->orderBy('name')
             ->paginate(50)
             ->withQueryString();
 

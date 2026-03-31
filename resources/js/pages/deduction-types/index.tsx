@@ -1,4 +1,5 @@
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -9,9 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { DeductionType } from '@/types/deductionType';
+import { FilterProps } from '@/types/filter';
+import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Pencil, PlusIcon, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,7 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface DeductionTypesProps {
-    deductionTypes: DeductionType[];
+    deductionTypes: PaginatedDataResponse<DeductionType>;
 }
 
 export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesProps) {
@@ -57,7 +61,8 @@ export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesPr
 
     const handleCreate = () => {
         post(route('deduction-types.store'), {
-            onSuccess: () => {
+            onSuccess: (response: { props: FilterProps }) => {
+                toast.success(response.props.flash?.success);
                 resetCreate();
                 setOpenCreate(false);
             },
@@ -117,8 +122,8 @@ export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesPr
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {deductionTypes.length > 0 ? (
-                                deductionTypes.map((type) => (
+                            {deductionTypes.data.length > 0 ? (
+                                deductionTypes.data.map((type: DeductionType) => (
                                     <TableRow key={type.id} className="hover:bg-muted/30">
                                         <TableCell className="font-medium">{type.name}</TableCell>
                                         <TableCell>
@@ -153,6 +158,10 @@ export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesPr
                             )}
                         </TableBody>
                     </Table>
+                </div>
+
+                <div>
+                    <Pagination data={deductionTypes} />
                 </div>
 
                 {/* Create Dialog */}
