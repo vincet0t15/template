@@ -116,11 +116,18 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
     const totalAllDeductions = filteredDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = filteredClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
+    // Helper function to sum compensation across all periods
+    function sumCompensation(history: { amount: number; effective_date: string }[] | undefined): number {
+        if (!history || history.length === 0) return 0;
+        return history.reduce((sum, record) => sum + Number(record.amount), 0);
+    }
+
     // Determine which compensation values to show based on filters
     let salary: number;
     let pera: number;
     let rata: number;
     let showGrossAndNet: boolean = true;
+    let isAllTimeView: boolean = false;
 
     if (filterMonth && filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
@@ -133,10 +140,12 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
         showGrossAndNet = true; // Year-end rates - can show annual snapshot
     } else {
-        salary = Number(employee.latest_salary?.amount ?? 0);
-        pera = Number(employee.latest_pera?.amount ?? 0);
-        rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
-        showGrossAndNet = false; // All time - gross/net comparison doesn't make sense
+        // All time - sum ALL salary/pera/rata across all periods
+        salary = sumCompensation(employee.salaries);
+        pera = sumCompensation(employee.peras);
+        rata = employee.is_rata_eligible ? sumCompensation(employee.ratas) : 0;
+        showGrossAndNet = true; // Now we can show gross/net for all-time view
+        isAllTimeView = true;
     }
 
     const grossPay = salary + pera + rata;
@@ -231,17 +240,16 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                     </Card>
                 )}
 
-                {showGrossAndNet && (
-                    <Card className="border-slate-200 bg-slate-50">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-800">Gross Pay</CardTitle>
-                            <TrendingDown className="h-4 w-4 text-slate-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-slate-900">{formatCurrency(grossPay)}</div>
-                        </CardContent>
-                    </Card>
-                )}
+                <Card className="border-slate-200 bg-slate-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-800">Gross Pay</CardTitle>
+                        <TrendingDown className="h-4 w-4 text-slate-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-slate-900">{formatCurrency(grossPay)}</div>
+                        {isAllTimeView && <p className="mt-1 text-xs text-slate-600">Sum of all periods</p>}
+                    </CardContent>
+                </Card>
 
                 <Card className="border-red-200 bg-red-50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -254,18 +262,17 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                     </CardContent>
                 </Card>
 
-                {showGrossAndNet && (
-                    <Card className="border-green-200 bg-green-50">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-green-800">Net Pay</CardTitle>
-                            <Receipt className="h-4 w-4 text-green-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-green-700">{formatCurrency(netPay)}</div>
-                            <p className="mt-1 text-xs text-green-600">Gross Pay - Deductions</p>
-                        </CardContent>
-                    </Card>
-                )}
+                <Card className="border-green-200 bg-green-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-green-800">Net Pay</CardTitle>
+                        <Receipt className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-700">{formatCurrency(netPay)}</div>
+                        <p className="mt-1 text-xs text-green-600">Gross Pay - Deductions</p>
+                        {isAllTimeView && <p className="mt-1 text-xs text-green-600">Sum of all periods</p>}
+                    </CardContent>
+                </Card>
 
                 <Card className="border-blue-200 bg-blue-50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">

@@ -98,11 +98,18 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
     const totalAllDeductions = allDeductions.reduce((sum, d) => sum + Number(d.amount), 0);
     const totalAllClaims = allClaims.reduce((sum, c) => sum + Number(c.amount), 0);
 
+    // Helper function to sum compensation across all periods
+    function sumCompensation(history: { amount: number; effective_date: string }[] | undefined): number {
+        if (!history || history.length === 0) return 0;
+        return history.reduce((sum, record) => sum + Number(record.amount), 0);
+    }
+
     // Determine which compensation values to show based on filters
     let salary: number;
     let pera: number;
     let rata: number;
     let showGrossAndNet: boolean = true;
+    let isAllTimeView: boolean = false;
 
     if (filterMonth && filterYear) {
         salary = getEffectiveAmount(employee.salaries, parseInt(filterYear), parseInt(filterMonth));
@@ -115,10 +122,12 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
         rata = employee.is_rata_eligible ? getEffectiveAmount(employee.ratas, parseInt(filterYear), 12) : 0;
         showGrossAndNet = true; // Year-end rates - can show annual snapshot
     } else {
-        salary = Number(employee.latest_salary?.amount ?? 0);
-        pera = Number(employee.latest_pera?.amount ?? 0);
-        rata = employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0;
-        showGrossAndNet = false; // All time - gross/net comparison doesn't make sense
+        // All time - sum ALL salary/pera/rata across all periods
+        salary = sumCompensation(employee.salaries);
+        pera = sumCompensation(employee.peras);
+        rata = employee.is_rata_eligible ? sumCompensation(employee.ratas) : 0;
+        showGrossAndNet = true; // Now we can show gross/net for all-time view
+        isAllTimeView = true;
     }
 
     const grossPay = salary + pera + rata;
@@ -201,48 +210,52 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                     <tbody>
                                         <tr>
                                             <td className="border border-black p-2 font-bold">Basic Salary</td>
-                                            <td className="border border-black p-2 text-right">{formatCurrency(salary)}</td>
+                                            <td className="border border-black p-2 text-right">
+                                                {formatCurrency(salary)}
+                                                {isAllTimeView && ' *'}
+                                            </td>
                                             <td className="border border-black p-2 font-bold">PERA</td>
-                                            <td className="border border-black p-2 text-right">{formatCurrency(pera)}</td>
+                                            <td className="border border-black p-2 text-right">
+                                                {formatCurrency(pera)}
+                                                {isAllTimeView && ' *'}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td className="border border-black p-2 font-bold">RATA</td>
                                             <td className="border border-black p-2 text-right">
-                                                {employee.is_rata_eligible ? formatCurrency(rata) : '-'}
+                                                {employee.is_rata_eligible ? formatCurrency(rata) + (isAllTimeView ? ' *' : '') : '-'}
                                             </td>
-                                            {showGrossAndNet && (
-                                                <>
-                                                    <td className="border border-black p-2 font-bold">Gross Pay</td>
-                                                    <td className="border border-black p-2 text-right font-medium">{formatCurrency(grossPay)}</td>
-                                                </>
-                                            )}
+                                            <td className="border border-black p-2 font-bold">Gross Pay</td>
+                                            <td className="border border-black p-2 text-right font-medium">
+                                                {formatCurrency(grossPay)}
+                                                {isAllTimeView && ' *'}
+                                            </td>
                                         </tr>
-                                        {showGrossAndNet && (
-                                            <tr>
-                                                <td className="border border-black p-2 font-bold">Total Deductions</td>
-                                                <td className="border border-black p-2 text-right text-red-600">
-                                                    {formatCurrency(totalAllDeductions)}
-                                                </td>
-                                                <td className="border border-black p-2 font-bold">Net Pay</td>
-                                                <td className="border border-black p-2 text-right font-bold text-green-600">
-                                                    {formatCurrency(netPay)}
-                                                </td>
-                                            </tr>
-                                        )}
+                                        <tr>
+                                            <td className="border border-black p-2 font-bold">Total Deductions</td>
+                                            <td className="border border-black p-2 text-right text-red-600">{formatCurrency(totalAllDeductions)}</td>
+                                            <td className="border border-black p-2 font-bold">Net Pay</td>
+                                            <td className="border border-black p-2 text-right font-bold text-green-600">
+                                                {formatCurrency(netPay)}
+                                                {isAllTimeView && ' *'}
+                                            </td>
+                                        </tr>
                                         <tr className="bg-gray-50">
-                                            <td className="border border-black p-2 font-bold" colSpan={showGrossAndNet ? 2 : 4}>
+                                            <td
+                                                className="border border-black p-2 font-bold"
+                                                colSpan={4}
+                                                style={{ textAlign: 'center', fontSize: '9px' }}
+                                            >
+                                                * Sum of all recorded periods
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                            <td className="border border-black p-2 font-bold" colSpan={2}>
                                                 Total Claims
                                             </td>
-                                            {!showGrossAndNet && (
-                                                <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
-                                                    {formatCurrency(totalAllClaims)}
-                                                </td>
-                                            )}
-                                            {showGrossAndNet && (
-                                                <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
-                                                    {formatCurrency(totalAllClaims)}
-                                                </td>
-                                            )}
+                                            <td className="border border-black p-2 text-right font-bold text-blue-600" colSpan={2}>
+                                                {formatCurrency(totalAllClaims)}
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
