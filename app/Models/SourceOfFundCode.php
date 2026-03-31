@@ -14,4 +14,8 @@ class SourceOfFundCode extends Model
         'description',
         'status',
     ];
+
+    protected $casts = [
+        'status' => 'boolean',
+    ];
 }
