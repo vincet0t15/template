@@ -28,6 +28,11 @@ class Salary extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function sourceOfFundCode()
+    {
+        return $this->belongsTo(SourceOfFundCode::class);
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

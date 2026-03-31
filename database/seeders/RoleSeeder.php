@@ -84,6 +84,9 @@ class RoleSeeder extends Seeder
             'source_of_fund_codes.edit',
             'source_of_fund_codes.delete',
             'source_of_fund_codes.manage',
+
+            // Employee Source of Fund Report
+            'employees.source_of_fund.view',
         ];
 
         foreach ($permissions as $permission) {

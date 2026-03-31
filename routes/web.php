@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeManage;
 use App\Http\Controllers\EmployeeSettingController;
+use App\Http\Controllers\EmployeeSourceOfFundController;
 use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\ManageEmployeeController;
 use App\Http\Controllers\OfficeController;
@@ -52,6 +53,9 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // EMPLOYEE PRINT REPORT
     Route::get('employees/{employee}/print', [ManageEmployeeController::class, 'print'])->name('employees.print');
+
+    // EMPLOYEES BY SOURCE OF FUND (View report - requires employees.source_of_fund.view permission)
+    Route::middleware(['permission:employees.source_of_fund.view'])->get('employees/source-of-fund', [EmployeeSourceOfFundController::class, 'index'])->name('employees.source-of-fund.index');
 
     // EMPLOYEES - View/Edit/Delete (parameterized routes must be last)
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
