@@ -77,6 +77,13 @@ class RoleSeeder extends Seeder
             'roles.manage',
             'permissions.view',
             'permissions.manage',
+
+            // Source of Fund Codes permissions
+            'source_of_fund_codes.view',
+            'source_of_fund_codes.create',
+            'source_of_fund_codes.edit',
+            'source_of_fund_codes.delete',
+            'source_of_fund_codes.manage',
         ];
 
         foreach ($permissions as $permission) {

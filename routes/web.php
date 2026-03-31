@@ -19,6 +19,7 @@ use App\Http\Controllers\PeraController;
 use App\Http\Controllers\RataController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\SourceOfFundCodeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
 use Illuminate\Support\Facades\Route;
@@ -181,6 +182,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::put('{permission}', [PermissionController::class, 'update'])->name('permissions.update');
         Route::delete('{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
+
+    // SOURCE OF FUNDS CODE
+    Route::middleware(['permission:source_of_fund_codes.view'])->get('source-of-fund-codes', [SourceOfFundCodeController::class, 'index'])->name('source-of-fund-codes.index');
 });
 
 // require __DIR__ . '/settings.php';

@@ -1,11 +1,9 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavGroup, type NavItem } from '@/types';
+import { type NavGroup } from '@/types';
 import { Link } from '@inertiajs/react';
 
-import AppLogo from './app-logo';
 import {
     Banknote,
     Building2,
@@ -14,7 +12,6 @@ import {
     Key,
     LayoutGrid,
     LucideMoveVertical,
-    Menu,
     MinusSquare,
     Receipt,
     ReceiptCent,
@@ -25,6 +22,7 @@ import {
     UserRoundPen,
     Wallet,
 } from 'lucide-react';
+import AppLogo from './app-logo';
 const mainNavItems: NavGroup[] = [
     {
         title: 'General',
@@ -115,6 +113,17 @@ const mainNavItems: NavGroup[] = [
                 icon: ReceiptCent,
             },
             {
+                title: 'Source of Fund Code',
+                href: '/source-of-fund-codes',
+                icon: DollarSign,
+            },
+        ],
+    },
+    {
+        title: 'Super Admin',
+        icon: Settings,
+        children: [
+            {
                 title: 'Accounts',
                 href: '/accounts',
                 icon: UserCheck,
@@ -132,7 +141,6 @@ const mainNavItems: NavGroup[] = [
         ],
     },
 ];
-
 
 export function AppSidebar() {
     return (
@@ -154,7 +162,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
