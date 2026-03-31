@@ -211,7 +211,7 @@ export default function YearToDate({ employees, offices, employmentStatuses, fil
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary font-bold">Office</TableHead>
+
                                 {MONTHS.map((month) => (
                                     <TableHead key={month} className="text-primary text-right text-xs font-bold">
                                         {month}
@@ -228,9 +228,10 @@ export default function YearToDate({ employees, offices, employmentStatuses, fil
                                             <div className="flex flex-col">
                                                 <span className="font-bold">{employee.name}</span>
                                                 <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                <span className="text-muted-foreground text-xs">{employee.office}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-sm">{employee.office}</TableCell>
+
                                         {employee.monthly_data.map((data, index) => (
                                             <TableCell key={index} className="text-right text-xs">
                                                 {data.net_pay > 0 ? (
