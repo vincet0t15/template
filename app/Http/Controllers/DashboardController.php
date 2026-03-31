@@ -88,7 +88,11 @@ class DashboardController extends Controller
         $totalPera = Pera::sum('amount');
         $totalRata = Rata::sum('amount');
 
-        // Source of Fund breakdown for selected month/year
+        // Source of Fund breakdown for selected month/year - Include ALL funds (even with 0 amount)
+        $allSourceOfFundCodes = SourceOfFundCode::where('status', true)
+            ->orderBy('code')
+            ->get();
+
         $salariesBySourceOfFund = Salary::selectRaw('source_of_fund_code_id, SUM(amount) as total_amount')
             ->whereYear('effective_date', $year)
             ->when($month, function ($query) use ($month) {
@@ -99,15 +103,29 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($item) {
                 return [
+                    'source_of_fund_code_id' => $item->source_of_fund_code_id,
                     'code' => $item->sourceOfFundCode?->code ?? 'Unfunded',
                     'description' => $item->sourceOfFundCode?->description,
                     'total_amount' => (float) $item->total_amount,
                 ];
-            })
-            ->filter(function ($item) {
-                return $item['code'] !== null;
-            })
-            ->values();
+            });
+
+        // Merge with all funds to include those with 0 amounts
+        $salariesBySourceOfFund = $allSourceOfFundCodes->map(function ($fund) use ($salariesBySourceOfFund) {
+            $existing = $salariesBySourceOfFund->firstWhere('source_of_fund_code_id', $fund->id);
+
+            if ($existing) {
+                return $existing;
+            }
+
+            // Return fund with 0 amount
+            return [
+                'source_of_fund_code_id' => $fund->id,
+                'code' => $fund->code,
+                'description' => $fund->description,
+                'total_amount' => 0.0,
+            ];
+        })->values();
 
         // Recent activity (placeholder - can be enhanced with actual activity log)
         $recentActivity = [];

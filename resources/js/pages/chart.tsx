@@ -56,7 +56,7 @@ export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
                             <Bar dataKey="total_amount" fill="var(--color-total_amount)" radius={8}>
                                 <LabelList
                                     position="top"
-                                    offset={12}
+                                    offset={10}
                                     className="fill-foreground"
                                     fontSize={12}
                                     formatter={(value) => formatCurrency(Number(value))}
