@@ -1,15 +1,8 @@
-"use client"
+'use client';
 
-import {
-    Combobox,
-    ComboboxContent,
-    ComboboxEmpty,
-    ComboboxInput,
-    ComboboxItem,
-    ComboboxList,
-} from "@/components/ui/combobox"
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox';
 
-type CustomComboBoxItem = { value: string; label: string }
+type CustomComboBoxItem = { value: string; label: string };
 
 interface CustomComboBoxProps {
     items: CustomComboBoxItem[];
@@ -18,20 +11,10 @@ interface CustomComboBoxProps {
     defaultValue?: string | null;
     onSelect?: (value: string | null) => void;
 }
-export function CustomComboBox({
-    items,
-    placeholder,
-    value,
-    defaultValue,
-    onSelect,
-}: CustomComboBoxProps) {
-    const selectedItem =
-        value == null ? null : items.find((item) => item.value === value) ?? null
+export function CustomComboBox({ items, placeholder, value, defaultValue, onSelect }: CustomComboBoxProps) {
+    const selectedItem = value == null ? null : (items.find((item) => item.value === value) ?? null);
 
-    const defaultSelectedItem =
-        defaultValue == null
-            ? null
-            : items.find((item) => item.value === defaultValue) ?? null
+    const defaultSelectedItem = defaultValue == null ? null : (items.find((item) => item.value === defaultValue) ?? null);
 
     return (
         <Combobox
@@ -39,9 +22,7 @@ export function CustomComboBox({
             itemToStringValue={(item: CustomComboBoxItem) => item.label}
             value={value === undefined ? undefined : selectedItem}
             defaultValue={defaultValue === undefined ? undefined : defaultSelectedItem}
-            onValueChange={(item: CustomComboBoxItem | null) =>
-                onSelect?.(item?.value ?? null)
-            }
+            onValueChange={(item: CustomComboBoxItem | null) => onSelect?.(item?.value ?? null)}
         >
             <ComboboxInput placeholder={placeholder} />
             <ComboboxContent>
@@ -55,5 +36,5 @@ export function CustomComboBox({
                 </ComboboxList>
             </ComboboxContent>
         </Combobox>
-    )
+    );
 }
