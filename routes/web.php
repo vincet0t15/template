@@ -8,15 +8,14 @@ use App\Http\Controllers\DeductionTypeController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
-use App\Http\Controllers\EmployeeManage;
-use App\Http\Controllers\EmployeeSettingController;
+use App\Http\Controllers\EmployeeImportController;
 use App\Http\Controllers\EmployeeSourceOfFundController;
 use App\Http\Controllers\EmploymentStatusController;
 use App\Http\Controllers\ManageEmployeeController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PayrollController;
-use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PeraController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RataController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
@@ -62,6 +61,13 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware(['permission:employees.create'])->get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
     Route::middleware(['permission:employees.create'])->post('employees', [EmployeeController::class, 'store'])->name('employees.store');
 
+    // EMPLOYEE IMPORT (requires employees.create permission)
+    Route::middleware(['permission:employees.create'])->prefix('employees/import')->group(function () {
+        Route::get('/', [EmployeeImportController::class, 'create'])->name('employees.import.create');
+        Route::post('/', [EmployeeImportController::class, 'store'])->name('employees.import.store');
+        Route::get('/sample', [EmployeeImportController::class, 'downloadSample'])->name('employees.import.sample');
+    });
+
     // EMPLOYEE PRINT REPORT
     Route::get('employees/{employee}/print', [ManageEmployeeController::class, 'print'])->name('employees.print');
 
@@ -72,10 +78,12 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
     Route::middleware(['permission:employees.edit'])->put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::middleware(['permission:employees.delete'])->delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    Route::middleware(['permission:employees.edit'])->post('employees/{id}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
 
     // SUPPLIERS - Full CRUD (requires suppliers.manage permission)
     Route::middleware(['permission:suppliers.manage'])->prefix('suppliers')->group(function () {
         Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
+        Route::get('print', [SupplierController::class, 'print'])->name('suppliers.print');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
@@ -86,8 +94,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::put('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'update'])->name('suppliers.transactions.update');
         Route::delete('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'destroy'])->name('suppliers.transactions.destroy');
     });
-
-
 
     // PAYROLL - Export (requires payroll.export permission)
     Route::middleware(['permission:payroll.export'])->prefix('payroll')->group(function () {
@@ -206,5 +212,5 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware(['permission:source_of_fund_codes.delete'])->delete('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'destroy'])->name('source-of-fund-codes.destroy');
 });
 
-// require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

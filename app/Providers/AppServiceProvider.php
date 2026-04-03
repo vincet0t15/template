@@ -2,23 +2,29 @@
 
 namespace App\Providers;
 
+use App\Models\Claim;
+use App\Models\Employee;
+use App\Models\Salary;
+use App\Models\Supplier;
+use App\Policies\ClaimPolicy;
+use App\Policies\EmployeePolicy;
+use App\Policies\SalaryPolicy;
+use App\Policies\SupplierPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        Gate::policy(Employee::class, EmployeePolicy::class);
+        Gate::policy(Salary::class, SalaryPolicy::class);
+        Gate::policy(Claim::class, ClaimPolicy::class);
+        Gate::policy(Supplier::class, SupplierPolicy::class);
     }
 }

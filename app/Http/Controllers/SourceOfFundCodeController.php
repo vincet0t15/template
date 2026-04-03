@@ -25,7 +25,7 @@ class SourceOfFundCodeController extends Controller
             'sourceOfFundCodes' => $sourceOfFundCodes,
             'filters' => [
                 'search' => $search,
-            ]
+            ],
         ]);
     }
 
@@ -45,7 +45,7 @@ class SourceOfFundCodeController extends Controller
     public function update(Request $request, SourceOfFundCode $sourceOfFundCode)
     {
         $validated = $request->validate([
-            'code' => 'required|string|max:255|unique:source_of_fund_codes,code,' . $sourceOfFundCode->id,
+            'code' => 'required|string|max:255|unique:source_of_fund_codes,code,'.$sourceOfFundCode->id,
             'description' => 'nullable|string|max:255',
             'status' => 'boolean',
         ]);
@@ -57,6 +57,10 @@ class SourceOfFundCodeController extends Controller
 
     public function destroy(SourceOfFundCode $sourceOfFundCode)
     {
+        if ($sourceOfFundCode->salaries()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete source of fund code that has salary records.');
+        }
+
         $sourceOfFundCode->delete();
 
         return redirect()->back()->with('success', 'Source of fund code deleted successfully.');

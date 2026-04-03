@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -64,6 +63,14 @@ export default function Employees({ employees, offices, employmentStatuses, filt
         label: office.name,
     }));
 
+    const employmentStatusOptions = [
+        { value: 'all', label: 'All Status' },
+        ...employmentStatuses.map((status) => ({
+            value: status.id.toString(),
+            label: status.name,
+        })),
+    ];
+
     const handleOfficeChange = (value: string) => {
         const newOfficeId = value === '' ? '' : value;
         setData('office_id', newOfficeId);
@@ -105,19 +112,14 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                             />
                         </div>
 
-                        <Select value={data.employment_status_id || 'all'} onValueChange={handleEmploymentStatusChange}>
-                            <SelectTrigger className="w-[280px]">
-                                <SelectValue placeholder="All Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                {employmentStatuses.map((status) => (
-                                    <SelectItem key={status.id} value={status.id.toString()}>
-                                        {status.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-[280px]">
+                            <CustomComboBox
+                                items={employmentStatusOptions}
+                                placeholder="All Status"
+                                value={data.employment_status_id || 'all'}
+                                onSelect={(value) => handleEmploymentStatusChange(value ?? '')}
+                            />
+                        </div>
 
                         <div className="relative w-full sm:w-[450px]">
                             <Label htmlFor="search" className="sr-only">

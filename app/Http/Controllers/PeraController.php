@@ -98,6 +98,10 @@ class PeraController extends Controller
 
     public function destroy(Pera $pera)
     {
+        if ($pera->employee_id !== request()->route('employee')?->id && ! auth()->user()->can('peras.delete')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $pera->delete();
 
         return redirect()->back()->with('success', 'PERA record deleted successfully');

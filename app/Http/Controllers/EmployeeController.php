@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class EmployeeController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $officeId = $request->input('office_id');
@@ -19,8 +21,8 @@ class EmployeeController extends Controller
 
         $employees = Employee::query()
             ->when($search, function ($query) use ($search) {
-                $query->where('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%');
+                $query->where('first_name', 'like', '%'.$search.'%')
+                    ->orWhere('last_name', 'like', '%'.$search.'%');
             })
             ->when($officeId, function ($query) use ($officeId) {
                 $query->where('office_id', $officeId);
@@ -43,11 +45,11 @@ class EmployeeController extends Controller
                 'search' => $search,
                 'office_id' => $officeId,
                 'employment_status_id' => $employmentStatusId,
-            ]
+            ],
         ]);
     }
 
-    public function create()
+    public function create(): Response
     {
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
@@ -58,9 +60,8 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -89,11 +90,10 @@ class EmployeeController extends Controller
             'is_rata_eligible' => $validated['is_rata_eligible'] ?? false,
         ]);
 
-
         return redirect()->back()->with('success', 'Employee created successfully');
     }
 
-    public function show(Request $request, Employee $employee)
+    public function show(Request $request, Employee $employee): Response
     {
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
@@ -105,9 +105,8 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(Request $request, Employee $employee): RedirectResponse
     {
-
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -133,7 +132,7 @@ class EmployeeController extends Controller
         return redirect()->back()->with('success', 'Employee updated successfully');
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(Employee $employee): RedirectResponse
     {
         if ($employee->image_path) {
             Storage::disk('public')->delete($employee->image_path);
@@ -142,5 +141,13 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully');
+    }
+
+    public function restore(int $id): RedirectResponse
+    {
+        $employee = Employee::withTrashed()->findOrFail($id);
+        $employee->restore();
+
+        return redirect()->back()->with('success', 'Employee restored successfully');
     }
 }

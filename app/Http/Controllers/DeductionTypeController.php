@@ -25,7 +25,7 @@ class DeductionTypeController extends Controller
             'deductionTypes' => $deductionTypes,
             'filters' => [
                 'search' => $search,
-            ]
+            ],
         ]);
     }
 
@@ -47,7 +47,7 @@ class DeductionTypeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:deduction_types,code,' . $deductionType->id,
+            'code' => 'required|string|max:50|unique:deduction_types,code,'.$deductionType->id,
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -59,6 +59,10 @@ class DeductionTypeController extends Controller
 
     public function destroy(DeductionType $deductionType)
     {
+        if ($deductionType->employeeDeductions()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete deduction type that has existing employee deductions.');
+        }
+
         $deductionType->delete();
 
         return redirect()->back()->with('success', 'Deduction type deleted successfully');

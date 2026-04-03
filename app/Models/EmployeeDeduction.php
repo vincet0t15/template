@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
 class EmployeeDeduction extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'employee_id',
         'deduction_type_id',
@@ -23,17 +27,17 @@ class EmployeeDeduction extends Model
         'pay_period_year' => 'integer',
     ];
 
-    public function employee()
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
     }
 
-    public function deductionType()
+    public function deductionType(): BelongsTo
     {
         return $this->belongsTo(DeductionType::class);
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -42,7 +46,7 @@ class EmployeeDeduction extends Model
     {
         parent::boot();
 
-        self::creating(function ($deduction) {
+        static::creating(function ($deduction) {
             $deduction->created_by = Auth::id();
         });
     }

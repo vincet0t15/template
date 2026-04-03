@@ -12,6 +12,7 @@ use App\Models\Office;
 use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ManageEmployeeController extends Controller
@@ -46,11 +47,9 @@ class ManageEmployeeController extends Controller
             ->orderBy('pay_period_year', 'desc')
             ->orderBy('pay_period_month', 'desc');
 
-
         if ($filterMonth) {
             $periodsQuery->where('pay_period_month', $filterMonth);
         }
-
 
         if ($filterYear) {
             $periodsQuery->where('pay_period_year', $filterYear);
@@ -58,9 +57,8 @@ class ManageEmployeeController extends Controller
 
         $paginatedPeriods = $periodsQuery->paginate(50)->withQueryString();
 
-
         $periodsList = $paginatedPeriods->map(function ($p) {
-            return "{$p->pay_period_year}-" . str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
+            return "{$p->pay_period_year}-".str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->values()->toArray();
 
         $deductionsData = EmployeeDeduction::where('employee_id', $employee->id)
@@ -71,17 +69,15 @@ class ManageEmployeeController extends Controller
             ->orderBy('pay_period_month', 'desc')
             ->get();
 
-
         $groupedDeductions = $deductionsData->groupBy(function ($d) {
-            return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+            return "{$d->pay_period_year}-".str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->toArray();
-
 
         $takenPeriods = EmployeeDeduction::where('employee_id', $employee->id)
             ->selectRaw('DISTINCT pay_period_year, pay_period_month')
             ->get()
             ->map(function ($d) {
-                return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+                return "{$d->pay_period_year}-".str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
             })
             ->values()
             ->toArray();
@@ -96,7 +92,6 @@ class ManageEmployeeController extends Controller
         $offices = Office::all();
         $deductionTypes = DeductionType::active()->get();
         $sourceOfFundCodes = SourceOfFundCode::where('status', true)->orderBy('code')->get();
-
 
         $claimMonth = $request->input('claim_month');
         $claimYear = $request->input('claim_year');
@@ -188,26 +183,28 @@ class ManageEmployeeController extends Controller
             'deductions.*.amount' => 'nullable|numeric|min:0',
         ]);
 
-        foreach ($validated['deductions'] as $deduction) {
-            $amount = $deduction['amount'] ?? null;
+        DB::transaction(function () use ($validated, $employee) {
+            foreach ($validated['deductions'] as $deduction) {
+                $amount = $deduction['amount'] ?? null;
 
-            if ($amount === null || $amount === '') {
-                continue;
+                if ($amount === null || $amount === '') {
+                    continue;
+                }
+
+                EmployeeDeduction::updateOrCreate(
+                    [
+                        'employee_id' => $employee->id,
+                        'deduction_type_id' => $deduction['deduction_type_id'],
+                        'pay_period_month' => $validated['pay_period_month'],
+                        'pay_period_year' => $validated['pay_period_year'],
+                    ],
+                    [
+                        'amount' => $deduction['amount'],
+                        'created_by' => Auth::id(),
+                    ]
+                );
             }
-
-            EmployeeDeduction::updateOrCreate(
-                [
-                    'employee_id' => $employee->id,
-                    'deduction_type_id' => $deduction['deduction_type_id'],
-                    'pay_period_month' => $validated['pay_period_month'],
-                    'pay_period_year' => $validated['pay_period_year'],
-                ],
-                [
-                    'amount' => $deduction['amount'],
-                    'created_by' => Auth::id(),
-                ]
-            );
-        }
+        });
 
         return redirect()->back()->with('success', 'Deductions saved successfully');
     }

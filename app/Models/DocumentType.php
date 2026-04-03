@@ -31,7 +31,7 @@ class DocumentType extends Model
     {
         parent::boot();
 
-        self::creating(function ($documentType) {
+        static::creating(function ($documentType) {
             $documentType->created_by = Auth::id();
         });
     }

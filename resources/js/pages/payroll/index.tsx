@@ -4,7 +4,6 @@ import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -69,6 +68,11 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
         label: s.name,
     }));
 
+    const monthOptions = MONTHS.map((m) => ({
+        value: m.value.toString(),
+        label: m.label,
+    }));
+
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
         if (filterData.month) queryString.month = filterData.month;
@@ -103,18 +107,14 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                         {/* Month */}
-                        <Select value={filterData.month.toString()} onValueChange={(value) => setFilterData('month', parseInt(value))}>
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map((month) => (
-                                    <SelectItem key={month.value} value={month.value.toString()}>
-                                        {month.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-[160px]">
+                            <CustomComboBox
+                                items={monthOptions}
+                                placeholder="Select Month"
+                                value={filterData.month.toString()}
+                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : '')}
+                            />
+                        </div>
 
                         {/* Year */}
                         <Input

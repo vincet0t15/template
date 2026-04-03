@@ -99,6 +99,10 @@ class RataController extends Controller
 
     public function destroy(Rata $rata)
     {
+        if (! auth()->user()->can('ratas.delete')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $rata->delete();
 
         return redirect()->back()->with('success', 'RATA record deleted successfully');

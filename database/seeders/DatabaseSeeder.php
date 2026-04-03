@@ -6,7 +6,6 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,10 +17,11 @@ class DatabaseSeeder extends Seeder
         // Seed roles and permissions first
         $this->call(RoleSeeder::class);
 
+        $password = env('ADMIN_DEFAULT_PASSWORD', 'ChangeMe!@2026Secure');
         $adminUser = User::factory()->create([
             'name' => 'Zyrus Vince B. Famini',
             'username' => 'admin',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make($password),
             'is_active' => true,
         ]);
 

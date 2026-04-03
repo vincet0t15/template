@@ -24,9 +24,9 @@ class DashboardController extends Controller
         $year = $request->input('year');
 
         // Use defaults only if both are provided
-        $useFilters = !empty($month) && !empty($year);
+        $useFilters = ! empty($month) && ! empty($year);
 
-        if (!$useFilters) {
+        if (! $useFilters) {
             $month = now()->month;
             $year = now()->year;
         }
@@ -108,10 +108,10 @@ class DashboardController extends Controller
         $totalClaims = $claimsQuery->count();
         $totalClaimsAmount = $claimsQuery->sum('amount');
 
-        // Compensation totals
-        $totalSalaries = Salary::sum('amount');
-        $totalPera = Pera::sum('amount');
-        $totalRata = Rata::sum('amount');
+        // Compensation totals (current year only)
+        $totalSalaries = Salary::whereYear('effective_date', $currentYear)->sum('amount');
+        $totalPera = Pera::whereYear('effective_date', $currentYear)->sum('amount');
+        $totalRata = Rata::whereYear('effective_date', $currentYear)->sum('amount');
 
         // Source of Fund breakdown for selected month/year (or all if no filter)
         $allSourceOfFundCodes = SourceOfFundCode::where('status', true)
@@ -193,55 +193,6 @@ class DashboardController extends Controller
                 'monthName' => now()->format('F'),
             ],
             'recentActivity' => $recentActivity,
-        ]);
-    }
-
-    public function employeesBySourceOfFund($sourceOfFundCodeId, Request $request)
-    {
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
-
-        // Get the source of fund code
-        $sourceOfFundCode = SourceOfFundCode::findOrFail($sourceOfFundCodeId);
-
-        // Get employees who have salaries from this source of fund in the selected period
-        $employeeIds = Salary::whereYear('effective_date', $year)
-            ->when($month, function ($query) use ($month) {
-                $query->whereMonth('effective_date', $month);
-            })
-            ->where('source_of_fund_code_id', $sourceOfFundCodeId)
-            ->pluck('employee_id');
-
-        $employees = Employee::whereIn('id', $employeeIds)
-            ->with(['office', 'employmentStatus', 'latestSalary'])
-            ->orderBy('last_name', 'asc')
-            ->get();
-
-        return response()->json([
-            'sourceOfFundCode' => [
-                'code' => $sourceOfFundCode->code,
-                'description' => $sourceOfFundCode->description,
-            ],
-            'employees' => $employees->map(function ($employee) {
-                return [
-                    'id' => $employee->id,
-                    'first_name' => $employee->first_name,
-                    'middle_name' => $employee->middle_name,
-                    'last_name' => $employee->last_name,
-                    'suffix' => $employee->suffix,
-                    'position' => $employee->position,
-                    'office' => $employee->office ? [
-                        'name' => $employee->office->name,
-                    ] : null,
-                    'employment_status' => $employee->employmentStatus ? [
-                        'name' => $employee->employmentStatus->name,
-                    ] : null,
-                    'latest_salary' => $employee->latestSalary ? [
-                        'amount' => (float) $employee->latestSalary->amount,
-                    ] : null,
-                ];
-            }),
-            'total_count' => $employees->count(),
         ]);
     }
 }

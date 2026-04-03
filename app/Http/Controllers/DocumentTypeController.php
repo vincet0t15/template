@@ -48,7 +48,7 @@ class DocumentTypeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:document_types,code,' . $documentType->id,
+            'code' => 'required|string|max:50|unique:document_types,code,'.$documentType->id,
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ]);

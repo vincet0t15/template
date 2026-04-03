@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Employee extends Model
 {
-    use SoftDeletes;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'first_name',
@@ -21,44 +25,44 @@ class Employee extends Model
         'employment_status_id',
         'office_id',
         'created_by',
-        'image_path'
+        'image_path',
     ];
 
     protected $casts = [
         'is_rata_eligible' => 'boolean',
     ];
 
-    public function employmentStatus()
+    public function employmentStatus(): BelongsTo
     {
         return $this->belongsTo(EmploymentStatus::class);
     }
 
-    public function office()
+    public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class);
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function salaries()
+    public function salaries(): HasMany
     {
         return $this->hasMany(Salary::class);
     }
 
-    public function peras()
+    public function peras(): HasMany
     {
         return $this->hasMany(Pera::class);
     }
 
-    public function ratas()
+    public function ratas(): HasMany
     {
         return $this->hasMany(Rata::class);
     }
 
-    public function deductions()
+    public function deductions(): HasMany
     {
         return $this->hasMany(EmployeeDeduction::class);
     }
@@ -66,7 +70,7 @@ class Employee extends Model
     /**
      * Get the latest salary record
      */
-    public function latestSalary()
+    public function latestSalary(): HasOne
     {
         return $this->hasOne(Salary::class)->latestOfMany('effective_date');
     }
@@ -74,7 +78,7 @@ class Employee extends Model
     /**
      * Get the latest PERA record
      */
-    public function latestPera()
+    public function latestPera(): HasOne
     {
         return $this->hasOne(Pera::class)->latestOfMany('effective_date');
     }
@@ -82,7 +86,7 @@ class Employee extends Model
     /**
      * Get the latest RATA record
      */
-    public function latestRata()
+    public function latestRata(): HasOne
     {
         return $this->hasOne(Rata::class)->latestOfMany('effective_date');
     }
@@ -91,7 +95,7 @@ class Employee extends Model
     {
         parent::boot();
 
-        self::creating(function ($employee) {
+        static::creating(function ($employee) {
             $employee->created_by = Auth::id();
         });
     }

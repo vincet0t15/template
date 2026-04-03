@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class Office extends Model
 {
-    use SoftDeletes;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -16,12 +19,12 @@ class Office extends Model
         'created_by',
     ];
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function employees()
+    public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
     }
@@ -30,8 +33,8 @@ class Office extends Model
     {
         parent::boot();
 
-        self::creating(function ($office) {
-            $office->created_by = Auth::user()->id;
+        static::creating(function ($office) {
+            $office->created_by = Auth::id();
         });
     }
 }

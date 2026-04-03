@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class EmploymentStatus extends Model
 {
-    use SoftDeletes;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'name',
         'created_by',
     ];
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -24,7 +26,7 @@ class EmploymentStatus extends Model
     {
         parent::boot();
 
-        self::creating(function ($employmentStatus) {
+        static::creating(function ($employmentStatus) {
             $employmentStatus->created_by = Auth::id();
         });
     }

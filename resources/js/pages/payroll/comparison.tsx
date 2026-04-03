@@ -3,7 +3,6 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -105,6 +104,8 @@ export default function Comparison({ employees, offices, employmentStatuses, fil
         value: s.id.toString(),
         label: s.name,
     }));
+
+    const monthOptions = MONTHS.map((m) => ({ value: m.value.toString(), label: m.label }));
 
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
@@ -243,21 +244,14 @@ export default function Comparison({ employees, offices, employmentStatuses, fil
                 <div className="flex w-full flex-col gap-4">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-medium">Period 1:</span>
-                        <Select
-                            value={filterData.period1_month.toString()}
-                            onValueChange={(value) => setFilterData('period1_month', parseInt(value))}
-                        >
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map((month) => (
-                                    <SelectItem key={month.value} value={month.value.toString()}>
-                                        {month.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-[160px]">
+                            <CustomComboBox
+                                items={monthOptions}
+                                placeholder="Select Month"
+                                value={filterData.period1_month.toString()}
+                                onSelect={(value) => setFilterData('period1_month', value ? parseInt(value) : '')}
+                            />
+                        </div>
                         <Input
                             type="number"
                             className="w-[100px]"
@@ -268,21 +262,14 @@ export default function Comparison({ employees, offices, employmentStatuses, fil
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-medium">Period 2:</span>
-                        <Select
-                            value={filterData.period2_month.toString()}
-                            onValueChange={(value) => setFilterData('period2_month', parseInt(value))}
-                        >
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map((month) => (
-                                    <SelectItem key={month.value} value={month.value.toString()}>
-                                        {month.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-[160px]">
+                            <CustomComboBox
+                                items={monthOptions}
+                                placeholder="Select Month"
+                                value={filterData.period2_month.toString()}
+                                onSelect={(value) => setFilterData('period2_month', value ? parseInt(value) : '')}
+                            />
+                        </div>
                         <Input
                             type="number"
                             className="w-[100px]"

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Models\EmploymentStatus;
 use App\Models\Office;
 use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class EmployeeSourceOfFundController extends Controller
 
         // Get employees with their compensation and source of fund
         $employeesQuery = Employee::query()
-            ->with(['employmentStatus', 'office'])
+            ->with(['employmentStatus', 'office', 'salaries', 'peras', 'ratas'])
             ->when($officeId, function ($query, $officeId) {
                 $query->where('office_id', $officeId);
             })
@@ -49,46 +48,31 @@ class EmployeeSourceOfFundController extends Controller
 
         $employees = $employeesQuery->paginate(50)->withQueryString();
 
-        // Load compensation with source of fund for the selected period
-        $employees->getCollection()->transform(function ($employee) use ($year, $month) {
-            // Get compensation for the selected period
-            $salaryQuery = $employee->salaries()
-                ->whereYear('effective_date', '<=', $year);
+        $periodEnd = $month ? now()->setDate($year, $month, 1)->endOfMonth() : now()->setDate($year, 12, 31);
 
-            if ($month) {
-                $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
-                $salaryQuery->where('effective_date', '<=', $periodEnd);
-            }
+        $employees->getCollection()->transform(function ($employee) use ($periodEnd) {
+            $salary = $employee->salaries
+                ->where('effective_date', '<=', $periodEnd)
+                ->sortByDesc('effective_date')
+                ->first();
 
-            $salary = $salaryQuery->orderBy('effective_date', 'desc')->first();
+            $pera = $employee->peras
+                ->where('effective_date', '<=', $periodEnd)
+                ->sortByDesc('effective_date')
+                ->first();
 
-            $peraQuery = $employee->peras()
-                ->whereYear('effective_date', '<=', $year);
+            $rata = $employee->is_rata_eligible
+                ? $employee->ratas
+                    ->where('effective_date', '<=', $periodEnd)
+                    ->sortByDesc('effective_date')
+                    ->first()
+                : null;
 
-            if ($month) {
-                $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
-                $peraQuery->where('effective_date', '<=', $periodEnd);
-            }
-
-            $pera = $peraQuery->orderBy('effective_date', 'desc')->first();
-
-            $rataQuery = $employee->ratas()
-                ->whereYear('effective_date', '<=', $year);
-
-            if ($month) {
-                $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
-                $rataQuery->where('effective_date', '<=', $periodEnd);
-            }
-
-            $rata = $employee->is_rata_eligible ? $rataQuery->orderBy('effective_date', 'desc')->first() : null;
-
-            // Calculate totals per source of fund (salary only)
             $fundingSources = [];
 
-            // Group salary by source of fund
             if ($salary) {
                 $fundCode = $salary->sourceOfFundCode?->code ?? 'Unfunded';
-                if (!isset($fundingSources[$fundCode])) {
+                if (! isset($fundingSources[$fundCode])) {
                     $fundingSources[$fundCode] = [
                         'salary' => 0,
                         'pera' => 0,
@@ -96,13 +80,12 @@ class EmployeeSourceOfFundController extends Controller
                         'total' => 0,
                     ];
                 }
-                $fundingSources[$fundCode]['salary'] += (float)$salary->amount;
-                $fundingSources[$fundCode]['total'] += (float)$salary->amount;
+                $fundingSources[$fundCode]['salary'] += (float) $salary->amount;
+                $fundingSources[$fundCode]['total'] += (float) $salary->amount;
             }
 
-            // PERA and RATA are not funded - they're just added to total
             if ($pera) {
-                if (!isset($fundingSources['Unfunded'])) {
+                if (! isset($fundingSources['Unfunded'])) {
                     $fundingSources['Unfunded'] = [
                         'salary' => 0,
                         'pera' => 0,
@@ -110,13 +93,12 @@ class EmployeeSourceOfFundController extends Controller
                         'total' => 0,
                     ];
                 }
-                $fundingSources['Unfunded']['pera'] += (float)$pera->amount;
-                $fundingSources['Unfunded']['total'] += (float)$pera->amount;
+                $fundingSources['Unfunded']['pera'] += (float) $pera->amount;
+                $fundingSources['Unfunded']['total'] += (float) $pera->amount;
             }
 
-            // Group RATA by source of fund
             if ($rata) {
-                if (!isset($fundingSources['Unfunded'])) {
+                if (! isset($fundingSources['Unfunded'])) {
                     $fundingSources['Unfunded'] = [
                         'salary' => 0,
                         'pera' => 0,
@@ -124,8 +106,8 @@ class EmployeeSourceOfFundController extends Controller
                         'total' => 0,
                     ];
                 }
-                $fundingSources['Unfunded']['rata'] += (float)$rata->amount;
-                $fundingSources['Unfunded']['total'] += (float)$rata->amount;
+                $fundingSources['Unfunded']['rata'] += (float) $rata->amount;
+                $fundingSources['Unfunded']['total'] += (float) $rata->amount;
             }
 
             $employee->funding_sources = $fundingSources;
@@ -143,7 +125,7 @@ class EmployeeSourceOfFundController extends Controller
 
         foreach ($employees as $employee) {
             foreach ($employee->funding_sources as $fundCode => $amounts) {
-                if (!isset($summary['by_fund'][$fundCode])) {
+                if (! isset($summary['by_fund'][$fundCode])) {
                     $summary['by_fund'][$fundCode] = [
                         'count' => 0,
                         'total' => 0,
@@ -159,8 +141,8 @@ class EmployeeSourceOfFundController extends Controller
             'sourceOfFundCodes' => $sourceOfFundCodes,
             'offices' => $offices,
             'filters' => [
-                'year' => (int)$year,
-                'month' => $month ? (int)$month : null,
+                'year' => (int) $year,
+                'month' => $month ? (int) $month : null,
                 'office_id' => $officeId,
                 'source_of_fund_code_id' => $sourceOfFundCodeId,
             ],

@@ -12,12 +12,24 @@ class SupplierController extends Controller
     /**
      * Display a listing of suppliers.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $suppliers = Supplier::orderBy('name')->get();
+        $search = $request->input('search');
+
+        $suppliers = Supplier::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('suppliers/index', [
             'suppliers' => $suppliers,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
@@ -67,5 +79,28 @@ class SupplierController extends Controller
         $supplier->delete();
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
+    }
+
+    /**
+     * Print supplier list.
+     */
+    public function print(Request $request): Response
+    {
+        $search = $request->input('search');
+
+        $suppliers = Supplier::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('suppliers/print', [
+            'suppliers' => $suppliers,
+            'filters' => [
+                'search' => $search,
+            ],
+        ]);
     }
 }

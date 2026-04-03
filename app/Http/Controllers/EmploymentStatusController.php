@@ -28,28 +28,32 @@ class EmploymentStatusController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:employment_statuses,name',
         ]);
 
-        EmploymentStatus::create($request->all());
+        EmploymentStatus::create(['name' => $validated['name']]);
 
         return redirect()->back()->with('success', 'Employment Status created successfully.');
     }
 
     public function update(Request $request, EmploymentStatus $employmentStatus)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:employment_statuses,name,' . $employmentStatus->id,
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:employment_statuses,name,'.$employmentStatus->id,
         ]);
 
-        $employmentStatus->update($request->all());
+        $employmentStatus->update(['name' => $validated['name']]);
 
         return redirect()->back()->with('success', 'Employment Status updated successfully.');
     }
 
     public function destroy(EmploymentStatus $employmentStatus)
     {
+        if ($employmentStatus->employees()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete employment status that has employees assigned.');
+        }
+
         $employmentStatus->delete();
 
         return redirect()->back()->with('success', 'Employment Status deleted successfully.');

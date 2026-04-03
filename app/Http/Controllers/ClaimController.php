@@ -90,6 +90,10 @@ class ClaimController extends Controller
 
     public function destroy(Employee $employee, Claim $claim)
     {
+        if ($claim->employee_id !== $employee->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $claim->delete();
 
         return redirect()->back()->with('success', 'Claim deleted successfully');

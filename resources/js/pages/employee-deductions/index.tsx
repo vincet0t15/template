@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
@@ -99,6 +98,8 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
 
     const officeOptions = offices.map((o) => ({ value: o.id.toString(), label: o.name }));
     const employmentStatusOptions = employmentStatuses.map((s) => ({ value: s.id.toString(), label: s.name }));
+    const monthOptions = MONTHS.map((m) => ({ value: m.value.toString(), label: m.label }));
+    const deductionTypeOptions = deductionTypes.map((t) => ({ value: t.id.toString(), label: t.name }));
 
     const handleFilterChange = () => {
         const queryString: Record<string, string | number> = {};
@@ -166,18 +167,14 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
 
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Select value={filterData.month.toString()} onValueChange={(value) => setFilterData('month', parseInt(value))}>
-                            <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map((month) => (
-                                    <SelectItem key={month.value} value={month.value.toString()}>
-                                        {month.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-[160px]">
+                            <CustomComboBox
+                                items={monthOptions}
+                                placeholder="Select Month"
+                                value={filterData.month.toString()}
+                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : '')}
+                            />
+                        </div>
 
                         <Input
                             type="number"
@@ -325,21 +322,12 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="deduction_type">Deduction Type</Label>
-                                <Select
+                                <CustomComboBox
+                                    items={deductionTypeOptions}
+                                    placeholder="Select deduction type"
                                     value={addData.deduction_type_id.toString()}
-                                    onValueChange={(value) => setAddData('deduction_type_id', parseInt(value))}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select deduction type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {deductionTypes.map((type) => (
-                                            <SelectItem key={type.id} value={type.id.toString()}>
-                                                {type.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    onSelect={(value) => setAddData('deduction_type_id', value ? parseInt(value) : 0)}
+                                />
                                 {errors.deduction_type_id && <p className="text-destructive text-sm">{errors.deduction_type_id}</p>}
                             </div>
                             <div className="grid gap-2">

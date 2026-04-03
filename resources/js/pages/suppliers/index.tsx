@@ -1,26 +1,49 @@
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { Supplier } from '@/types/supplier';
-import { Head, Link } from '@inertiajs/react';
-import { PlusIcon } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { PlusIcon, Printer, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { CreateSupplierDialog } from './create-dialog';
 import { DeleteSupplierDialog } from './delete-dialog';
 import { EditSupplierDialog } from './edit-dialog';
 
-interface Props {
-    suppliers: Supplier[];
+interface PaginatedSuppliers {
+    data: Supplier[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
 }
 
-export default function Suppliers({ suppliers }: Props) {
+interface Props {
+    suppliers: PaginatedSuppliers;
+    filters: {
+        search: string;
+    };
+}
+
+export default function Suppliers({ suppliers, filters }: Props) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
     const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(null);
+    const [search, setSearch] = useState(filters.search || '');
 
     const breadcrumbs = [{ title: 'Suppliers', href: '/suppliers' }];
+
+    const handleSearch = () => {
+        router.get(route('suppliers.index'), { search: search || undefined }, { preserveState: true, preserveScroll: true });
+    };
+
+    const handlePage = (page: number) => {
+        router.get(route('suppliers.index'), { search: filters.search || undefined, page }, { preserveState: true, preserveScroll: true });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -32,9 +55,29 @@ export default function Suppliers({ suppliers }: Props) {
                     description="Manage all suppliers, with options to view, edit, or delete records and track their supplier statuses."
                 />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <SearchIcon className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+                            <Input
+                                type="text"
+                                placeholder="Search suppliers..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                className="w-64 pl-8"
+                            />
+                        </div>
+                        <Button variant="outline" onClick={handleSearch}>
+                            Search
+                        </Button>
+                    </div>
                     <Button onClick={() => setIsCreateOpen(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Add Supplier
+                    </Button>
+                    <Button variant="outline" onClick={() => router.get(route('suppliers.print'))}>
+                        <Printer className="h-4 w-4" />
+                        Print
                     </Button>
                 </div>
 
@@ -52,14 +95,14 @@ export default function Suppliers({ suppliers }: Props) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {suppliers.length === 0 ? (
+                            {suppliers.data.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={7} className="text-muted-foreground py-8 text-center">
                                         No suppliers found. Click "Add Supplier" to create one.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                suppliers.map((supplier) => (
+                                suppliers.data.map((supplier) => (
                                     <TableRow key={supplier.id}>
                                         <TableCell className="font-medium">
                                             <Link
@@ -101,6 +144,26 @@ export default function Suppliers({ suppliers }: Props) {
                         </TableBody>
                     </Table>
                 </div>
+
+                {suppliers.last_page > 1 && (
+                    <div className="flex items-center justify-between">
+                        <p className="text-muted-foreground text-sm">
+                            Showing {suppliers.from} to {suppliers.to} of {suppliers.total} results
+                        </p>
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: suppliers.last_page }, (_, i) => i + 1).map((page) => (
+                                <Button
+                                    key={page}
+                                    variant={page === suppliers.current_page ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handlePage(page)}
+                                >
+                                    {page}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <CreateSupplierDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />

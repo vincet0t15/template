@@ -7,40 +7,20 @@ use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\EmploymentStatus;
 use App\Models\Office;
+use App\Services\PayrollService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class EmployeeDeductionController extends Controller
 {
-    /**
-     * Get the effective amount for a specific period from history
-     */
-    private function getEffectiveAmount($history, int $year, int $month): float
-    {
-        if ($history->isEmpty()) {
-            return 0;
-        }
+    public function __construct(
+        protected PayrollService $payrollService
+    ) {}
 
-        // Create date for end of the period (last day of month)
-        $periodEnd = now()->setDate($year, $month, 1)->endOfMonth();
-
-        // Sort by effective_date descending and find the most recent record
-        // that was effective before or during this period
-        $effectiveRecord = $history
-            ->sortByDesc('effective_date')
-            ->first(function ($record) use ($periodEnd) {
-                return $record->effective_date <= $periodEnd;
-            });
-
-        // If no record found before period end, use the oldest one
-        if (!$effectiveRecord) {
-            $effectiveRecord = $history->sortBy('effective_date')->first();
-        }
-
-        return (float) ($effectiveRecord?->amount ?? 0);
-    }
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
@@ -62,17 +42,14 @@ class EmployeeDeductionController extends Controller
                 $query->where('employment_status_id', $employmentStatusId);
             })
             ->with(['salaries' => function ($query) use ($year, $month) {
-                // Load all salaries effective before or during the selected period
                 $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
             ->with(['peras' => function ($query) use ($year, $month) {
-                // Load all PERAs effective before or during the selected period
                 $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
             ->with(['ratas' => function ($query) use ($year, $month) {
-                // Load all RATAs effective before or during the selected period
                 $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
@@ -85,13 +62,11 @@ class EmployeeDeductionController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        // Transform employees to include computed values using historical data
         $employees->getCollection()->transform(function ($employee) use ($month, $year) {
-            // Get effective compensation for the selected period
-            $employee->current_salary = $this->getEffectiveAmount($employee->salaries, $year, $month);
-            $employee->current_pera = $this->getEffectiveAmount($employee->peras, $year, $month);
+            $employee->current_salary = $this->payrollService->getEffectiveAmount($employee->salaries, $year, $month);
+            $employee->current_pera = $this->payrollService->getEffectiveAmount($employee->peras, $year, $month);
             $employee->current_rata = $employee->is_rata_eligible
-                ? $this->getEffectiveAmount($employee->ratas, $year, $month)
+                ? $this->payrollService->getEffectiveAmount($employee->ratas, $year, $month)
                 : 0;
 
             return $employee;
@@ -116,7 +91,7 @@ class EmployeeDeductionController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
@@ -127,7 +102,6 @@ class EmployeeDeductionController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Check for duplicate
         $exists = EmployeeDeduction::where('employee_id', $validated['employee_id'])
             ->where('deduction_type_id', $validated['deduction_type_id'])
             ->where('pay_period_month', $validated['pay_period_month'])
@@ -151,7 +125,7 @@ class EmployeeDeductionController extends Controller
         return redirect()->back()->with('success', 'Deduction added successfully');
     }
 
-    public function update(Request $request, EmployeeDeduction $employeeDeduction)
+    public function update(Request $request, EmployeeDeduction $employeeDeduction): RedirectResponse
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
@@ -163,8 +137,12 @@ class EmployeeDeductionController extends Controller
         return redirect()->back()->with('success', 'Deduction updated successfully');
     }
 
-    public function destroy(EmployeeDeduction $employeeDeduction)
+    public function destroy(EmployeeDeduction $employeeDeduction): RedirectResponse
     {
+        if (! auth()->user()->can('deductions.manage')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $employeeDeduction->delete();
 
         return redirect()->back()->with('success', 'Deduction deleted successfully');
