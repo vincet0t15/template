@@ -99,4 +99,15 @@ class SupplierTransactionController extends Controller
         return redirect()->route('suppliers.transactions.show', $supplier)
             ->with('success', 'Transaction deleted successfully.');
     }
+
+    /**
+     * Print a single transaction as invoice.
+     */
+    public function print(Supplier $supplier, SupplierTransaction $transaction): Response
+    {
+        return Inertia::render('suppliers/print-transaction', [
+            'supplier' => $supplier,
+            'transaction' => $transaction,
+        ]);
+    }
 }

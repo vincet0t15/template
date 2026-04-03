@@ -89,6 +89,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         // Supplier Transactions
         Route::get('{supplier}/transactions', [SupplierTransactionController::class, 'show'])->name('suppliers.transactions.show');
+        Route::get('{supplier}/transactions/{transaction}/print', [SupplierTransactionController::class, 'print'])->name('suppliers.transactions.print');
         Route::post('{supplier}/transactions', [SupplierTransactionController::class, 'store'])->name('suppliers.transactions.store');
         Route::put('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'update'])->name('suppliers.transactions.update');
         Route::delete('{supplier}/transactions/{transaction}', [SupplierTransactionController::class, 'destroy'])->name('suppliers.transactions.destroy');
