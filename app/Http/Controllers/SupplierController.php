@@ -80,27 +80,4 @@ class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
     }
-
-    /**
-     * Print supplier list.
-     */
-    public function print(Request $request): Response
-    {
-        $search = $request->input('search');
-
-        $suppliers = Supplier::query()
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->orderBy('name')
-            ->get();
-
-        return Inertia::render('suppliers/print', [
-            'suppliers' => $suppliers,
-            'filters' => [
-                'search' => $search,
-            ],
-        ]);
-    }
 }

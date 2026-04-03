@@ -7,7 +7,7 @@ import { PaginatedDataResponse } from '@/types/pagination';
 import { Supplier, SupplierTransaction } from '@/types/supplier';
 import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Edit, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { CreateTransactionDialog } from './create-transaction-dialog';
 import { DeleteTransactionDialog } from './delete-transaction-dialog';
@@ -161,23 +161,19 @@ export default function SupplierShow({ supplier, transactions }: Props) {
                                                 <div className="text-muted-foreground text-xs">{txn.remarks || '-'}</div>
                                             </TableCell>
                                             <TableCell className="px-3 py-2">
-                                                <div className="flex items-center gap-0.5">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7 text-blue-500 hover:text-blue-600"
+                                                <div className="flex items-center gap-2">
+                                                    <span
                                                         onClick={() => setEditingTransaction(txn)}
+                                                        className="cursor-pointer text-teal-600 hover:underline"
                                                     >
-                                                        <Edit className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7 text-red-500 hover:text-red-600"
+                                                        Edit
+                                                    </span>
+                                                    <span
                                                         onClick={() => setDeletingTransaction(txn)}
+                                                        className="cursor-pointer text-orange-600 hover:underline"
                                                     >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </Button>
+                                                        Delete
+                                                    </span>
                                                 </div>
                                             </TableCell>
                                         </TableRow>

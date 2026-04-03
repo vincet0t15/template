@@ -83,7 +83,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     // SUPPLIERS - Full CRUD (requires suppliers.manage permission)
     Route::middleware(['permission:suppliers.manage'])->prefix('suppliers')->group(function () {
         Route::get('/', [SupplierController::class, 'index'])->name('suppliers.index');
-        Route::get('print', [SupplierController::class, 'print'])->name('suppliers.print');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::put('{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');

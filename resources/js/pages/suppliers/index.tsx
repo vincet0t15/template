@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Supplier } from '@/types/supplier';
 import { Head, Link, router } from '@inertiajs/react';
-import { PlusIcon, Printer, SearchIcon } from 'lucide-react';
+import { PlusIcon, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 import { CreateSupplierDialog } from './create-dialog';
 import { DeleteSupplierDialog } from './delete-dialog';
@@ -75,10 +75,6 @@ export default function Suppliers({ suppliers, filters }: Props) {
                         <PlusIcon className="h-4 w-4" />
                         Add Supplier
                     </Button>
-                    <Button variant="outline" onClick={() => router.get(route('suppliers.print'))}>
-                        <Printer className="h-4 w-4" />
-                        Print
-                    </Button>
                 </div>
 
                 <div className="w-full overflow-hidden rounded-sm border shadow-sm">
@@ -121,22 +117,19 @@ export default function Suppliers({ suppliers, filters }: Props) {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground max-w-xs truncate">{supplier.remarks || '-'}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <span
-                                                    className="cursor-pointer text-teal-800 hover:underline"
-                                                    onClick={() => setEditingSupplier(supplier)}
-                                                >
-                                                    Edit
-                                                </span>
-
-                                                <span
-                                                    className="cursor-pointer text-red-500 hover:underline"
-                                                    onClick={() => setDeletingSupplier(supplier)}
-                                                >
-                                                    Delete
-                                                </span>
-                                            </div>
+                                        <TableCell className="flex gap-2">
+                                            <span
+                                                onClick={() => setEditingSupplier(supplier)}
+                                                className="cursor-pointer text-teal-600 hover:underline"
+                                            >
+                                                Edit
+                                            </span>
+                                            <span
+                                                onClick={() => setDeletingSupplier(supplier)}
+                                                className="cursor-pointer text-orange-600 hover:underline"
+                                            >
+                                                Delete
+                                            </span>
                                         </TableCell>
                                     </TableRow>
                                 ))
