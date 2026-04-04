@@ -1,3 +1,4 @@
+import { DatePicker } from '@/components/custom-date-picker';
 import Heading from '@/components/heading';
 import {
     AlertDialog,
@@ -12,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
@@ -37,12 +39,20 @@ interface Backup {
     path: string;
 }
 
+interface Pagination {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+}
+
 interface BackupProps {
     backups: Backup[];
+    pagination: Pagination;
     databaseName: string;
 }
 
-export default function Backup({ backups, databaseName }: BackupProps) {
+export default function Backup({ backups, pagination, databaseName }: BackupProps) {
     const { flash } = usePage<{ flash?: { success?: string; error?: string } }>().props;
     const [showRestoreDialog, setShowRestoreDialog] = useState(false);
     const [selectedBackup, setSelectedBackup] = useState<string | null>(null);
@@ -50,6 +60,11 @@ export default function Backup({ backups, databaseName }: BackupProps) {
     const [showCreateConfirm, setShowCreateConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+
+    const [filters, setFilters] = useState({
+        start_date: '',
+        end_date: '',
+    });
 
     const createForm = useForm({});
     const restoreForm = useForm({ file_name: '' });
@@ -191,10 +206,48 @@ export default function Backup({ backups, databaseName }: BackupProps) {
                             Available Backups
                         </CardTitle>
                         <CardDescription>
-                            {backups.length} backup{backups.length !== 1 ? 's' : ''} found
+                            {pagination.total} backup{pagination.total !== 1 ? 's' : ''} found
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
+                        {/* Filters */}
+                        <div className="mb-4 flex flex-wrap items-end gap-4">
+                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor="start_date">Start Date</Label>
+                                <DatePicker
+                                    id="start_date"
+                                    value={filters.start_date}
+                                    onChange={(value) => setFilters({ ...filters, start_date: value })}
+                                />
+                            </div>
+                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor="end_date">End Date</Label>
+                                <DatePicker
+                                    id="end_date"
+                                    value={filters.end_date}
+                                    onChange={(value) => setFilters({ ...filters, end_date: value })}
+                                />
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setFilters({ start_date: '', end_date: '' });
+                                        router.get(route('settings.backup.index'), {}, { preserveState: true, preserveScroll: true });
+                                    }}
+                                >
+                                    Clear
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        router.get(route('settings.backup.index'), { ...filters }, { preserveState: true, preserveScroll: true });
+                                    }}
+                                >
+                                    Filter
+                                </Button>
+                            </div>
+                        </div>
+
                         {backups.length === 0 ? (
                             <div className="py-8 text-center">
                                 <Database className="mx-auto mb-3 h-12 w-12 text-slate-400" />
@@ -202,46 +255,87 @@ export default function Backup({ backups, databaseName }: BackupProps) {
                                 <p className="mt-1 text-xs text-slate-400">Create your first backup using the button above</p>
                             </div>
                         ) : (
-                            <div className="space-y-3">
-                                {backups.map((backup) => (
-                                    <div
-                                        key={backup.name}
-                                        className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
-                                    >
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate font-medium">{backup.name}</p>
-                                            <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
-                                                <span>{backup.size}</span>
-                                                <span>•</span>
-                                                <span>{backup.date}</span>
+                            <>
+                                <div className="space-y-3">
+                                    {backups.map((backup) => (
+                                        <div
+                                            key={backup.name}
+                                            className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                        >
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-medium">{backup.name}</p>
+                                                <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
+                                                    <span>{backup.size}</span>
+                                                    <span>•</span>
+                                                    <span>{backup.date}</span>
+                                                </div>
+                                            </div>
+                                            <div className="ml-4 flex items-center gap-2">
+                                                <Button variant="ghost" size="sm" onClick={() => handleDownload(backup.name)} title="Download">
+                                                    <Download className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleRestoreClick(backup.name)}
+                                                    title="Restore"
+                                                    className="text-amber-600 hover:text-amber-700"
+                                                >
+                                                    <RefreshCw className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDeleteClick(backup.name)}
+                                                    title="Delete"
+                                                    className="text-red-600 hover:text-red-700"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
                                             </div>
                                         </div>
-                                        <div className="ml-4 flex items-center gap-2">
-                                            <Button variant="ghost" size="sm" onClick={() => handleDownload(backup.name)} title="Download">
-                                                <Download className="h-4 w-4" />
+                                    ))}
+                                </div>
+
+                                {/* Pagination */}
+                                {pagination.last_page > 1 && (
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <p className="text-sm text-slate-500">
+                                            Page {pagination.current_page} of {pagination.last_page}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                disabled={pagination.current_page === 1}
+                                                onClick={() => {
+                                                    router.get(
+                                                        route('settings.backup.index'),
+                                                        { ...filters, page: pagination.current_page - 1 },
+                                                        { preserveState: true, preserveScroll: true },
+                                                    );
+                                                }}
+                                            >
+                                                Previous
                                             </Button>
                                             <Button
-                                                variant="ghost"
+                                                variant="outline"
                                                 size="sm"
-                                                onClick={() => handleRestoreClick(backup.name)}
-                                                title="Restore"
-                                                className="text-amber-600 hover:text-amber-700"
+                                                disabled={pagination.current_page === pagination.last_page}
+                                                onClick={() => {
+                                                    router.get(
+                                                        route('settings.backup.index'),
+                                                        { ...filters, page: pagination.current_page + 1 },
+                                                        { preserveState: true, preserveScroll: true },
+                                                    );
+                                                }}
                                             >
-                                                <RefreshCw className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDeleteClick(backup.name)}
-                                                title="Delete"
-                                                className="text-red-600 hover:text-red-700"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
+                                                Next
                                             </Button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                )}
+                            </>
                         )}
                     </CardContent>
                 </Card>

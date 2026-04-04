@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Spatie\DbDumper\Databases\MySql;
@@ -13,12 +12,18 @@ class BackupController extends Controller
     /**
      * Display backup management page
      */
-    public function index()
+    public function index(Request $request)
     {
-        $backups = $this->getBackups();
+        $backups = $this->getBackups($request);
 
         return Inertia::render('settings/Backup', [
-            'backups' => $backups,
+            'backups' => $backups['data'],
+            'pagination' => [
+                'current_page' => $backups['current_page'],
+                'last_page' => $backups['last_page'],
+                'per_page' => $backups['per_page'],
+                'total' => $backups['total'],
+            ],
             'databaseName' => config('database.connections.mysql.database'),
         ]);
     }
@@ -61,7 +66,7 @@ class BackupController extends Controller
             }
 
             // Verify file was created
-            if (!File::exists($backupPath)) {
+            if (! File::exists($backupPath)) {
                 throw new \Exception('Backup file was not created');
             }
 
@@ -78,7 +83,7 @@ class BackupController extends Controller
     {
         $path = storage_path("app/backups/{$fileName}");
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             return back()->with('error', 'Backup file not found');
         }
 
@@ -92,7 +97,7 @@ class BackupController extends Controller
     {
         $path = storage_path("app/backups/{$fileName}");
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             return back()->with('error', 'Backup file not found');
         }
 
@@ -114,7 +119,7 @@ class BackupController extends Controller
             $fileName = $request->input('file_name');
             $backupPath = storage_path("app/backups/{$fileName}");
 
-            if (!File::exists($backupPath)) {
+            if (! File::exists($backupPath)) {
                 return back()->with('error', 'Backup file not found');
             }
 
@@ -204,12 +209,18 @@ class BackupController extends Controller
     /**
      * Get list of available backups
      */
-    private function getBackups(): array
+    private function getBackups(Request $request): array
     {
         $backupDir = storage_path('app/backups');
 
-        if (!File::exists($backupDir)) {
-            return [];
+        if (! File::exists($backupDir)) {
+            return [
+                'data' => [],
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => 15,
+                'total' => 0,
+            ];
         }
 
         $files = File::files($backupDir);
@@ -229,7 +240,48 @@ class BackupController extends Controller
             return strtotime($b['date']) - strtotime($a['date']);
         });
 
-        return $backups;
+        // Filter by date range
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate) {
+            $backups = array_filter($backups, function ($backup) use ($startDate) {
+                return strtotime($backup['date']) >= strtotime($startDate . ' 00:00:00');
+            });
+        }
+
+        if ($endDate) {
+            $backups = array_filter($backups, function ($backup) use ($endDate) {
+                return strtotime($backup['date']) <= strtotime($endDate . ' 23:59:59');
+            });
+        }
+
+        // Re-index after filtering
+        $backups = array_values($backups);
+
+        // Pagination
+        $perPage = 15;
+        $currentPage = (int) $request->input('page', 1);
+        $total = count($backups);
+        $lastPage = (int) ceil($total / $perPage);
+
+        if ($currentPage < 1) {
+            $currentPage = 1;
+        }
+        if ($currentPage > $lastPage && $lastPage > 0) {
+            $currentPage = $lastPage;
+        }
+
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedBackups = array_slice($backups, $offset, $perPage);
+
+        return [
+            'data' => $paginatedBackups,
+            'current_page' => $currentPage,
+            'last_page' => $lastPage,
+            'per_page' => $perPage,
+            'total' => $total,
+        ];
     }
 
     /**
