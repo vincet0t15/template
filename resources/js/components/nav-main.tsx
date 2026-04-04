@@ -7,7 +7,7 @@ export function NavMain({ items = [] }: { items: NavGroup[] }) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
-        <div className="space-y-2" data-sidebar-scroll-container>
+        <div className="space-y-2">
             {items.map((group) => (
                 <SidebarGroup key={group.title} className="px-2 py-0">
                     <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
