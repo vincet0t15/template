@@ -50,7 +50,8 @@ return new class extends Migration
 
         Schema::table('supplier_transactions', function (Blueprint $table) {
             $table->index('supplier_id');
-            $table->index('transaction_date');
+            $table->index('pr_date');
+            $table->index('date_processed');
         });
     }
 
@@ -98,7 +99,8 @@ return new class extends Migration
 
         Schema::table('supplier_transactions', function (Blueprint $table) {
             $table->dropIndex(['supplier_id']);
-            $table->dropIndex(['transaction_date']);
+            $table->dropIndex(['pr_date']);
+            $table->dropIndex(['date_processed']);
         });
     }
 };
