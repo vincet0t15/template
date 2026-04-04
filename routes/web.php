@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimTypeController;
 use App\Http\Controllers\DashboardController;
@@ -210,7 +211,19 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware(['permission:source_of_fund_codes.store'])->post('source-of-fund-codes', [SourceOfFundCodeController::class, 'store'])->name('source-of-fund-codes.store');
     Route::middleware(['permission:source_of_fund_codes.edit'])->put('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'update'])->name('source-of-fund-codes.update');
     Route::middleware(['permission:source_of_fund_codes.delete'])->delete('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'destroy'])->name('source-of-fund-codes.destroy');
+
+    // DATABASE BACKUP & RESTORE (requires database.backup and database.restore permissions)
+    Route::middleware(['permission:database.backup'])->prefix('settings/backup')->group(function () {
+        Route::get('/', [BackupController::class, 'index'])->name('settings.backup.index');
+        Route::post('/create', [BackupController::class, 'create'])->name('settings.backup.create');
+        Route::get('/download/{fileName}', [BackupController::class, 'download'])->name('settings.backup.download');
+        Route::delete('/{fileName}', [BackupController::class, 'destroy'])->name('settings.backup.destroy');
+    });
+    Route::middleware(['permission:database.restore'])->prefix('settings/backup')->group(function () {
+        Route::post('/restore', [BackupController::class, 'restore'])->name('settings.backup.restore');
+        Route::post('/upload-restore', [BackupController::class, 'uploadRestore'])->name('settings.backup.upload-restore');
+    });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

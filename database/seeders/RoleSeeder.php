@@ -87,6 +87,10 @@ class RoleSeeder extends Seeder
 
             // Employee Source of Fund Report
             'employees.source_of_fund.view',
+
+            // Database Backup & Restore
+            'database.backup',
+            'database.restore',
         ];
 
         foreach ($permissions as $permission) {
