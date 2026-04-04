@@ -1,8 +1,10 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { PaginatedDataResponse } from '@/types/pagination';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
@@ -20,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Props {
     sourceOfFundCodes: SourceOfFundCode[];
-    employees?: {
+    employees: PaginatedDataResponse<{
         id: number;
         first_name: string;
         middle_name: string | null;
@@ -29,7 +31,7 @@ interface Props {
         position: string | null;
         office: { name: string } | null;
         employment_status: { name: string } | null;
-    }[];
+    }>;
     filters?: {
         source_of_fund_code_id?: string;
         month?: string;
@@ -38,7 +40,7 @@ interface Props {
     availableYears?: number[];
 }
 
-export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees = [], filters = {}, availableYears = [] }: Props) {
+export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, filters = {}, availableYears = [] }: Props) {
     const { data, setData } = useForm({
         source_of_fund_code_id: filters.source_of_fund_code_id || '',
         month: filters.month || '',
@@ -174,10 +176,10 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                     </div>
                 </div>
                 {/* Employee List Display */}
-                {employees.length > 0 && (
+                {employees.data.length > 0 && (
                     <div className="bg-card rounded-lg border shadow-sm">
                         <div className="bg-muted/50 border-b px-6 py-4">
-                            <h3 className="text-lg font-semibold">Employees - All Employees ({employees.length})</h3>
+                            <h3 className="text-lg font-semibold">Employees - All Employees ({employees.total})</h3>
                             {data.source_of_fund_code_id && (
                                 <p className="text-muted-foreground text-sm">
                                     Filtered by: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
@@ -198,7 +200,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {employees.map((employee: any, index: number) => (
+                                    {employees.data.map((employee, index) => (
                                         <tr key={employee.id} className="hover:bg-muted/30 border-b last:border-0">
                                             <td className="px-4 py-3 text-sm">{index + 1}</td>
                                             <td className="px-4 py-3 text-sm">
@@ -214,6 +216,13 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees =
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {employees.data.length > 0 && (
+                    <div>
+                        <Pagination data={employees} />
                     </div>
                 )}
             </div>

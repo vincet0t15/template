@@ -21,8 +21,8 @@ class EmployeeController extends Controller
 
         $employees = Employee::query()
             ->when($search, function ($query) use ($search) {
-                $query->where('first_name', 'like', '%'.$search.'%')
-                    ->orWhere('last_name', 'like', '%'.$search.'%');
+                $query->where('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%');
             })
             ->when($officeId, function ($query) use ($officeId) {
                 $query->where('office_id', $officeId);

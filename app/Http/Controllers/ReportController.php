@@ -44,7 +44,8 @@ class ReportController extends Controller
                     }
                 });
             })
-            ->get();
+            ->paginate(50)
+            ->withQueryString();
 
         return Inertia::render('reports/EmployeesBySourceOfFund', [
             'sourceOfFundCodes' => $sourceOfFundCodes,

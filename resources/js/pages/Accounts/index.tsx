@@ -1,4 +1,5 @@
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -8,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Edit, Shield, User, Users } from 'lucide-react';
 import { useState } from 'react';
@@ -22,12 +24,12 @@ interface User {
     name: string;
     username: string;
     is_active: boolean;
-    roles: string[];
+    roles: (string | { id: number; name: string })[];
     created_at: string;
 }
 
 interface AccountsIndexProps {
-    users: User[];
+    users: PaginatedDataResponse<User>;
     roles: Role[];
 }
 
@@ -60,8 +62,9 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
 
     const openRoleDialog = (user: User) => {
         setEditingUser(user);
+        const roleNames = user.roles.map((role) => (typeof role === 'string' ? role : role.name));
         roleForm.setData({
-            roles: user.roles,
+            roles: roleNames,
         });
     };
 
@@ -92,7 +95,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                     <Heading title="Account Management" description="Manage user accounts, toggle active status and admin privileges." />
                     <div className="text-muted-foreground flex items-center gap-2">
                         <Users className="h-5 w-5" />
-                        <span className="text-sm">{users.length} accounts</span>
+                        <span className="text-sm">{users.data.length} accounts</span>
                     </div>
                 </div>
 
@@ -109,14 +112,14 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {users.length === 0 ? (
+                            {users.data.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
                                         No accounts found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                users.map((user) => (
+                                users.data.map((user) => (
                                     <TableRow key={user.id} className={!user.is_active ? 'bg-muted/30' : undefined}>
                                         <TableCell>
                                             <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
@@ -134,11 +137,14 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex flex-wrap gap-1">
-                                                    {user.roles.map((role) => (
-                                                        <Badge key={role} variant="secondary" className="text-xs capitalize">
-                                                            {role.replace(/_/g, ' ')}
-                                                        </Badge>
-                                                    ))}
+                                                    {user.roles.map((role) => {
+                                                        const roleName = typeof role === 'string' ? role : role.name;
+                                                        return (
+                                                            <Badge key={roleName} variant="secondary" className="text-xs capitalize">
+                                                                {roleName.replace(/_/g, ' ')}
+                                                            </Badge>
+                                                        );
+                                                    })}
                                                     {user.roles.length === 0 && <span className="text-muted-foreground text-xs">No roles</span>}
                                                 </div>
                                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openRoleDialog(user)}>
@@ -219,6 +225,10 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <div>
+                    <Pagination data={users} />
+                </div>
             </div>
         </AppLayout>
     );

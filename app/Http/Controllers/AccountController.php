@@ -11,20 +11,23 @@ class AccountController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->query('search');
         $users = User::query()
+            ->with('roles:name')
             ->select(['id', 'name', 'username', 'is_active', 'created_at'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('username', 'like', '%' . $search . '%');
+            })
             ->orderBy('name')
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'username' => $user->username,
-                    'is_active' => $user->is_active,
-                    'roles' => $user->getRoleNames(),
-                    'created_at' => $user->created_at,
-                ];
-            });
+            ->paginate(10)
+            ->withQueryString();
+
+        // Transform users to convert roles from objects to array of strings
+        $users->getCollection()->transform(function ($user) {
+            $user->roles = $user->roles->pluck('name')->toArray();
+            return $user;
+        });
 
         $roles = Role::query()
             ->select(['id', 'name'])
@@ -40,6 +43,9 @@ class AccountController extends Controller
         return Inertia::render('Accounts/index', [
             'users' => $users,
             'roles' => $roles,
+            'filters' => [
+                'search' => $search,
+            ]
         ]);
     }
 
