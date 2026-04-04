@@ -1,9 +1,11 @@
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
+import { PaginatedDataResponse } from '@/types/pagination';
 import { Supplier } from '@/types/supplier';
 import { Head, Link, router } from '@inertiajs/react';
 import { PlusIcon, SearchIcon } from 'lucide-react';
@@ -12,18 +14,8 @@ import { CreateSupplierDialog } from './create-dialog';
 import { DeleteSupplierDialog } from './delete-dialog';
 import { EditSupplierDialog } from './edit-dialog';
 
-interface PaginatedSuppliers {
-    data: Supplier[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-}
-
 interface Props {
-    suppliers: PaginatedSuppliers;
+    suppliers: PaginatedDataResponse<Supplier>;
     filters: {
         search: string;
     };
@@ -39,10 +31,6 @@ export default function Suppliers({ suppliers, filters }: Props) {
 
     const handleSearch = () => {
         router.get(route('suppliers.index'), { search: search || undefined }, { preserveState: true, preserveScroll: true });
-    };
-
-    const handlePage = (page: number) => {
-        router.get(route('suppliers.index'), { search: filters.search || undefined, page }, { preserveState: true, preserveScroll: true });
     };
 
     return (
@@ -138,25 +126,7 @@ export default function Suppliers({ suppliers, filters }: Props) {
                     </Table>
                 </div>
 
-                {suppliers.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {suppliers.from} to {suppliers.to} of {suppliers.total} results
-                        </p>
-                        <div className="flex items-center gap-1">
-                            {Array.from({ length: suppliers.last_page }, (_, i) => i + 1).map((page) => (
-                                <Button
-                                    key={page}
-                                    variant={page === suppliers.current_page ? 'default' : 'outline'}
-                                    size="sm"
-                                    onClick={() => handlePage(page)}
-                                >
-                                    {page}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {suppliers.data.length > 0 && <Pagination data={suppliers} />}
             </div>
 
             <CreateSupplierDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
