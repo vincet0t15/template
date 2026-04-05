@@ -1,5 +1,6 @@
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,14 +14,18 @@ import type { DeductionType } from '@/types/deductionType';
 import { FilterProps } from '@/types/filter';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, PlusIcon, Trash2 } from 'lucide-react';
+import { CircleCheck, Loader2, Pencil, PlusIcon, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Settings',
+        href: '/settings/profile',
+    },
+    {
         title: 'Deduction Types',
-        href: '/deduction-types',
+        href: '/settings/deduction-types',
     },
 ];
 
@@ -131,11 +136,14 @@ export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesPr
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{type.description || '-'}</TableCell>
                                         <TableCell>
-                                            <span
-                                                className={`rounded-full px-2 py-1 text-xs ${type.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}`}
-                                            >
-                                                {type.is_active ? 'Active' : 'Inactive'}
-                                            </span>
+                                            <Badge variant="outline" className="text-muted-foreground px-1.5">
+                                                {type.is_active === true ? (
+                                                    <CircleCheck className="fill-green-500 dark:fill-green-400" />
+                                                ) : (
+                                                    <Loader2 className="fill-yellow-500 dark:fill-yellow-400" />
+                                                )}
+                                                {type.is_active === true ? 'Active' : 'Inactive'}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">

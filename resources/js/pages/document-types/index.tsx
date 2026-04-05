@@ -17,8 +17,12 @@ import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Settings',
+        href: '/settings/profile',
+    },
+    {
         title: 'Document Types',
-        href: '/document-types',
+        href: '/settings/document-types',
     },
 ];
 

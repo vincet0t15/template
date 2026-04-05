@@ -78,8 +78,8 @@ export default function EmployeeManagePage({
     totalClaimsAllTime = 0,
 }: EmployeeManageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Employees', href: '/settings/employees' },
-        { title: `${employee.last_name}, ${employee.first_name}`, href: `/settings/employees/manage/${employee.id}` },
+        { title: 'Employees', href: '/employees' },
+        { title: `${employee.last_name}, ${employee.first_name}`, href: `/manage/employees/${employee.id}` },
     ];
 
     const formatCurrency = (amount: number | undefined) => {

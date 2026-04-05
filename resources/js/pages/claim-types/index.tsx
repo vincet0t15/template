@@ -19,6 +19,10 @@ import { EditClaimType } from './edit';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
+        title: 'Settings',
+        href: '/settings/profile',
+    },
+    {
         title: 'Claim Types',
         href: '/settings/claim-types',
     },

@@ -17,8 +17,12 @@ import { DeleteOfficeDialog } from './delete';
 import { EditOfficeDialog } from './edit';
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Settings',
+        href: '/settings/profile',
+    },
+    {
+        title: 'Offices',
+        href: '/settings/offices',
     },
 ];
 

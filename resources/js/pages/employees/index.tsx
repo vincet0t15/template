@@ -2,6 +2,7 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +20,8 @@ import { useState } from 'react';
 import { EmployeeShow } from './show';
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Employees',
+        href: '/employees',
     },
 ];
 
@@ -169,7 +170,10 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                                                         {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
                                                     <span className="text-muted-foreground text-[0.70rem]">{employee.office?.name}</span>
-                                                    <span className="text-muted-foreground text-[0.70rem]">{employee.employment_status?.name}</span>
+
+                                                    <Badge variant="outline" className="bg-teal-800 text-white">
+                                                        {employee.employment_status?.name}
+                                                    </Badge>
                                                 </div>
                                             </div>
                                         </TableCell>

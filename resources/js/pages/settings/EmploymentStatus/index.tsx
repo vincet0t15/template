@@ -26,8 +26,12 @@ import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Settings',
+        href: '/settings/profile',
+    },
+    {
+        title: 'Employment Status',
+        href: '/settings/employment-statuses',
     },
 ];
 interface EmploymentStatusProps {
