@@ -1,28 +1,20 @@
 import Heading from '@/components/heading';
+import Pagination from '@/components/paginationData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import type { EmploymentStatus } from '@/types/employmentStatuses';
+import type { FilterProps } from '@/types/filter';
+import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search } from 'lucide-react';
 import { useState } from 'react';
-import { EditEmploymentStatusDialog } from './edit';
 import { CreateEmploymentStatusDialog } from './create';
-import type { PaginatedDataResponse } from '@/types/pagination';
-import type { EmploymentStatus } from '@/types/employmentStatuses';
-import type { FilterProps } from '@/types/filter';
-import Pagination from '@/components/paginationData';
 import { DeleteEmploymentStatusDialog } from './delete';
-import { toast } from 'sonner';
+import { EditEmploymentStatusDialog } from './edit';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -35,8 +27,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 interface EmploymentStatusProps {
-    employmentStatuses: PaginatedDataResponse<EmploymentStatus>
-    filters: FilterProps
+    employmentStatuses: PaginatedDataResponse<EmploymentStatus>;
+    filters: FilterProps;
 }
 export default function EmploymentStatusIndex({ employmentStatuses, filters }: EmploymentStatusProps) {
     const { data, setData } = useForm({
@@ -50,11 +42,11 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
     const onEditClick = (employmentStatus: EmploymentStatus) => {
         setSelectedEmploymentStatus(employmentStatus);
         setOpenEditDialog(true);
-    }
+    };
     const onDeleteClick = (employmentStatus: EmploymentStatus) => {
         setSelectedEmploymentStatus(employmentStatus);
         setOpenDeleteDialog(true);
-    }
+    };
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -65,7 +57,7 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                 preserveScroll: true,
             });
         }
-    }
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employment Status" />
@@ -75,13 +67,12 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                     description="View and manage employees by their status, including Permanent, COS, Contractual, and Probationary roles."
                 />
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-
                     <Button onClick={() => setOpenCreateDialog(true)}>
                         <PlusIcon className="h-4 w-4" />
                         Employment Status
                     </Button>
 
-                    <div className="flex w-full sm:w-auto items-center gap-2">
+                    <div className="flex w-full items-center gap-2 sm:w-auto">
                         <div className="relative w-full sm:w-[250px]">
                             <Label htmlFor="search" className="sr-only">
                                 Search
@@ -89,7 +80,7 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                             <Input
                                 id="search"
                                 placeholder="Search the employment status..."
-                                className="pl-8 w-full"
+                                className="w-full pl-8"
                                 value={data.search}
                                 onChange={(e) => setData('search', e.target.value)}
                                 onKeyDown={handleSearchKeyDown}
@@ -102,35 +93,26 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="font-bold text-primary">
-                                    Name
-                                </TableHead>
-                                <TableHead className="font-bold text-primary text-right">
-                                    Action
-                                </TableHead>
+                                <TableHead className="text-primary font-bold">Name</TableHead>
+                                <TableHead className="text-primary text-right font-bold">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {employmentStatuses.data.length > 0 ? (
                                 employmentStatuses.data.map((employmentStatus) => (
-                                    <TableRow
-                                        key={employmentStatus.id}
-                                        className="text-sm hover:bg-muted/30"
-                                    >
-                                        <TableCell className="text-sm">
-                                            {employmentStatus.name}
-                                        </TableCell>
+                                    <TableRow key={employmentStatus.id} className="hover:bg-muted/30 text-sm">
+                                        <TableCell className="text-sm">{employmentStatus.name}</TableCell>
 
-                                        <TableCell className="text-sm flex items-center gap-2 justify-end">
+                                        <TableCell className="flex items-center justify-end gap-2 text-sm">
                                             <span
                                                 onClick={() => onEditClick(employmentStatus)}
-                                                className="text-teal-600 cursor-pointer hover:underline"
+                                                className="cursor-pointer text-teal-600 hover:underline"
                                             >
                                                 Edit
                                             </span>
                                             <span
                                                 onClick={() => onDeleteClick(employmentStatus)}
-                                                className="text-orange-600 cursor-pointer hover:underline"
+                                                className="cursor-pointer text-orange-600 hover:underline"
                                             >
                                                 Delete
                                             </span>
@@ -139,10 +121,7 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell
-                                        colSpan={4}
-                                        className="py-3 text-center text-gray-500"
-                                    >
+                                    <TableCell colSpan={4} className="py-3 text-center text-gray-500">
                                         No data available.
                                     </TableCell>
                                 </TableRow>
@@ -153,12 +132,7 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                 <div>
                     <Pagination data={employmentStatuses} />
                 </div>
-                {openCreateDialog && (
-                    <CreateEmploymentStatusDialog
-                        isOpen={openCreateDialog}
-                        onClose={() => setOpenCreateDialog(false)}
-                    />
-                )}
+                {openCreateDialog && <CreateEmploymentStatusDialog isOpen={openCreateDialog} onClose={() => setOpenCreateDialog(false)} />}
 
                 {openEditDialog && selectedEmploymentStatus && (
                     <EditEmploymentStatusDialog
