@@ -18,7 +18,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, Database, Download, RefreshCw, Trash2, Upload } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -69,16 +69,6 @@ export default function Backup({ backups, pagination, databaseName }: BackupProp
     const createForm = useForm({});
     const restoreForm = useForm({ file_name: '' });
     const uploadForm = useForm({ backup_file: null as File | null });
-
-    // Show flash messages
-    useEffect(() => {
-        if (flash?.success) {
-            console.log('Success:', flash.success);
-        }
-        if (flash?.error) {
-            console.error('Error:', flash.error);
-        }
-    }, [flash]);
 
     const handleCreateBackup = () => {
         createForm.post(route('settings.backup.create'), {
