@@ -40,10 +40,7 @@ type PrintProps = {
     officeName?: string | null;
 };
 
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function formatCurrency(amount: number) {
     return new Intl.NumberFormat('en-PH', {
@@ -53,17 +50,11 @@ function formatCurrency(amount: number) {
     }).format(amount);
 }
 
-function getEffectiveAmount(
-    history: { amount: number; effective_date: string }[] | undefined,
-    year: number,
-    month: number
-): number {
+function getEffectiveAmount(history: { amount: number; effective_date: string }[] | undefined, year: number, month: number): number {
     if (!history || history.length === 0) return 0;
 
     const periodEndDate = new Date(year, month, 0);
-    const sortedHistory = [...history].sort(
-        (a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime()
-    );
+    const sortedHistory = [...history].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime());
 
     for (const record of sortedHistory) {
         const effectiveDate = new Date(record.effective_date);
@@ -106,7 +97,7 @@ export default function PrintDeductions({ employees, deductionTypes, filters, of
                 net_pay: acc.net_pay + netPay,
             };
         },
-        { gross_pay: 0, deductions: 0, net_pay: 0 }
+        { gross_pay: 0, deductions: 0, net_pay: 0 },
     );
 
     return (
@@ -142,9 +133,7 @@ export default function PrintDeductions({ employees, deductionTypes, filters, of
                                     >
                                         Employee Deductions Report
                                     </h2>
-                                    <p className="m-[5px_0] text-[12px]">
-                                        {getFilterDescription()}
-                                    </p>
+                                    <p className="m-[5px_0] text-[12px]">{getFilterDescription()}</p>
                                     <p className="m-0 text-[10px] text-gray-500">
                                         Generated: {currentDate} • Total Employees: {employees.length}
                                     </p>
@@ -178,31 +167,27 @@ export default function PrintDeductions({ employees, deductionTypes, filters, of
                                                 <table className="mb-3 w-full border-collapse border border-black">
                                                     <tbody>
                                                         <tr>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">Basic Salary</td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">Basic Salary</td>
                                                             <td className="border border-black p-2 text-right text-[10px]">
                                                                 {formatCurrency(salary)}
                                                             </td>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">PERA</td>
-                                                            <td className="border border-black p-2 text-right text-[10px]">
-                                                                {formatCurrency(pera)}
-                                                            </td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">PERA</td>
+                                                            <td className="border border-black p-2 text-right text-[10px]">{formatCurrency(pera)}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">RATA</td>
-                                                            <td className="border border-black p-2 text-right text-[10px]">
-                                                                {formatCurrency(rata)}
-                                                            </td>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">Gross Pay</td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">RATA</td>
+                                                            <td className="border border-black p-2 text-right text-[10px]">{formatCurrency(rata)}</td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">Gross Pay</td>
                                                             <td className="border border-black p-2 text-right text-[10px] font-medium">
                                                                 {formatCurrency(grossPay)}
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">Total Deductions</td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">Total Deductions</td>
                                                             <td className="border border-black p-2 text-right text-[10px] text-red-600">
                                                                 {formatCurrency(totalDeductions)}
                                                             </td>
-                                                            <td className="border border-black p-2 font-bold text-[10px]">Net Pay</td>
+                                                            <td className="border border-black p-2 text-[10px] font-bold">Net Pay</td>
                                                             <td className="border border-black p-2 text-right text-[10px] font-bold text-green-600">
                                                                 {formatCurrency(netPay)}
                                                             </td>
