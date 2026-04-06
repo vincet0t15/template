@@ -34,6 +34,7 @@ interface EmployeeManageProps {
     periodsList?: string[];
     takenPeriods?: string[];
     availableYears?: number[];
+    allEmployees?: Employee[];
     filters?: {
         deduction_month?: string;
         deduction_year?: string;
@@ -66,6 +67,7 @@ export default function EmployeeManagePage({
     periodsList = [],
     takenPeriods = [],
     availableYears = [],
+    allEmployees = [],
     filters = {},
     deductionPagination,
     claims,
@@ -180,6 +182,7 @@ export default function EmployeeManagePage({
                             periodsList={periodsList}
                             takenPeriods={takenPeriods}
                             availableYears={availableYears}
+                            allEmployees={allEmployees}
                             filters={filters}
                             pagination={deductionPagination}
                         />

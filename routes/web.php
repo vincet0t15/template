@@ -150,6 +150,11 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/', [EmployeeDeductionController::class, 'store'])->name('employee-deductions.store');
         Route::put('{employeeDeduction}', [EmployeeDeductionController::class, 'update'])->name('employee-deductions.update');
         Route::delete('{employeeDeduction}', [EmployeeDeductionController::class, 'destroy'])->name('employee-deductions.destroy');
+
+        // Bulk operations
+        Route::post('bulk-store', [EmployeeDeductionController::class, 'bulkStore'])->name('employee-deductions.bulk-store');
+        Route::post('bulk-update', [EmployeeDeductionController::class, 'bulkUpdate'])->name('employee-deductions.bulk-update');
+        Route::post('bulk-destroy', [EmployeeDeductionController::class, 'bulkDestroy'])->name('employee-deductions.bulk-destroy');
     });
 
     // MANAGE EMPLOYEE (requires employees.manage permission for view)

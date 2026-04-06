@@ -1,12 +1,13 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
+import { BulkAddDeductionDialog } from '@/components/EmployeeDeductions/BulkAddDeductionDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DeductionType } from '@/types/deductionType';
-import type { Employee } from '@/types/employee';
+import type { Employee, Employee as EmployeeType } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Pencil, Plus, Trash2, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -29,6 +30,7 @@ interface CompensationDeductionsProps {
         per_page: number;
         total: number;
     };
+    allEmployees?: EmployeeType[];
 }
 
 interface DialogState {
@@ -47,6 +49,7 @@ export function CompensationDeductions({
     availableYears = [],
     filters = {},
     pagination,
+    allEmployees = [],
 }: CompensationDeductionsProps) {
     const [dialogState, setDialogState] = useState<DialogState>({
         open: false,
@@ -125,6 +128,8 @@ export function CompensationDeductions({
 
     const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
 
+    const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+
     const handleDeleteDeduction = (deductionId: number) => {
         if (confirm('Are you sure you want to delete this deduction?')) {
             router.delete(route('manage.employees.deductions.destroy', [employee.id, deductionId]), {
@@ -163,6 +168,13 @@ export function CompensationDeductions({
                 )}
 
                 <div className="flex-1"></div>
+
+                {allEmployees.length > 0 && (
+                    <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+                        <Users className="mr-2 h-4 w-4" />
+                        Bulk Add
+                    </Button>
+                )}
 
                 <Button onClick={openNewDialog}>
                     <Plus className="h-4 w-4" />
@@ -324,6 +336,12 @@ export function CompensationDeductions({
                     takenPeriods={takenPeriods}
                 />
             )}
+            <BulkAddDeductionDialog
+                open={bulkDialogOpen}
+                onClose={() => setBulkDialogOpen(false)}
+                employees={allEmployees}
+                deductionTypes={deductionTypes}
+            />
         </div>
     );
 }

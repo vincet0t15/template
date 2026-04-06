@@ -148,6 +148,10 @@ class ManageEmployeeController extends Controller
             'periodsList' => $periodsList,
             'takenPeriods' => $takenPeriods,
             'availableYears' => $availableYears,
+            'allEmployees' => Employee::with('office')
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->get(['id', 'first_name', 'last_name', 'office_id']),
             'filters' => [
                 'deduction_month' => $filterMonth,
                 'deduction_year' => $filterYear,
