@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class AuditLogController extends Controller
@@ -15,8 +14,7 @@ class AuditLogController extends Controller
      */
     public function index(Request $request)
     {
-        Gate::authorize('view_audit_logs');
-
+        // Permission is checked via route middleware
         $query = AuditLog::with('user')
             ->when($request->search, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
@@ -42,14 +40,10 @@ class AuditLogController extends Controller
             })
             ->when($request->date_to, function ($q, $dateTo) {
                 $q->whereDate('created_at', '<=', $dateTo);
-            })
-            ->when($request->per_page, function ($q, $perPage) {
-                $q->paginate($perPage);
-            }, function ($q) {
-                $q->paginate(20);
             });
 
-        $auditLogs = $query->appends($request->except('page'));
+        $perPage = $request->per_page ?? 20;
+        $auditLogs = $query->paginate($perPage)->appends($request->except('page'));
 
         // Get unique model types for filter
         $modelTypes = AuditLog::distinct()->pluck('model_type')
@@ -87,8 +81,7 @@ class AuditLogController extends Controller
      */
     public function show(AuditLog $auditLog)
     {
-        Gate::authorize('view_audit_logs');
-
+        // Permission is checked via route middleware
         $auditLog->load('user');
 
         return Inertia::render('AuditLogs/Show', [
@@ -101,8 +94,7 @@ class AuditLogController extends Controller
      */
     public function export(Request $request)
     {
-        Gate::authorize('view_audit_logs');
-
+        // Permission is checked via route middleware
         $query = AuditLog::with('user')
             ->when($request->action, function ($q, $action) {
                 $q->where('action', $action);

@@ -141,10 +141,7 @@ class EmployeeDeductionController extends Controller
 
     public function destroy(EmployeeDeduction $employeeDeduction): RedirectResponse
     {
-        if (! auth()->user()->can('deductions.manage')) {
-            abort(403, 'Unauthorized action.');
-        }
-
+        // Permission is checked via route middleware
         $employeeDeduction->delete();
 
         return redirect()->back()->with('success', 'Deduction deleted successfully');
