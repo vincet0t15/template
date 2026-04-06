@@ -71,7 +71,8 @@ class DashboardController extends Controller
                     $query->where('pay_period_month', $currentMonth)
                         ->where('pay_period_year', $currentYear);
                 }
-            }], 'amount');
+            }], 'amount')
+            ->whereHas('deductions'); // Only show employees who have at least one deduction
 
         if ($useFilters) {
             $recentEmployeesQuery->whereHas('deductions', function ($query) use ($currentMonth, $currentYear) {
