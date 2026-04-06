@@ -48,9 +48,12 @@ interface PayrollIndexProps {
         employment_status_id?: number;
         search?: string;
     };
+    can: {
+        export: boolean;
+    };
 }
 
-export default function PayrollIndex({ employees, offices, employmentStatuses, filters }: PayrollIndexProps) {
+export default function PayrollIndex({ employees, offices, employmentStatuses, filters, can }: PayrollIndexProps) {
     const { data: filterData, setData: setFilterData } = useForm({
         month: filters.month,
         year: filters.year,
@@ -169,21 +172,23 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                const query = new URLSearchParams();
-                                if (filterData.month) query.append('month', filterData.month.toString());
-                                if (filterData.year) query.append('year', filterData.year.toString());
-                                if (filterData.office_id) query.append('office_id', filterData.office_id);
-                                if (filterData.employment_status_id) query.append('employment_status_id', filterData.employment_status_id);
-                                if (filterData.search) query.append('search', filterData.search);
-                                window.open(route('payroll.export') + '?' + query.toString(), '_blank');
-                            }}
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            Export CSV
-                        </Button>
+                        {can.export && (
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    const query = new URLSearchParams();
+                                    if (filterData.month) query.append('month', filterData.month.toString());
+                                    if (filterData.year) query.append('year', filterData.year.toString());
+                                    if (filterData.office_id) query.append('office_id', filterData.office_id);
+                                    if (filterData.employment_status_id) query.append('employment_status_id', filterData.employment_status_id);
+                                    if (filterData.search) query.append('search', filterData.search);
+                                    window.open(route('payroll.export') + '?' + query.toString(), '_blank');
+                                }}
+                            >
+                                <Download className="mr-2 h-4 w-4" />
+                                Export CSV
+                            </Button>
+                        )}
                         <Button variant="outline" onClick={() => router.get(route('payroll.year-to-date'), { year: filterData.year })}>
                             <FileSpreadsheet className="mr-2 h-4 w-4" />
                             Year-to-Date

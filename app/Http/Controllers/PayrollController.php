@@ -86,6 +86,9 @@ class PayrollController extends Controller
                 'employment_status_id' => $employmentStatusId,
                 'search' => $search,
             ],
+            'can' => [
+                'export' => auth()->user()->can('payroll.export'),
+            ],
         ]);
     }
 
@@ -217,7 +220,7 @@ class PayrollController extends Controller
                     $payroll = $this->payrollService->calculatePayroll($employee, $year, $month);
 
                     fputcsv($handle, [
-                        $employee->last_name.', '.$employee->first_name.' '.$employee->middle_name,
+                        $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                         $employee->position,
                         $employee->office?->name ?? 'N/A',
                         $employee->employmentStatus?->name ?? 'N/A',
@@ -334,7 +337,7 @@ class PayrollController extends Controller
 
             return [
                 'id' => $employee->id,
-                'name' => $employee->last_name.', '.$employee->first_name.' '.$employee->middle_name,
+                'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                 'position' => $employee->position,
                 'office' => $employee->office?->name ?? 'N/A',
                 'employment_status' => $employee->employmentStatus?->name ?? 'N/A',
@@ -419,7 +422,7 @@ class PayrollController extends Controller
                 if ($salary > 0 || $pera > 0 || $rata > 0 || $deductions > 0) {
                     $monthEmployees[] = [
                         'id' => $employee->id,
-                        'name' => $employee->last_name.', '.$employee->first_name.' '.$employee->middle_name,
+                        'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                         'position' => $employee->position,
                         'office' => $employee->office?->name ?? 'N/A',
                         'salary' => $salary,
@@ -531,7 +534,7 @@ class PayrollController extends Controller
 
             return [
                 'id' => $employee->id,
-                'name' => $employee->last_name.', '.$employee->first_name.' '.$employee->middle_name,
+                'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                 'position' => $employee->position,
                 'office' => $employee->office?->name ?? 'N/A',
                 'employment_status' => $employee->employmentStatus?->name ?? 'N/A',
