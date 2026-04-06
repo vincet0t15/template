@@ -3,6 +3,7 @@ import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
@@ -12,7 +13,7 @@ import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
-import { BarChart3, Download, FileSpreadsheet, Search, User } from 'lucide-react';
+import { BarChart3, Coins, Download, FileSpreadsheet, MinusCircle, Search, User, Wallet } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -91,12 +92,24 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
         return new Intl.NumberFormat('en-PH', {
             style: 'currency',
             currency: 'PHP',
+            minimumFractionDigits: 0,
         }).format(amount);
+    };
+
+    const formatNumber = (num: number) => {
+        return new Intl.NumberFormat('en-PH').format(num);
     };
 
     const getMonthName = (month: number) => {
         return MONTHS.find((m) => m.value === month)?.label || '';
     };
+
+    const getTotalSalary = () => employees.data.reduce((sum, e) => sum + Number(e.current_salary), 0);
+    const getTotalPera = () => employees.data.reduce((sum, e) => sum + Number(e.current_pera), 0);
+    const getTotalRata = () => employees.data.reduce((sum, e) => sum + Number(e.current_rata), 0);
+    const getTotalGross = () => employees.data.reduce((sum, e) => sum + Number(e.gross_pay), 0);
+    const getTotalDeductions = () => employees.data.reduce((sum, e) => sum + Number(e.total_deductions), 0);
+    const getTotalNet = () => employees.data.reduce((sum, e) => sum + Number(e.net_pay), 0);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -104,19 +117,18 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading title="Payroll Summary" description={`View payroll summary for ${getMonthName(filters.month)} ${filters.year}`} />
 
-                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                {/* Filters */}
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
-                        {/* Month */}
                         <div className="w-[160px]">
                             <CustomComboBox
                                 items={monthOptions}
                                 placeholder="Select Month"
                                 value={filterData.month.toString()}
-                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : '')}
+                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : 0)}
                             />
                         </div>
 
-                        {/* Year */}
                         <Input
                             type="number"
                             className="w-[100px]"
@@ -125,7 +137,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                             placeholder="Year"
                         />
 
-                        {/* Office */}
                         <div className="w-[220px]">
                             <CustomComboBox
                                 items={officeOptions}
@@ -135,7 +146,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                             />
                         </div>
 
-                        {/* Employment Status */}
                         <div className="w-[200px]">
                             <CustomComboBox
                                 items={employmentStatusOptions}
@@ -145,7 +155,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                             />
                         </div>
 
-                        {/* Search */}
                         <div className="relative w-full sm:w-[200px]">
                             <Input
                                 placeholder="Search employee..."
@@ -159,7 +168,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                         <Button onClick={handleFilterChange}>Filter</Button>
                     </div>
 
-                    {/* Export and Reports */}
                     <div className="flex flex-wrap items-center gap-2">
                         <Button
                             variant="outline"
@@ -192,6 +200,51 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                     </div>
                 </div>
 
+                {/* Summary Cards */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
+                            <Wallet className="text-muted-foreground h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatNumber(employees.data.length)}</div>
+                            <p className="text-muted-foreground text-xs">Active employees</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Salaries</CardTitle>
+                            <Coins className="text-muted-foreground h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(getTotalSalary())}</div>
+                            <p className="text-muted-foreground text-xs">Basic pay</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Deductions</CardTitle>
+                            <MinusCircle className="text-muted-foreground h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-red-600">{formatCurrency(getTotalDeductions())}</div>
+                            <p className="text-muted-foreground text-xs">All deductions</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Net Pay</CardTitle>
+                            <Wallet className="text-muted-foreground h-4 w-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-green-600">{formatCurrency(getTotalNet())}</div>
+                            <p className="text-muted-foreground text-xs">After deductions</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Table */}
                 <div className="w-full overflow-x-auto rounded-sm border shadow-sm">
                     <Table>
                         <TableHeader className="bg-muted/50">
@@ -210,14 +263,14 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                 employees.data.map((employee) => (
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-3">
                                                 <Avatar
                                                     onClick={() =>
                                                         router.get(
                                                             route('payroll.show', employee.id) + `?month=${filters.month}&year=${filters.year}`,
                                                         )
                                                     }
-                                                    className="h-10 w-10 cursor-pointer border-2 border-slate-200 shadow-sm dark:border-slate-700"
+                                                    className="hover:border-primary h-10 w-10 cursor-pointer border-2 border-slate-200 shadow-sm dark:border-slate-700"
                                                 >
                                                     {employee.image_path ? (
                                                         <AvatarImage
@@ -239,13 +292,13 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right">{formatCurrency(employee.current_salary)}</TableCell>
+                                        <TableCell className="text-right font-medium">{formatCurrency(employee.current_salary)}</TableCell>
                                         <TableCell className="text-right">{formatCurrency(employee.current_pera)}</TableCell>
                                         <TableCell className="text-right">
                                             {employee.is_rata_eligible ? formatCurrency(employee.current_rata) : '-'}
                                         </TableCell>
                                         <TableCell className="text-right font-medium">{formatCurrency(employee.gross_pay)}</TableCell>
-                                        <TableCell className="text-destructive text-right">{formatCurrency(employee.total_deductions)}</TableCell>
+                                        <TableCell className="text-right text-red-600">{formatCurrency(employee.total_deductions)}</TableCell>
                                         <TableCell className="text-right font-bold text-green-600 dark:text-green-400">
                                             {formatCurrency(employee.net_pay)}
                                         </TableCell>
@@ -253,7 +306,7 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="py-3 text-center text-gray-500">
+                                    <TableCell colSpan={7} className="py-8 text-center text-gray-500">
                                         No employees found.
                                     </TableCell>
                                 </TableRow>
