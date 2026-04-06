@@ -13,7 +13,7 @@ import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
-import { BarChart3, Coins, Download, MinusCircle, Search, User, Wallet } from 'lucide-react';
+import { BarChart3, Coins, Download, MinusCircle, Printer, Search, User, Wallet } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -172,6 +172,20 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const query = new URLSearchParams();
+                                if (filterData.month) query.append('month', filterData.month.toString());
+                                if (filterData.year) query.append('year', filterData.year.toString());
+                                if (filterData.office_id) query.append('office_id', filterData.office_id);
+                                if (filterData.employment_status_id) query.append('employment_status_id', filterData.employment_status_id);
+                                window.open(route('payroll.print') + '?' + query.toString(), '_blank');
+                            }}
+                        >
+                            <Printer className="mr-2 h-4 w-4" />
+                            Print
+                        </Button>
                         {can.export && (
                             <Button
                                 variant="outline"

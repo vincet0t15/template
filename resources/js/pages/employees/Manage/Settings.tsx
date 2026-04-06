@@ -239,12 +239,6 @@ export default function EmployeeSettings({ employee, employmentStatuses, offices
                                     </div>
                                     <p className="text-muted-foreground text-xs">Check if employee is eligible for RATA (e.g., Department Heads)</p>
                                 </div>
-                                <div className="flex w-[220px] flex-col gap-1">
-                                    <Button type="button" variant="destructive" onClick={() => setOpenDeleteDialog(true)}>
-                                        <Trash2 className="mr-1 size-4" />
-                                        Delete Employee
-                                    </Button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -252,6 +246,12 @@ export default function EmployeeSettings({ employee, employmentStatuses, offices
 
                 {/* ACTIONS */}
                 <div className="flex items-center justify-between">
+                    <div>
+                        <Button type="button" variant="destructive" onClick={() => setOpenDeleteDialog(true)}>
+                            <Trash2 className="mr-1 size-4" />
+                            Delete Employee
+                        </Button>
+                    </div>
                     <div className="flex gap-2">
                         <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
                             Cancel
