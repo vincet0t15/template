@@ -89,6 +89,30 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
         form.setData('permissions', updated);
     };
 
+    const toggleCategoryPermissions = (form: typeof createForm | typeof editForm, category: string, perms: string[]) => {
+        const current = form.data.permissions;
+        const allSelected = perms.every((p) => current.includes(p));
+
+        if (allSelected) {
+            // Remove all permissions in this category
+            const updated = current.filter((p) => !perms.includes(p));
+            form.setData('permissions', updated);
+        } else {
+            // Add all permissions in this category
+            const updated = [...new Set([...current, ...perms])];
+            form.setData('permissions', updated);
+        }
+    };
+
+    const isCategoryFullySelected = (form: typeof createForm | typeof editForm, perms: string[]) => {
+        return perms.length > 0 && perms.every((p) => form.data.permissions.includes(p));
+    };
+
+    const isCategoryPartiallySelected = (form: typeof createForm | typeof editForm, perms: string[]) => {
+        const selectedCount = perms.filter((p) => form.data.permissions.includes(p)).length;
+        return selectedCount > 0 && selectedCount < perms.length;
+    };
+
     const groupedPermissions = permissions.reduce(
         (acc, permission) => {
             const category = permission.split('.')[0] || 'other';
@@ -196,7 +220,19 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
                                 <div className="space-y-4 rounded-md border p-4">
                                     {Object.entries(groupedPermissions).map(([category, perms]) => (
                                         <div key={category}>
-                                            <h4 className="mb-2 text-sm font-semibold capitalize">{category.replace(/_/g, ' ')}</h4>
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <h4 className="text-sm font-semibold capitalize">{category.replace(/_/g, ' ')}</h4>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={`select-all-${category}`}
+                                                        checked={isCategoryFullySelected(createForm, perms)}
+                                                        onCheckedChange={() => toggleCategoryPermissions(createForm, category, perms)}
+                                                    />
+                                                    <Label htmlFor={`select-all-${category}`} className="text-muted-foreground text-xs font-normal">
+                                                        Select All
+                                                    </Label>
+                                                </div>
+                                            </div>
                                             <div className="grid grid-cols-2 gap-2">
                                                 {perms.map((permission) => (
                                                     <div key={permission} className="flex items-center space-x-2">
@@ -247,7 +283,22 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
                                 <div className="space-y-4 rounded-md border p-4">
                                     {Object.entries(groupedPermissions).map(([category, perms]) => (
                                         <div key={category}>
-                                            <h4 className="mb-2 text-sm font-semibold capitalize">{category.replace(/_/g, ' ')}</h4>
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <h4 className="text-sm font-semibold capitalize">{category.replace(/_/g, ' ')}</h4>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={`edit-select-all-${category}`}
+                                                        checked={isCategoryFullySelected(editForm, perms)}
+                                                        onCheckedChange={() => toggleCategoryPermissions(editForm, category, perms)}
+                                                    />
+                                                    <Label
+                                                        htmlFor={`edit-select-all-${category}`}
+                                                        className="text-muted-foreground text-xs font-normal"
+                                                    >
+                                                        Select All
+                                                    </Label>
+                                                </div>
+                                            </div>
                                             <div className="grid grid-cols-2 gap-2">
                                                 {perms.map((permission) => (
                                                     <div key={permission} className="flex items-center space-x-2">
