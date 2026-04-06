@@ -90,7 +90,7 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                 />
 
                 {/* Instruction Note */}
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-teal-800 dark:border-teal-800 dark:bg-teal-900/20 dark:text-teal-300">
                     <div className="flex items-start gap-3">
                         <svg className="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path
@@ -102,7 +102,7 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                         </svg>
                         <div className="text-sm">
                             <p className="mb-1 font-semibold">How to manage employees:</p>
-                            <p className="text-blue-700 dark:text-blue-400">
+                            <p className="text-teal-700 dark:text-teal-400">
                                 Click on an employee's avatar to view their complete details and manage records.
                                 <span className="font-medium"> Hover over the avatar</span> to see the view icon.
                             </p>
@@ -168,33 +168,35 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                                                 className="group relative flex cursor-pointer items-center gap-2"
                                                 title={`View details of ${employee.first_name} ${employee.last_name}`}
                                             >
-                                                <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
-                                                    {employee.image_path ? (
-                                                        <AvatarImage
-                                                            src={employee.image_path ?? undefined}
-                                                            alt={`${employee.first_name} ${employee.middle_name} ${employee.last_name}`}
-                                                            className="object-cover"
-                                                        />
-                                                    ) : null}
-                                                    <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
-                                                        <User className="h-6 w-6 text-slate-400" />
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="absolute -right-1 -bottom-1 rounded-full bg-blue-500 p-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                        />
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                        />
-                                                    </svg>
+                                                <div className="relative">
+                                                    <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
+                                                        {employee.image_path ? (
+                                                            <AvatarImage
+                                                                src={employee.image_path ?? undefined}
+                                                                alt={`${employee.first_name} ${employee.middle_name} ${employee.last_name}`}
+                                                                className="object-cover"
+                                                            />
+                                                        ) : null}
+                                                        <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
+                                                            <User className="h-6 w-6 text-slate-400" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute -right-1 -bottom-1 rounded-full bg-blue-500 p-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                                                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                            />
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                            />
+                                                        </svg>
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex flex-col">
