@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Edit, Key, Plus, Trash2 } from 'lucide-react';
+import { Key, PencilIcon, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface Permission {
@@ -129,11 +129,23 @@ export default function PermissionsIndex({ permissions }: PermissionsIndexProps)
                                             <TableCell className="text-muted-foreground">{permission.guard_name}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(permission)}>
-                                                        <Edit className="h-4 w-4" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                                        onClick={() => openEditDialog(permission)}
+                                                        title="Edit"
+                                                    >
+                                                        <PencilIcon className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => setDeletingPermission(permission)}>
-                                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                        onClick={() => setDeletingPermission(permission)}
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </TableCell>

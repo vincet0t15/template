@@ -14,10 +14,8 @@ import type { EmploymentStatus } from '@/types/employmentStatuses';
 import { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
 import { PaginatedDataResponse } from '@/types/pagination';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, Search, User } from 'lucide-react';
-import { useState } from 'react';
-import { EmployeeShow } from './show';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Employees',
@@ -37,8 +35,6 @@ export default function Employees({ employees, offices, employmentStatuses, filt
         office_id: filters.office_id || '',
         employment_status_id: filters.employment_status_id || '',
     });
-    const [openShow, setOpenShow] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
     const applyFilters = (overrides?: Partial<typeof data>) => {
         const merged = { ...data, ...overrides };
@@ -84,11 +80,6 @@ export default function Employees({ employees, offices, employmentStatuses, filt
         applyFilters({ employment_status_id: newStatusId });
     };
 
-    const handleClickShow = (employee: Employee) => {
-        setSelectedEmployee(employee);
-        setOpenShow(true);
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -97,6 +88,27 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                     title="Employee List"
                     description="Manage all employees, with options to view, edit, or delete records and track their employment statuses."
                 />
+
+                {/* Instruction Note */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <div className="flex items-start gap-3">
+                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <div className="text-sm">
+                            <p className="mb-1 font-semibold">How to manage employees:</p>
+                            <p className="text-blue-700 dark:text-blue-400">
+                                Click on an employee's avatar to view their complete details and manage records.
+                                <span className="font-medium"> Hover over the avatar</span> to see the view icon.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <Button onClick={() => router.get(route('employees.create'))}>
                         <PlusIcon className="h-4 w-4" />
@@ -149,10 +161,14 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                         <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
                             {employees.data.length > 0 ? (
                                 employees.data.map((employee) => (
-                                    <TableRow key={employee.id} className="hover:bg-muted/30 items-center text-sm">
-                                        <TableCell className="cursor-pointer text-sm" onClick={() => handleClickShow(employee)}>
-                                            <div className="flex cursor-pointer items-center gap-2">
-                                                <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
+                                    <TableRow key={employee.id} className="hover:bg-muted/30">
+                                        <TableCell className="text-sm">
+                                            <Link
+                                                href={route('manage.employees.index', employee.id)}
+                                                className="group relative flex cursor-pointer items-center gap-2"
+                                                title={`View details of ${employee.first_name} ${employee.last_name}`}
+                                            >
+                                                <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
                                                     {employee.image_path ? (
                                                         <AvatarImage
                                                             src={employee.image_path ?? undefined}
@@ -164,6 +180,22 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                                                         <User className="h-6 w-6 text-slate-400" />
                                                     </AvatarFallback>
                                                 </Avatar>
+                                                <div className="absolute -right-1 -bottom-1 rounded-full bg-blue-500 p-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                        />
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                        />
+                                                    </svg>
+                                                </div>
 
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
@@ -175,7 +207,7 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                                                         {employee.employment_status?.name}
                                                     </Badge>
                                                 </div>
-                                            </div>
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -192,8 +224,6 @@ export default function Employees({ employees, offices, employmentStatuses, filt
                 <div>
                     <Pagination data={employees} />
                 </div>
-
-                {openShow && selectedEmployee && <EmployeeShow employee={selectedEmployee} onClose={() => setOpenShow(false)} isOpen={openShow} />}
             </div>
         </AppLayout>
     );

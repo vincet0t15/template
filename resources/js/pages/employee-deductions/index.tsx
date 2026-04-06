@@ -18,7 +18,7 @@ import type { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { PencilIcon, Search, Trash2, User } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -165,6 +165,27 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading title="Employee Deductions" description="Record and manage employee deductions per pay period." />
 
+                {/* Instruction Note */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <div className="flex items-start gap-3">
+                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <div className="text-sm">
+                            <p className="mb-1 font-semibold">How to manage deductions:</p>
+                            <p className="text-blue-700 dark:text-blue-400">
+                                Click on an employee's avatar to view their complete details and manage deductions.
+                                <span className="font-medium"> Hover over the avatar</span> to see the view icon.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                         <div className="w-[160px]">
@@ -231,18 +252,40 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm dark:border-slate-700">
-                                                    {employee.image_path ? (
-                                                        <AvatarImage
-                                                            src={employee.image_path ?? undefined}
-                                                            alt={`${employee.first_name} ${employee.last_name}`}
-                                                            className="object-cover"
-                                                        />
-                                                    ) : null}
-                                                    <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
-                                                        <User className="h-5 w-5 text-slate-400" />
-                                                    </AvatarFallback>
-                                                </Avatar>
+                                                <button
+                                                    onClick={() => router.get(route('manage.employees.index', employee.id))}
+                                                    className="group relative cursor-pointer"
+                                                    title={`View details of ${employee.first_name} ${employee.last_name}`}
+                                                >
+                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
+                                                        {employee.image_path ? (
+                                                            <AvatarImage
+                                                                src={employee.image_path ?? undefined}
+                                                                alt={`${employee.first_name} ${employee.last_name}`}
+                                                                className="object-cover"
+                                                            />
+                                                        ) : null}
+                                                        <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
+                                                            <User className="h-5 w-5 text-slate-400" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute -right-1 -bottom-1 rounded-full bg-blue-500 p-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                                                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                            />
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                            />
+                                                        </svg>
+                                                    </div>
+                                                </button>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
                                                         {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
@@ -262,18 +305,6 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
                                                             className="bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs"
                                                         >
                                                             {deduction.deduction_type?.name}: {formatCurrency(Number(deduction.amount))}
-                                                            <button
-                                                                onClick={() => handleOpenEdit(deduction, employee)}
-                                                                className="text-primary hover:underline"
-                                                            >
-                                                                <PencilIcon className="h-3 w-3" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDelete(deduction)}
-                                                                className="text-destructive hover:underline"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </button>
                                                         </span>
                                                     ))}
                                                 </div>

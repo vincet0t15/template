@@ -9,7 +9,7 @@ import { FilterProps } from '@/types/filter';
 import { GeneralFund } from '@/types/generalFund';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router } from '@inertiajs/react';
-import { ChevronDown, ChevronRight, PlusIcon } from 'lucide-react';
+import { ChevronDown, ChevronRight, PencilIcon, Plus, PlusIcon, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { CreateSourceOfFundCode } from '../SourceOfFundCode/create';
 import { DeleteSourceOfFundCode } from '../SourceOfFundCode/delete';
@@ -171,25 +171,34 @@ export default function GeneralFundIndex({ generalFunds, filters }: GeneralFundP
                                                 </span>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex justify-end gap-3">
-                                                    <span
-                                                        className="cursor-pointer text-teal-800 hover:text-teal-900 hover:underline"
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                                                         onClick={() => handleClickAddCode(fund)}
+                                                        title="Add Code"
                                                     >
-                                                        Add Code
-                                                    </span>
-                                                    <span
-                                                        className="cursor-pointer text-green-500 hover:text-green-700 hover:underline"
+                                                        <Plus className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
                                                         onClick={() => handleClickEdit(fund)}
+                                                        title="Edit"
                                                     >
-                                                        Edit
-                                                    </span>
-                                                    <span
-                                                        className="cursor-pointer text-red-500 hover:text-red-700 hover:underline"
+                                                        <PencilIcon className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
                                                         onClick={() => handleClickDelete(fund)}
+                                                        title="Delete"
                                                     >
-                                                        Delete
-                                                    </span>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -227,19 +236,25 @@ export default function GeneralFundIndex({ generalFunds, filters }: GeneralFundP
                                                                                 {code.status ? 'Active' : 'Inactive'}
                                                                             </span>
                                                                         </div>
-                                                                        <div className="flex items-center gap-3">
-                                                                            <span
-                                                                                className="cursor-pointer text-green-500 hover:text-green-700 hover:underline"
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
                                                                                 onClick={() => handleClickEditCode(code)}
+                                                                                title="Edit"
                                                                             >
-                                                                                Edit
-                                                                            </span>
-                                                                            <span
-                                                                                className="cursor-pointer text-red-500 hover:text-red-700 hover:underline"
+                                                                                <PencilIcon className="h-3.5 w-3.5" />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-7 w-7 text-red-600 hover:bg-red-50 hover:text-red-700"
                                                                                 onClick={() => handleClickDeleteCode(code)}
+                                                                                title="Delete"
                                                                             >
-                                                                                Delete
-                                                                            </span>
+                                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                                            </Button>
                                                                         </div>
                                                                     </div>
                                                                 ))}

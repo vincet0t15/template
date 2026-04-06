@@ -10,7 +10,7 @@ import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { PlusIcon, Search } from 'lucide-react';
+import { PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { CreateEmploymentStatusDialog } from './create';
 import { DeleteEmploymentStatusDialog } from './delete';
@@ -104,18 +104,24 @@ export default function EmploymentStatusIndex({ employmentStatuses, filters }: E
                                         <TableCell className="text-sm">{employmentStatus.name}</TableCell>
 
                                         <TableCell className="flex items-center justify-end gap-2 text-sm">
-                                            <span
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
                                                 onClick={() => onEditClick(employmentStatus)}
-                                                className="cursor-pointer text-teal-600 hover:underline"
+                                                title="Edit"
                                             >
-                                                Edit
-                                            </span>
-                                            <span
+                                                <PencilIcon className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
                                                 onClick={() => onDeleteClick(employmentStatus)}
-                                                className="cursor-pointer text-orange-600 hover:underline"
+                                                title="Delete"
                                             >
-                                                Delete
-                                            </span>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))

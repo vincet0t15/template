@@ -10,7 +10,7 @@ import type { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { PlusIcon, Search } from 'lucide-react';
+import { PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { CreateOfficeDialog } from './create';
 import { DeleteOfficeDialog } from './delete';
@@ -108,15 +108,24 @@ export default function Dashboard({ offices, filters }: IndexProps) {
                                         <TableCell className="text-sm">{office.code ?? <span className="text-muted-foreground">—</span>}</TableCell>
 
                                         <TableCell className="flex items-center justify-end gap-2 text-sm">
-                                            <span onClick={() => handleEditClick(office)} className="cursor-pointer text-teal-600 hover:underline">
-                                                Edit
-                                            </span>
-                                            <span
-                                                onClick={() => handleDeleteClick(office)}
-                                                className="cursor-pointer text-orange-600 hover:underline"
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                                onClick={() => handleEditClick(office)}
+                                                title="Edit"
                                             >
-                                                Delete
-                                            </span>
+                                                <PencilIcon className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                onClick={() => handleDeleteClick(office)}
+                                                title="Delete"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))

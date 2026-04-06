@@ -11,7 +11,7 @@ import type { ClaimType } from '@/types/claimType';
 import { FilterProps } from '@/types/filter';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { PlusIcon, Search } from 'lucide-react';
+import { PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { CreateClaimType } from './create';
 import { DeleteClaimTypeDialog } from './delete';
@@ -126,19 +126,24 @@ export default function ClaimTypesIndex({ claimTypes, filters }: ClaimTypesProps
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                <span
-                                                    className="cursor-pointer text-sm text-teal-500 hover:underline"
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
                                                     onClick={() => handleEdit(type)}
+                                                    title="Edit"
                                                 >
-                                                    Edit
-                                                </span>
-
-                                                <span
-                                                    className="cursor-pointer text-sm text-red-500 hover:underline"
+                                                    <PencilIcon className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
                                                     onClick={() => handleDelete(type)}
+                                                    title="Delete"
                                                 >
-                                                    Delete
-                                                </span>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
