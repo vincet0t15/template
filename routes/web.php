@@ -65,7 +65,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
         // Specific routes MUST come before dynamic {employee} route
         Route::get('print', [PayrollController::class, 'print'])->name('payroll.print');
-        Route::get('year-to-date', [PayrollController::class, 'yearToDate'])->name('payroll.year-to-date');
         Route::get('comparison', [PayrollController::class, 'comparison'])->name('payroll.comparison');
         // Dynamic employee route must be last
         Route::get('{employee}', [PayrollController::class, 'show'])->name('payroll.show');
