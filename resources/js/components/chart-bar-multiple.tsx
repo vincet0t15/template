@@ -35,6 +35,10 @@ export function ChartBarMultiple({ data, title = 'Salaries by Source of Fund', d
         description: item.description,
     }));
 
+    // Calculate chart width based on data points (minimum 60px per bar)
+    const minBarWidth = 60;
+    const calculatedWidth = Math.max(chartData.length * minBarWidth, 400);
+
     const chartConfig = {
         amount: {
             label: 'Salary Amount',
@@ -51,51 +55,55 @@ export function ChartBarMultiple({ data, title = 'Salaries by Source of Fund', d
             </CardHeader>
             <CardContent>
                 {chartData.length > 0 ? (
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis
-                                    dataKey="name"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={10}
-                                    angle={-45}
-                                    textAnchor="end"
-                                    interval={0}
-                                    tick={{ fontSize: 12 }}
-                                />
-                                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`} />
-                                <Tooltip
-                                    cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload[0]) {
-                                            return (
-                                                <div className="rounded-lg border bg-white p-3 shadow-md">
-                                                    <p className="font-medium">{payload[0].payload.name}</p>
-                                                    {payload[0].payload.description && (
-                                                        <p className="text-muted-foreground text-xs">{payload[0].payload.description}</p>
-                                                    )}
-                                                    <p className="mt-1 font-semibold text-blue-600">{formatCurrency(payload[0].value as number)}</p>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Legend />
-                                <Bar dataKey="amount" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]}>
-                                    <LabelList
-                                        dataKey="amount"
-                                        position="top"
-                                        offset={12}
-                                        className="fill-foreground"
-                                        fontSize={12}
-                                        formatter={(value) => formatCurrency(Number(value))}
+                    <div className="h-[300px] w-full overflow-x-auto">
+                        <div style={{ minWidth: `${calculatedWidth}px` }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis
+                                        dataKey="name"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickMargin={10}
+                                        angle={-45}
+                                        textAnchor="end"
+                                        interval={0}
+                                        tick={{ fontSize: 12 }}
                                     />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+                                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`} />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload[0]) {
+                                                return (
+                                                    <div className="rounded-lg border bg-white p-3 shadow-md">
+                                                        <p className="font-medium">{payload[0].payload.name}</p>
+                                                        {payload[0].payload.description && (
+                                                            <p className="text-muted-foreground text-xs">{payload[0].payload.description}</p>
+                                                        )}
+                                                        <p className="mt-1 font-semibold text-blue-600">
+                                                            {formatCurrency(payload[0].value as number)}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Legend />
+                                    <Bar dataKey="amount" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]}>
+                                        <LabelList
+                                            dataKey="amount"
+                                            position="top"
+                                            offset={12}
+                                            className="fill-foreground"
+                                            fontSize={12}
+                                            formatter={(value) => formatCurrency(Number(value))}
+                                        />
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 ) : (
                     <div className="py-8 text-center">

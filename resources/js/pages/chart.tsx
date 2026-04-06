@@ -42,7 +42,7 @@ export function ChartBarLabel({ sourceOfFund }: ChartBarLabelProps) {
             </CardHeader>
             <CardContent>
                 {sourceOfFund.length > 0 ? (
-                    <ChartContainer config={chartConfig} className="min-h-[250px] lg:h-[300px]">
+                    <ChartContainer config={chartConfig} className="min-h-[250px] w-full lg:h-[300px]">
                         <BarChart
                             accessibilityLayer
                             data={sourceOfFund}

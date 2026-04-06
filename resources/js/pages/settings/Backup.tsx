@@ -112,11 +112,20 @@ export default function Backup({ backups, pagination, databaseName }: BackupProp
         restoreForm.post(route('settings.backup.restore'), {
             preserveScroll: true,
             onSuccess: (response: { props: FlashProps }) => {
-                toast.success(response.props.flash?.success);
+                if (response.props.flash?.success) {
+                    toast.success(response.props.flash.success);
+                } else if (response.props.flash?.error) {
+                    toast.error(response.props.flash.error);
+                    return; // Don't close dialog or reload on error
+                }
                 setShowRestoreDialog(false);
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
+            },
+            onError: (errors) => {
+                console.error('Restore errors:', errors);
+                toast.error('Failed to restore database. Please check the logs.');
             },
         });
     };
@@ -124,6 +133,7 @@ export default function Backup({ backups, pagination, databaseName }: BackupProp
     const handleUploadRestore = (e: React.FormEvent) => {
         e.preventDefault();
         if (!uploadForm.data.backup_file) {
+            toast.error('Please select a file to upload');
             return;
         }
 
@@ -131,12 +141,21 @@ export default function Backup({ backups, pagination, databaseName }: BackupProp
             forceFormData: true,
             preserveScroll: true,
             onSuccess: (response: { props: FlashProps }) => {
-                toast.success(response.props.flash?.success);
+                if (response.props.flash?.success) {
+                    toast.success(response.props.flash.success);
+                } else if (response.props.flash?.error) {
+                    toast.error(response.props.flash.error);
+                    return; // Don't close dialog or reload on error
+                }
                 setShowUploadDialog(false);
                 uploadForm.reset();
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
+            },
+            onError: (errors) => {
+                console.error('Upload restore errors:', errors);
+                toast.error('Failed to restore from uploaded file. Please check the logs.');
             },
         });
     };
