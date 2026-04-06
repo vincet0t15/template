@@ -49,15 +49,23 @@ export function ChartOfficeClaims({ data, title = 'Claims & Overtime by Office',
             </CardHeader>
             <CardContent>
                 {chartData.length > 0 ? (
-                    <ChartContainer config={chartConfig} className="min-h-[350px] w-full">
-                        <BarChart accessibilityLayer data={chartData}>
-                            <CartesianGrid vertical={false} />
-                            <XAxis dataKey="office" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
-                            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
-                            <Bar dataKey="claims" fill="var(--color-claims)" radius={4} />
-                            <Bar dataKey="overtime" fill="var(--color-overtime)" radius={4} />
-                        </BarChart>
-                    </ChartContainer>
+                    <div className="w-full overflow-x-auto">
+                        <ChartContainer config={chartConfig} className="min-h-[350px] w-full min-w-[500px]">
+                            <BarChart accessibilityLayer data={chartData}>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="office"
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                    tickFormatter={(value) => value.slice(0, 3)}
+                                />
+                                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+                                <Bar dataKey="claims" fill="var(--color-claims)" radius={4} />
+                                <Bar dataKey="overtime" fill="var(--color-overtime)" radius={4} />
+                            </BarChart>
+                        </ChartContainer>
+                    </div>
                 ) : (
                     <div className="flex min-h-[350px] items-center justify-center">
                         <div className="text-center">

@@ -314,7 +314,6 @@ class DashboardController extends Controller
             })
             ->values()
             ->sortByDesc('claims_count')
-            ->take(10)
             ->values();
 
         return Inertia::render('dashboard', [
