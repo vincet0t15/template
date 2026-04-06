@@ -57,8 +57,8 @@ class EmployeeDeductionController extends Controller
             ->get();
 
         $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
-        $offices = Office::where('status', true)->orderBy('name')->get();
-        $employmentStatuses = EmploymentStatus::where('status', true)->orderBy('name')->get();
+        $offices = Office::orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
 
         return Inertia::render('EmployeeDeductions/Index', [
             'employees' => $employees,
