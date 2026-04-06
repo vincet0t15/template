@@ -26,7 +26,7 @@ class ReportController extends Controller
                 ->toArray();
         }
 
-        // Get all employees by default
+        // Only show employees when a source of fund code is selected
         $employees = Employee::with(['office', 'employmentStatus'])
             ->orderBy('last_name', 'asc')
             ->when($request->input('source_of_fund_code_id'), function ($query) use ($request) {
@@ -56,6 +56,9 @@ class ReportController extends Controller
 
                         $query->orderBy('effective_date', 'desc');
                     }]);
+            }, function ($query) {
+                // If no source of fund selected, return empty results
+                $query->whereRaw('1 = 0');
             })
             ->paginate(50)
             ->withQueryString();

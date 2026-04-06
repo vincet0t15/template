@@ -187,21 +187,15 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                     </div>
                 </div>
                 {/* Employee List Display */}
-                {employees.data.length > 0 && (
+                {employees.data.length > 0 ? (
                     <div className="bg-card rounded-lg border shadow-sm">
                         <div className="bg-muted/50 border-b px-6 py-4">
-                            <h3 className="text-lg font-semibold">
-                                {data.source_of_fund_code_id ? 'Filtered Employees' : 'All Employees'} ({employees.total})
-                            </h3>
-                            {data.source_of_fund_code_id ? (
-                                <p className="text-muted-foreground text-sm">
-                                    Source of Fund: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
-                                    {data.month && ` • ${months.find((m) => m.value === data.month)?.label}`}
-                                    {data.year && ` • ${data.year}`}
-                                </p>
-                            ) : (
-                                <p className="text-muted-foreground text-sm">Select a source of fund code to filter employees</p>
-                            )}
+                            <h3 className="text-lg font-semibold">Filtered Employees ({employees.total})</h3>
+                            <p className="text-muted-foreground text-sm">
+                                Source of Fund: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
+                                {data.month && ` • ${months.find((m) => m.value === data.month)?.label}`}
+                                {data.year && ` • ${data.year}`}
+                            </p>
                         </div>
                         <div className="max-h-[600px] overflow-auto">
                             <table className="w-full">
@@ -233,6 +227,10 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                ) : (
+                    <div className="bg-card rounded-lg border p-8 text-center shadow-sm">
+                        <p className="text-muted-foreground">Please select a source of fund code to view employees</p>
                     </div>
                 )}
 
