@@ -1,15 +1,15 @@
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
-import { router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, CheckCircle2, Loader2, Users } from 'lucide-react';
 import { useState } from 'react';
 
@@ -109,6 +109,7 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Bulk Add Deduction" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -144,19 +145,15 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="flex-1"
                                 />
-                                <Select value={selectedOffice} onValueChange={setSelectedOffice}>
-                                    <SelectTrigger className="w-[200px]">
-                                        <SelectValue placeholder="All Offices" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Offices</SelectItem>
-                                        {offices.map((office) => (
-                                            <SelectItem key={office.id} value={office.id.toString()}>
-                                                {office.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <CustomComboBox
+                                    items={[
+                                        { value: 'all', label: 'All Offices' },
+                                        ...offices.map((office) => ({ value: office.id.toString(), label: office.name })),
+                                    ]}
+                                    placeholder="All Offices"
+                                    value={selectedOffice}
+                                    onSelect={(value) => setSelectedOffice(value || 'all')}
+                                />
                             </div>
 
                             {/* Select All / Deselect All */}
@@ -231,18 +228,12 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                     <Label>
                                         Deduction Type <span className="text-red-500">*</span>
                                     </Label>
-                                    <Select value={form.data.deduction_type_id} onValueChange={(value) => form.setData('deduction_type_id', value)}>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select deduction type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {deductionTypes.map((type) => (
-                                                <SelectItem key={type.id} value={String(type.id)}>
-                                                    {type.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <CustomComboBox
+                                        items={deductionTypes.map((type) => ({ value: String(type.id), label: type.name }))}
+                                        placeholder="Select deduction type"
+                                        value={form.data.deduction_type_id}
+                                        onSelect={(value) => form.setData('deduction_type_id', value || '')}
+                                    />
                                     {form.errors.deduction_type_id && <p className="text-sm text-red-500">{form.errors.deduction_type_id}</p>}
                                 </div>
 
@@ -268,30 +259,21 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                         Pay Period <span className="text-red-500">*</span>
                                     </Label>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <Select value={form.data.pay_period_month} onValueChange={(value) => form.setData('pay_period_month', value)}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {MONTHS.map((month) => (
-                                                    <SelectItem key={month.value} value={month.value}>
-                                                        {month.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Select value={form.data.pay_period_year} onValueChange={(value) => form.setData('pay_period_year', value)}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((year) => (
-                                                    <SelectItem key={year} value={String(year)}>
-                                                        {year}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <CustomComboBox
+                                            items={MONTHS}
+                                            placeholder="Month"
+                                            value={form.data.pay_period_month}
+                                            onSelect={(value) => form.setData('pay_period_month', value || '')}
+                                        />
+                                        <CustomComboBox
+                                            items={Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((year) => ({
+                                                value: String(year),
+                                                label: String(year),
+                                            }))}
+                                            placeholder="Year"
+                                            value={form.data.pay_period_year}
+                                            onSelect={(value) => form.setData('pay_period_year', value || '')}
+                                        />
                                     </div>
                                 </div>
 
