@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed roles and permissions first
         $this->call(RoleSeeder::class);
 
         $password = env('ADMIN_DEFAULT_PASSWORD', 'ChangeMe!@2026Secure');
@@ -33,7 +32,6 @@ class DatabaseSeeder extends Seeder
             OfficeSeeder::class,
             DeductionTypeSeeder::class,
             ClaimTypeSeeder::class,
-            SampleClaimsSeeder::class,
         ]);
     }
 }
