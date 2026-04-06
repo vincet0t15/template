@@ -14,7 +14,7 @@ import type { DeductionType } from '@/types/deductionType';
 import { FilterProps } from '@/types/filter';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, Loader2, Pencil, PlusIcon, Trash2 } from 'lucide-react';
+import { CircleCheck, Loader2, PencilIcon, PlusIcon, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -148,7 +148,7 @@ export default function DeductionTypesIndex({ deductionTypes }: DeductionTypesPr
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEdit(type)}>
-                                                    <Pencil className="h-4 w-4" />
+                                                    <PencilIcon className="h-4 w-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(type)}>
                                                     <Trash2 className="text-destructive h-4 w-4" />

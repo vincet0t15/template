@@ -14,7 +14,7 @@ class AccountController extends Controller
         $search = $request->query('search');
         $users = User::query()
             ->with('roles:name')
-            ->select(['id', 'name', 'username', 'is_active', 'created_at'])
+            ->select(['id', 'name', 'username', 'is_active', 'last_seen', 'created_at'])
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('username', 'like', '%' . $search . '%');
@@ -23,9 +23,12 @@ class AccountController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Transform users to convert roles from objects to array of strings
+        // Transform users to convert roles from objects to array of strings and add online status
         $users->getCollection()->transform(function ($user) {
             $user->roles = $user->roles->pluck('name')->toArray();
+            // User is considered online if last_seen is within the last 5 minutes
+            $user->is_online = $user->last_seen && $user->last_seen->diffInMinutes(now()) < 5;
+            $user->last_seen_formatted = $user->last_seen ? $user->last_seen->diffForHumans() : null;
             return $user;
         });
 

@@ -18,7 +18,7 @@ import type { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, Search, Trash2, User } from 'lucide-react';
+import { PencilIcon, Search, Trash2, User } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -172,7 +172,7 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
                                 items={monthOptions}
                                 placeholder="Select Month"
                                 value={filterData.month.toString()}
-                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : '')}
+                                onSelect={(value) => setFilterData('month', value ? parseInt(value) : 0)}
                             />
                         </div>
 
@@ -266,7 +266,7 @@ export default function EmployeeDeductionsIndex({ employees, deductionTypes, off
                                                                 onClick={() => handleOpenEdit(deduction, employee)}
                                                                 className="text-primary hover:underline"
                                                             >
-                                                                <Pencil className="h-3 w-3" />
+                                                                <PencilIcon className="h-3 w-3" />
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDelete(deduction)}

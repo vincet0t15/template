@@ -24,6 +24,8 @@ interface User {
     name: string;
     username: string;
     is_active: boolean;
+    is_online: boolean;
+    last_seen_formatted: string | null;
     roles: (string | { id: number; name: string })[];
     created_at: string;
 }
@@ -122,11 +124,16 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                 users.data.map((user) => (
                                     <TableRow key={user.id} className={!user.is_active ? 'bg-muted/30' : undefined}>
                                         <TableCell>
-                                            <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-                                                {user.roles.includes('super admin') ? (
-                                                    <Shield className="text-primary h-4 w-4" />
-                                                ) : (
-                                                    <User className="text-muted-foreground h-4 w-4" />
+                                            <div className="relative">
+                                                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                                                    {user.roles.includes('super admin') ? (
+                                                        <Shield className="text-primary h-4 w-4" />
+                                                    ) : (
+                                                        <User className="text-muted-foreground h-4 w-4" />
+                                                    )}
+                                                </div>
+                                                {user.is_online && (
+                                                    <span className="border-background absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full bg-green-500 ring-2 ring-green-500"></span>
                                                 )}
                                             </div>
                                         </TableCell>
@@ -186,6 +193,13 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                             <User className="text-muted-foreground h-3 w-3" />
                         </div>
                         <span>Regular user</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="relative flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+                        </span>
+                        <span>Online now</span>
                     </div>
                 </div>
 

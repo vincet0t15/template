@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Employee } from '@/types/employee';
 import type { Pera } from '@/types/pera';
 import { router, useForm } from '@inertiajs/react';
-import { CalendarIcon, Pencil, Plus, Trash2, TrendingUp } from 'lucide-react';
+import { CalendarIcon, PencilIcon, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { useEffect, useState, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
@@ -229,7 +229,7 @@ export default function CompensationPera({ employee }: CompensationPeraProps) {
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEdit(p)} className="h-8 w-8">
-                                                    <Pencil className="h-4 w-4" />
+                                                    <PencilIcon className="h-4 w-4" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"

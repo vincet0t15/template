@@ -13,7 +13,7 @@ import { FilterProps } from '@/types/filter';
 import { PaginatedDataResponse } from '@/types/pagination';
 import type { SourceOfFundCode as SourceOfFundCodeType } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Loader2, Pencil, PlusIcon, Search, Trash2 } from 'lucide-react';
+import { Loader2, PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CreateSourceOfFundCode } from './create';
@@ -189,7 +189,7 @@ export default function SourceOfFundCode({ sourceOfFundCodes, categories, filter
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEdit(source)}>
-                                                    <Pencil className="h-4 w-4" />
+                                                    <PencilIcon className="h-4 w-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(source)}>
                                                     <Trash2 className="text-destructive h-4 w-4" />

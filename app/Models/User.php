@@ -23,6 +23,7 @@ class User extends Authenticatable
         'username',
         'password',
         'is_active',
+        'last_seen',
     ];
 
     /**
@@ -45,6 +46,7 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'last_seen' => 'datetime',
         ];
     }
 

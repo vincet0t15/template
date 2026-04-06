@@ -9,7 +9,7 @@ import { PaginatedDataResponse } from '@/types/pagination';
 import { Supplier, SupplierTransaction } from '@/types/supplier';
 import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, FileText, Pencil, Plus, Printer, SearchIcon, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, PencilIcon, Plus, Printer, SearchIcon, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { CreateTransactionDialog } from './create-transaction-dialog';
 import { DeleteTransactionDialog } from './delete-transaction-dialog';
@@ -69,7 +69,7 @@ function TransactionCard({
                             <Printer className="h-3.5 w-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(txn)}>
-                            <Pencil className="h-3.5 w-3.5" />
+                            <PencilIcon className="h-3.5 w-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => onDelete(txn)}>
                             <Trash2 className="h-3.5 w-3.5" />

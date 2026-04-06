@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Edit, Plus, Shield, Trash2 } from 'lucide-react';
+import { PencilIcon, Plus, Shield, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface Role {
@@ -180,7 +180,7 @@ export default function RolesIndex({ roles, permissions }: RolesIndexProps) {
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Button variant="ghost" size="icon" onClick={() => openEditDialog(role)}>
-                                                    <Edit className="h-4 w-4" />
+                                                    <PencilIcon className="h-4 w-4" />
                                                 </Button>
                                                 {role.name !== 'super admin' && (
                                                     <Button variant="ghost" size="icon" onClick={() => setDeletingRole(role)}>

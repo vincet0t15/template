@@ -12,7 +12,7 @@ import type { DocumentType } from '@/types/documentType';
 import type { FilterProps } from '@/types/filter';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { PencilIcon, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -187,7 +187,7 @@ export default function DocumentTypesIndex({ documentTypes, filters }: DocumentT
                                         <TableCell>
                                             <div className="flex items-center justify-center gap-1">
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(documentType)}>
-                                                    <Pencil className="h-4 w-4" />
+                                                    <PencilIcon className="h-4 w-4" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"

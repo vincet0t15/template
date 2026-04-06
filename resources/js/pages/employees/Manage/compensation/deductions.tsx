@@ -6,7 +6,7 @@ import type { DeductionType } from '@/types/deductionType';
 import type { Employee, Employee as EmployeeType } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus, Printer, Trash2, Users, X } from 'lucide-react';
+import { PencilIcon, Plus, Printer, Trash2, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -217,7 +217,7 @@ export function CompensationDeductions({
                                             Print
                                         </Button>
                                         <Button variant="outline" onClick={() => openEditDialog(periodKey)}>
-                                            <Pencil className="h-3 w-3" />
+                                            <PencilIcon className="h-3 w-3" />
                                             Edit
                                         </Button>
                                     </div>

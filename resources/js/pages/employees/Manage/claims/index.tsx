@@ -8,7 +8,7 @@ import type { ClaimType } from '@/types/claimType';
 import type { Employee } from '@/types/employee';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { PencilIcon, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { CreateClaimDialog } from './create';
 import { DeleteClaimDialog } from './delete';
@@ -167,7 +167,7 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
                                             <Button variant="ghost" size="icon" onClick={() => openEditDialog(claim)}>
-                                                <Pencil className="h-4 w-4" />
+                                                <PencilIcon className="h-4 w-4" />
                                             </Button>
                                             <Button variant="ghost" size="icon" onClick={() => OnclickDelete(claim)}>
                                                 <Trash2 className="h-4 w-4 text-red-500" />
