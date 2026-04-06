@@ -1,4 +1,5 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
+import { ChartPieMultiple } from '@/components/chart-pie-multiple';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,7 @@ import {
     FileText,
     Key,
     MinusCircle,
+    PieChart as PieChartIcon,
     Receipt,
     Shield,
     TrendingDown,
@@ -25,6 +27,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
+import React from 'react';
 import { ChartBarLabel } from './chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -96,6 +99,8 @@ export default function Dashboard({
     currentPeriod,
     recentActivity,
 }: DashboardProps) {
+    const [chartType, setChartType] = React.useState<'bar' | 'pie'>('bar');
+
     const {
         data: filterData,
         setData: setFilterData,
@@ -265,18 +270,48 @@ export default function Dashboard({
 
                 {/* Source of Fund Breakdown */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5" />
-                            Salaries by Source of Fund
-                        </CardTitle>
-                        <CardDescription>
-                            Total salary amounts grouped by fund code for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
-                            {filterData.year}
-                        </CardDescription>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <div>
+                            <CardTitle className="flex items-center gap-2">
+                                {chartType === 'bar' ? <BarChart3 className="h-5 w-5" /> : <PieChartIcon className="h-5 w-5" />}
+                                Salaries by Source of Fund
+                            </CardTitle>
+                            <CardDescription>
+                                Total salary amounts grouped by fund code for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
+                                {filterData.year}
+                            </CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant={chartType === 'bar' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setChartType('bar')}
+                                className="gap-1"
+                            >
+                                <BarChart3 className="h-4 w-4" />
+                                Bar
+                            </Button>
+                            <Button
+                                variant={chartType === 'pie' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setChartType('pie')}
+                                className="gap-1"
+                            >
+                                <PieChartIcon className="h-4 w-4" />
+                                Pie
+                            </Button>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <ChartBarLabel sourceOfFund={salariesBySourceOfFund} />
+                        {chartType === 'bar' ? (
+                            <ChartBarLabel sourceOfFund={salariesBySourceOfFund} />
+                        ) : (
+                            <ChartPieMultiple
+                                data={salariesBySourceOfFund}
+                                title="Salary Distribution by Trust Fund"
+                                description={`Percentage breakdown for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                            />
+                        )}
                     </CardContent>
                 </Card>
 

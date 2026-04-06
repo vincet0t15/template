@@ -59,7 +59,7 @@ export function ChartBarMultiple({ data, title = 'Salaries by Source of Fund', d
                         <div style={{ minWidth: `${calculatedWidth}px` }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={true} />
                                     <XAxis
                                         dataKey="name"
                                         tickLine={false}
