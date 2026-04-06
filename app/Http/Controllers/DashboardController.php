@@ -282,9 +282,9 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Claims and Overtime by Office
+        // Claims by Office - Sum of ALL claim types
         $claimsByOfficeQuery = Claim::query()
-            ->with(['employee.office', 'claimType']);
+            ->with('employee.office');
 
         if ($useFilters) {
             $claimsByOfficeQuery->whereMonth('claim_date', $currentMonth)
@@ -299,66 +299,15 @@ class DashboardController extends Controller
             ->map(function ($claims, $officeId) {
                 $office = $claims->first()->employee->office;
 
-                // Filter travel claims
-                $travelClaims = $claims->filter(function ($claim) {
-                    return $claim->claimType?->code === 'TRAVEL';
-                });
-
-                // Filter overtime claims
-                $overtimeClaims = $claims->filter(function ($claim) {
-                    return $claim->claimType?->code === 'OVERTIME';
-                });
-
-                // Breakdown travel claims by type (meals, transpo, reimbursement, others)
-                $travelBreakdown = [
-                    'meals' => $travelClaims->filter(function ($claim) {
-                        return stripos($claim->purpose, 'meal') !== false ||
-                            stripos($claim->purpose, 'food') !== false ||
-                            stripos($claim->purpose, 'per diem') !== false;
-                    })->sum('amount'),
-                    'transportation' => $travelClaims->filter(function ($claim) {
-                        return stripos($claim->purpose, 'transpo') !== false ||
-                            stripos($claim->purpose, 'transport') !== false ||
-                            stripos($claim->purpose, 'fare') !== false ||
-                            stripos($claim->purpose, 'gasoline') !== false ||
-                            stripos($claim->purpose, 'fuel') !== false;
-                    })->sum('amount'),
-                    'reimbursement' => $travelClaims->filter(function ($claim) {
-                        return stripos($claim->purpose, 'reimburse') !== false ||
-                            stripos($claim->purpose, 'refund') !== false;
-                    })->sum('amount'),
-                    'others' => $travelClaims->filter(function ($claim) {
-                        $purpose = strtolower($claim->purpose);
-                        return !stripos($purpose, 'meal') &&
-                            !stripos($purpose, 'food') &&
-                            !stripos($purpose, 'per diem') &&
-                            !stripos($purpose, 'transpo') &&
-                            !stripos($purpose, 'transport') &&
-                            !stripos($purpose, 'fare') &&
-                            !stripos($purpose, 'gasoline') &&
-                            !stripos($purpose, 'fuel') &&
-                            !stripos($purpose, 'reimburse') &&
-                            !stripos($purpose, 'refund');
-                    })->sum('amount'),
-                ];
-
                 return [
                     'office_name' => $office?->name ?? 'Unknown',
                     'office_code' => $office?->code ?? 'N/A',
-                    'travel_count' => (int) $travelClaims->count(),
-                    'travel_total' => (float) $travelClaims->sum('amount'),
-                    'travel_breakdown' => [
-                        'meals' => (float) $travelBreakdown['meals'],
-                        'transportation' => (float) $travelBreakdown['transportation'],
-                        'reimbursement' => (float) $travelBreakdown['reimbursement'],
-                        'others' => (float) $travelBreakdown['others'],
-                    ],
-                    'overtime_count' => (int) $overtimeClaims->count(),
-                    'overtime_total' => (float) $overtimeClaims->sum('amount'),
+                    'total_claims' => (int) $claims->count(),
+                    'total_amount' => (float) $claims->sum('amount'),
                 ];
             })
             ->values()
-            ->sortByDesc('travel_total')
+            ->sortByDesc('total_amount')
             ->values();
 
         return Inertia::render('dashboard', [

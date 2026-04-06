@@ -1,7 +1,7 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
@@ -9,16 +9,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 export interface OfficeClaimsData {
     office_name: string;
     office_code: string;
-    travel_count: number;
-    travel_total: number;
-    travel_breakdown: {
-        meals: number;
-        transportation: number;
-        reimbursement: number;
-        others: number;
-    };
-    overtime_count: number;
-    overtime_total: number;
+    total_claims: number;
+    total_amount: number;
 }
 
 export interface ChartOfficeClaimsProps {
@@ -28,33 +20,18 @@ export interface ChartOfficeClaimsProps {
 }
 
 const chartConfig = {
-    meals: {
-        label: 'Meals',
-        color: 'hsl(38 92% 50%)', // Amber
-    },
-    transportation: {
-        label: 'Transportation',
-        color: 'hsl(217.2 91.2% 60%)', // Blue
-    },
-    reimbursement: {
-        label: 'Reimbursement',
-        color: 'hsl(142.1 76.2% 36.3%)', // Green
-    },
-    others: {
-        label: 'Others',
-        color: 'hsl(280 70% 50%)', // Purple
+    amount: {
+        label: 'Total Claims',
+        color: 'hsl(217.2 91.2% 60%)',
     },
 } satisfies ChartConfig;
 
-export function ChartOfficeClaims({ data, title = 'Travel Claims by Office', description }: ChartOfficeClaimsProps) {
+export function ChartOfficeClaims({ data, title = 'Total Claims by Office', description }: ChartOfficeClaimsProps) {
     const chartData = data.map((item) => ({
         office: item.office_code || item.office_name,
+        amount: item.total_amount,
         fullName: item.office_name,
-        meals: item.travel_breakdown.meals,
-        transportation: item.travel_breakdown.transportation,
-        reimbursement: item.travel_breakdown.reimbursement,
-        others: item.travel_breakdown.others,
-        total: item.travel_total,
+        count: item.total_claims,
     }));
 
     return (
@@ -79,13 +56,24 @@ export function ChartOfficeClaims({ data, title = 'Travel Claims by Office', des
                                     axisLine={false}
                                     tickFormatter={(value) => value.slice(0, 3)}
                                 />
+                                <YAxis
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                    tickFormatter={(value) => {
+                                        if (value >= 1000) {
+                                            return `₱${(value / 1000).toFixed(0)}k`;
+                                        }
+                                        return `₱${value}`;
+                                    }}
+                                />
                                 <ChartTooltip
                                     cursor={false}
                                     content={
                                         <ChartTooltipContent
                                             indicator="dashed"
                                             formatter={(value, name, item) => {
-                                                if (typeof value === 'number') {
+                                                if (name === 'amount' && typeof value === 'number') {
                                                     return new Intl.NumberFormat('en-PH', {
                                                         style: 'currency',
                                                         currency: 'PHP',
@@ -97,10 +85,28 @@ export function ChartOfficeClaims({ data, title = 'Travel Claims by Office', des
                                         />
                                     }
                                 />
-                                <Bar dataKey="meals" fill="var(--color-meals)" radius={4} stackId="a" />
-                                <Bar dataKey="transportation" fill="var(--color-transportation)" radius={4} stackId="a" />
-                                <Bar dataKey="reimbursement" fill="var(--color-reimbursement)" radius={4} stackId="a" />
-                                <Bar dataKey="others" fill="var(--color-others)" radius={4} stackId="a" />
+                                <Bar dataKey="amount" fill="var(--color-amount)" radius={4}>
+                                    <LabelList
+                                        dataKey="amount"
+                                        position="top"
+                                        formatter={(value) => {
+                                            if (typeof value === 'number') {
+                                                return new Intl.NumberFormat('en-PH', {
+                                                    style: 'currency',
+                                                    currency: 'PHP',
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 0,
+                                                }).format(value);
+                                            }
+                                            return String(value);
+                                        }}
+                                        style={{
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            fill: 'hsl(217.2 91.2% 60%)',
+                                        }}
+                                    />
+                                </Bar>
                             </BarChart>
                         </ChartContainer>
                     </div>
@@ -117,25 +123,7 @@ export function ChartOfficeClaims({ data, title = 'Travel Claims by Office', des
             </CardContent>
             {chartData.length > 0 && (
                 <CardFooter className="flex-col items-start gap-2 text-sm">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[hsl(38_92%_50%)]" />
-                            <span className="text-xs">Meals</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[hsl(217.2_91.2%_60%)]" />
-                            <span className="text-xs">Transportation</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[hsl(142.1_76.2%_36.3%)]" />
-                            <span className="text-xs">Reimbursement</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[hsl(280_70%_50%)]" />
-                            <span className="text-xs">Others</span>
-                        </div>
-                    </div>
-                    <div className="text-muted-foreground mt-2 text-xs">Showing stacked travel claim amounts by category</div>
+                    <div className="text-muted-foreground text-xs">Showing total claim amounts per office (all claim types combined)</div>
                 </CardFooter>
             )}
         </Card>
