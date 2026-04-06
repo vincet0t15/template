@@ -31,6 +31,8 @@ interface Props {
         position: string | null;
         office: { name: string } | null;
         employment_status: { name: string } | null;
+        salary_amount: number | null;
+        salary_effective_date: string | null;
     }>;
     filters?: {
         source_of_fund_code_id?: string;
@@ -110,6 +112,15 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
         setData('year', newYear);
         applyFilters({ year: newYear });
     };
+
+    const formatCurrency = (amount: number | null) => {
+        if (amount === null) return '—';
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            minimumFractionDigits: 2,
+        }).format(amount);
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Employee List by Source of Fund" />
@@ -179,13 +190,17 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                 {employees.data.length > 0 && (
                     <div className="bg-card rounded-lg border shadow-sm">
                         <div className="bg-muted/50 border-b px-6 py-4">
-                            <h3 className="text-lg font-semibold">Employees - All Employees ({employees.total})</h3>
-                            {data.source_of_fund_code_id && (
+                            <h3 className="text-lg font-semibold">
+                                {data.source_of_fund_code_id ? 'Filtered Employees' : 'All Employees'} ({employees.total})
+                            </h3>
+                            {data.source_of_fund_code_id ? (
                                 <p className="text-muted-foreground text-sm">
-                                    Filtered by: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
+                                    Source of Fund: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
                                     {data.month && ` • ${months.find((m) => m.value === data.month)?.label}`}
                                     {data.year && ` • ${data.year}`}
                                 </p>
+                            ) : (
+                                <p className="text-muted-foreground text-sm">Select a source of fund code to filter employees</p>
                             )}
                         </div>
                         <div className="max-h-[600px] overflow-auto">
@@ -197,6 +212,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                                         <th className="border-b px-4 py-2 text-left text-sm font-medium">Position</th>
                                         <th className="border-b px-4 py-2 text-left text-sm font-medium">Office</th>
                                         <th className="border-b px-4 py-2 text-left text-sm font-medium">Status</th>
+                                        <th className="border-b px-4 py-2 text-right text-sm font-medium">Monthly Salary</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -211,6 +227,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                                             <td className="px-4 py-3 text-sm">{employee.position || '—'}</td>
                                             <td className="px-4 py-3 text-sm">{employee.office?.name || '—'}</td>
                                             <td className="px-4 py-3 text-sm">{employee.employment_status?.name || '—'}</td>
+                                            <td className="px-4 py-3 text-right text-sm font-medium">{formatCurrency(employee.salary_amount)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

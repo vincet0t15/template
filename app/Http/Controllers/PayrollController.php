@@ -7,6 +7,8 @@ use App\Models\EmploymentStatus;
 use App\Models\Office;
 use App\Services\PayrollService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -87,7 +89,7 @@ class PayrollController extends Controller
                 'search' => $search,
             ],
             'can' => [
-                'export' => auth()->user()->can('payroll.export'),
+                'export' => Gate::allows('payroll.export'),
             ],
         ]);
     }

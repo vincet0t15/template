@@ -9,6 +9,7 @@ interface Employee {
     position: string | null;
     office: { name: string } | null;
     employment_status: { name: string } | null;
+    salary_amount: number | null;
 }
 
 interface SourceOfFundCode {
@@ -20,16 +21,26 @@ interface SourceOfFundCode {
 interface Props {
     employees: Employee[];
     sourceOfFundCode: SourceOfFundCode;
+    totalSalary: number;
     filters: {
         month: string | null;
         year: string | null;
     };
 }
 
-export default function EmployeesBySourceOfFundPrint({ employees, sourceOfFundCode, filters }: Props) {
+export default function EmployeesBySourceOfFundPrint({ employees, sourceOfFundCode, totalSalary, filters }: Props) {
     const getFullName = (employee: Employee) => {
         const parts = [employee.first_name, employee.middle_name, employee.last_name, employee.suffix].filter(Boolean);
         return parts.join(' ');
+    };
+
+    const formatCurrency = (amount: number | null) => {
+        if (amount === null) return '—';
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            minimumFractionDigits: 2,
+        }).format(amount);
     };
 
     const currentDate = new Date().toLocaleDateString('en-PH', {
@@ -102,6 +113,7 @@ export default function EmployeesBySourceOfFundPrint({ employees, sourceOfFundCo
                                             <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Position</th>
                                             <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Office</th>
                                             <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Employment Status</th>
+                                            <th className="border border-black px-2 py-1 text-right text-[10px] font-semibold">Monthly Salary</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -115,21 +127,37 @@ export default function EmployeesBySourceOfFundPrint({ employees, sourceOfFundCo
                                                     <td className="border border-black px-2 py-1 text-[10px]">
                                                         {employee.employment_status?.name || '—'}
                                                     </td>
+                                                    <td className="border border-black px-2 py-1 text-right text-[10px]">
+                                                        {formatCurrency(employee.salary_amount)}
+                                                    </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={5} className="border border-black px-2 py-4 text-center text-[10px] text-gray-500">
+                                                <td colSpan={6} className="border border-black px-2 py-4 text-center text-[10px] text-gray-500">
                                                     No employees found
                                                 </td>
                                             </tr>
                                         )}
                                         {employees.length > 0 && (
-                                            <tr className="bg-gray-100 font-bold">
-                                                <td className="border border-black px-2 py-1 text-[10px]" colSpan={5}>
-                                                    TOTAL: {employees.length} EMPLOYEE{employees.length !== 1 ? 'S' : ''}
-                                                </td>
-                                            </tr>
+                                            <>
+                                                <tr className="bg-gray-100 font-bold">
+                                                    <td className="border border-black px-2 py-1 text-[10px]" colSpan={5}>
+                                                        TOTAL EMPLOYEES: {employees.length}
+                                                    </td>
+                                                    <td className="border border-black px-2 py-1 text-right text-[10px]">
+                                                        {formatCurrency(totalSalary)}
+                                                    </td>
+                                                </tr>
+                                                <tr className="bg-gray-200 font-bold">
+                                                    <td className="border border-black px-2 py-2 text-[11px]" colSpan={5}>
+                                                        GRAND TOTAL MONTHLY SALARY
+                                                    </td>
+                                                    <td className="border border-black px-2 py-2 text-right text-[11px]">
+                                                        {formatCurrency(totalSalary)}
+                                                    </td>
+                                                </tr>
+                                            </>
                                         )}
                                     </tbody>
                                 </table>
