@@ -107,12 +107,8 @@ export function CompensationDeductions({
     };
 
     const openNewDialog = () => {
-        setDialogState({
-            open: true,
-            month: String(new Date().getMonth() + 1),
-            year: String(new Date().getFullYear()),
-            existingDeductions: [],
-        });
+        // Navigate to the new add deduction page
+        router.get(route('employee-deductions.create'), { employee_id: employee.id });
     };
 
     const openEditDialog = (periodKey: string) => {
@@ -125,7 +121,7 @@ export function CompensationDeductions({
         });
     };
 
-    const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
+    const closeDialog = () => setDialogState((prev: DialogState) => ({ ...prev, open: false }));
 
     const handleDeleteDeduction = (deductionId: number) => {
         if (confirm('Are you sure you want to delete this deduction?')) {

@@ -146,6 +146,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     // EMPLOYEE DEDUCTIONS - Full CRUD (requires deductions.manage permission)
     Route::middleware(['permission:deductions.manage'])->prefix('employee-deductions')->group(function () {
         Route::get('/', [EmployeeDeductionController::class, 'index'])->name('employee-deductions.index');
+        Route::get('/add', [EmployeeDeductionController::class, 'create'])->name('employee-deductions.create');
         Route::get('/bulk-add', [EmployeeDeductionController::class, 'bulkAddPage'])->name('employee-deductions.bulk-add-page');
         Route::post('/', [EmployeeDeductionController::class, 'store'])->name('employee-deductions.store');
         Route::post('bulk-store', [EmployeeDeductionController::class, 'bulkStore'])->name('employee-deductions.bulk-store');

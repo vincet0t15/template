@@ -93,6 +93,44 @@ class EmployeeDeductionController extends Controller
         ]);
     }
 
+    /**
+     * Show the create deduction page for a specific employee
+     */
+    public function create(Request $request): Response
+    {
+        $employeeId = $request->input('employee_id');
+        
+        if (!$employeeId) {
+            abort(404, 'Employee ID is required');
+        }
+
+        $employee = Employee::with([
+            'salaries' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'peras' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+            'ratas' => function ($query) {
+                $query->orderBy('effective_date', 'desc');
+            },
+        ])->findOrFail($employeeId);
+
+        $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
+
+        // Get taken periods for this employee
+        $takenPeriods = EmployeeDeduction::where('employee_id', $employeeId)
+            ->get()
+            ->map(fn ($d) => "{$d->pay_period_year}-{$d->pay_period_month}")
+            ->toArray();
+
+        return Inertia::render('employee-deductions/AddDeduction', [
+            'employee' => $employee,
+            'deductionTypes' => $deductionTypes,
+            'takenPeriods' => $takenPeriods,
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([

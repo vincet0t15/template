@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::tVBpI7pW9A8IBfUy',
+            '_route' => 'generated::xKPnqdRL0myRKIcs',
           ),
           1 => NULL,
           2 => 
@@ -214,26 +214,6 @@ app('router')->setCompiledRoutes(
           0 => 
           array (
             '_route' => 'payroll.print',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'GET' => 0,
-            'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/payroll/year-to-date' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'payroll.year-to-date',
           ),
           1 => NULL,
           2 => 
@@ -572,6 +552,26 @@ app('router')->setCompiledRoutes(
           2 => 
           array (
             'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/employee-deductions/add' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.create',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
           ),
           3 => NULL,
           4 => false,
@@ -1085,7 +1085,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::D84jeW8o2hjrywsK',
+            '_route' => 'generated::R9gXB62gUJXAcg6d',
           ),
           1 => NULL,
           2 => 
@@ -1235,7 +1235,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::IXHPMSZbcjL5KMmY',
+            '_route' => 'generated::iXwxteYj4GDFkxq9',
           ),
           1 => NULL,
           2 => 
@@ -1271,7 +1271,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::uNxJiNRk9tGghP3Z',
+            '_route' => 'generated::4fa8ggp595NLBZkg',
           ),
           1 => NULL,
           2 => 
@@ -1346,7 +1346,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::HxxJ76uqaM87pE9K',
+            '_route' => 'generated::ZJ7sfg783GNtuVoH',
           ),
           1 => NULL,
           2 => 
@@ -2703,7 +2703,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::tVBpI7pW9A8IBfUy' => 
+    'generated::xKPnqdRL0myRKIcs' => 
     array (
       'methods' => 
       array (
@@ -2732,7 +2732,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"000000000000057d0000000000000000";}}',
-        'as' => 'generated::tVBpI7pW9A8IBfUy',
+        'as' => 'generated::xKPnqdRL0myRKIcs',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3204,45 +3204,6 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'payroll.print',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'payroll.year-to-date' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'GET',
-        1 => 'HEAD',
-      ),
-      'uri' => 'payroll/year-to-date',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'active',
-        ),
-        'uses' => 'App\\Http\\Controllers\\PayrollController@yearToDate',
-        'controller' => 'App\\Http\\Controllers\\PayrollController@yearToDate',
-        'namespace' => NULL,
-        'prefix' => '/payroll',
-        'where' => 
-        array (
-        ),
-        'as' => 'payroll.year-to-date',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4818,6 +4779,46 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'employee-deductions.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'employee-deductions.create' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'employee-deductions/add',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@create',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@create',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.create',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7230,7 +7231,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::D84jeW8o2hjrywsK' => 
+    'generated::R9gXB62gUJXAcg6d' => 
     array (
       'methods' => 
       array (
@@ -7257,7 +7258,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::D84jeW8o2hjrywsK',
+        'as' => 'generated::R9gXB62gUJXAcg6d',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7539,7 +7540,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::IXHPMSZbcjL5KMmY' => 
+    'generated::iXwxteYj4GDFkxq9' => 
     array (
       'methods' => 
       array (
@@ -7561,7 +7562,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::IXHPMSZbcjL5KMmY',
+        'as' => 'generated::iXwxteYj4GDFkxq9',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7615,7 +7616,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::uNxJiNRk9tGghP3Z' => 
+    'generated::4fa8ggp595NLBZkg' => 
     array (
       'methods' => 
       array (
@@ -7636,7 +7637,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::uNxJiNRk9tGghP3Z',
+        'as' => 'generated::4fa8ggp595NLBZkg',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7806,7 +7807,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::HxxJ76uqaM87pE9K' => 
+    'generated::ZJ7sfg783GNtuVoH' => 
     array (
       'methods' => 
       array (
@@ -7827,7 +7828,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::HxxJ76uqaM87pE9K',
+        'as' => 'generated::ZJ7sfg783GNtuVoH',
       ),
       'fallback' => false,
       'defaults' => 
