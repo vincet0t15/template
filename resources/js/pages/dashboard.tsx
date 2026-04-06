@@ -113,6 +113,7 @@ interface DashboardProps {
     }[];
     claimsByOffice: {
         office_name: string;
+        office_code: string;
         claims_count: number;
         overtime_count: number;
     }[];
@@ -171,12 +172,15 @@ export default function Dashboard({
 
     const handleFilterChange = (field: string, value: string) => {
         setFilterData(field as keyof typeof filterData, value);
-        setTimeout(() => {
-            get(route('dashboard'), {
+        // Use router.get directly with the new values
+        router.get(
+            route('dashboard'),
+            { ...filterData, [field]: value },
+            {
                 preserveState: true,
                 preserveScroll: true,
-            });
-        }, 300);
+            },
+        );
     };
 
     const yearOptions = years.map((year) => ({

@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 
 export interface OfficeClaimsData {
     office_name: string;
+    office_code: string;
     overtime_count: number;
     claims_count: number;
 }
@@ -21,17 +22,17 @@ export interface ChartOfficeClaimsProps {
 const chartConfig = {
     claims: {
         label: 'Claims',
-        color: 'hsl(var(--chart-1))',
+        color: 'hsl(217.2 91.2% 60%)',
     },
     overtime: {
         label: 'Overtime',
-        color: 'hsl(var(--chart-2))',
+        color: 'hsl(142.1 76.2% 36.3%)',
     },
 } satisfies ChartConfig;
 
 export function ChartOfficeClaims({ data, title = 'Claims & Overtime by Office', description }: ChartOfficeClaimsProps) {
     const chartData = data.map((item) => ({
-        office: item.office_name.length > 15 ? item.office_name.substring(0, 15) + '...' : item.office_name,
+        office: item.office_code || item.office_name,
         claims: item.claims_count,
         overtime: item.overtime_count,
         fullName: item.office_name,
@@ -72,11 +73,11 @@ export function ChartOfficeClaims({ data, title = 'Claims & Overtime by Office',
                 <CardFooter className="flex-col items-start gap-2 text-sm">
                     <div className="flex gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[var(--chart-1)]" />
+                            <div className="h-3 w-3 rounded-full bg-[hsl(217.2_91.2%_60%)]" />
                             <span className="text-sm">Claims</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-[var(--chart-2)]" />
+                            <div className="h-3 w-3 rounded-full bg-[hsl(142.1_76.2%_36.3%)]" />
                             <span className="text-sm">Overtime</span>
                         </div>
                     </div>

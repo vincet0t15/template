@@ -294,9 +294,10 @@ class DashboardController extends Controller
         $claimsByOffice = $claimsByOfficeQuery
             ->get()
             ->groupBy(function ($claim) {
-                return $claim->employee->office?->name ?? 'Unknown';
+                return $claim->employee->office?->id ?? 0;
             })
-            ->map(function ($claims, $officeName) {
+            ->map(function ($claims, $officeId) {
+                $office = $claims->first()->employee->office;
                 $travelClaims = $claims->filter(function ($claim) {
                     return $claim->claimType?->code === 'TRAVEL';
                 });
@@ -305,7 +306,8 @@ class DashboardController extends Controller
                 });
 
                 return [
-                    'office_name' => $officeName,
+                    'office_name' => $office?->name ?? 'Unknown',
+                    'office_code' => $office?->code ?? 'N/A',
                     'claims_count' => (int) $claims->count(),
                     'overtime_count' => (int) $overtimeClaims->count(),
                 ];
