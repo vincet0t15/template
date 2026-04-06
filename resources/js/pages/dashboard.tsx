@@ -78,6 +78,35 @@ interface DashboardProps {
         amount?: number;
         date: string;
     }[];
+    highestTravelClaims: {
+        id: number;
+        employee_name: string;
+        office: string;
+        amount: number;
+        claim_date: string;
+        purpose: string;
+    }[];
+    topClaimants: {
+        employee_id: number;
+        employee_name: string;
+        office: string;
+        total_amount: number;
+        claim_count: number;
+    }[];
+    mostTravelClaims: {
+        employee_id: number;
+        employee_name: string;
+        office: string;
+        travel_count: number;
+        total_travel_amount: number;
+    }[];
+    mostOvertimeClaims: {
+        employee_id: number;
+        employee_name: string;
+        office: string;
+        overtime_count: number;
+        total_overtime_amount: number;
+    }[];
 }
 
 const formatCurrency = (amount: number) => {
@@ -97,6 +126,10 @@ export default function Dashboard({
     topDeductionTypes,
     currentPeriod,
     recentActivity,
+    highestTravelClaims,
+    topClaimants,
+    mostTravelClaims,
+    mostOvertimeClaims,
 }: DashboardProps) {
     const [chartType, setChartType] = React.useState<'bar' | 'pie'>('bar');
 
@@ -289,6 +322,143 @@ export default function Dashboard({
                         />
                     </CardContent>
                 </Card>
+
+                {/* Travel & Overtime Claims Charts */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Top 10 Travel Claims Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Receipt className="h-5 w-5" />
+                                Top 10 Travel Claims by Employee
+                            </CardTitle>
+                            <CardDescription>
+                                Employees with highest travel expenses for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
+                                {filterData.year}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {mostTravelClaims.length > 0 ? (
+                                <div className="space-y-3">
+                                    {mostTravelClaims.map((employee, index) => {
+                                        const maxAmount = mostTravelClaims[0]?.total_travel_amount || 1;
+                                        const percentage = (employee.total_travel_amount / maxAmount) * 100;
+                                        return (
+                                            <div key={employee.employee_id} className="space-y-1">
+                                                <div className="flex items-center justify-between text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                                                                index === 0
+                                                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                                                                    : index === 1
+                                                                      ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                                                      : index === 2
+                                                                        ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+                                                                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                                            }`}
+                                                        >
+                                                            {index + 1}
+                                                        </span>
+                                                        <div>
+                                                            <p className="font-medium">{employee.employee_name}</p>
+                                                            <p className="text-muted-foreground text-xs">{employee.office}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-semibold text-blue-600">{formatCurrency(employee.total_travel_amount)}</p>
+                                                        <p className="text-muted-foreground text-xs">{employee.travel_count} trips</p>
+                                                    </div>
+                                                </div>
+                                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                    <div
+                                                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
+                                                        style={{ width: `${percentage}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="py-8 text-center">
+                                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                        <Receipt className="h-6 w-6 text-slate-400" />
+                                    </div>
+                                    <p className="text-muted-foreground text-sm">No travel claims data for this period</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Top 10 Overtime Claims Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Clock className="h-5 w-5" />
+                                Top 10 Overtime Claims by Employee
+                            </CardTitle>
+                            <CardDescription>
+                                Employees with highest overtime compensation for{' '}
+                                {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {mostOvertimeClaims.length > 0 ? (
+                                <div className="space-y-3">
+                                    {mostOvertimeClaims.map((employee, index) => {
+                                        const maxAmount = mostOvertimeClaims[0]?.total_overtime_amount || 1;
+                                        const percentage = (employee.total_overtime_amount / maxAmount) * 100;
+                                        return (
+                                            <div key={employee.employee_id} className="space-y-1">
+                                                <div className="flex items-center justify-between text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                                                                index === 0
+                                                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                                                                    : index === 1
+                                                                      ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                                                      : index === 2
+                                                                        ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+                                                                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                                            }`}
+                                                        >
+                                                            {index + 1}
+                                                        </span>
+                                                        <div>
+                                                            <p className="font-medium">{employee.employee_name}</p>
+                                                            <p className="text-muted-foreground text-xs">{employee.office}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-semibold text-emerald-600">
+                                                            {formatCurrency(employee.total_overtime_amount)}
+                                                        </p>
+                                                        <p className="text-muted-foreground text-xs">{employee.overtime_count} claims</p>
+                                                    </div>
+                                                </div>
+                                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                                                    <div
+                                                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all"
+                                                        style={{ width: `${percentage}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="py-8 text-center">
+                                    <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                        <Clock className="h-6 w-6 text-slate-400" />
+                                    </div>
+                                    <p className="text-muted-foreground text-sm">No overtime claims data for this period</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 lg:grid-cols-7">

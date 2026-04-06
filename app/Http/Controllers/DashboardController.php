@@ -165,6 +165,106 @@ class DashboardController extends Controller
         // Recent activity (placeholder - can be enhanced with actual activity log)
         $recentActivity = [];
 
+        // Highest Travel Claims this month (or all if no filter)
+        $travelClaimsQuery = Claim::whereHas('claimType', function ($query) {
+            $query->where('code', 'TRAVEL');
+        })->with(['employee.office']);
+
+        if ($useFilters) {
+            $travelClaimsQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+
+        $highestTravelClaims = $travelClaimsQuery->orderByDesc('amount')
+            ->limit(5)
+            ->get()
+            ->map(function ($claim) {
+                return [
+                    'id' => $claim->id,
+                    'employee_name' => $claim->employee->last_name . ', ' . $claim->employee->first_name,
+                    'office' => $claim->employee->office?->name ?? 'N/A',
+                    'amount' => (float) $claim->amount,
+                    'claim_date' => $claim->claim_date,
+                    'purpose' => $claim->purpose,
+                ];
+            });
+
+        // Top Employees by Total Claims Amount this month (or all if no filter)
+        $topClaimantsQuery = Claim::query();
+
+        if ($useFilters) {
+            $topClaimantsQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+
+        $topClaimants = $topClaimantsQuery->selectRaw('employee_id, SUM(amount) as total_amount, COUNT(*) as claim_count')
+            ->groupBy('employee_id')
+            ->with(['employee.office'])
+            ->orderByDesc('total_amount')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'employee_id' => $item->employee_id,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'office' => $item->employee->office?->name ?? 'N/A',
+                    'total_amount' => (float) $item->total_amount,
+                    'claim_count' => (int) $item->claim_count,
+                ];
+            });
+
+        // Top 10 Employees with Most Travel Claims (by count)
+        $mostTravelClaimsQuery = Claim::whereHas('claimType', function ($query) {
+            $query->where('code', 'TRAVEL');
+        })->with(['employee.office']);
+
+        if ($useFilters) {
+            $mostTravelClaimsQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+
+        $mostTravelClaims = $mostTravelClaimsQuery->selectRaw('employee_id, COUNT(*) as travel_count, SUM(amount) as total_travel_amount')
+            ->groupBy('employee_id')
+            ->with(['employee.office'])
+            ->orderByDesc('travel_count')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'employee_id' => $item->employee_id,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'office' => $item->employee->office?->name ?? 'N/A',
+                    'travel_count' => (int) $item->travel_count,
+                    'total_travel_amount' => (float) $item->total_travel_amount,
+                ];
+            });
+
+        // Top 10 Employees with Most Overtime Claims (by amount)
+        $mostOvertimeClaimsQuery = Claim::whereHas('claimType', function ($query) {
+            $query->where('code', 'OVERTIME');
+        })->with(['employee.office']);
+
+        if ($useFilters) {
+            $mostOvertimeClaimsQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+
+        $mostOvertimeClaims = $mostOvertimeClaimsQuery->selectRaw('employee_id, COUNT(*) as overtime_count, SUM(amount) as total_overtime_amount')
+            ->groupBy('employee_id')
+            ->with(['employee.office'])
+            ->orderByDesc('total_overtime_amount')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'employee_id' => $item->employee_id,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'office' => $item->employee->office?->name ?? 'N/A',
+                    'overtime_count' => (int) $item->overtime_count,
+                    'total_overtime_amount' => (float) $item->total_overtime_amount,
+                ];
+            });
+
         return Inertia::render('dashboard', [
             'stats' => [
                 'totalEmployees' => $totalEmployees,
@@ -193,6 +293,10 @@ class DashboardController extends Controller
                 'monthName' => now()->format('F'),
             ],
             'recentActivity' => $recentActivity,
+            'highestTravelClaims' => $highestTravelClaims,
+            'topClaimants' => $topClaimants,
+            'mostTravelClaims' => $mostTravelClaims,
+            'mostOvertimeClaims' => $mostOvertimeClaims,
         ]);
     }
 }

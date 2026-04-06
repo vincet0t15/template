@@ -12,6 +12,7 @@ class ClaimTypeSeeder extends Seeder
         $types = [
             ['name' => 'Medical Reimbursement', 'code' => 'MEDICAL', 'description' => 'Medical expenses reimbursement'],
             ['name' => 'Travel Reimbursement', 'code' => 'TRAVEL', 'description' => 'Travel-related expenses'],
+            ['name' => 'Overtime Pay', 'code' => 'OVERTIME', 'description' => 'Overtime compensation'],
             ['name' => 'Communication Allowance', 'code' => 'COMMUNICATION', 'description' => 'Phone/internet allowance'],
             ['name' => 'Representation Allowance', 'code' => 'REPRESENTATION', 'description' => 'Official representation expenses'],
             ['name' => 'Cash Advance', 'code' => 'CASH_ADVANCE', 'description' => 'Cash advance for official purposes'],
