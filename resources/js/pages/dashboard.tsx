@@ -28,7 +28,6 @@ import {
     Wallet,
 } from 'lucide-react';
 import React from 'react';
-import { ChartBarLabel } from './chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -273,7 +272,7 @@ export default function Dashboard({
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <div>
                             <CardTitle className="flex items-center gap-2">
-                                {chartType === 'bar' ? <BarChart3 className="h-5 w-5" /> : <PieChartIcon className="h-5 w-5" />}
+                                <PieChartIcon className="h-5 w-5" />
                                 Salaries by Source of Fund
                             </CardTitle>
                             <CardDescription>
@@ -281,37 +280,13 @@ export default function Dashboard({
                                 {filterData.year}
                             </CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant={chartType === 'bar' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setChartType('bar')}
-                                className="gap-1"
-                            >
-                                <BarChart3 className="h-4 w-4" />
-                                Bar
-                            </Button>
-                            <Button
-                                variant={chartType === 'pie' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setChartType('pie')}
-                                className="gap-1"
-                            >
-                                <PieChartIcon className="h-4 w-4" />
-                                Pie
-                            </Button>
-                        </div>
                     </CardHeader>
                     <CardContent>
-                        {chartType === 'bar' ? (
-                            <ChartBarLabel sourceOfFund={salariesBySourceOfFund} />
-                        ) : (
-                            <ChartPieMultiple
-                                data={salariesBySourceOfFund}
-                                title="Salary Distribution by Trust Fund"
-                                description={`Percentage breakdown for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
-                            />
-                        )}
+                        <ChartPieMultiple
+                            data={salariesBySourceOfFund}
+                            title="Salary Distribution by Trust Fund"
+                            description={`Percentage breakdown for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                        />
                     </CardContent>
                 </Card>
 
