@@ -114,8 +114,16 @@ interface DashboardProps {
     claimsByOffice: {
         office_name: string;
         office_code: string;
-        claims_count: number;
+        travel_count: number;
+        travel_total: number;
+        travel_breakdown: {
+            meals: number;
+            transportation: number;
+            reimbursement: number;
+            others: number;
+        };
         overtime_count: number;
+        overtime_total: number;
     }[];
 }
 

@@ -198,7 +198,7 @@ class DashboardController extends Controller
             ->map(function ($claim) {
                 return [
                     'id' => $claim->id,
-                    'employee_name' => $claim->employee->last_name.', '.$claim->employee->first_name,
+                    'employee_name' => $claim->employee->last_name . ', ' . $claim->employee->first_name,
                     'office' => $claim->employee->office?->name ?? 'N/A',
                     'amount' => (float) $claim->amount,
                     'claim_date' => $claim->claim_date,
@@ -223,7 +223,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'total_amount' => (float) $item->total_amount,
                     'claim_count' => (int) $item->claim_count,
@@ -249,7 +249,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'travel_count' => (int) $item->travel_count,
                     'total_travel_amount' => (float) $item->total_travel_amount,
@@ -275,7 +275,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'overtime_count' => (int) $item->overtime_count,
                     'total_overtime_amount' => (float) $item->total_overtime_amount,
@@ -284,7 +284,7 @@ class DashboardController extends Controller
 
         // Claims and Overtime by Office
         $claimsByOfficeQuery = Claim::query()
-            ->with('employee.office');
+            ->with(['employee.office', 'claimType']);
 
         if ($useFilters) {
             $claimsByOfficeQuery->whereMonth('claim_date', $currentMonth)
@@ -298,22 +298,67 @@ class DashboardController extends Controller
             })
             ->map(function ($claims, $officeId) {
                 $office = $claims->first()->employee->office;
+
+                // Filter travel claims
                 $travelClaims = $claims->filter(function ($claim) {
                     return $claim->claimType?->code === 'TRAVEL';
                 });
+
+                // Filter overtime claims
                 $overtimeClaims = $claims->filter(function ($claim) {
                     return $claim->claimType?->code === 'OVERTIME';
                 });
 
+                // Breakdown travel claims by type (meals, transpo, reimbursement, others)
+                $travelBreakdown = [
+                    'meals' => $travelClaims->filter(function ($claim) {
+                        return stripos($claim->purpose, 'meal') !== false ||
+                            stripos($claim->purpose, 'food') !== false ||
+                            stripos($claim->purpose, 'per diem') !== false;
+                    })->sum('amount'),
+                    'transportation' => $travelClaims->filter(function ($claim) {
+                        return stripos($claim->purpose, 'transpo') !== false ||
+                            stripos($claim->purpose, 'transport') !== false ||
+                            stripos($claim->purpose, 'fare') !== false ||
+                            stripos($claim->purpose, 'gasoline') !== false ||
+                            stripos($claim->purpose, 'fuel') !== false;
+                    })->sum('amount'),
+                    'reimbursement' => $travelClaims->filter(function ($claim) {
+                        return stripos($claim->purpose, 'reimburse') !== false ||
+                            stripos($claim->purpose, 'refund') !== false;
+                    })->sum('amount'),
+                    'others' => $travelClaims->filter(function ($claim) {
+                        $purpose = strtolower($claim->purpose);
+                        return !stripos($purpose, 'meal') &&
+                            !stripos($purpose, 'food') &&
+                            !stripos($purpose, 'per diem') &&
+                            !stripos($purpose, 'transpo') &&
+                            !stripos($purpose, 'transport') &&
+                            !stripos($purpose, 'fare') &&
+                            !stripos($purpose, 'gasoline') &&
+                            !stripos($purpose, 'fuel') &&
+                            !stripos($purpose, 'reimburse') &&
+                            !stripos($purpose, 'refund');
+                    })->sum('amount'),
+                ];
+
                 return [
                     'office_name' => $office?->name ?? 'Unknown',
                     'office_code' => $office?->code ?? 'N/A',
-                    'claims_count' => (int) $claims->count(),
+                    'travel_count' => (int) $travelClaims->count(),
+                    'travel_total' => (float) $travelClaims->sum('amount'),
+                    'travel_breakdown' => [
+                        'meals' => (float) $travelBreakdown['meals'],
+                        'transportation' => (float) $travelBreakdown['transportation'],
+                        'reimbursement' => (float) $travelBreakdown['reimbursement'],
+                        'others' => (float) $travelBreakdown['others'],
+                    ],
                     'overtime_count' => (int) $overtimeClaims->count(),
+                    'overtime_total' => (float) $overtimeClaims->sum('amount'),
                 ];
             })
             ->values()
-            ->sortByDesc('claims_count')
+            ->sortByDesc('travel_total')
             ->values();
 
         return Inertia::render('dashboard', [
