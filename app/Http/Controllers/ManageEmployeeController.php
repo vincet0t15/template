@@ -232,6 +232,7 @@ class ManageEmployeeController extends Controller
     {
         $filterMonth = $request->input('month');
         $filterYear = $request->input('year');
+        $printType = $request->input('type', 'all');
 
         $employee->load([
             'office',
@@ -284,6 +285,7 @@ class ManageEmployeeController extends Controller
             'allClaims' => $allClaims,
             'filterMonth' => $filterMonth,
             'filterYear' => $filterYear,
+            'printType' => $printType,
         ]);
     }
 }

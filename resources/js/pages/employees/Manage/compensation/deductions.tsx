@@ -6,7 +6,7 @@ import type { DeductionType } from '@/types/deductionType';
 import type { Employee, Employee as EmployeeType } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2, Users, X } from 'lucide-react';
+import { Pencil, Plus, Printer, Trash2, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { SalaryDialog } from './salaryDialog';
 
@@ -135,6 +135,11 @@ export function CompensationDeductions({
         }
     };
 
+    const handlePrintDeductions = (periodKey: string) => {
+        const [year, month] = periodKey.split('-');
+        window.open(route('employees.print', [employee.id, { month, year, type: 'deductions' }]), '_blank');
+    };
+
     const periods = periodsList;
     const currentPage = pagination?.current_page ?? 1;
     const lastPage = pagination?.last_page ?? 1;
@@ -211,6 +216,10 @@ export function CompensationDeductions({
                                             <span className="text-xs text-slate-500">Net Pay:</span>
                                             <span className="ml-2 text-sm font-bold text-green-600">{formatCurrency(netPay)}</span>
                                         </div>
+                                        <Button variant="outline" onClick={() => handlePrintDeductions(periodKey)}>
+                                            <Printer className="h-3 w-3" />
+                                            Print
+                                        </Button>
                                         <Button variant="outline" onClick={() => openEditDialog(periodKey)}>
                                             <Pencil className="h-3 w-3" />
                                             Edit

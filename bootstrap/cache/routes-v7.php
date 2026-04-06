@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::w2YGX90LbydD6JXi',
+            '_route' => 'generated::qUKpmPrFBowcgDzl',
           ),
           1 => NULL,
           2 => 
@@ -1085,7 +1085,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::PwKs7CTmK0JqUV0d',
+            '_route' => 'generated::3iKyEHsIIuqCXw6e',
           ),
           1 => NULL,
           2 => 
@@ -1235,7 +1235,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::ZQmmqVTiXvG3HzhL',
+            '_route' => 'generated::wR4uaGjIT1PMLBxC',
           ),
           1 => NULL,
           2 => 
@@ -1271,7 +1271,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::QzsWQ7bvrrtWH0F0',
+            '_route' => 'generated::xUM7luPluoJRAHxr',
           ),
           1 => NULL,
           2 => 
@@ -1346,7 +1346,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::chM6i6St1kXBsfe6',
+            '_route' => 'generated::LslaF0zXwLW7m1vu',
           ),
           1 => NULL,
           2 => 
@@ -2703,7 +2703,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::w2YGX90LbydD6JXi' => 
+    'generated::qUKpmPrFBowcgDzl' => 
     array (
       'methods' => 
       array (
@@ -2732,7 +2732,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000005740000000000000000";}}',
-        'as' => 'generated::w2YGX90LbydD6JXi',
+        'as' => 'generated::qUKpmPrFBowcgDzl',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7230,7 +7230,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::PwKs7CTmK0JqUV0d' => 
+    'generated::3iKyEHsIIuqCXw6e' => 
     array (
       'methods' => 
       array (
@@ -7257,7 +7257,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::PwKs7CTmK0JqUV0d',
+        'as' => 'generated::3iKyEHsIIuqCXw6e',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7539,7 +7539,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::ZQmmqVTiXvG3HzhL' => 
+    'generated::wR4uaGjIT1PMLBxC' => 
     array (
       'methods' => 
       array (
@@ -7561,7 +7561,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::ZQmmqVTiXvG3HzhL',
+        'as' => 'generated::wR4uaGjIT1PMLBxC',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7615,7 +7615,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::QzsWQ7bvrrtWH0F0' => 
+    'generated::xUM7luPluoJRAHxr' => 
     array (
       'methods' => 
       array (
@@ -7636,7 +7636,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::QzsWQ7bvrrtWH0F0',
+        'as' => 'generated::xUM7luPluoJRAHxr',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7806,7 +7806,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::chM6i6St1kXBsfe6' => 
+    'generated::LslaF0zXwLW7m1vu' => 
     array (
       'methods' => 
       array (
@@ -7827,7 +7827,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::chM6i6St1kXBsfe6',
+        'as' => 'generated::LslaF0zXwLW7m1vu',
       ),
       'fallback' => false,
       'defaults' => 

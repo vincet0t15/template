@@ -12,6 +12,7 @@ interface PrintReportPageProps {
     allClaims: Claim[];
     filterMonth?: string | null;
     filterYear?: string | null;
+    printType?: 'all' | 'deductions' | 'claims';
 }
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -55,7 +56,14 @@ interface YearlyClaimRow {
     total: number;
 }
 
-export default function EmployeePrintReport({ employee, allDeductions, allClaims, filterMonth, filterYear }: PrintReportPageProps) {
+export default function EmployeePrintReport({
+    employee,
+    allDeductions,
+    allClaims,
+    filterMonth,
+    filterYear,
+    printType = 'all',
+}: PrintReportPageProps) {
     // Group deductions by year-month
     const deductionsByPeriod: Record<string, MonthlyDeductionRow> = {};
     for (const d of allDeductions) {
@@ -173,9 +181,22 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
         window.print();
     };
 
+    const getTitle = () => {
+        const baseTitle = `Print Report - ${employee.last_name}, ${employee.first_name}`;
+        if (printType === 'deductions') {
+            return filterMonth && filterYear
+                ? `Deductions - ${MONTHS[parseInt(filterMonth) - 1]} ${filterYear} - ${baseTitle}`
+                : `Deductions - ${baseTitle}`;
+        }
+        if (printType === 'claims') {
+            return filterMonth && filterYear ? `Claims - ${MONTHS[parseInt(filterMonth) - 1]} ${filterYear} - ${baseTitle}` : `Claims - ${baseTitle}`;
+        }
+        return baseTitle;
+    };
+
     return (
         <div className="mx-auto min-h-screen bg-white p-4 font-sans text-[11px] leading-[1.3] text-black print:max-w-none print:p-0">
-            <Head title={`Print Report - ${employee.last_name}, ${employee.first_name}`} />
+            <Head title={getTitle()} />
 
             <div className="mb-4 flex justify-end print:hidden">
                 <Button onClick={handlePrint}>
@@ -280,6 +301,9 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                         const deductionPeriod = deductionPeriods.find((p) => p.year === year && p.month === month);
                                         const claimPeriod = claimPeriods.find((p) => p.year === year && p.month === month);
 
+                                        // Skip if this period doesn't match the print type
+                                        if (printType === 'deductions' && !deductionPeriod) return null;
+                                        if (printType === 'claims' && !claimPeriod) return null;
                                         if (!deductionPeriod && !claimPeriod) return null;
 
                                         return (
@@ -289,7 +313,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                                     <h3 className="m-0 text-[13px] font-bold uppercase">
                                                         {MONTHS[month - 1]} {year}
                                                     </h3>
-                                                    {deductionPeriod && (
+                                                    {deductionPeriod && printType !== 'claims' && (
                                                         <div className="text-[11px]">
                                                             Deductions:{' '}
                                                             <span className="font-bold text-red-600">{formatCurrency(deductionPeriod.total)}</span>
@@ -298,7 +322,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                                 </div>
 
                                                 {/* Deductions Table */}
-                                                {deductionPeriod && (
+                                                {deductionPeriod && printType !== 'claims' && (
                                                     <table className="mb-4 w-full border-collapse border border-black">
                                                         <thead>
                                                             <tr className="bg-gray-100">
@@ -332,7 +356,7 @@ export default function EmployeePrintReport({ employee, allDeductions, allClaims
                                                 )}
 
                                                 {/* Claims Section */}
-                                                {claimPeriod && (
+                                                {claimPeriod && printType !== 'deductions' && (
                                                     <>
                                                         <div className="mb-2 text-[11px]">
                                                             Claims:{' '}
