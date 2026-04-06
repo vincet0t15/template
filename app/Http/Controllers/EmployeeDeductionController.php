@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EmployeeDeductionController extends Controller
 {
@@ -76,6 +77,60 @@ class EmployeeDeductionController extends Controller
     }
 
     /**
+     * Print employee deductions report
+     */
+    public function print(Request $request)
+    {
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
+        $officeId = $request->input('office_id');
+        $employmentStatusId = $request->input('employment_status_id');
+
+        $employees = Employee::query()
+            ->with(['employmentStatus', 'office'])
+            ->when($officeId, function ($query, $officeId) {
+                $query->where('office_id', $officeId);
+            })
+            ->when($employmentStatusId, function ($query, $employmentStatusId) {
+                $query->where('employment_status_id', $employmentStatusId);
+            })
+            ->with(['salaries' => function ($query) use ($year, $month) {
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
+            ->with(['peras' => function ($query) use ($year, $month) {
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
+            ->with(['ratas' => function ($query) use ($year, $month) {
+                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+                    ->orderBy('effective_date', 'desc');
+            }])
+            ->with(['deductions' => function ($query) use ($month, $year) {
+                $query->where('pay_period_month', $month)
+                    ->where('pay_period_year', $year)
+                    ->with('deductionType');
+            }])
+            ->orderBy('last_name')
+            ->get();
+
+        $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
+        $officeName = $officeId ? Office::find($officeId)?->name : null;
+
+        return Inertia::render('EmployeeDeductions/Print', [
+            'employees' => $employees,
+            'deductionTypes' => $deductionTypes,
+            'filters' => [
+                'month' => (int) $month,
+                'year' => (int) $year,
+                'office_id' => $officeId,
+                'employment_status_id' => $employmentStatusId,
+            ],
+            'officeName' => $officeName,
+        ]);
+    }
+
+    /**
      * Show the bulk add deduction page
      */
     public function bulkAddPage(): Response
@@ -99,7 +154,7 @@ class EmployeeDeductionController extends Controller
     public function create(Request $request): Response
     {
         $employeeId = $request->input('employee_id');
-        
+
         if (!$employeeId) {
             abort(404, 'Employee ID is required');
         }
@@ -121,7 +176,7 @@ class EmployeeDeductionController extends Controller
         // Get taken periods for this employee
         $takenPeriods = EmployeeDeduction::where('employee_id', $employeeId)
             ->get()
-            ->map(fn ($d) => "{$d->pay_period_year}-{$d->pay_period_month}")
+            ->map(fn($d) => "{$d->pay_period_year}-{$d->pay_period_month}")
             ->toArray();
 
         return Inertia::render('employee-deductions/AddDeduction', [

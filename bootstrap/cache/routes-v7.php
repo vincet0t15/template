@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::xKPnqdRL0myRKIcs',
+            '_route' => 'generated::d1pkLKgjKM81yIwq',
           ),
           1 => NULL,
           2 => 
@@ -559,6 +559,26 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/employee-deductions/print' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.print',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/employee-deductions/add' => 
       array (
         0 => 
@@ -1085,7 +1105,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::R9gXB62gUJXAcg6d',
+            '_route' => 'generated::0sLWVKU2hjiClWw7',
           ),
           1 => NULL,
           2 => 
@@ -1235,7 +1255,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::iXwxteYj4GDFkxq9',
+            '_route' => 'generated::jeCeBY4pGjlI1BAF',
           ),
           1 => NULL,
           2 => 
@@ -1271,7 +1291,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::4fa8ggp595NLBZkg',
+            '_route' => 'generated::FJDazqS3IN4j0nX8',
           ),
           1 => NULL,
           2 => 
@@ -1346,7 +1366,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::ZJ7sfg783GNtuVoH',
+            '_route' => 'generated::yO7TFobiAJA50Y71',
           ),
           1 => NULL,
           2 => 
@@ -2703,7 +2723,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::xKPnqdRL0myRKIcs' => 
+    'generated::d1pkLKgjKM81yIwq' => 
     array (
       'methods' => 
       array (
@@ -2732,7 +2752,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"000000000000057d0000000000000000";}}',
-        'as' => 'generated::xKPnqdRL0myRKIcs',
+        'as' => 'generated::d1pkLKgjKM81yIwq',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4779,6 +4799,46 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'employee-deductions.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'employee-deductions.print' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'employee-deductions/print',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@print',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@print',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.print',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7231,7 +7291,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::R9gXB62gUJXAcg6d' => 
+    'generated::0sLWVKU2hjiClWw7' => 
     array (
       'methods' => 
       array (
@@ -7258,7 +7318,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::R9gXB62gUJXAcg6d',
+        'as' => 'generated::0sLWVKU2hjiClWw7',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7480,7 +7540,7 @@ app('router')->setCompiledRoutes(
         ),
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:83:"function () {
         return \\Inertia\\Inertia::render(\'settings/appearance\');
-    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006110000000000000000";}}',
+    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006120000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
@@ -7540,7 +7600,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::iXwxteYj4GDFkxq9' => 
+    'generated::jeCeBY4pGjlI1BAF' => 
     array (
       'methods' => 
       array (
@@ -7562,7 +7622,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::iXwxteYj4GDFkxq9',
+        'as' => 'generated::jeCeBY4pGjlI1BAF',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7616,7 +7676,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::4fa8ggp595NLBZkg' => 
+    'generated::FJDazqS3IN4j0nX8' => 
     array (
       'methods' => 
       array (
@@ -7637,7 +7697,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::4fa8ggp595NLBZkg',
+        'as' => 'generated::FJDazqS3IN4j0nX8',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7807,7 +7867,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::ZJ7sfg783GNtuVoH' => 
+    'generated::yO7TFobiAJA50Y71' => 
     array (
       'methods' => 
       array (
@@ -7828,7 +7888,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::ZJ7sfg783GNtuVoH',
+        'as' => 'generated::yO7TFobiAJA50Y71',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7930,7 +7990,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000061d0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000061e0000000000000000";}}',
         'as' => 'storage.local.upload',
       ),
       'fallback' => false,

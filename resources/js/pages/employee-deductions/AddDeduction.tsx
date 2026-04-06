@@ -1,23 +1,19 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import { Head, router, useForm } from '@inertiajs/react';
-import { type FormEventHandler, useEffect, useState } from 'react';
+import { type FormEventHandler, useState } from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Employees',
         href: '/employees',
-    },
-    {
-        title: 'Manage Employee',
-        href: '/manage/employees',
     },
     {
         title: 'Add Deductions',
@@ -133,7 +129,7 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
             return;
         }
 
-        post(route('employee-deductions.store'), {
+        post(route('manage.employees.deductions.store', employee.id), {
             onSuccess: () => {
                 toast.success('Deductions saved successfully');
                 // Navigate back to employee manage page
@@ -153,7 +149,7 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Deductions" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-md p-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">Add Salary Deductions</h2>
@@ -167,7 +163,7 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
                 </div>
 
                 <form onSubmit={onSubmit} className="space-y-6">
-                    <div className="bg-card rounded-lg border p-6 shadow-sm">
+                    <div className="rounded-md border p-6 shadow-sm">
                         {/* Pay Period */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1">
@@ -204,10 +200,14 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
 
                     {/* Salary Selection */}
                     {sortedSalaries.length > 1 && (
-                        <div className="bg-card rounded-lg border p-6 shadow-sm">
+                        <div className="rounded-md border p-6 shadow-sm">
                             <Label className="mb-3 block text-base font-semibold">Select Salary Basis</Label>
+                            <p className="text-muted-foreground mb-4 text-sm">Select which salary record to use as reference for these deductions</p>
                             <div className="space-y-4">
-                                <label htmlFor="current-salary" className="flex cursor-pointer items-start space-x-3 rounded-md border p-4 hover:bg-muted/50">
+                                <label
+                                    htmlFor="current-salary"
+                                    className="hover:bg-muted/50 flex cursor-pointer items-start space-x-3 rounded-md border p-4"
+                                >
                                     <input
                                         type="radio"
                                         id="current-salary"
@@ -238,7 +238,10 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
                                         </p>
                                     </div>
                                 </label>
-                                <label htmlFor="previous-salary" className="flex cursor-pointer items-start space-x-3 rounded-md border p-4 hover:bg-muted/50">
+                                <label
+                                    htmlFor="previous-salary"
+                                    className="hover:bg-muted/50 flex cursor-pointer items-start space-x-3 rounded-md border p-4"
+                                >
                                     <input
                                         type="radio"
                                         id="previous-salary"
@@ -247,7 +250,6 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
                                         checked={salaryOption === 'previous'}
                                         onChange={() => {
                                             setSalaryOption('previous');
-                                            // Auto-select first previous salary
                                             if (sortedSalaries.length > 1) {
                                                 handleSalaryChange(sortedSalaries[1].id);
                                             }
@@ -273,8 +275,31 @@ export default function AddDeductionPage({ employee, deductionTypes, takenPeriod
                         </div>
                     )}
 
+                    {/* Salary Reference Display (when only one salary exists) */}
+                    {sortedSalaries.length <= 1 && currentSalary && (
+                        <div className="rounded-md border p-6 shadow-sm">
+                            <h3 className="mb-2 text-base font-semibold">Salary Reference</h3>
+                            <div className="bg-muted/50 rounded-md p-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium">Current Salary</p>
+                                        <p className="text-muted-foreground text-xs">
+                                            Effective:{' '}
+                                            {new Date(currentSalary.effective_date).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })}
+                                        </p>
+                                    </div>
+                                    <p className="text-lg font-bold">{formatCurrency(Number(currentSalary.amount))}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Deduction Fields */}
-                    <div className="bg-card rounded-lg border p-6 shadow-sm">
+                    <div className="rounded-md border p-6 shadow-sm">
                         <h3 className="mb-4 text-base font-semibold">Deduction Amounts</h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {deductionTypes.map((deductionType, index) => (

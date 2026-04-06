@@ -107,8 +107,8 @@ export function CompensationDeductions({
     };
 
     const openNewDialog = () => {
-        // Navigate to the new add deduction page
-        router.get(route('employee-deductions.create'), { employee_id: employee.id });
+        // Open add deduction page in new tab
+        window.open(route('employee-deductions.create') + '?employee_id=' + employee.id, '_blank');
     };
 
     const openEditDialog = (periodKey: string) => {

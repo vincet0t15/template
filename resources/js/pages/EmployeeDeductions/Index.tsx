@@ -12,7 +12,7 @@ import type { Employee } from '@/types/employee';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, User, Users } from 'lucide-react';
+import { Printer, Search, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const MONTHS = [
@@ -174,6 +174,20 @@ export default function Index({ employees, deductionTypes, offices, employmentSt
                     </div>
 
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                const params = new URLSearchParams();
+                                if (selectedMonth) params.append('month', selectedMonth);
+                                if (selectedYear) params.append('year', selectedYear);
+                                if (selectedOffice !== 'all') params.append('office_id', selectedOffice);
+                                if (selectedEmploymentStatus !== 'all') params.append('employment_status_id', selectedEmploymentStatus);
+                                window.open(route('employee-deductions.print') + '?' + params.toString(), '_blank');
+                            }}
+                        >
+                            <Printer className="mr-2 h-4 w-4" />
+                            Print
+                        </Button>
                         <Button variant="outline" onClick={handleReset}>
                             Reset
                         </Button>

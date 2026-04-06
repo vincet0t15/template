@@ -249,7 +249,7 @@ export default function Comparison({ employees, offices, employmentStatuses, fil
                                 items={monthOptions}
                                 placeholder="Select Month"
                                 value={filterData.period1_month.toString()}
-                                onSelect={(value) => setFilterData('period1_month', value ? parseInt(value) : '')}
+                                onSelect={(value) => setFilterData('period1_month', value ? parseInt(value) : 0)}
                             />
                         </div>
                         <Input
@@ -267,7 +267,7 @@ export default function Comparison({ employees, offices, employmentStatuses, fil
                                 items={monthOptions}
                                 placeholder="Select Month"
                                 value={filterData.period2_month.toString()}
-                                onSelect={(value) => setFilterData('period2_month', value ? parseInt(value) : '')}
+                                onSelect={(value) => setFilterData('period2_month', value ? parseInt(value) : 0)}
                             />
                         </div>
                         <Input
