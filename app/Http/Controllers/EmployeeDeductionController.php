@@ -56,7 +56,7 @@ class EmployeeDeductionController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        $deductionTypes = DeductionType::where('status', true)->orderBy('name')->get();
+        $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
         $offices = Office::where('status', true)->orderBy('name')->get();
         $employmentStatuses = EmploymentStatus::where('status', true)->orderBy('name')->get();
 
@@ -85,7 +85,7 @@ class EmployeeDeductionController extends Controller
             ->orderBy('first_name')
             ->get(['id', 'first_name', 'last_name', 'office_id', 'position']);
 
-        $deductionTypes = DeductionType::where('status', true)->orderBy('name')->get();
+        $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
 
         return Inertia::render('EmployeeDeductions/BulkAdd', [
             'employees' => $employees,

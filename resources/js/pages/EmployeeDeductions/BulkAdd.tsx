@@ -232,7 +232,7 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                         Deduction Type <span className="text-red-500">*</span>
                                     </Label>
                                     <Select value={form.data.deduction_type_id} onValueChange={(value) => form.setData('deduction_type_id', value)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select deduction type" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -269,7 +269,7 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                     </Label>
                                     <div className="grid grid-cols-2 gap-3">
                                         <Select value={form.data.pay_period_month} onValueChange={(value) => form.setData('pay_period_month', value)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="w-full">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -281,7 +281,7 @@ export default function BulkAddDeduction({ employees, deductionTypes }: BulkAddD
                                             </SelectContent>
                                         </Select>
                                         <Select value={form.data.pay_period_year} onValueChange={(value) => form.setData('pay_period_year', value)}>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="w-full">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
