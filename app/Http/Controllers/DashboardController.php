@@ -12,6 +12,7 @@ use App\Models\Office;
 use App\Models\Pera;
 use App\Models\Rata;
 use App\Models\Salary;
+use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -178,6 +179,74 @@ class DashboardController extends Controller
             ];
         })->values();
 
+        // Salary Distribution by Fund and Code
+        $allSourceOfFundCodes = SourceOfFundCode::where('status', true)
+            ->with('generalFund')
+            ->orderBy('code')
+            ->get();
+
+        $salariesDistributionQuery = Salary::selectRaw('source_of_fund_codes.id as code_id, source_of_fund_codes.code, source_of_fund_codes.description as code_description, source_of_fund_codes.general_fund_id, SUM(salaries.amount) as total_amount, COUNT(DISTINCT salaries.employee_id) as employee_count')
+            ->join('source_of_fund_codes', 'salaries.source_of_fund_code_id', '=', 'source_of_fund_codes.id');
+
+        if ($useFilters) {
+            $salariesDistributionQuery->whereYear('salaries.effective_date', $year);
+            if ($month) {
+                $salariesDistributionQuery->whereMonth('salaries.effective_date', $month);
+            }
+        }
+
+        $salariesByCode = $salariesDistributionQuery
+            ->groupBy('source_of_fund_codes.id', 'source_of_fund_codes.code', 'source_of_fund_codes.description', 'source_of_fund_codes.general_fund_id')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'code_id' => $item->code_id,
+                    'code' => $item->code,
+                    'code_description' => $item->code_description,
+                    'general_fund_id' => $item->general_fund_id,
+                    'total_amount' => (float) $item->total_amount,
+                    'employee_count' => (int) $item->employee_count,
+                ];
+            });
+
+        // Group by General Fund
+        $salariesByFundDistribution = $allSourceOfFundCodes->groupBy('general_fund_id')->map(function ($codes) use ($salariesByCode) {
+            $fundCodes = $codes->map(function ($code) use ($salariesByCode) {
+                $existing = $salariesByCode->firstWhere('code_id', $code->id);
+                return [
+                    'code_id' => $code->id,
+                    'code' => $code->code,
+                    'code_description' => $code->description,
+                    'total_amount' => $existing ? $existing['total_amount'] : 0.0,
+                    'employee_count' => $existing ? $existing['employee_count'] : 0,
+                ];
+            });
+
+            $fundTotal = $fundCodes->sum('total_amount');
+            $fundEmployees = $fundCodes->sum('employee_count');
+
+            return [
+                'codes' => $fundCodes->values(),
+                'total_amount' => $fundTotal,
+                'employee_count' => $fundEmployees,
+            ];
+        });
+
+        // Merge with all general funds
+        $allGeneralFunds = GeneralFund::where('status', true)->orderBy('code')->get();
+        $salaryDistribution = $allGeneralFunds->map(function ($fund) use ($salariesByFundDistribution) {
+            $existing = $salariesByFundDistribution->get($fund->id);
+
+            return [
+                'id' => $fund->id,
+                'code' => $fund->code,
+                'description' => $fund->description,
+                'codes' => $existing ? $existing['codes'] : [],
+                'total_amount' => $existing ? $existing['total_amount'] : 0.0,
+                'employee_count' => $existing ? $existing['employee_count'] : 0,
+            ];
+        })->values();
+
         // Recent activity (placeholder - can be enhanced with actual activity log)
         $recentActivity = [];
 
@@ -197,7 +266,7 @@ class DashboardController extends Controller
             ->map(function ($claim) {
                 return [
                     'id' => $claim->id,
-                    'employee_name' => $claim->employee->last_name.', '.$claim->employee->first_name,
+                    'employee_name' => $claim->employee->last_name . ', ' . $claim->employee->first_name,
                     'office' => $claim->employee->office?->name ?? 'N/A',
                     'amount' => (float) $claim->amount,
                     'claim_date' => $claim->claim_date,
@@ -222,7 +291,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'total_amount' => (float) $item->total_amount,
                     'claim_count' => (int) $item->claim_count,
@@ -248,7 +317,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'travel_count' => (int) $item->travel_count,
                     'total_travel_amount' => (float) $item->total_travel_amount,
@@ -274,7 +343,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
+                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'overtime_count' => (int) $item->overtime_count,
                     'total_overtime_amount' => (float) $item->total_overtime_amount,
@@ -340,6 +409,7 @@ class DashboardController extends Controller
                 'claimsThisWeek' => $claimsThisWeek,
             ],
             'salariesBySourceOfFund' => $salariesByFund,
+            'salaryDistribution' => $salaryDistribution,
             'filters' => [
                 'month' => (int) $month,
                 'year' => (int) $year,

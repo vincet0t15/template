@@ -4,6 +4,7 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { Employee } from '@/types/employee';
@@ -18,9 +19,9 @@ import {
     Clock,
     Coins,
     FileText,
+    Filter,
     Key,
     MinusCircle,
-    PieChart as PieChartIcon,
     Receipt,
     Shield,
     TrendingDown,
@@ -122,6 +123,20 @@ interface DashboardProps {
         name: string;
         count: number;
     }[];
+    salaryDistribution: {
+        id: number;
+        code: string;
+        description: string | null;
+        codes: {
+            code_id: number;
+            code: string;
+            code_description: string | null;
+            total_amount: number;
+            employee_count: number;
+        }[];
+        total_amount: number;
+        employee_count: number;
+    }[];
 }
 
 const formatCurrency = (amount: number) => {
@@ -138,7 +153,7 @@ const formatNumber = (num: number) => {
 
 export default function Dashboard({
     stats,
-    salariesBySourceOfFund,
+    salaryDistribution,
     filters,
     employeesByOffice,
     recentEmployeesWithDeductions,
@@ -153,6 +168,7 @@ export default function Dashboard({
     employeesByEmploymentStatus,
 }: DashboardProps) {
     const [chartType, setChartType] = React.useState<'bar' | 'pie'>('bar');
+    const [salaryViewMode, setSalaryViewMode] = React.useState<'byFund' | 'byCode'>('byFund');
 
     const {
         data: filterData,
@@ -324,26 +340,68 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Source of Fund Breakdown */}
+                {/* Salary Distribution */}
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <PieChartIcon className="h-5 w-5" />
-                                Salaries by Funds
-                            </CardTitle>
-                            <CardDescription>
-                                Total salary amounts grouped by general fund for{' '}
-                                {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
-                            </CardDescription>
+                    <CardHeader>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Coins className="h-5 w-5" />
+                                    Salary Distribution
+                                </CardTitle>
+                                <CardDescription>
+                                    Breakdown by source of fund for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
+                                    {filterData.year}
+                                </CardDescription>
+                            </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm">
+                                        <Filter className="mr-2 h-4 w-4" />
+                                        {salaryViewMode === 'byFund' ? 'By Fund' : 'By Code'}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40">
+                                    <DropdownMenuRadioGroup
+                                        value={salaryViewMode}
+                                        onValueChange={(value) => setSalaryViewMode(value as 'byFund' | 'byCode')}
+                                    >
+                                        <DropdownMenuRadioItem value="byFund">By Fund</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="byCode">By Code</DropdownMenuRadioItem>
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <ChartPieMultiple
-                            data={salariesBySourceOfFund}
-                            title="Salary Distribution by Funds"
-                            description={`Percentage breakdown for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
-                        />
+                        {salaryViewMode === 'byFund' && (
+                            <ChartPieMultiple
+                                data={salaryDistribution.map((fund) => ({
+                                    code: fund.code,
+                                    description: fund.description,
+                                    total_amount: fund.total_amount,
+                                }))}
+                                title="Salaries by General Fund"
+                                description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                            />
+                        )}
+
+                        {salaryViewMode === 'byCode' && (
+                            <ChartPieMultiple
+                                data={salaryDistribution
+                                    .flatMap((fund) =>
+                                        fund.codes.map((code) => ({
+                                            code: code.code,
+                                            description: code.code_description,
+                                            total_amount: code.total_amount,
+                                        })),
+                                    )
+                                    .filter((code) => code.total_amount > 0)
+                                    .sort((a, b) => b.total_amount - a.total_amount)}
+                                title="Salaries by Source of Fund Code"
+                                description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                            />
+                        )}
                     </CardContent>
                 </Card>
 
