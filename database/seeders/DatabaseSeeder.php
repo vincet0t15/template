@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             OfficeSeeder::class,
             DeductionTypeSeeder::class,
             ClaimTypeSeeder::class,
+            SampleClaimsSeeder::class,
         ]);
     }
 }

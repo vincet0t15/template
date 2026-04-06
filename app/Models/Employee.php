@@ -67,6 +67,11 @@ class Employee extends Model
         return $this->hasMany(EmployeeDeduction::class);
     }
 
+    public function claims(): HasMany
+    {
+        return $this->hasMany(Claim::class);
+    }
+
     /**
      * Get the latest salary record
      */

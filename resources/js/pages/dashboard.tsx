@@ -49,6 +49,9 @@ interface DashboardProps {
         totalSalaries: number;
         totalPera: number;
         totalRata: number;
+        employeeGrowth: number;
+        officesThisYear: number;
+        claimsThisWeek: number;
     };
     salariesBySourceOfFund: {
         code: string;
@@ -180,7 +183,7 @@ export default function Dashboard({
             description: 'Active workforce',
             icon: Users,
             color: 'bg-blue-500',
-            trend: '+12%',
+            trend: stats.employeeGrowth > 0 ? `+${stats.employeeGrowth}%` : stats.employeeGrowth < 0 ? `${stats.employeeGrowth}%` : 'No change',
         },
         {
             title: 'Total Offices',
@@ -188,7 +191,7 @@ export default function Dashboard({
             description: 'Departments',
             icon: Building2,
             color: 'bg-emerald-500',
-            trend: '+2',
+            trend: `+${stats.officesThisYear} this year`,
         },
         {
             title: `${currentPeriod.monthName} Deductions`,
@@ -201,10 +204,10 @@ export default function Dashboard({
         {
             title: 'Total Claims',
             value: formatCurrency(stats.totalClaimsAmount),
-            description: `${stats.totalClaims} pending claims`,
+            description: `${stats.totalClaims} total claims`,
             icon: Receipt,
             color: 'bg-violet-500',
-            trend: '+5',
+            trend: `+${stats.claimsThisWeek} this week`,
         },
     ];
 
@@ -328,10 +331,16 @@ export default function Dashboard({
                     {/* Top 10 Travel Claims Chart */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Receipt className="h-5 w-5" />
-                                Top 10 Travel Claims by Employee
-                            </CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="flex items-center gap-2">
+                                    <Receipt className="h-5 w-5" />
+                                    Top 10 Travel Claims by Employee
+                                </CardTitle>
+                                <Button variant="ghost" size="sm" onClick={() => router.get(route('claims.report', { type: 'travel' }))}>
+                                    View All
+                                    <ArrowUpRight className="ml-1 h-3 w-3" />
+                                </Button>
+                            </div>
                             <CardDescription>
                                 Employees with highest travel expenses for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
                                 {filterData.year}
@@ -394,10 +403,16 @@ export default function Dashboard({
                     {/* Top 10 Overtime Claims Chart */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock className="h-5 w-5" />
-                                Top 10 Overtime Claims by Employee
-                            </CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5" />
+                                    Top 10 Overtime Claims by Employee
+                                </CardTitle>
+                                <Button variant="ghost" size="sm" onClick={() => router.get(route('claims.report', { type: 'overtime' }))}>
+                                    View All
+                                    <ArrowUpRight className="ml-1 h-3 w-3" />
+                                </Button>
+                            </div>
                             <CardDescription>
                                 Employees with highest overtime compensation for{' '}
                                 {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
@@ -610,6 +625,13 @@ export default function Dashboard({
                     <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {[
+                                {
+                                    icon: Receipt,
+                                    title: 'Claims Report',
+                                    desc: 'View all claims',
+                                    route: 'claims.report',
+                                    color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900 dark:text-cyan-300',
+                                },
                                 {
                                     icon: MinusCircle,
                                     title: 'View Deductions',

@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::AslC06lqSPwzOJSz',
+            '_route' => 'generated::OMfdwlH8KERaKbQL',
           ),
           1 => NULL,
           2 => 
@@ -54,6 +54,46 @@ app('router')->setCompiledRoutes(
           0 => 
           array (
             '_route' => 'dashboard',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/claims-report' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'claims.report',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/claims-report/print' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'claims.report.print',
           ),
           1 => NULL,
           2 => 
@@ -852,7 +892,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::CRqpQVxHfGcEFUlE',
+            '_route' => 'generated::qNEjDjWmhJ4q1Yit',
           ),
           1 => NULL,
           2 => 
@@ -1002,7 +1042,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::RTSIv0ai4RYp2bpF',
+            '_route' => 'generated::1an2xuEOaf6Hw6Ep',
           ),
           1 => NULL,
           2 => 
@@ -1038,7 +1078,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::pvwCbkgxnC5EXLyz',
+            '_route' => 'generated::SUM40MeB62Z6htVB',
           ),
           1 => NULL,
           2 => 
@@ -1113,7 +1153,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::2jewCv5tYLD9cO8x',
+            '_route' => 'generated::CdwvEyGdS7I9KBvI',
           ),
           1 => NULL,
           2 => 
@@ -2360,7 +2400,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::AslC06lqSPwzOJSz' => 
+    'generated::OMfdwlH8KERaKbQL' => 
     array (
       'methods' => 
       array (
@@ -2389,7 +2429,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000005740000000000000000";}}',
-        'as' => 'generated::AslC06lqSPwzOJSz',
+        'as' => 'generated::OMfdwlH8KERaKbQL',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2467,6 +2507,84 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'dashboard',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'claims.report' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'claims-report',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ClaimController@report',
+        'controller' => 'App\\Http\\Controllers\\ClaimController@report',
+        'namespace' => NULL,
+        'prefix' => '/claims-report',
+        'where' => 
+        array (
+        ),
+        'as' => 'claims.report',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'claims.report.print' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'claims-report/print',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ClaimController@reportPrint',
+        'controller' => 'App\\Http\\Controllers\\ClaimController@reportPrint',
+        'namespace' => NULL,
+        'prefix' => '/claims-report',
+        'where' => 
+        array (
+        ),
+        'as' => 'claims.report.print',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6217,7 +6335,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::CRqpQVxHfGcEFUlE' => 
+    'generated::qNEjDjWmhJ4q1Yit' => 
     array (
       'methods' => 
       array (
@@ -6244,7 +6362,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::CRqpQVxHfGcEFUlE',
+        'as' => 'generated::qNEjDjWmhJ4q1Yit',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6466,7 +6584,7 @@ app('router')->setCompiledRoutes(
         ),
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:83:"function () {
         return \\Inertia\\Inertia::render(\'settings/appearance\');
-    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005f70000000000000000";}}',
+    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005f90000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
@@ -6526,7 +6644,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::RTSIv0ai4RYp2bpF' => 
+    'generated::1an2xuEOaf6Hw6Ep' => 
     array (
       'methods' => 
       array (
@@ -6548,7 +6666,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::RTSIv0ai4RYp2bpF',
+        'as' => 'generated::1an2xuEOaf6Hw6Ep',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6602,7 +6720,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::pvwCbkgxnC5EXLyz' => 
+    'generated::SUM40MeB62Z6htVB' => 
     array (
       'methods' => 
       array (
@@ -6623,7 +6741,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::pvwCbkgxnC5EXLyz',
+        'as' => 'generated::SUM40MeB62Z6htVB',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6793,7 +6911,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::2jewCv5tYLD9cO8x' => 
+    'generated::CdwvEyGdS7I9KBvI' => 
     array (
       'methods' => 
       array (
@@ -6814,7 +6932,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::2jewCv5tYLD9cO8x',
+        'as' => 'generated::CdwvEyGdS7I9KBvI',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6916,7 +7034,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000006030000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000006050000000000000000";}}',
         'as' => 'storage.local.upload',
       ),
       'fallback' => false,

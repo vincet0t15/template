@@ -35,6 +35,22 @@ class DashboardController extends Controller
         $totalOffices = Office::count();
         $totalDeductionTypes = DeductionType::where('is_active', true)->count();
 
+        // Calculate trends
+        $lastMonth = now()->subMonth();
+        $employeesLastMonth = Employee::whereMonth('created_at', $lastMonth->month)
+            ->whereYear('created_at', $lastMonth->year)
+            ->count();
+
+        $employeeGrowth = $totalEmployees > 0 && $employeesLastMonth > 0
+            ? round((($totalEmployees - $employeesLastMonth) / $employeesLastMonth) * 100, 1)
+            : 0;
+
+        // New offices this year
+        $officesThisYear = Office::whereYear('created_at', now()->year)->count();
+
+        // New claims this week
+        $claimsThisWeek = Claim::where('created_at', '>=', now()->subWeek())->count();
+
         // Current month stats
         $currentMonth = $month;
         $currentYear = $year;
@@ -279,6 +295,10 @@ class DashboardController extends Controller
                 'totalSalaries' => (float) $totalSalaries,
                 'totalPera' => (float) $totalPera,
                 'totalRata' => (float) $totalRata,
+                // Trend data
+                'employeeGrowth' => $employeeGrowth,
+                'officesThisYear' => $officesThisYear,
+                'claimsThisWeek' => $claimsThisWeek,
             ],
             'salariesBySourceOfFund' => $salariesBySourceOfFund,
             'filters' => [

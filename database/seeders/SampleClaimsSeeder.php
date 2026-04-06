@@ -23,9 +23,64 @@ class SampleClaimsSeeder extends Seeder
         // Get employees
         $employees = Employee::with('office')->get();
 
+        // If no employees exist, create sample ones
         if ($employees->isEmpty()) {
-            $this->command->error('No employees found. Run database seeders first.');
-            return;
+            $this->command->info('No employees found. Creating sample employees...');
+
+            $offices = \App\Models\Office::all();
+            $employmentStatuses = \App\Models\EmploymentStatus::all();
+
+            if ($offices->isEmpty() || $employmentStatuses->isEmpty()) {
+                $this->command->error('Offices or Employment Statuses not found. Run main seeders first.');
+                return;
+            }
+
+            // Create a system user for audit trail if none exists
+            $systemUser = \App\Models\User::first();
+            if (!$systemUser) {
+                $this->command->info('Creating system user...');
+                $systemUser = \App\Models\User::create([
+                    'name' => 'System Administrator',
+                    'username' => 'system',
+                    'password' => bcrypt('password'),
+                    'is_active' => true,
+                ]);
+            }
+
+            $this->command->info("Using user ID: {$systemUser->id} for created_by");
+
+            $sampleNames = [
+                ['Juan', 'Dela', 'Cruz', null],
+                ['Maria', 'Santos', 'Reyes', null],
+                ['Pedro', 'Garcia', 'Lopez', null],
+                ['Ana', 'Rodriguez', 'Martinez', null],
+                ['Carlos', 'Fernandez', 'Gonzalez', null],
+                ['Rosa', 'Perez', 'Torres', null],
+                ['Luis', 'Rivera', 'Morales', null],
+                ['Elena', 'Castillo', 'Ramirez', null],
+                ['Miguel', 'Flores', 'Vasquez', null],
+                ['Sofia', 'Hernandez', 'Diaz', null],
+                ['Antonio', 'Jimenez', 'Ruiz', null],
+                ['Isabella', 'Moreno', 'Alvarez', null],
+            ];
+
+            foreach ($sampleNames as $index => $nameData) {
+                \Illuminate\Support\Facades\DB::table('employees')->insert([
+                    'first_name' => $nameData[0],
+                    'middle_name' => $nameData[1],
+                    'last_name' => $nameData[2],
+                    'suffix' => $nameData[3],
+                    'position' => 'Employee ' . ($index + 1),
+                    'office_id' => $offices[$index % $offices->count()]->id,
+                    'employment_status_id' => $employmentStatuses->first()->id,
+                    'created_by' => $systemUser->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            $employees = Employee::with('office')->get();
+            $this->command->info('Sample employees created successfully!');
         }
 
         $this->command->info('Creating sample travel and overtime claims...');
