@@ -14,6 +14,7 @@ import {
     Building2,
     Calculator,
     DollarSign,
+    FileText,
     Key,
     LayoutGrid,
     LucideMoveVertical,
@@ -126,6 +127,17 @@ const mainNavItems: NavGroup[] = [
                 title: 'Permissions',
                 href: '/permissions',
                 icon: Key,
+            },
+        ],
+    },
+    {
+        title: 'Compliance',
+        icon: FileText,
+        children: [
+            {
+                title: 'Audit Logs',
+                href: '/audit-logs',
+                icon: FileText,
             },
         ],
     },

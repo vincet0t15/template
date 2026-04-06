@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimTypeController;
@@ -244,7 +245,14 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/restore', [BackupController::class, 'restore'])->name('settings.backup.restore');
         Route::post('/upload-restore', [BackupController::class, 'uploadRestore'])->name('settings.backup.upload-restore');
     });
+
+    // AUDIT LOGS (requires audit_logs.view permission)
+    Route::middleware(['permission:audit_logs.view'])->prefix('audit-logs')->group(function () {
+        Route::get('/', [AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+        Route::get('/export/csv', [AuditLogController::class, 'export'])->name('audit-logs.export');
+    });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

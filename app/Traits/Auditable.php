@@ -35,11 +35,18 @@ trait Auditable
 
     protected static function logAudit(string $action, $model, ?array $oldValues, ?array $newValues): void
     {
+        // Generate description if model has getAuditDescription method
+        $description = null;
+        if (method_exists($model, 'getAuditDescription')) {
+            $description = $model->getAuditDescription($action, $oldValues, $newValues);
+        }
+
         AuditLog::create([
             'action' => $action,
             'model_type' => get_class($model),
             'model_id' => $model->getKey(),
             'user_id' => Auth::id(),
+            'description' => $description,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'ip_address' => request()?->ip(),

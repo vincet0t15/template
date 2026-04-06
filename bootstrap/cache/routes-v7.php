@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::pghNMQUZFfkfUm2f',
+            '_route' => 'generated::s8xVfBec8vrUxOfV',
           ),
           1 => NULL,
           2 => 
@@ -851,42 +851,6 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      '/source-of-fund-codes' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'source-of-fund-codes.index',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'GET' => 0,
-            'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-        1 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'source-of-fund-codes.store',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
       '/general-funds' => 
       array (
         0 => 
@@ -911,6 +875,42 @@ app('router')->setCompiledRoutes(
           0 => 
           array (
             '_route' => 'general-funds.store',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/source-of-fund-codes' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'source-of-fund-codes.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'source-of-fund-codes.store',
           ),
           1 => NULL,
           2 => 
@@ -962,13 +962,53 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/audit-logs' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'audit-logs.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/audit-logs/export/csv' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'audit-logs.export',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/settings' => 
       array (
         0 => 
         array (
           0 => 
           array (
-            '_route' => 'generated::g0Db9y4ZRTasOHXb',
+            '_route' => 'generated::GeADIWwixbgYwcEj',
           ),
           1 => NULL,
           2 => 
@@ -1118,7 +1158,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::66HqzwGdMGgleCu2',
+            '_route' => 'generated::8JMpFxJSlguUXsUi',
           ),
           1 => NULL,
           2 => 
@@ -1154,7 +1194,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::pYIaNn2UCVJgWueG',
+            '_route' => 'generated::CDVh3ylGZBoKbDWp',
           ),
           1 => NULL,
           2 => 
@@ -1229,7 +1269,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::64pXZ7In7bd7ByRy',
+            '_route' => 'generated::CmPrvBf2lOUUxin0',
           ),
           1 => NULL,
           2 => 
@@ -1264,7 +1304,7 @@ app('router')->setCompiledRoutes(
     ),
     2 => 
     array (
-      0 => '{^(?|/claims\\-report/employee/([^/]++)(?|(*:43)|/print(*:56))|/p(?|ayroll/(?|([^/]++)(*:87)|export(*:100))|er(?|as/(?|history/([^/]++)(*:136)|([^/]++)(?|(*:155)))|missions/([^/]++)(?|(*:185))))|/employee(?|s/([^/]++)(?|/(?|print(*:230)|restore(*:245))|(*:254))|\\-deductions/([^/]++)(?|(*:287)))|/s(?|uppliers/([^/]++)(?|(*:322)|/transactions(?|(*:346)|/([^/]++)(?|/print(*:372)|(*:380))|(*:389)))|alaries/(?|history/([^/]++)(*:426)|([^/]++)(?|(*:445)))|ettings/(?|employment\\-statuses/([^/]++)(?|(*:498))|offices/([^/]++)(?|(*:526))|d(?|eduction\\-types/([^/]++)(?|(*:566))|ocument\\-types/([^/]++)(?|(*:601)))|claim\\-types/([^/]++)(?|(*:635))|backup/(?|download/([^/]++)(*:671)|([^/]++)(*:687)|restore(*:702)|upload\\-restore(*:725)))|ource\\-of\\-fund\\-codes/([^/]++)(?|(*:769))|torage/(.*)(?|(*:792)))|/r(?|atas/(?|history/([^/]++)(*:831)|([^/]++)(?|(*:850)))|oles/([^/]++)(?|(*:876)))|/manage/employees/([^/]++)(?|(*:915)|/(?|deductions(?|(*:940)|/([^/]++)(*:957))|claims(?|(*:975)|/([^/]++)(?|(*:995)))))|/accounts/([^/]++)(*:1025)|/general\\-funds/([^/]++)(?|(*:1061))|/verify\\-email/([^/]++)/([^/]++)(*:1103))/?$}sDu',
+      0 => '{^(?|/claims\\-report/employee/([^/]++)(?|(*:43)|/print(*:56))|/p(?|ayroll/(?|([^/]++)(*:87)|export(*:100))|er(?|as/(?|history/([^/]++)(*:136)|([^/]++)(?|(*:155)))|missions/([^/]++)(?|(*:185))))|/employee(?|s/([^/]++)(?|/(?|print(*:230)|restore(*:245))|(*:254))|\\-deductions/([^/]++)(?|(*:287)))|/s(?|uppliers/([^/]++)(?|(*:322)|/transactions(?|(*:346)|/([^/]++)(?|/print(*:372)|(*:380))|(*:389)))|alaries/(?|history/([^/]++)(*:426)|([^/]++)(?|(*:445)))|ettings/(?|employment\\-statuses/([^/]++)(?|(*:498))|offices/([^/]++)(?|(*:526))|d(?|eduction\\-types/([^/]++)(?|(*:566))|ocument\\-types/([^/]++)(?|(*:601)))|claim\\-types/([^/]++)(?|(*:635))|backup/(?|download/([^/]++)(*:671)|([^/]++)(*:687)|restore(*:702)|upload\\-restore(*:725)))|ource\\-of\\-fund\\-codes/([^/]++)(?|(*:769))|torage/(.*)(?|(*:792)))|/r(?|atas/(?|history/([^/]++)(*:831)|([^/]++)(?|(*:850)))|oles/([^/]++)(?|(*:876)))|/manage/employees/([^/]++)(?|(*:915)|/(?|deductions(?|(*:940)|/([^/]++)(*:957))|claims(?|(*:975)|/([^/]++)(?|(*:995)))))|/a(?|ccounts/([^/]++)(*:1028)|udit\\-logs/([^/]++)(*:1056))|/general\\-funds/([^/]++)(?|(*:1093))|/verify\\-email/([^/]++)/([^/]++)(*:1135))/?$}sDu',
     ),
     3 => 
     array (
@@ -2461,7 +2501,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      1025 => 
+      1028 => 
       array (
         0 => 
         array (
@@ -2483,7 +2523,30 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      1061 => 
+      1056 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'audit-logs.show',
+          ),
+          1 => 
+          array (
+            0 => 'auditLog',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      1093 => 
       array (
         0 => 
         array (
@@ -2524,7 +2587,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      1103 => 
+      1135 => 
       array (
         0 => 
         array (
@@ -2563,7 +2626,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::pghNMQUZFfkfUm2f' => 
+    'generated::s8xVfBec8vrUxOfV' => 
     array (
       'methods' => 
       array (
@@ -2592,7 +2655,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000005740000000000000000";}}',
-        'as' => 'generated::pghNMQUZFfkfUm2f',
+        'as' => 'generated::s8xVfBec8vrUxOfV',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6263,163 +6326,6 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'source-of-fund-codes.index' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'GET',
-        1 => 'HEAD',
-      ),
-      'uri' => 'source-of-fund-codes',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'active',
-          3 => 'permission:source_of_fund_codes.view',
-        ),
-        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@index',
-        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@index',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'source-of-fund-codes.index',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'source-of-fund-codes.store' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'POST',
-      ),
-      'uri' => 'source-of-fund-codes',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'active',
-          3 => 'permission:source_of_fund_codes.store',
-        ),
-        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@store',
-        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@store',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'source-of-fund-codes.store',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'source-of-fund-codes.update' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'PUT',
-      ),
-      'uri' => 'source-of-fund-codes/{sourceOfFundCode}',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'active',
-          3 => 'permission:source_of_fund_codes.edit',
-        ),
-        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@update',
-        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@update',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'source-of-fund-codes.update',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'source-of-fund-codes.destroy' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'DELETE',
-      ),
-      'uri' => 'source-of-fund-codes/{sourceOfFundCode}',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'active',
-          3 => 'permission:source_of_fund_codes.delete',
-        ),
-        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@destroy',
-        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@destroy',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'source-of-fund-codes.destroy',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
     'general-funds.index' => 
     array (
       'methods' => 
@@ -6435,7 +6341,7 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'auth',
           2 => 'active',
-          3 => 'permission:source_of_fund_codes.view',
+          3 => 'permission:general_funds.view',
         ),
         'uses' => '\\App\\Http\\Controllers\\GeneralFundController@index',
         'controller' => '\\App\\Http\\Controllers\\GeneralFundController@index',
@@ -6474,7 +6380,7 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'auth',
           2 => 'active',
-          3 => 'permission:source_of_fund_codes.store',
+          3 => 'permission:general_funds.store',
         ),
         'uses' => '\\App\\Http\\Controllers\\GeneralFundController@store',
         'controller' => '\\App\\Http\\Controllers\\GeneralFundController@store',
@@ -6513,7 +6419,7 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'auth',
           2 => 'active',
-          3 => 'permission:source_of_fund_codes.edit',
+          3 => 'permission:general_funds.edit',
         ),
         'uses' => '\\App\\Http\\Controllers\\GeneralFundController@update',
         'controller' => '\\App\\Http\\Controllers\\GeneralFundController@update',
@@ -6552,7 +6458,7 @@ app('router')->setCompiledRoutes(
           0 => 'web',
           1 => 'auth',
           2 => 'active',
-          3 => 'permission:source_of_fund_codes.delete',
+          3 => 'permission:general_funds.delete',
         ),
         'uses' => '\\App\\Http\\Controllers\\GeneralFundController@destroy',
         'controller' => '\\App\\Http\\Controllers\\GeneralFundController@destroy',
@@ -6562,6 +6468,163 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'general-funds.destroy',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'source-of-fund-codes.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'source-of-fund-codes',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:general_funds.view',
+        ),
+        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@index',
+        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@index',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'source-of-fund-codes.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'source-of-fund-codes.store' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'source-of-fund-codes',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:general_funds.store',
+        ),
+        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@store',
+        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@store',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'source-of-fund-codes.store',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'source-of-fund-codes.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'PUT',
+      ),
+      'uri' => 'source-of-fund-codes/{sourceOfFundCode}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:general_funds.edit',
+        ),
+        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@update',
+        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@update',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'source-of-fund-codes.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'source-of-fund-codes.destroy' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'DELETE',
+      ),
+      'uri' => 'source-of-fund-codes/{sourceOfFundCode}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:general_funds.delete',
+        ),
+        'uses' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@destroy',
+        'controller' => '\\App\\Http\\Controllers\\SourceOfFundCodeController@destroy',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'source-of-fund-codes.destroy',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6813,7 +6876,127 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::g0Db9y4ZRTasOHXb' => 
+    'audit-logs.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'audit-logs',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:audit_logs.view',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AuditLogController@index',
+        'controller' => 'App\\Http\\Controllers\\AuditLogController@index',
+        'namespace' => NULL,
+        'prefix' => '/audit-logs',
+        'where' => 
+        array (
+        ),
+        'as' => 'audit-logs.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'audit-logs.show' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'audit-logs/{auditLog}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:audit_logs.view',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AuditLogController@show',
+        'controller' => 'App\\Http\\Controllers\\AuditLogController@show',
+        'namespace' => NULL,
+        'prefix' => '/audit-logs',
+        'where' => 
+        array (
+        ),
+        'as' => 'audit-logs.show',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'audit-logs.export' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'audit-logs/export/csv',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:audit_logs.view',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AuditLogController@export',
+        'controller' => 'App\\Http\\Controllers\\AuditLogController@export',
+        'namespace' => NULL,
+        'prefix' => '/audit-logs',
+        'where' => 
+        array (
+        ),
+        'as' => 'audit-logs.export',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::GeADIWwixbgYwcEj' => 
     array (
       'methods' => 
       array (
@@ -6840,7 +7023,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::g0Db9y4ZRTasOHXb',
+        'as' => 'generated::GeADIWwixbgYwcEj',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7062,7 +7245,7 @@ app('router')->setCompiledRoutes(
         ),
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:83:"function () {
         return \\Inertia\\Inertia::render(\'settings/appearance\');
-    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006010000000000000000";}}',
+    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006040000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
@@ -7122,7 +7305,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::66HqzwGdMGgleCu2' => 
+    'generated::8JMpFxJSlguUXsUi' => 
     array (
       'methods' => 
       array (
@@ -7144,7 +7327,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::66HqzwGdMGgleCu2',
+        'as' => 'generated::8JMpFxJSlguUXsUi',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7198,7 +7381,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::pYIaNn2UCVJgWueG' => 
+    'generated::CDVh3ylGZBoKbDWp' => 
     array (
       'methods' => 
       array (
@@ -7219,7 +7402,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::pYIaNn2UCVJgWueG',
+        'as' => 'generated::CDVh3ylGZBoKbDWp',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7389,7 +7572,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::64pXZ7In7bd7ByRy' => 
+    'generated::CmPrvBf2lOUUxin0' => 
     array (
       'methods' => 
       array (
@@ -7410,7 +7593,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::64pXZ7In7bd7ByRy',
+        'as' => 'generated::CmPrvBf2lOUUxin0',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7512,7 +7695,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"000000000000060d0000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000006100000000000000000";}}',
         'as' => 'storage.local.upload',
       ),
       'fallback' => false,

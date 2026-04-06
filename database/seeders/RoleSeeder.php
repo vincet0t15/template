@@ -97,6 +97,10 @@ class RoleSeeder extends Seeder
             // Database Backup & Restore
             'database.backup',
             'database.restore',
+
+            // Audit Logs
+            'audit_logs.view',
+            'audit_logs.export',
         ];
 
         foreach ($permissions as $permission) {
