@@ -1,5 +1,6 @@
-import { CustomComboBox } from '@/components/CustomComboBox';
+import { ChartOfficeClaims } from '@/components/chart-office-claims';
 import { ChartPieMultiple } from '@/components/chart-pie-multiple';
+import { CustomComboBox } from '@/components/CustomComboBox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,6 +111,11 @@ interface DashboardProps {
         overtime_count: number;
         total_overtime_amount: number;
     }[];
+    claimsByOffice: {
+        office_name: string;
+        claims_count: number;
+        overtime_count: number;
+    }[];
 }
 
 const formatCurrency = (amount: number) => {
@@ -133,6 +139,7 @@ export default function Dashboard({
     topClaimants,
     mostTravelClaims,
     mostOvertimeClaims,
+    claimsByOffice,
 }: DashboardProps) {
     const [chartType, setChartType] = React.useState<'bar' | 'pie'>('bar');
 
@@ -370,7 +377,12 @@ export default function Dashboard({
                                                             {index + 1}
                                                         </span>
                                                         <div>
-                                                            <p className="font-medium">{employee.employee_name}</p>
+                                                            <button
+                                                                onClick={() => router.get(route('claims.employee.detail', employee.employee_id))}
+                                                                className="cursor-pointer text-left font-medium text-blue-600 hover:underline"
+                                                            >
+                                                                {employee.employee_name}
+                                                            </button>
                                                             <p className="text-muted-foreground text-xs">{employee.office}</p>
                                                         </div>
                                                     </div>
@@ -442,7 +454,12 @@ export default function Dashboard({
                                                             {index + 1}
                                                         </span>
                                                         <div>
-                                                            <p className="font-medium">{employee.employee_name}</p>
+                                                            <button
+                                                                onClick={() => router.get(route('claims.employee.detail', employee.employee_id))}
+                                                                className="cursor-pointer text-left font-medium text-emerald-600 hover:underline"
+                                                            >
+                                                                {employee.employee_name}
+                                                            </button>
                                                             <p className="text-muted-foreground text-xs">{employee.office}</p>
                                                         </div>
                                                     </div>
@@ -474,6 +491,17 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Claims & Overtime by Office Chart */}
+                <Card>
+                    <CardContent className="pt-6">
+                        <ChartOfficeClaims
+                            data={claimsByOffice}
+                            title="Claims & Overtime by Office"
+                            description={`Distribution of claims and overtime for ${months.find((m) => m.value === filterData.month)?.label || currentPeriod.monthName} ${filterData.year}`}
+                        />
+                    </CardContent>
+                </Card>
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 lg:grid-cols-7">

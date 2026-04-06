@@ -198,7 +198,7 @@ class DashboardController extends Controller
             ->map(function ($claim) {
                 return [
                     'id' => $claim->id,
-                    'employee_name' => $claim->employee->last_name . ', ' . $claim->employee->first_name,
+                    'employee_name' => $claim->employee->last_name.', '.$claim->employee->first_name,
                     'office' => $claim->employee->office?->name ?? 'N/A',
                     'amount' => (float) $claim->amount,
                     'claim_date' => $claim->claim_date,
@@ -223,7 +223,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'total_amount' => (float) $item->total_amount,
                     'claim_count' => (int) $item->claim_count,
@@ -249,7 +249,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'travel_count' => (int) $item->travel_count,
                     'total_travel_amount' => (float) $item->total_travel_amount,
@@ -275,12 +275,45 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'overtime_count' => (int) $item->overtime_count,
                     'total_overtime_amount' => (float) $item->total_overtime_amount,
                 ];
             });
+
+        // Claims and Overtime by Office
+        $claimsByOfficeQuery = Claim::query()
+            ->with('employee.office');
+
+        if ($useFilters) {
+            $claimsByOfficeQuery->whereMonth('claim_date', $currentMonth)
+                ->whereYear('claim_date', $currentYear);
+        }
+
+        $claimsByOffice = $claimsByOfficeQuery
+            ->get()
+            ->groupBy(function ($claim) {
+                return $claim->employee->office?->name ?? 'Unknown';
+            })
+            ->map(function ($claims, $officeName) {
+                $travelClaims = $claims->filter(function ($claim) {
+                    return $claim->claimType?->code === 'TRAVEL';
+                });
+                $overtimeClaims = $claims->filter(function ($claim) {
+                    return $claim->claimType?->code === 'OVERTIME';
+                });
+
+                return [
+                    'office_name' => $officeName,
+                    'claims_count' => (int) $claims->count(),
+                    'overtime_count' => (int) $overtimeClaims->count(),
+                ];
+            })
+            ->values()
+            ->sortByDesc('claims_count')
+            ->take(10)
+            ->values();
 
         return Inertia::render('dashboard', [
             'stats' => [
@@ -318,6 +351,7 @@ class DashboardController extends Controller
             'topClaimants' => $topClaimants,
             'mostTravelClaims' => $mostTravelClaims,
             'mostOvertimeClaims' => $mostOvertimeClaims,
+            'claimsByOffice' => $claimsByOffice,
         ]);
     }
 }

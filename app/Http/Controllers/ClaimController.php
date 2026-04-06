@@ -209,12 +209,13 @@ class ClaimController extends Controller
     {
         $filterMonth = $request->input('month');
         $filterYear = $request->input('year', now()->year);
-        $filterType = $request->input('type');
+        $filterType = $request->input('type'); // 'travel', 'overtime', or null for all
 
-        // Same logic as report() method
+        // Build query for employees with claims
         $employeesQuery = Employee::with(['office'])
             ->whereHas('claims');
 
+        // Apply filters
         if ($filterMonth) {
             $employeesQuery->whereHas('claims', function ($query) use ($filterMonth, $filterYear) {
                 $query->whereMonth('claim_date', $filterMonth)
@@ -226,6 +227,7 @@ class ClaimController extends Controller
             });
         }
 
+        // Filter by claim type if specified
         if ($filterType === 'travel') {
             $employeesQuery->whereHas('claims', function ($query) {
                 $query->whereHas('claimType', function ($q) {
@@ -241,6 +243,7 @@ class ClaimController extends Controller
         }
 
         $employees = $employeesQuery->get()->map(function ($employee) use ($filterMonth, $filterYear, $filterType) {
+            // Build claims query for this employee
             $claimsQuery = $employee->claims()
                 ->with('claimType')
                 ->orderBy('claim_date', 'desc');
@@ -252,6 +255,7 @@ class ClaimController extends Controller
                 $claimsQuery->whereYear('claim_date', $filterYear);
             }
 
+            // Filter by type if specified
             if ($filterType === 'travel') {
                 $claimsQuery->whereHas('claimType', function ($q) {
                     $q->where('code', 'TRAVEL');
@@ -279,6 +283,7 @@ class ClaimController extends Controller
             ];
         })->sortByDesc('total_amount')->values();
 
+        // Get summary statistics
         $summary = [
             'total_employees' => $employees->count(),
             'total_claims' => $employees->sum('claim_count'),
@@ -291,6 +296,162 @@ class ClaimController extends Controller
 
         return Inertia::render('Claims/ReportPrint', [
             'employees' => $employees,
+            'summary' => $summary,
+            'filters' => [
+                'month' => $filterMonth,
+                'year' => $filterYear,
+                'type' => $filterType,
+            ],
+        ]);
+    }
+
+    /**
+     * Show detailed claims for a specific employee
+     */
+    public function employeeDetail(Request $request, Employee $employee)
+    {
+        $filterMonth = $request->input('month');
+        $filterYear = $request->input('year', now()->year);
+        $filterType = $request->input('type'); // 'travel', 'overtime', or null for all
+
+        // Load employee with office
+        $employee->load('office');
+
+        // Build claims query
+        $claimsQuery = $employee->claims()
+            ->with(['claimType'])
+            ->orderBy('claim_date', 'desc');
+
+        // Apply filters
+        if ($filterMonth) {
+            $claimsQuery->whereMonth('claim_date', $filterMonth)
+                ->whereYear('claim_date', $filterYear);
+        } else {
+            $claimsQuery->whereYear('claim_date', $filterYear);
+        }
+
+        // Filter by claim type if specified
+        if ($filterType === 'travel') {
+            $claimsQuery->whereHas('claimType', function ($q) {
+                $q->where('code', 'TRAVEL');
+            });
+        } elseif ($filterType === 'overtime') {
+            $claimsQuery->whereHas('claimType', function ($q) {
+                $q->where('code', 'OVERTIME');
+            });
+        }
+
+        $claims = $claimsQuery->get()->map(function ($claim) {
+            return [
+                'id' => $claim->id,
+                'claim_date' => $claim->claim_date,
+                'purpose' => $claim->purpose,
+                'amount' => $claim->amount,
+                'claim_type' => [
+                    'code' => $claim->claimType?->code,
+                    'name' => $claim->claimType?->name,
+                ],
+            ];
+        });
+
+        // Calculate summary
+        $summary = [
+            'total_claims' => $claims->count(),
+            'total_amount' => $claims->sum('amount'),
+            'travel_count' => $claims->where('claim_type.code', 'TRAVEL')->count(),
+            'travel_amount' => $claims->where('claim_type.code', 'TRAVEL')->sum('amount'),
+            'overtime_count' => $claims->where('claim_type.code', 'OVERTIME')->count(),
+            'overtime_amount' => $claims->where('claim_type.code', 'OVERTIME')->sum('amount'),
+            'other_count' => $claims->whereNotIn('claim_type.code', ['TRAVEL', 'OVERTIME'])->count(),
+            'other_amount' => $claims->whereNotIn('claim_type.code', ['TRAVEL', 'OVERTIME'])->sum('amount'),
+        ];
+
+        return Inertia::render('Claims/EmployeeDetail', [
+            'employee' => [
+                'id' => $employee->id,
+                'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->suffix ?? ''),
+                'position' => $employee->position,
+                'office' => $employee->office?->name ?? 'N/A',
+            ],
+            'claims' => $claims,
+            'summary' => $summary,
+            'filters' => [
+                'month' => $filterMonth,
+                'year' => $filterYear,
+                'type' => $filterType,
+            ],
+        ]);
+    }
+
+    /**
+     * Print-friendly version of employee claims detail
+     */
+    public function employeeDetailPrint(Request $request, Employee $employee)
+    {
+        $filterMonth = $request->input('month');
+        $filterYear = $request->input('year', now()->year);
+        $filterType = $request->input('type'); // 'travel', 'overtime', or null for all
+
+        // Load employee with office
+        $employee->load('office');
+
+        // Build claims query
+        $claimsQuery = $employee->claims()
+            ->with(['claimType'])
+            ->orderBy('claim_date', 'desc');
+
+        // Apply filters
+        if ($filterMonth) {
+            $claimsQuery->whereMonth('claim_date', $filterMonth)
+                ->whereYear('claim_date', $filterYear);
+        } else {
+            $claimsQuery->whereYear('claim_date', $filterYear);
+        }
+
+        // Filter by claim type if specified
+        if ($filterType === 'travel') {
+            $claimsQuery->whereHas('claimType', function ($q) {
+                $q->where('code', 'TRAVEL');
+            });
+        } elseif ($filterType === 'overtime') {
+            $claimsQuery->whereHas('claimType', function ($q) {
+                $q->where('code', 'OVERTIME');
+            });
+        }
+
+        $claims = $claimsQuery->get()->map(function ($claim) {
+            return [
+                'id' => $claim->id,
+                'claim_date' => $claim->claim_date,
+                'purpose' => $claim->purpose,
+                'amount' => $claim->amount,
+                'claim_type' => [
+                    'code' => $claim->claimType?->code,
+                    'name' => $claim->claimType?->name,
+                ],
+            ];
+        });
+
+        // Calculate summary
+        $summary = [
+            'total_claims' => $claims->count(),
+            'total_amount' => $claims->sum('amount'),
+            'travel_count' => $claims->where('claim_type.code', 'TRAVEL')->count(),
+            'travel_amount' => $claims->where('claim_type.code', 'TRAVEL')->sum('amount'),
+            'overtime_count' => $claims->where('claim_type.code', 'OVERTIME')->count(),
+            'overtime_amount' => $claims->where('claim_type.code', 'OVERTIME')->sum('amount'),
+            'other_count' => $claims->whereNotIn('claim_type.code', ['TRAVEL', 'OVERTIME'])->count(),
+            'other_amount' => $claims->whereNotIn('claim_type.code', ['TRAVEL', 'OVERTIME'])->sum('amount'),
+        ];
+
+        return Inertia::render('Claims/EmployeeDetailPrint', [
+            'employee' => [
+                'id' => $employee->id,
+                'name' => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->suffix ?? ''),
+                'position' => $employee->position,
+                'office' => $employee->office?->name ?? 'N/A',
+            ],
+            'claims' => $claims,
             'summary' => $summary,
             'filters' => [
                 'month' => $filterMonth,

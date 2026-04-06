@@ -38,6 +38,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::prefix('claims-report')->group(function () {
         Route::get('/', [ClaimController::class, 'report'])->name('claims.report');
         Route::get('/print', [ClaimController::class, 'reportPrint'])->name('claims.report.print');
+
+        // EMPLOYEE DETAIL - View individual employee claims with filters and print
+        Route::get('/employee/{employee}', [ClaimController::class, 'employeeDetail'])->name('claims.employee.detail');
+        Route::get('/employee/{employee}/print', [ClaimController::class, 'employeeDetailPrint'])->name('claims.employee.detail.print');
     });
 
     // REPORTS - View and print reports (requires employees.source_of_fund.view permission)
