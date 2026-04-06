@@ -53,41 +53,43 @@ class EmployeeDeductionController extends Controller
                 $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
-            ->with(['deductions' => function ($query) use ($month, $year) {
-                $query->where('pay_period_month', $month)
-                    ->where('pay_period_year', $year)
-                    ->with('deductionType');
-            }])
-            ->orderBy('last_name', 'asc')
-            ->paginate(50)
-            ->withQueryString();
+            ->orderBy('last_name')
+            ->get();
 
-        $employees->getCollection()->transform(function ($employee) use ($month, $year) {
-            $employee->current_salary = $this->payrollService->getEffectiveAmount($employee->salaries, $year, $month);
-            $employee->current_pera = $this->payrollService->getEffectiveAmount($employee->peras, $year, $month);
-            $employee->current_rata = $employee->is_rata_eligible
-                ? $this->payrollService->getEffectiveAmount($employee->ratas, $year, $month)
-                : 0;
+        $deductionTypes = DeductionType::where('status', true)->orderBy('name')->get();
+        $offices = Office::where('status', true)->orderBy('name')->get();
+        $employmentStatuses = EmploymentStatus::where('status', true)->orderBy('name')->get();
 
-            return $employee;
-        });
-
-        $deductionTypes = DeductionType::where('is_active', true)->orderBy('name')->get();
-        $offices = Office::orderBy('name')->get();
-        $employmentStatuses = EmploymentStatus::orderBy('name')->get();
-
-        return Inertia::render('employee-deductions/index', [
+        return Inertia::render('EmployeeDeductions/Index', [
             'employees' => $employees,
             'deductionTypes' => $deductionTypes,
             'offices' => $offices,
             'employmentStatuses' => $employmentStatuses,
             'filters' => [
-                'month' => (int) $month,
-                'year' => (int) $year,
+                'month' => $month,
+                'year' => $year,
                 'office_id' => $officeId,
                 'employment_status_id' => $employmentStatusId,
                 'search' => $search,
             ],
+        ]);
+    }
+
+    /**
+     * Show the bulk add deduction page
+     */
+    public function bulkAddPage(): Response
+    {
+        $employees = Employee::with('office')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name', 'office_id', 'position']);
+
+        $deductionTypes = DeductionType::where('status', true)->orderBy('name')->get();
+
+        return Inertia::render('EmployeeDeductions/BulkAdd', [
+            'employees' => $employees,
+            'deductionTypes' => $deductionTypes,
         ]);
     }
 

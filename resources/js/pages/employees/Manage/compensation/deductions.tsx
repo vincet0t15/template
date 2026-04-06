@@ -1,5 +1,4 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
-import { BulkAddDeductionDialog } from '@/components/EmployeeDeductions/BulkAddDeductionDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -128,8 +127,6 @@ export function CompensationDeductions({
 
     const closeDialog = () => setDialogState((prev) => ({ ...prev, open: false }));
 
-    const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
-
     const handleDeleteDeduction = (deductionId: number) => {
         if (confirm('Are you sure you want to delete this deduction?')) {
             router.delete(route('manage.employees.deductions.destroy', [employee.id, deductionId]), {
@@ -170,7 +167,7 @@ export function CompensationDeductions({
                 <div className="flex-1"></div>
 
                 {allEmployees.length > 0 && (
-                    <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+                    <Button variant="outline" onClick={() => router.visit(route('employee-deductions.bulk-add-page'))}>
                         <Users className="mr-2 h-4 w-4" />
                         Bulk Add
                     </Button>
@@ -336,12 +333,6 @@ export function CompensationDeductions({
                     takenPeriods={takenPeriods}
                 />
             )}
-            <BulkAddDeductionDialog
-                open={bulkDialogOpen}
-                onClose={() => setBulkDialogOpen(false)}
-                employees={allEmployees}
-                deductionTypes={deductionTypes}
-            />
         </div>
     );
 }

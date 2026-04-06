@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::juwlVoeq9NAohJQX',
+            '_route' => 'generated::w2YGX90LbydD6JXi',
           ),
           1 => NULL,
           2 => 
@@ -579,6 +579,83 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/employee-deductions/bulk-add' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.bulk-add-page',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/employee-deductions/bulk-store' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.bulk-store',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/employee-deductions/bulk-update' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.bulk-update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/employee-deductions/bulk-destroy' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'employee-deductions.bulk-destroy',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/settings/employment-statuses' => 
       array (
         0 => 
@@ -1008,7 +1085,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::gFFpxhR5eek0VbmV',
+            '_route' => 'generated::PwKs7CTmK0JqUV0d',
           ),
           1 => NULL,
           2 => 
@@ -1158,7 +1235,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::hBV2RTR1UtEwnbR7',
+            '_route' => 'generated::ZQmmqVTiXvG3HzhL',
           ),
           1 => NULL,
           2 => 
@@ -1194,7 +1271,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::5Y4QLBk3m8x1bHsY',
+            '_route' => 'generated::QzsWQ7bvrrtWH0F0',
           ),
           1 => NULL,
           2 => 
@@ -1269,7 +1346,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::mmcF2c2ZlcN49we6',
+            '_route' => 'generated::chM6i6St1kXBsfe6',
           ),
           1 => NULL,
           2 => 
@@ -2626,7 +2703,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::juwlVoeq9NAohJQX' => 
+    'generated::w2YGX90LbydD6JXi' => 
     array (
       'methods' => 
       array (
@@ -2655,7 +2732,7 @@ app('router')->setCompiledRoutes(
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
                 }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"00000000000005740000000000000000";}}',
-        'as' => 'generated::juwlVoeq9NAohJQX',
+        'as' => 'generated::w2YGX90LbydD6JXi',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4756,6 +4833,46 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'employee-deductions.bulk-add-page' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'employee-deductions/bulk-add',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkAddPage',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkAddPage',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.bulk-add-page',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'employee-deductions.store' => 
     array (
       'methods' => 
@@ -4780,6 +4897,123 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'employee-deductions.store',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'employee-deductions.bulk-store' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'employee-deductions/bulk-store',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkStore',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkStore',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.bulk-store',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'employee-deductions.bulk-update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'employee-deductions/bulk-update',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkUpdate',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkUpdate',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.bulk-update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'employee-deductions.bulk-destroy' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'employee-deductions/bulk-destroy',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'active',
+          3 => 'permission:deductions.manage',
+        ),
+        'uses' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkDestroy',
+        'controller' => 'App\\Http\\Controllers\\EmployeeDeductionController@bulkDestroy',
+        'namespace' => NULL,
+        'prefix' => '/employee-deductions',
+        'where' => 
+        array (
+        ),
+        'as' => 'employee-deductions.bulk-destroy',
       ),
       'fallback' => false,
       'defaults' => 
@@ -6996,7 +7230,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::gFFpxhR5eek0VbmV' => 
+    'generated::PwKs7CTmK0JqUV0d' => 
     array (
       'methods' => 
       array (
@@ -7023,7 +7257,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::gFFpxhR5eek0VbmV',
+        'as' => 'generated::PwKs7CTmK0JqUV0d',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7245,7 +7479,7 @@ app('router')->setCompiledRoutes(
         ),
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:83:"function () {
         return \\Inertia\\Inertia::render(\'settings/appearance\');
-    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006040000000000000000";}}',
+    }";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006080000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
@@ -7305,7 +7539,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::hBV2RTR1UtEwnbR7' => 
+    'generated::ZQmmqVTiXvG3HzhL' => 
     array (
       'methods' => 
       array (
@@ -7327,7 +7561,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::hBV2RTR1UtEwnbR7',
+        'as' => 'generated::ZQmmqVTiXvG3HzhL',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7381,7 +7615,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::5Y4QLBk3m8x1bHsY' => 
+    'generated::QzsWQ7bvrrtWH0F0' => 
     array (
       'methods' => 
       array (
@@ -7402,7 +7636,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::5Y4QLBk3m8x1bHsY',
+        'as' => 'generated::QzsWQ7bvrrtWH0F0',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7572,7 +7806,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::mmcF2c2ZlcN49we6' => 
+    'generated::chM6i6St1kXBsfe6' => 
     array (
       'methods' => 
       array (
@@ -7593,7 +7827,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::mmcF2c2ZlcN49we6',
+        'as' => 'generated::chM6i6St1kXBsfe6',
       ),
       'fallback' => false,
       'defaults' => 
@@ -7695,7 +7929,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000006100000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000006140000000000000000";}}',
         'as' => 'storage.local.upload',
       ),
       'fallback' => false,
