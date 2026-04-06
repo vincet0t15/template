@@ -488,7 +488,7 @@
   ),
   'logging' => 
   array (
-    'default' => NULL,
+    'default' => 'errorlog',
     'deprecations' => 
     array (
       'channel' => NULL,
