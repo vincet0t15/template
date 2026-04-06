@@ -104,6 +104,27 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <Heading title="Representation and Transportation Allowance (RATA)" description="Manage RATA records for eligible employees only." />
 
+                {/* Instruction Note */}
+                <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-teal-800 dark:border-teal-800 dark:bg-teal-900/20 dark:text-teal-300">
+                    <div className="flex items-start gap-3">
+                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <div className="text-sm">
+                            <p className="mb-1 font-semibold">How to manage RATA:</p>
+                            <p className="text-teal-700 dark:text-teal-400">
+                                Click on an employee's avatar to view their complete details. Use the action buttons to add RATA records or view
+                                history.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                         <div className="w-[220px]">
@@ -157,18 +178,20 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm dark:border-slate-700">
-                                                    {employee.image_path ? (
-                                                        <AvatarImage
-                                                            src={employee.image_path ?? undefined}
-                                                            alt={`${employee.first_name} ${employee.last_name}`}
-                                                            className="object-cover"
-                                                        />
-                                                    ) : null}
-                                                    <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
-                                                        <User className="h-5 w-5 text-slate-400" />
-                                                    </AvatarFallback>
-                                                </Avatar>
+                                                <div className="relative">
+                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm transition-all hover:border-teal-400 hover:shadow-md dark:border-slate-700 dark:hover:border-teal-500">
+                                                        {employee.image_path ? (
+                                                            <AvatarImage
+                                                                src={employee.image_path ?? undefined}
+                                                                alt={`${employee.first_name} ${employee.last_name}`}
+                                                                className="object-cover"
+                                                            />
+                                                        ) : null}
+                                                        <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
+                                                            <User className="h-5 w-5 text-slate-400" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </div>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
                                                         {employee.last_name}, {employee.first_name} {employee.middle_name}
@@ -183,13 +206,23 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Button variant="outline" onClick={() => router.get(route('ratas.history', employee.id))}>
-                                                    <History className="mr-1 h-4 w-4" />
-                                                    History
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                                    onClick={() => router.get(route('ratas.history', employee.id))}
+                                                    title="View RATA History"
+                                                >
+                                                    <History className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="default" onClick={() => handleOpenAdd(employee)}>
-                                                    <PlusIcon className="mr-1 h-4 w-4" />
-                                                    Add
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-teal-600 hover:bg-teal-50 hover:text-teal-700"
+                                                    onClick={() => handleOpenAdd(employee)}
+                                                    title="Add RATA Record"
+                                                >
+                                                    <PlusIcon className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </TableCell>

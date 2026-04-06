@@ -166,11 +166,23 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                                     <TableCell className="text-right font-medium text-green-600">{formatCurrency(Number(claim.amount))}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(claim)}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                                onClick={() => openEditDialog(claim)}
+                                                title="Edit Claim"
+                                            >
                                                 <PencilIcon className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" onClick={() => OnclickDelete(claim)}>
-                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                onClick={() => OnclickDelete(claim)}
+                                                title="Delete Claim"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </TableCell>
