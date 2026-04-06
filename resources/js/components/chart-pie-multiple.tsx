@@ -121,13 +121,12 @@ export function ChartPieMultiple({ data, title = 'Salaries by Source of Fund', d
                         {/* Legend */}
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                             {chartData.map((entry, index) => {
-                                const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0.0';
                                 return (
                                     <div key={index} className="flex items-center gap-2">
                                         <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-xs font-medium">{entry.name}</p>
-                                            <p className="text-muted-foreground text-xs">{percentage}%</p>
+                                            <p className="text-muted-foreground text-xs">{formatCurrency(entry.value)}</p>
                                         </div>
                                     </div>
                                 );
