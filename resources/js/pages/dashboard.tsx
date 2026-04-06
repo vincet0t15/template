@@ -102,10 +102,7 @@ interface DashboardProps {
         employee_name: string;
         office: string;
         travel_count: number;
-        travel_total: number;
-        travel_breakdown: Record<string, { name: string; amount: number; count: number }>;
-        overtime_count: number;
-        overtime_total: number;
+        total_travel_amount: number;
     }[];
     mostOvertimeClaims: {
         employee_id: number;
@@ -133,6 +130,10 @@ const formatCurrency = (amount: number) => {
         currency: 'PHP',
         minimumFractionDigits: 0,
     }).format(amount);
+};
+
+const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-PH').format(num);
 };
 
 export default function Dashboard({
@@ -199,7 +200,7 @@ export default function Dashboard({
     const statCards = [
         {
             title: 'Total Employees',
-            value: stats.totalEmployees,
+            value: formatNumber(stats.totalEmployees),
             description: 'Active workforce',
             icon: Users,
             color: 'bg-blue-500',
@@ -207,16 +208,16 @@ export default function Dashboard({
         },
         {
             title: 'Total Offices',
-            value: stats.totalOffices,
+            value: formatNumber(stats.totalOffices),
             description: 'Departments',
             icon: Building2,
             color: 'bg-emerald-500',
-            trend: `+${stats.officesThisYear} this year`,
+            trend: `+${formatNumber(stats.officesThisYear)} this year`,
         },
         {
             title: `${currentPeriod.monthName} Deductions`,
             value: formatCurrency(stats.monthlyDeductionsTotal),
-            description: `${stats.monthlyDeductionsCount} entries • ${stats.employeesWithDeductions} employees`,
+            description: `${formatNumber(stats.monthlyDeductionsCount)} entries • ${formatNumber(stats.employeesWithDeductions)} employees`,
             icon: MinusCircle,
             color: 'bg-amber-500',
             trend: 'This month',
@@ -224,17 +225,17 @@ export default function Dashboard({
         {
             title: 'Total Claims',
             value: formatCurrency(stats.totalClaimsAmount),
-            description: `${stats.totalClaims} total claims`,
+            description: `${formatNumber(stats.totalClaims)} total claims`,
             icon: Receipt,
             color: 'bg-violet-500',
-            trend: `+${stats.claimsThisWeek} this week`,
+            trend: `+${formatNumber(stats.claimsThisWeek)} this week`,
         },
     ];
 
     const compensationStats = [
-        { label: 'Total Salaries', value: stats.totalSalaries, icon: Wallet, color: 'text-blue-600' },
-        { label: 'PERA Allowances', value: stats.totalPera, icon: Coins, color: 'text-emerald-600' },
-        { label: 'RATA Benefits', value: stats.totalRata, icon: TrendingUp, color: 'text-amber-600' },
+        { label: 'Total Salaries', value: formatNumber(stats.totalSalaries), icon: Wallet, color: 'text-blue-600' },
+        { label: 'PERA Allowances', value: formatNumber(stats.totalPera), icon: Coins, color: 'text-emerald-600' },
+        { label: 'RATA Benefits', value: formatNumber(stats.totalRata), icon: TrendingUp, color: 'text-amber-600' },
     ];
 
     return (
@@ -370,8 +371,8 @@ export default function Dashboard({
                             {mostTravelClaims.length > 0 ? (
                                 <div className="space-y-3">
                                     {mostTravelClaims.map((employee, index) => {
-                                        const maxAmount = mostTravelClaims[0]?.travel_total || 1;
-                                        const percentage = (employee.travel_total / maxAmount) * 100;
+                                        const maxAmount = mostTravelClaims[0]?.total_travel_amount || 1;
+                                        const percentage = (employee.total_travel_amount / maxAmount) * 100;
                                         return (
                                             <div key={employee.employee_id} className="space-y-1">
                                                 <div className="flex items-center justify-between text-sm">
@@ -400,8 +401,8 @@ export default function Dashboard({
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-semibold text-blue-600">{formatCurrency(employee.travel_total)}</p>
-                                                        <p className="text-muted-foreground text-xs">{employee.travel_count} trips</p>
+                                                        <p className="font-semibold text-blue-600">{formatCurrency(employee.total_travel_amount)}</p>
+                                                        <p className="text-muted-foreground text-xs">{formatNumber(employee.travel_count)} trips</p>
                                                     </div>
                                                 </div>
                                                 <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
@@ -480,7 +481,9 @@ export default function Dashboard({
                                                         <p className="font-semibold text-emerald-600">
                                                             {formatCurrency(employee.total_overtime_amount)}
                                                         </p>
-                                                        <p className="text-muted-foreground text-xs">{employee.overtime_count} claims</p>
+                                                        <p className="text-muted-foreground text-xs">
+                                                            {formatNumber(employee.overtime_count)} claims
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
@@ -544,7 +547,7 @@ export default function Dashboard({
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{status.count}</p>
+                                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(status.count)}</p>
                                             <p className="text-muted-foreground text-xs">employees</p>
                                         </div>
                                     </button>
@@ -587,7 +590,7 @@ export default function Dashboard({
                                                         </div>
                                                         <div>
                                                             <p className="font-medium">{item.deduction_type.name}</p>
-                                                            <p className="text-muted-foreground text-xs">{item.count} entries</p>
+                                                            <p className="text-muted-foreground text-xs">{formatNumber(item.count)} entries</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">

@@ -77,7 +77,7 @@ class Employee extends Model
      */
     public function latestSalary(): HasOne
     {
-        return $this->hasOne(Salary::class)->latestOfMany('effective_date');
+        return $this->hasOne(Salary::class)->latestOfMany('effective_date')->with('sourceOfFundCode');
     }
 
     /**

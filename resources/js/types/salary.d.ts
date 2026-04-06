@@ -26,4 +26,5 @@ export interface SalaryCreateRequest {
     employee_id: number;
     amount: number;
     effective_date: string;
+    source_of_fund_code_id?: number | null;
 }

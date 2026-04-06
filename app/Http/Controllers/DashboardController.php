@@ -7,11 +7,11 @@ use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\EmploymentStatus;
+use App\Models\GeneralFund;
 use App\Models\Office;
 use App\Models\Pera;
 use App\Models\Rata;
 use App\Models\Salary;
-use App\Models\SourceOfFundCode;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -131,42 +131,40 @@ class DashboardController extends Controller
         $totalPera = Pera::whereYear('effective_date', $currentYear)->sum('amount');
         $totalRata = Rata::whereYear('effective_date', $currentYear)->sum('amount');
 
-        // Source of Fund breakdown for selected month/year (or all if no filter)
-        $allSourceOfFundCodes = SourceOfFundCode::where('status', true)
+        // Salaries by General Fund breakdown for selected month/year (or all if no filter)
+        $allGeneralFunds = GeneralFund::where('status', true)
             ->orderBy('code')
             ->get();
 
-        $salariesQuery = Salary::selectRaw('source_of_fund_code_id, SUM(amount) as total_amount');
+        $salariesQuery = Salary::selectRaw('source_of_fund_codes.general_fund_id, SUM(salaries.amount) as total_amount')
+            ->join('source_of_fund_codes', 'salaries.source_of_fund_code_id', '=', 'source_of_fund_codes.id');
 
         if ($useFilters) {
-            $salariesQuery->whereYear('effective_date', $year);
+            $salariesQuery->whereYear('salaries.effective_date', $year);
             if ($month) {
-                $salariesQuery->whereMonth('effective_date', $month);
+                $salariesQuery->whereMonth('salaries.effective_date', $month);
             }
         }
 
-        $salariesBySourceOfFund = $salariesQuery
-            ->groupBy('source_of_fund_code_id')
-            ->with('sourceOfFundCode')
+        $salariesByGeneralFund = $salariesQuery
+            ->groupBy('source_of_fund_codes.general_fund_id')
             ->get()
             ->map(function ($item) {
                 return [
-                    'source_of_fund_code_id' => $item->source_of_fund_code_id,
-                    'code' => $item->sourceOfFundCode?->code ?? 'Unfunded',
-                    'description' => $item->sourceOfFundCode?->description,
+                    'general_fund_id' => $item->general_fund_id,
                     'total_amount' => (float) $item->total_amount,
                 ];
             });
 
-        // Merge with all funds to include those with 0 amounts
-        $salariesBySourceOfFund = $allSourceOfFundCodes->map(function ($fund) use ($salariesBySourceOfFund) {
-            $existing = $salariesBySourceOfFund->firstWhere('source_of_fund_code_id', $fund->id);
+        // Merge with all general funds to include those with 0 amounts
+        $salariesByFund = $allGeneralFunds->map(function ($fund) use ($salariesByGeneralFund) {
+            $existing = $salariesByGeneralFund->firstWhere('general_fund_id', $fund->id);
 
             if ($existing) {
                 return [
                     'id' => $fund->id,
-                    'code' => $existing['code'],
-                    'description' => $existing['description'],
+                    'code' => $fund->code,
+                    'description' => $fund->description,
                     'total_amount' => $existing['total_amount'],
                 ];
             }
@@ -341,7 +339,7 @@ class DashboardController extends Controller
                 'officesThisYear' => $officesThisYear,
                 'claimsThisWeek' => $claimsThisWeek,
             ],
-            'salariesBySourceOfFund' => $salariesBySourceOfFund,
+            'salariesBySourceOfFund' => $salariesByFund,
             'filters' => [
                 'month' => (int) $month,
                 'year' => (int) $year,

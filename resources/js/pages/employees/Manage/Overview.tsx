@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { Building2, CalendarDays, CoinsIcon, CreditCard, Receipt, TrendingDown, User } from 'lucide-react';
+import { Building2, CalendarDays, CoinsIcon, CreditCard, DollarSign, Receipt, TrendingDown, User } from 'lucide-react';
 
 interface OverviewProps {
     employee: Employee;
@@ -215,6 +215,16 @@ function Overview({ employee, deductions, claims, totalDeductionsAllTime, totalC
                                 <span className="text-muted-foreground">RATA Eligible</span>
                             </div>
                             <Badge variant={employee.is_rata_eligible ? 'default' : 'secondary'}>{employee.is_rata_eligible ? 'Yes' : 'No'}</Badge>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm">
+                                <DollarSign className="text-muted-foreground h-4 w-4" />
+                                <span className="text-muted-foreground">Source of Fund</span>
+                            </div>
+                            <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
+                                {employee.latest_salary?.source_of_fund_code?.code ?? 'Not Assigned'}
+                            </Badge>
                         </div>
                     </CardContent>
                 </Card>

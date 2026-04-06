@@ -131,11 +131,6 @@ const mainNavItems: NavGroup[] = [
                 icon: ReceiptCent,
             },
             {
-                title: 'Source of Fund Code',
-                href: '/source-of-fund-codes',
-                icon: DollarSign,
-            },
-            {
                 title: 'Database Backup',
                 href: '/settings/backup',
                 icon: Database,

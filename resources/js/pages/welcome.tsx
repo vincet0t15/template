@@ -1,4 +1,3 @@
-import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -28,7 +27,7 @@ export default function Welcome() {
                 <nav className="sticky top-0 z-50 border-b border-orange-200/80 bg-white/80 backdrop-blur-md dark:border-orange-700/50 dark:bg-slate-900/80">
                     <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                         <div className="flex items-center gap-3">
-                            <AppLogoIcon className="h-10 w-10 fill-current text-orange-500 dark:text-orange-400" />
+                            <img src="/LGU_logo.png" alt="LGU Logo" className="h-10 w-10 object-contain" />
                             <div>
                                 <p className="text-sm leading-none font-bold text-orange-600 dark:text-orange-400">ECMS</p>
                                 <p className="text-xs text-orange-500 dark:text-orange-500">Employee Compensation Management</p>
@@ -297,7 +296,7 @@ export default function Welcome() {
                     <div className="mx-auto max-w-7xl px-6 py-8">
                         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                             <div className="flex items-center gap-2">
-                                <AppLogoIcon className="h-8 w-8 fill-current text-orange-500 dark:text-orange-400" />
+                                <img src="/LGU_logo.png" alt="LGU Logo" className="h-8 w-8 object-contain" />
                                 <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">ECMS</span>
                             </div>
                             <p className="text-xs text-slate-400">

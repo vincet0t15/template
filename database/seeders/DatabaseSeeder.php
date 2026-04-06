@@ -33,7 +33,6 @@ class DatabaseSeeder extends Seeder
             DeductionTypeSeeder::class,
             ClaimTypeSeeder::class,
             GeneralFundSeeder::class,
-            SourceOfFundCodeSeeder::class,
         ]);
     }
 }

@@ -7,9 +7,10 @@ import type { Employee } from '@/types/employee';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
 import { router, useForm } from '@inertiajs/react';
-import { UploadIcon, XIcon } from 'lucide-react';
+import { Trash2, UploadIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { toast } from 'sonner';
+import { DeleteEmployeeDialog } from './Settings/delete';
 
 interface EmployeeSettingsProps {
     employee: Employee;
@@ -20,6 +21,7 @@ interface EmployeeSettingsProps {
 export default function EmployeeSettings({ employee, employmentStatuses, offices }: EmployeeSettingsProps) {
     const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(employee.image_path || null);
     const photoPreviewUrlRef = useRef<string | null>(employee.image_path || null);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     const { data, setData, post, errors, processing } = useForm({
         first_name: employee.first_name || '',
@@ -237,21 +239,31 @@ export default function EmployeeSettings({ employee, employmentStatuses, offices
                                     </div>
                                     <p className="text-muted-foreground text-xs">Check if employee is eligible for RATA (e.g., Department Heads)</p>
                                 </div>
+                                <div className="flex w-[220px] flex-col gap-1">
+                                    <Button type="button" variant="destructive" onClick={() => setOpenDeleteDialog(true)}>
+                                        <Trash2 className="mr-1 size-4" />
+                                        Delete Employee
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* ACTIONS */}
-                <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" disabled={processing}>
-                        {processing ? 'Saving...' : 'Save Changes'}
-                    </Button>
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                        <Button type="button" variant="outline" onClick={() => router.get(route('employees.index'))}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </div>
                 </div>
             </form>
+
+            {openDeleteDialog && <DeleteEmployeeDialog open={openDeleteDialog} onClose={setOpenDeleteDialog} employee={employee} />}
         </div>
     );
 }
