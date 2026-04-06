@@ -118,7 +118,7 @@
     'name' => 'ECMS',
     'env' => 'local',
     'debug' => true,
-    'url' => 'http://localhost:8000',
+    'url' => 'http://localhost:8080',
     'frontend_url' => 'http://localhost:3000',
     'asset_url' => NULL,
     'timezone' => 'UTC',
@@ -464,7 +464,7 @@
       array (
         'driver' => 'local',
         'root' => 'C:\\laragon\\www\\Carding\\storage\\app/public',
-        'url' => 'http://localhost:8000/storage',
+        'url' => 'http://localhost:8080/storage',
         'visibility' => 'public',
         'throw' => false,
       ),

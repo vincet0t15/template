@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Spatie\DbDumper\Databases\MySql;
 
@@ -48,9 +51,9 @@ class BackupController extends Controller
             $username = config('database.connections.mysql.username');
             $password = config('database.connections.mysql.password');
 
-            // Create backup using mysqldump
+            // Create backup using mysqldump with drop table statements
             $command = sprintf(
-                'mysqldump --user=%s --password=%s --host=%s --port=%s %s > "%s"',
+                'mysqldump --user=%s --password=%s --host=%s --port=%s --add-drop-table --routines --triggers %s > "%s" 2>&1',
                 escapeshellarg($username),
                 escapeshellarg($password),
                 escapeshellarg($host),
@@ -62,13 +65,22 @@ class BackupController extends Controller
             exec($command, $output, $returnCode);
 
             if ($returnCode !== 0) {
-                throw new \Exception('Failed to create database backup');
+                Log::error('Backup creation failed', [
+                    'return_code' => $returnCode,
+                    'output' => $output,
+                ]);
+                throw new \Exception('Failed to create database backup: ' . implode('\n', $output));
             }
 
-            // Verify file was created
-            if (! File::exists($backupPath)) {
-                throw new \Exception('Backup file was not created');
+            // Verify file was created and has content
+            if (! File::exists($backupPath) || File::size($backupPath) === 0) {
+                throw new \Exception('Backup file was not created or is empty');
             }
+
+            Log::info('Backup created successfully', [
+                'file' => $fileName,
+                'size' => File::size($backupPath),
+            ]);
 
             return redirect()->back()->with('success', 'Database backup created successfully!');
         } catch (\Exception $e) {
@@ -120,6 +132,7 @@ class BackupController extends Controller
             $backupPath = storage_path("app/backups/{$fileName}");
 
             if (! File::exists($backupPath)) {
+                Log::error('Backup file not found: ' . $backupPath);
                 return back()->with('error', 'Backup file not found');
             }
 
@@ -130,25 +143,135 @@ class BackupController extends Controller
             $username = config('database.connections.mysql.username');
             $password = config('database.connections.mysql.password');
 
-            // Restore database using mysql command
-            $command = sprintf(
-                'mysql --user=%s --password=%s --host=%s --port=%s %s < "%s"',
+            Log::info('Starting database restore', [
+                'file' => $fileName,
+                'database' => $database,
+                'host' => $host,
+            ]);
+
+            // Read the SQL file content
+            $sqlContent = File::get($backupPath);
+
+            if (empty($sqlContent)) {
+                throw new \Exception('Backup file is empty');
+            }
+
+            Log::info('SQL file loaded', [
+                'size' => strlen($sqlContent),
+                'first_100_chars' => substr($sqlContent, 0, 100),
+            ]);
+
+            // Build mysql command without redirect
+            $mysqlPath = 'mysql'; // Try from PATH first
+
+            // For Windows, check common MySQL paths
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $possiblePaths = [
+                    'C:\\laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin\\mysql.exe',
+                    'C:\\laragon\\bin\\mysql\\mysql-8.0.30-winx64\\bin\\mysql.exe',
+                    'C:\\xampp\\mysql\\bin\\mysql.exe',
+                    'C:\\wamp\\bin\\mysql\\mysql8.0.27\\bin\\mysql.exe',
+                ];
+
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $mysqlPath = $path;
+                        break;
+                    }
+                }
+            }
+
+            // Create a temporary file for error output
+            $errorFile = tempnam(sys_get_temp_dir(), 'mysql_error_');
+
+            // Build command using proc_open for better control
+            $descriptorspec = [
+                0 => ['pipe', 'r'],  // stdin
+                1 => ['pipe', 'w'],  // stdout
+                2 => ['file', $errorFile, 'w'],  // stderr
+            ];
+
+            $process = proc_open(
+                sprintf(
+                    '%s --user=%s --password=%s --host=%s --port=%s --force %s',
+                    escapeshellarg($mysqlPath),
+                    escapeshellarg($username),
+                    escapeshellarg($password),
+                    escapeshellarg($host),
+                    escapeshellarg($port),
+                    escapeshellarg($database)
+                ),
+                $descriptorspec,
+                $pipes
+            );
+
+            if (is_resource($process)) {
+                // Write SQL content to stdin
+                fwrite($pipes[0], $sqlContent);
+                fclose($pipes[0]);
+
+                // Read output
+                $output = stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+
+                // Close process and get return code
+                $returnCode = proc_close($process);
+
+                // Read error output
+                $errorOutput = file_exists($errorFile) ? file_get_contents($errorFile) : '';
+
+                // Clean up temp file
+                @unlink($errorFile);
+
+                Log::info('MySQL restore command executed', [
+                    'return_code' => $returnCode,
+                    'output_length' => strlen($output ?? ''),
+                    'error_output' => $errorOutput,
+                ]);
+
+                if ($returnCode !== 0) {
+                    Log::error('Database restore failed', [
+                        'return_code' => $returnCode,
+                        'error' => $errorOutput,
+                    ]);
+                    throw new \Exception('Failed to restore database: ' . $errorOutput);
+                }
+            } else {
+                throw new \Exception('Failed to start MySQL process');
+            }
+
+            // Verify restore by checking table count
+            $verifyCommand = sprintf(
+                'mysql --user=%s --password=%s --host=%s --port=%s %s -e "SHOW TABLES;" 2>&1',
                 escapeshellarg($username),
                 escapeshellarg($password),
                 escapeshellarg($host),
                 escapeshellarg($port),
-                escapeshellarg($database),
-                $backupPath
+                escapeshellarg($database)
             );
 
-            exec($command, $output, $returnCode);
+            exec($verifyCommand, $verifyOutput, $verifyReturnCode);
 
-            if ($returnCode !== 0) {
-                throw new \Exception('Failed to restore database');
-            }
+            Log::info('Database verification', [
+                'tables_found' => count($verifyOutput) - 1, // Subtract header row
+                'return_code' => $verifyReturnCode,
+            ]);
 
-            return back()->with('success', 'Database restored successfully! Please refresh the page.');
+            // Clear all Laravel caches
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('view:clear');
+            Artisan::call('event:clear');
+            Artisan::call('route:clear');
+
+            // Disconnect database to force fresh connection
+            DB::disconnect();
+
+            Log::info('Database restore completed successfully');
+
+            return back()->with('success', 'Database restored successfully! The page will reload with fresh data.');
         } catch (\Exception $e) {
+            Log::error('Database restore exception: ' . $e->getMessage());
             return back()->with('error', 'Failed to restore database: ' . $e->getMessage());
         }
     }
@@ -180,28 +303,114 @@ class BackupController extends Controller
             $username = config('database.connections.mysql.username');
             $password = config('database.connections.mysql.password');
 
-            // Restore database
-            $command = sprintf(
-                'mysql --user=%s --password=%s --host=%s --port=%s %s < "%s"',
-                escapeshellarg($username),
-                escapeshellarg($password),
-                escapeshellarg($host),
-                escapeshellarg($port),
-                escapeshellarg($database),
-                $tempPath
-            );
+            Log::info('Starting upload restore', [
+                'file' => $fileName,
+                'database' => $database,
+            ]);
 
-            exec($command, $output, $returnCode);
+            // Read the SQL file content
+            $sqlContent = File::get($tempPath);
 
-            // Clean up temp file
-            File::delete($tempPath);
-
-            if ($returnCode !== 0) {
-                throw new \Exception('Failed to restore database from uploaded file');
+            if (empty($sqlContent)) {
+                File::delete($tempPath);
+                throw new \Exception('Uploaded backup file is empty');
             }
 
-            return back()->with('success', 'Database restored from uploaded file successfully! Please refresh the page.');
+            // Build mysql command without redirect
+            $mysqlPath = 'mysql'; // Try from PATH first
+
+            // For Windows, check common MySQL paths
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $possiblePaths = [
+                    'C:\\laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin\\mysql.exe',
+                    'C:\\laragon\\bin\\mysql\\mysql-8.0.30-winx64\\bin\\mysql.exe',
+                    'C:\\xampp\\mysql\\bin\\mysql.exe',
+                    'C:\\wamp\\bin\\mysql\\mysql8.0.27\\bin\\mysql.exe',
+                ];
+
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $mysqlPath = $path;
+                        break;
+                    }
+                }
+            }
+
+            // Create a temporary file for error output
+            $errorFile = tempnam(sys_get_temp_dir(), 'mysql_error_');
+
+            // Build command using proc_open for better control
+            $descriptorspec = [
+                0 => ['pipe', 'r'],  // stdin
+                1 => ['pipe', 'w'],  // stdout
+                2 => ['file', $errorFile, 'w'],  // stderr
+            ];
+
+            $process = proc_open(
+                sprintf(
+                    '%s --user=%s --password=%s --host=%s --port=%s --force %s',
+                    escapeshellarg($mysqlPath),
+                    escapeshellarg($username),
+                    escapeshellarg($password),
+                    escapeshellarg($host),
+                    escapeshellarg($port),
+                    escapeshellarg($database)
+                ),
+                $descriptorspec,
+                $pipes
+            );
+
+            if (is_resource($process)) {
+                // Write SQL content to stdin
+                fwrite($pipes[0], $sqlContent);
+                fclose($pipes[0]);
+
+                // Read output
+                $output = stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+
+                // Close process and get return code
+                $returnCode = proc_close($process);
+
+                // Read error output
+                $errorOutput = file_exists($errorFile) ? file_get_contents($errorFile) : '';
+
+                // Clean up temp files
+                @unlink($errorFile);
+                File::delete($tempPath);
+
+                Log::info('Upload restore executed', [
+                    'return_code' => $returnCode,
+                    'error_output' => $errorOutput,
+                ]);
+
+                if ($returnCode !== 0) {
+                    Log::error('Upload restore failed', [
+                        'return_code' => $returnCode,
+                        'error' => $errorOutput,
+                    ]);
+                    throw new \Exception('Failed to restore database: ' . $errorOutput);
+                }
+            } else {
+                File::delete($tempPath);
+                throw new \Exception('Failed to start MySQL process');
+            }
+
+            // Clear all Laravel caches
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('view:clear');
+            Artisan::call('event:clear');
+            Artisan::call('route:clear');
+
+            // Disconnect database to force fresh connection
+            DB::disconnect();
+
+            Log::info('Upload restore completed successfully');
+
+            return back()->with('success', 'Database restored from uploaded file successfully! The page will reload with fresh data.');
         } catch (\Exception $e) {
+            Log::error('Upload restore exception: ' . $e->getMessage());
             return back()->with('error', 'Failed to restore database: ' . $e->getMessage());
         }
     }
