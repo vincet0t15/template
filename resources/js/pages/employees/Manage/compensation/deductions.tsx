@@ -212,6 +212,7 @@ export function CompensationDeductions({
                                     <TableHeader className="bg-muted/20">
                                         <TableRow>
                                             <TableHead>Deduction Type</TableHead>
+                                            <TableHead className="text-muted-foreground text-xs">Salary Basis</TableHead>
                                             <TableHead className="text-right">Amount</TableHead>
                                             <TableHead className="w-[60px]"></TableHead>
                                         </TableRow>
@@ -220,6 +221,24 @@ export function CompensationDeductions({
                                         {periodDeductions.map((d) => (
                                             <TableRow key={d.id}>
                                                 <TableCell className="font-medium">{d.deduction_type?.name ?? '—'}</TableCell>
+                                                <TableCell className="text-muted-foreground text-xs">
+                                                    {d.salary ? (
+                                                        <span>
+                                                            {formatCurrency(Number(d.salary.amount))}
+                                                            <span className="ml-1 text-[10px]">
+                                                                (
+                                                                {new Date(d.salary.effective_date).toLocaleDateString('en-US', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    year: 'numeric',
+                                                                })}
+                                                                )
+                                                            </span>
+                                                        </span>
+                                                    ) : (
+                                                        '—'
+                                                    )}
+                                                </TableCell>
                                                 <TableCell className="text-right text-red-600">- {formatCurrency(Number(d.amount))}</TableCell>
                                                 <TableCell>
                                                     <Button
@@ -234,7 +253,7 @@ export function CompensationDeductions({
                                             </TableRow>
                                         ))}
                                         <TableRow className="bg-slate-100 font-semibold">
-                                            <TableCell colSpan={2} className="text-right text-xs text-slate-600">
+                                            <TableCell colSpan={3} className="text-right text-xs text-slate-600">
                                                 Basic Salary
                                             </TableCell>
                                             <TableCell className="text-right text-slate-700">{formatCurrency(salary)}</TableCell>

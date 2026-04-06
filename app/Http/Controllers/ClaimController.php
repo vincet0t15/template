@@ -17,7 +17,7 @@ class ClaimController extends Controller
         $filterType = $request->input('claim_type_id');
 
         $claimsQuery = Claim::where('employee_id', $employee->id)
-            ->with('claimType')
+            ->with(['claimType', 'salary'])
             ->orderBy('claim_date', 'desc');
 
         if ($filterMonth) {
@@ -59,6 +59,8 @@ class ClaimController extends Controller
     public function store(Request $request, Employee $employee)
     {
         $validated = $request->validate([
+            'salary_id' => 'nullable|exists:salaries,id',
+            'salary_amount' => 'nullable|numeric|min:0',
             'claim_type_id' => 'required|exists:claim_types,id',
             'claim_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
@@ -142,7 +144,7 @@ class ClaimController extends Controller
         $employees = $employeesQuery->get()->map(function ($employee) use ($filterMonth, $filterYear, $filterType) {
             // Build claims query for this employee
             $claimsQuery = $employee->claims()
-                ->with('claimType')
+                ->with(['claimType', 'salary'])
                 ->orderBy('claim_date', 'desc');
 
             if ($filterMonth) {
@@ -245,7 +247,7 @@ class ClaimController extends Controller
         $employees = $employeesQuery->get()->map(function ($employee) use ($filterMonth, $filterYear, $filterType) {
             // Build claims query for this employee
             $claimsQuery = $employee->claims()
-                ->with('claimType')
+                ->with(['claimType', 'salary'])
                 ->orderBy('claim_date', 'desc');
 
             if ($filterMonth) {
@@ -319,7 +321,7 @@ class ClaimController extends Controller
 
         // Build claims query
         $claimsQuery = $employee->claims()
-            ->with(['claimType'])
+            ->with(['claimType', 'salary'])
             ->orderBy('claim_date', 'desc');
 
         // Apply filters
@@ -397,7 +399,7 @@ class ClaimController extends Controller
 
         // Build claims query
         $claimsQuery = $employee->claims()
-            ->with(['claimType'])
+            ->with(['claimType', 'salary'])
             ->orderBy('claim_date', 'desc');
 
         // Apply filters

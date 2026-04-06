@@ -13,6 +13,7 @@ class EmployeeDeduction extends Model
 
     protected $fillable = [
         'employee_id',
+        'salary_id',
         'deduction_type_id',
         'amount',
         'pay_period_month',
@@ -30,6 +31,11 @@ class EmployeeDeduction extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function salary(): BelongsTo
+    {
+        return $this->belongsTo(Salary::class);
     }
 
     public function deductionType(): BelongsTo

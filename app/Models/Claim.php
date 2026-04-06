@@ -13,6 +13,7 @@ class Claim extends Model
 
     protected $fillable = [
         'employee_id',
+        'salary_id',
         'claim_type_id',
         'claim_date',
         'amount',
@@ -28,6 +29,11 @@ class Claim extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function salary(): BelongsTo
+    {
+        return $this->belongsTo(Salary::class);
     }
 
     public function claimType(): BelongsTo

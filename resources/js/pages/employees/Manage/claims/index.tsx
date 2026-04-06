@@ -132,7 +132,7 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                                 <TableHead>Date</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Purpose</TableHead>
-                                <TableHead>Remarks</TableHead>
+                                <TableHead className="text-muted-foreground text-xs">Salary Basis</TableHead>
                                 <TableHead className="text-right">Amount</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -145,7 +145,24 @@ export function EmployeeClaims({ employee, claims, claimTypes, availableYears, f
                                         <Badge variant="outline">{claim.claim_type?.name || '—'}</Badge>
                                     </TableCell>
                                     <TableCell className="max-w-[200px] truncate">{claim.purpose}</TableCell>
-                                    <TableCell className="text-muted-foreground max-w-[150px] truncate">{claim.remarks || '—'}</TableCell>
+                                    <TableCell className="text-muted-foreground text-xs">
+                                        {claim.salary ? (
+                                            <span>
+                                                {formatCurrency(Number(claim.salary.amount))}
+                                                <span className="ml-1 text-[10px]">
+                                                    (
+                                                    {new Date(claim.salary.effective_date).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric',
+                                                    })}
+                                                    )
+                                                </span>
+                                            </span>
+                                        ) : (
+                                            '—'
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-right font-medium text-green-600">{formatCurrency(Number(claim.amount))}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">

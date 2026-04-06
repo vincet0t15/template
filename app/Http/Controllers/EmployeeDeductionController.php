@@ -95,6 +95,7 @@ class EmployeeDeductionController extends Controller
     {
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
+            'salary_id' => 'nullable|exists:salaries,id',
             'deduction_type_id' => 'required|exists:deduction_types,id',
             'amount' => 'required|numeric|min:0',
             'pay_period_month' => 'required|integer|min:1|max:12',
@@ -114,6 +115,7 @@ class EmployeeDeductionController extends Controller
 
         EmployeeDeduction::create([
             'employee_id' => $validated['employee_id'],
+            'salary_id' => $validated['salary_id'] ?? null,
             'deduction_type_id' => $validated['deduction_type_id'],
             'amount' => $validated['amount'],
             'pay_period_month' => $validated['pay_period_month'],

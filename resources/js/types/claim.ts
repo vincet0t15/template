@@ -3,6 +3,7 @@ import type { ClaimType } from './claimType';
 export interface Claim {
     id: number;
     employee_id: number;
+    salary_id?: number | null;
     claim_type_id: number;
     claim_date: string;
     amount: number;
@@ -11,6 +12,11 @@ export interface Claim {
     created_at: string;
     updated_at: string;
     claim_type?: ClaimType;
+    salary?: {
+        id: number;
+        amount: number;
+        effective_date: string;
+    };
 }
 
 export interface ClaimFilters {
@@ -22,6 +28,8 @@ export interface ClaimFilters {
 
 export type ClaimForm = {
     employee_id: number;
+    salary_id?: number | null;
+    salary_amount?: number;
     claim_type_id: number;
     claim_date: string;
     amount: number;

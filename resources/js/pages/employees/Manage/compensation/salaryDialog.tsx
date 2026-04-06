@@ -7,7 +7,7 @@ import type { DeductionType } from '@/types/deductionType';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
 import { useForm } from '@inertiajs/react';
-import { type FormEventHandler } from 'react';
+import { type FormEventHandler, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const MONTHS = [
@@ -50,14 +50,34 @@ export function SalaryDialog({
     takenPeriods,
 }: SalaryDialogProps) {
     const isEditing = existingDeductions.length > 0;
+    const [salaryOption, setSalaryOption] = useState<'current' | 'previous'>('current');
+    const [selectedSalaryId, setSelectedSalaryId] = useState<number | null>(null);
 
-    const { data, setData, post, processing, reset } = useForm<{
-        pay_period_month: string;
-        pay_period_year: string;
-        deductions: { deduction_type_id: number; amount: string }[];
-    }>({
+    // Get current salary from employee data (sorted by effective_date desc)
+    const sortedSalaries = employee.salaries
+        ? [...employee.salaries].sort((a, b) => new Date(b.effective_date).getTime() - new Date(a.effective_date).getTime())
+        : [];
+    const currentSalary = sortedSalaries.length > 0 ? sortedSalaries[0] : null;
+
+    // Format currency helper
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
+
+    // Get the salary amount to use
+    const getSalaryAmount = (salaryId: number | null): string => {
+        if (salaryId === null && currentSalary) {
+            return String(currentSalary.amount);
+        }
+        const salary = sortedSalaries.find((s) => s.id === salaryId);
+        return salary ? String(salary.amount) : '0';
+    };
+
+    // Initialize form data
+    const getInitialData = () => ({
         pay_period_month: defaultMonth,
         pay_period_year: defaultYear,
+        salary_id: null as string | null,
+        salary_amount: currentSalary ? String(currentSalary.amount) : '0',
         deductions: deductionTypes.map((dt) => {
             const existing = existingDeductions.find((e) => e.deduction_type_id === dt.id);
             return {
@@ -67,21 +87,57 @@ export function SalaryDialog({
         }),
     });
 
+    const { data, setData, post, processing, reset } = useForm<{
+        pay_period_month: string;
+        pay_period_year: string;
+        salary_id: string | null;
+        salary_amount: string;
+        deductions: { deduction_type_id: number; amount: string }[];
+    }>(getInitialData());
+
+    // Reset form when dialog opens
+    useEffect(() => {
+        if (open) {
+            reset();
+            setSalaryOption('current');
+            setSelectedSalaryId(null);
+        }
+    }, [open]);
+
     const handleAmountChange = (index: number, value: string) => {
         const updated = [...data.deductions];
         updated[index] = { ...updated[index], amount: value };
         setData('deductions', updated);
     };
 
-    // Check if the selected period already has deductions (only relevant in Add mode)
+    const handleSalaryChange = (salaryId: number | null) => {
+        setSelectedSalaryId(salaryId);
+        setData('salary_id', salaryId ? String(salaryId) : null);
+        setData('salary_amount', getSalaryAmount(salaryId));
+    };
+
+    // Check if period has existing deductions (for Add mode only)
     const selectedPeriodKey = `${data.pay_period_year}-${String(data.pay_period_month).padStart(2, '0')}`;
     const isPeriodTaken = !isEditing && takenPeriods.includes(selectedPeriodKey);
+
+    // Get the salary options for the dropdown
+    const salaryOptions = sortedSalaries.map((s) => ({
+        value: String(s.id),
+        label: `${formatCurrency(Number(s.amount))} - Effective: ${new Date(s.effective_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+    }));
 
     const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
 
         if (isPeriodTaken) {
-            toast.error(`Deductions for this period already exist. Use the Edit button to update them.`);
+            toast.error(`Deductions for this period already exist. Close this dialog and use the Edit button to update them.`);
+            return;
+        }
+
+        // Check if at least one deduction has an amount
+        const hasDeduction = data.deductions.some((d) => d.amount && parseFloat(d.amount) > 0);
+        if (!hasDeduction) {
+            toast.error('Please enter at least one deduction amount.');
             return;
         }
 
@@ -91,8 +147,9 @@ export function SalaryDialog({
                 reset();
                 onClose();
             },
-            onError: () => {
-                toast.error('Failed to save deductions. Please check the form.');
+            onError: (errors) => {
+                const firstError = Object.values(errors)[0];
+                toast.error(firstError || 'Failed to save deductions.');
             },
         });
     };
@@ -131,6 +188,77 @@ export function SalaryDialog({
                             />
                         </div>
                     </div>
+
+                    {/* Salary Selection */}
+                    {!isEditing && sortedSalaries.length > 1 && (
+                        <div className="mt-4 rounded-md border p-4">
+                            <Label className="mb-3 block">Select Salary Basis</Label>
+                            <div className="space-y-3">
+                                <label htmlFor="current-salary" className="flex cursor-pointer items-start space-x-3">
+                                    <input
+                                        type="radio"
+                                        id="current-salary"
+                                        name="salary-option"
+                                        value="current"
+                                        checked={salaryOption === 'current'}
+                                        onChange={() => {
+                                            setSalaryOption('current');
+                                            handleSalaryChange(null);
+                                        }}
+                                        className="mt-1"
+                                    />
+                                    <div className="flex-1">
+                                        <span className="font-medium">Current Salary</span>
+                                        <p className="text-muted-foreground mt-1 text-sm">
+                                            {currentSalary ? (
+                                                <>
+                                                    {formatCurrency(Number(currentSalary.amount))} - Effective:{' '}
+                                                    {new Date(currentSalary.effective_date).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                    })}
+                                                </>
+                                            ) : (
+                                                'No salary found'
+                                            )}
+                                        </p>
+                                    </div>
+                                </label>
+                                <label htmlFor="previous-salary" className="flex cursor-pointer items-start space-x-3">
+                                    <input
+                                        type="radio"
+                                        id="previous-salary"
+                                        name="salary-option"
+                                        value="previous"
+                                        checked={salaryOption === 'previous'}
+                                        onChange={() => {
+                                            setSalaryOption('previous');
+                                            // Auto-select first previous salary
+                                            if (sortedSalaries.length > 1) {
+                                                handleSalaryChange(sortedSalaries[1].id);
+                                            }
+                                        }}
+                                        className="mt-1"
+                                    />
+                                    <div className="flex-1">
+                                        <span className="font-medium">Previous Salary</span>
+                                        <p className="text-muted-foreground mt-1 text-sm">Select from salary history</p>
+                                        {salaryOption === 'previous' && (
+                                            <div className="mt-2">
+                                                <CustomComboBox
+                                                    items={salaryOptions.length > 1 ? salaryOptions.slice(1) : salaryOptions}
+                                                    placeholder="Select previous salary"
+                                                    value={selectedSalaryId ? String(selectedSalaryId) : null}
+                                                    onSelect={(value) => handleSalaryChange(value ? parseInt(value) : null)}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Period conflict warning */}
                     {isPeriodTaken && (

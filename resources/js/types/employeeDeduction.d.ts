@@ -4,6 +4,7 @@ import type { DeductionType } from './deductionType';
 export interface EmployeeDeduction {
     id: number;
     employee_id: number;
+    salary_id?: number | null;
     deduction_type_id: number;
     amount: number;
     pay_period_month: number;
@@ -13,6 +14,11 @@ export interface EmployeeDeduction {
     created_at: string;
     updated_at: string;
     employee?: Employee;
+    salary?: {
+        id: number;
+        amount: number;
+        effective_date: string;
+    };
     deduction_type?: DeductionType;
 }
 

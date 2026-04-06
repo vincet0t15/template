@@ -23,6 +23,11 @@ interface Claim {
         code: string | null;
         name: string | null;
     };
+    salary?: {
+        id: number;
+        amount: number;
+        effective_date: string;
+    };
 }
 
 interface Summary {
@@ -145,6 +150,7 @@ export default function EmployeeClaimsDetailPrint({ employee, claims, summary, f
                                 <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Date</th>
                                 <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Type</th>
                                 <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Purpose</th>
+                                <th className="border border-black px-2 py-1 text-left text-[10px] font-semibold">Salary Basis</th>
                                 <th className="border border-black px-2 py-1 text-right text-[10px] font-semibold">Amount</th>
                             </tr>
                         </thead>
@@ -157,11 +163,29 @@ export default function EmployeeClaimsDetailPrint({ employee, claims, summary, f
                                         {claim.claim_type.name ?? '—'}
                                     </td>
                                     <td className="border border-black px-2 py-1 text-[10px]">{claim.purpose}</td>
+                                    <td className="border border-black px-2 py-1 text-left text-[9px]">
+                                        {claim.salary ? (
+                                            <span>
+                                                {formatCurrency(Number(claim.salary.amount))}
+                                                <span className="ml-0.5">
+                                                    (
+                                                    {new Date(claim.salary.effective_date).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric',
+                                                    })}
+                                                    )
+                                                </span>
+                                            </span>
+                                        ) : (
+                                            '—'
+                                        )}
+                                    </td>
                                     <td className="border border-black px-2 py-1 text-right text-[10px]">{formatCurrency(Number(claim.amount))}</td>
                                 </tr>
                             ))}
                             <tr className="bg-gray-100 font-bold">
-                                <td className="border border-black px-2 py-1 text-[10px]" colSpan={4}>
+                                <td className="border border-black px-2 py-1 text-[10px]" colSpan={5}>
                                     TOTAL
                                 </td>
                                 <td className="border border-black px-2 py-1 text-right text-[10px]">{formatCurrency(summary.total_amount)}</td>

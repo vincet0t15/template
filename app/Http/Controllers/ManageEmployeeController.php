@@ -58,7 +58,7 @@ class ManageEmployeeController extends Controller
         $paginatedPeriods = $periodsQuery->paginate(50)->withQueryString();
 
         $periodsList = $paginatedPeriods->map(function ($p) {
-            return "{$p->pay_period_year}-".str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
+            return "{$p->pay_period_year}-" . str_pad($p->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->values()->toArray();
 
         $deductionsData = EmployeeDeduction::where('employee_id', $employee->id)
@@ -70,14 +70,14 @@ class ManageEmployeeController extends Controller
             ->get();
 
         $groupedDeductions = $deductionsData->groupBy(function ($d) {
-            return "{$d->pay_period_year}-".str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+            return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
         })->toArray();
 
         $takenPeriods = EmployeeDeduction::where('employee_id', $employee->id)
             ->selectRaw('DISTINCT pay_period_year, pay_period_month')
             ->get()
             ->map(function ($d) {
-                return "{$d->pay_period_year}-".str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
+                return "{$d->pay_period_year}-" . str_pad($d->pay_period_month, 2, '0', STR_PAD_LEFT);
             })
             ->values()
             ->toArray();
@@ -125,7 +125,7 @@ class ManageEmployeeController extends Controller
 
         // All deductions & claims (unpaginated) for Overview + Reports
         $allDeductions = EmployeeDeduction::where('employee_id', $employee->id)
-            ->with('deductionType')
+            ->with(['deductionType', 'salary'])
             ->orderBy('pay_period_year', 'desc')
             ->orderBy('pay_period_month', 'desc')
             ->get();
@@ -178,6 +178,8 @@ class ManageEmployeeController extends Controller
         $validated = $request->validate([
             'pay_period_month' => 'required|integer|min:1|max:12',
             'pay_period_year' => 'required|integer|min:2020|max:2100',
+            'salary_id' => 'nullable|exists:salaries,id',
+            'salary_amount' => 'nullable|numeric|min:0',
             'deductions' => 'required|array',
             'deductions.*.deduction_type_id' => 'required|exists:deduction_types,id',
             'deductions.*.amount' => 'nullable|numeric|min:0',
@@ -194,6 +196,7 @@ class ManageEmployeeController extends Controller
                 EmployeeDeduction::updateOrCreate(
                     [
                         'employee_id' => $employee->id,
+                        'salary_id' => $validated['salary_id'] ?? null,
                         'deduction_type_id' => $deduction['deduction_type_id'],
                         'pay_period_month' => $validated['pay_period_month'],
                         'pay_period_year' => $validated['pay_period_year'],
