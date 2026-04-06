@@ -13,7 +13,7 @@ import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { PayrollEmployee } from '@/types/payroll';
 import { Head, router, useForm } from '@inertiajs/react';
-import { BarChart3, Coins, Download, FileSpreadsheet, MinusCircle, Search, User, Wallet } from 'lucide-react';
+import { BarChart3, Coins, Download, MinusCircle, Search, User, Wallet } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -189,10 +189,6 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                 Export CSV
                             </Button>
                         )}
-                        <Button variant="outline" onClick={() => router.get(route('payroll.year-to-date'), { year: filterData.year })}>
-                            <FileSpreadsheet className="mr-2 h-4 w-4" />
-                            Year-to-Date
-                        </Button>
                         <Button
                             variant="outline"
                             onClick={() =>

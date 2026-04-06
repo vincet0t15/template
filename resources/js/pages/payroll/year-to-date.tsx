@@ -119,47 +119,9 @@ export default function YearToDate({ employees, offices, employmentStatuses, fil
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Year-to-Date Report" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <Heading title="Year-to-Date Report" description={`Cumulative payroll totals for ${filters.year}`} />
-                    <Button variant="outline" onClick={() => router.get(route('payroll.index'))}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Payroll
-                    </Button>
-                </div>
+                <Heading title="Year-to-Date Report" description={`Cumulative payroll totals for ${filters.year}`} />
 
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Gross Pay</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.gross_pay)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Deductions</CardTitle>
-                            <TrendingDown className="h-4 w-4 text-red-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.deductions)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Net Pay</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.net_pay)}</div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Filters */}
-                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                         {/* Year */}
                         <Input
@@ -203,121 +165,178 @@ export default function YearToDate({ employees, offices, employmentStatuses, fil
 
                         <Button onClick={handleFilterChange}>Filter</Button>
                     </div>
+
+                    <Button variant="outline" onClick={() => router.get(route('payroll.index'))}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Payroll
+                    </Button>
                 </div>
 
-                {/* Employee Table */}
-                <div className="w-full overflow-x-auto rounded-sm border shadow-sm">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="text-primary font-bold">Employee</TableHead>
+                {/* Monthly Overview Table */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Monthly Net Pay Overview</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="w-full overflow-x-auto">
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="text-primary min-w-[200px] font-bold">Employee</TableHead>
 
-                                {MONTHS.map((month) => (
-                                    <TableHead key={month} className="text-primary text-right text-xs font-bold">
-                                        {month}
-                                    </TableHead>
-                                ))}
-                                <TableHead className="text-primary text-right font-bold">Total Net Pay</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {employees.length > 0 ? (
-                                employees.map((employee) => (
-                                    <TableRow key={employee.id} className="hover:bg-muted/30">
-                                        <TableCell>
-                                            <div className="flex flex-col">
-                                                <span className="font-bold">{employee.name}</span>
-                                                <span className="text-muted-foreground text-xs">{employee.position}</span>
-                                                <span className="text-muted-foreground text-xs">{employee.office}</span>
-                                            </div>
-                                        </TableCell>
-
-                                        {employee.monthly_data.map((data, index) => (
-                                            <TableCell key={index} className="text-right text-xs">
-                                                {data.net_pay > 0 ? (
-                                                    <span className="text-green-600">{formatCurrency(data.net_pay)}</span>
-                                                ) : (
-                                                    <span className="text-gray-400">-</span>
-                                                )}
-                                            </TableCell>
+                                        {MONTHS.map((month) => (
+                                            <TableHead key={month} className="text-primary min-w-[100px] text-right font-bold">
+                                                {month}
+                                            </TableHead>
                                         ))}
-                                        <TableCell className="text-right font-bold text-green-600">
-                                            {formatCurrency(employee.totals.net_pay)}
-                                        </TableCell>
+                                        <TableHead className="text-primary bg-muted/50 sticky right-0 min-w-[150px] text-right font-bold">
+                                            Total Net Pay
+                                        </TableHead>
                                     </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={15} className="py-3 text-center text-gray-500">
-                                        No employees found.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    {employees.length > 0 ? (
+                                        employees.map((employee) => (
+                                            <TableRow key={employee.id} className="hover:bg-muted/30">
+                                                <TableCell>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold">{employee.name}</span>
+                                                        <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                        <span className="text-muted-foreground text-xs">{employee.office}</span>
+                                                    </div>
+                                                </TableCell>
 
-                {/* Detailed Breakdown Table */}
-                <Heading title="Detailed Breakdown" description="Year-to-date totals by compensation component" />
-
-                <div className="w-full overflow-x-auto rounded-sm border shadow-sm">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total Salary</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total PERA</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total RATA</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total Gross</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total Deductions</TableHead>
-                                <TableHead className="text-primary text-right font-bold">Total Net Pay</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {employees.length > 0 ? (
-                                <>
-                                    {employees.map((employee) => (
-                                        <TableRow key={employee.id} className="hover:bg-muted/30">
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold">{employee.name}</span>
-                                                    <span className="text-muted-foreground text-xs">{employee.position}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">{formatCurrency(employee.totals.salary)}</TableCell>
-                                            <TableCell className="text-right">{formatCurrency(employee.totals.pera)}</TableCell>
-                                            <TableCell className="text-right">
-                                                {employee.is_rata_eligible ? formatCurrency(employee.totals.rata) : '-'}
-                                            </TableCell>
-                                            <TableCell className="text-right font-medium">{formatCurrency(employee.totals.gross_pay)}</TableCell>
-                                            <TableCell className="text-destructive text-right">
-                                                {formatCurrency(employee.totals.deductions)}
-                                            </TableCell>
-                                            <TableCell className="text-right font-bold text-green-600">
-                                                {formatCurrency(employee.totals.net_pay)}
+                                                {employee.monthly_data.map((data, index) => (
+                                                    <TableCell key={index} className="text-right text-xs">
+                                                        {data.net_pay > 0 ? (
+                                                            <span className="font-medium text-green-600">{formatCurrency(data.net_pay)}</span>
+                                                        ) : (
+                                                            <span className="text-gray-400">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                                <TableCell className="sticky right-0 bg-white text-right font-bold text-green-600">
+                                                    {formatCurrency(employee.totals.net_pay)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={15} className="py-3 text-center text-gray-500">
+                                                No employees found.
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                    {/* Grand Total Row */}
-                                    <TableRow className="bg-muted/50 font-bold">
-                                        <TableCell>GRAND TOTAL</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(grandTotals.salary)}</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(grandTotals.pera)}</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(grandTotals.rata)}</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(grandTotals.gross_pay)}</TableCell>
-                                        <TableCell className="text-destructive text-right">{formatCurrency(grandTotals.deductions)}</TableCell>
-                                        <TableCell className="text-right text-green-600">{formatCurrency(grandTotals.net_pay)}</TableCell>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Detailed Breakdown Table */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Detailed Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="w-full overflow-x-auto">
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="text-primary min-w-[200px] font-bold">Employee</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total Salary</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total PERA</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total RATA</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total Gross</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total Deductions</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Total Net Pay</TableHead>
                                     </TableRow>
-                                </>
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={7} className="py-3 text-center text-gray-500">
-                                        No employees found.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    {employees.length > 0 ? (
+                                        <>
+                                            {employees.map((employee) => (
+                                                <TableRow key={employee.id} className="hover:bg-muted/30">
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold">{employee.name}</span>
+                                                            <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">{formatCurrency(employee.totals.salary)}</TableCell>
+                                                    <TableCell className="text-right">{formatCurrency(employee.totals.pera)}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        {employee.is_rata_eligible ? formatCurrency(employee.totals.rata) : '-'}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-medium">
+                                                        {formatCurrency(employee.totals.gross_pay)}
+                                                    </TableCell>
+                                                    <TableCell className="text-destructive text-right">
+                                                        {formatCurrency(employee.totals.deductions)}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-bold text-green-600">
+                                                        {formatCurrency(employee.totals.net_pay)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            {/* Grand Total Row */}
+                                            <TableRow className="bg-muted/50 font-bold">
+                                                <TableCell>GRAND TOTAL</TableCell>
+                                                <TableCell className="text-right">{formatCurrency(grandTotals.salary)}</TableCell>
+                                                <TableCell className="text-right">{formatCurrency(grandTotals.pera)}</TableCell>
+                                                <TableCell className="text-right">{formatCurrency(grandTotals.rata)}</TableCell>
+                                                <TableCell className="text-right">{formatCurrency(grandTotals.gross_pay)}</TableCell>
+                                                <TableCell className="text-destructive text-right">
+                                                    {formatCurrency(grandTotals.deductions)}
+                                                </TableCell>
+                                                <TableCell className="text-right text-green-600">{formatCurrency(grandTotals.net_pay)}</TableCell>
+                                            </TableRow>
+                                        </>
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="py-3 text-center text-gray-500">
+                                                No employees found.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Gross Pay</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.gross_pay)}</div>
+                            <p className="text-muted-foreground text-xs">Cumulative gross earnings</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Deductions</CardTitle>
+                            <TrendingDown className="h-4 w-4 text-red-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.deductions)}</div>
+                            <p className="text-muted-foreground text-xs">Total deductions withheld</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Net Pay</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{formatCurrency(grandTotals.net_pay)}</div>
+                            <p className="text-muted-foreground text-xs">Net amount paid</p>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>
