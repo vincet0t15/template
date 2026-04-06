@@ -23,6 +23,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const MONTHS = [
+    { value: 0, label: 'All Months' },
     { value: 1, label: 'January' },
     { value: 2, label: 'February' },
     { value: 3, label: 'March' },
@@ -104,6 +105,7 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
     };
 
     const getMonthName = (month: number) => {
+        if (month === 0) return 'All Months';
         return MONTHS.find((m) => m.value === month)?.label || '';
     };
 
@@ -118,7 +120,14 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Payroll Summary" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <Heading title="Payroll Summary" description={`View payroll summary for ${getMonthName(filters.month)} ${filters.year}`} />
+                <Heading
+                    title="Payroll Summary"
+                    description={
+                        filters.month === 0
+                            ? `View payroll summary for all months in ${filters.year}`
+                            : `View payroll summary for ${getMonthName(filters.month)} ${filters.year}`
+                    }
+                />
 
                 {/* Filters */}
                 <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -176,8 +185,8 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                             variant="outline"
                             onClick={() => {
                                 const query = new URLSearchParams();
-                                if (filterData.month) query.append('month', filterData.month.toString());
-                                if (filterData.year) query.append('year', filterData.year.toString());
+                                query.append('month', filterData.month.toString());
+                                query.append('year', filterData.year.toString());
                                 if (filterData.office_id) query.append('office_id', filterData.office_id);
                                 if (filterData.employment_status_id) query.append('employment_status_id', filterData.employment_status_id);
                                 window.open(route('payroll.print') + '?' + query.toString(), '_blank');

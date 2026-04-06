@@ -27,6 +27,9 @@ class PayrollController extends Controller
         $search = $request->input('search');
         $employmentStatusId = $request->input('employment_status_id');
 
+        // If month is 0 (All Months), use 12 (December) for calculation purposes
+        $calculationMonth = ($month == 0) ? 12 : $month;
+
         $employees = Employee::query()
             ->with(['employmentStatus', 'office'])
             ->when($search, function ($query, $search) {
@@ -40,20 +43,20 @@ class PayrollController extends Controller
             ->when($employmentStatusId, function ($query, $employmentStatusId) {
                 $query->where('employment_status_id', $employmentStatusId);
             })
-            ->with(['salaries' => function ($query) use ($year, $month) {
-                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+            ->with(['salaries' => function ($query) use ($year, $calculationMonth) {
+                $query->where('effective_date', '<=', now()->setDate($year, $calculationMonth, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
-            ->with(['peras' => function ($query) use ($year, $month) {
-                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+            ->with(['peras' => function ($query) use ($year, $calculationMonth) {
+                $query->where('effective_date', '<=', now()->setDate($year, $calculationMonth, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
-            ->with(['ratas' => function ($query) use ($year, $month) {
-                $query->where('effective_date', '<=', now()->setDate($year, $month, 1)->endOfMonth())
+            ->with(['ratas' => function ($query) use ($year, $calculationMonth) {
+                $query->where('effective_date', '<=', now()->setDate($year, $calculationMonth, 1)->endOfMonth())
                     ->orderBy('effective_date', 'desc');
             }])
-            ->with(['deductions' => function ($query) use ($month, $year) {
-                $query->where('pay_period_month', $month)
+            ->with(['deductions' => function ($query) use ($calculationMonth, $year) {
+                $query->where('pay_period_month', $calculationMonth)
                     ->where('pay_period_year', $year)
                     ->with('deductionType');
             }])
@@ -61,8 +64,8 @@ class PayrollController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        $employees->getCollection()->transform(function ($employee) use ($month, $year) {
-            $payroll = $this->payrollService->calculatePayroll($employee, $year, $month);
+        $employees->getCollection()->transform(function ($employee) use ($calculationMonth, $year) {
+            $payroll = $this->payrollService->calculatePayroll($employee, $year, $calculationMonth);
 
             $employee->current_salary = $payroll['salary'];
             $employee->current_pera = $payroll['pera'];
