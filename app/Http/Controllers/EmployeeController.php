@@ -31,7 +31,7 @@ class EmployeeController extends Controller
                 $query->where('employment_status_id', $employmentStatusId);
             })
             ->with(['office', 'employmentStatus'])
-            ->paginate(10)
+            ->paginate(50)
             ->withQueryString();
 
         $offices = Office::orderBy('name')->get();

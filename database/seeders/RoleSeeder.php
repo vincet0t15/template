@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -77,6 +76,13 @@ class RoleSeeder extends Seeder
             'roles.manage',
             'permissions.view',
             'permissions.manage',
+
+            // General Funds permissions
+            'general_funds.view',
+            'general_funds.store',
+            'general_funds.edit',
+            'general_funds.delete',
+            'general_funds.manage',
 
             // Source of Fund Codes permissions
             'source_of_fund_codes.view',

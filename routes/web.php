@@ -12,6 +12,8 @@ use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeImportController;
 use App\Http\Controllers\EmployeeSourceOfFundController;
 use App\Http\Controllers\EmploymentStatusController;
+use App\Http\Controllers\EmploymentTypeReportController;
+use App\Http\Controllers\GeneralFundController;
 use App\Http\Controllers\ManageEmployeeController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PayrollController;
@@ -48,6 +50,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::prefix('reports')->middleware(['permission:employees.source_of_fund.view'])->group(function () {
         Route::get('employees-by-source-of-fund', [ReportController::class, 'employeesBySourceOfFund'])->name('reports.employees-by-source-of-fund');
         Route::get('employees-by-source-of-fund/print', [ReportController::class, 'employeesBySourceOfFundPrint'])->name('reports.employees-by-source-of-fund.print');
+
+        Route::get('employment-type', [EmploymentTypeReportController::class, 'index'])->name('reports.employment-type');
+        Route::get('employment-type/print', [EmploymentTypeReportController::class, 'print'])->name('reports.employment-type.print');
     });
 
     // ============================================
@@ -216,11 +221,17 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
 
-    // SOURCE OF FUNDS CODE
-    Route::middleware(['permission:source_of_fund_codes.view'])->get('source-of-fund-codes', [SourceOfFundCodeController::class, 'index'])->name('source-of-fund-codes.index');
-    Route::middleware(['permission:source_of_fund_codes.store'])->post('source-of-fund-codes', [SourceOfFundCodeController::class, 'store'])->name('source-of-fund-codes.store');
-    Route::middleware(['permission:source_of_fund_codes.edit'])->put('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'update'])->name('source-of-fund-codes.update');
-    Route::middleware(['permission:source_of_fund_codes.delete'])->delete('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'destroy'])->name('source-of-fund-codes.destroy');
+    // GENERAL FUNDS
+    Route::middleware(['permission:general_funds.view'])->get('general-funds', [GeneralFundController::class, 'index'])->name('general-funds.index');
+    Route::middleware(['permission:general_funds.store'])->post('general-funds', [GeneralFundController::class, 'store'])->name('general-funds.store');
+    Route::middleware(['permission:general_funds.edit'])->put('general-funds/{generalFund}', [GeneralFundController::class, 'update'])->name('general-funds.update');
+    Route::middleware(['permission:general_funds.delete'])->delete('general-funds/{generalFund}', [GeneralFundController::class, 'destroy'])->name('general-funds.destroy');
+
+    // SOURCE OF FUND CODES (using general_funds.view permission for viewing)
+    Route::middleware(['permission:general_funds.view'])->get('source-of-fund-codes', [SourceOfFundCodeController::class, 'index'])->name('source-of-fund-codes.index');
+    Route::middleware(['permission:general_funds.store'])->post('source-of-fund-codes', [SourceOfFundCodeController::class, 'store'])->name('source-of-fund-codes.store');
+    Route::middleware(['permission:general_funds.edit'])->put('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'update'])->name('source-of-fund-codes.update');
+    Route::middleware(['permission:general_funds.delete'])->delete('source-of-fund-codes/{sourceOfFundCode}', [SourceOfFundCodeController::class, 'destroy'])->name('source-of-fund-codes.destroy');
 
     // DATABASE BACKUP & RESTORE (requires database.backup and database.restore permissions)
     Route::middleware(['permission:database.backup'])->prefix('settings/backup')->group(function () {
@@ -235,5 +246,5 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

@@ -1,9 +1,9 @@
+import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     BarChart3,
-    Building2,
     CheckCircle,
     ChevronRight,
     Clock,
@@ -23,24 +23,22 @@ export default function Welcome() {
     return (
         <>
             <Head title="Employee Compensation Management System" />
-            <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+            <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white dark:from-slate-950 dark:to-slate-900">
                 {/* Nav */}
-                <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/80">
+                <nav className="sticky top-0 z-50 border-b border-orange-200/80 bg-white/80 backdrop-blur-md dark:border-orange-700/50 dark:bg-slate-900/80">
                     <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                         <div className="flex items-center gap-3">
-                            <div className="bg-primary shadow-primary/20 flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
-                                <Building2 className="h-5 w-5 text-white dark:text-slate-900" />
-                            </div>
+                            <AppLogoIcon className="h-10 w-10 fill-current text-orange-500 dark:text-orange-400" />
                             <div>
-                                <p className="text-sm leading-none font-bold text-slate-900 dark:text-white">ECMS</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Employee Compensation Management</p>
+                                <p className="text-sm leading-none font-bold text-orange-600 dark:text-orange-400">ECMS</p>
+                                <p className="text-xs text-orange-500 dark:text-orange-500">Employee Compensation Management</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
                             {auth.user ? (
                                 <Link
                                     href={route('dashboard')}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-all hover:scale-105 hover:bg-slate-800 hover:shadow-lg dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-medium text-white transition-all hover:scale-105 hover:bg-orange-600 hover:shadow-lg dark:bg-orange-600 dark:text-white dark:hover:bg-orange-700"
                                 >
                                     Go to Dashboard
                                     <ChevronRight className="h-4 w-4" />
@@ -49,12 +47,12 @@ export default function Welcome() {
                                 <>
                                     <Link
                                         href={route('login')}
-                                        className="text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                        className="text-sm font-medium text-orange-600 transition hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
                                     >
                                         Log in
                                     </Link>
                                     <Link href={route('login')}>
-                                        <Button className="gap-2 rounded-xl px-5">
+                                        <Button className="gap-2 rounded-xl bg-orange-500 px-5 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700">
                                             Get Started
                                             <ChevronRight className="h-4 w-4" />
                                         </Button>
@@ -67,26 +65,28 @@ export default function Welcome() {
 
                 {/* Hero Section */}
                 <section className="relative overflow-hidden">
-                    <div className="from-primary/10 absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
                     <div className="relative mx-auto max-w-7xl px-6 py-24 lg:py-32">
                         <div className="text-center">
-                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-xs font-medium text-orange-600 shadow-sm dark:border-orange-700 dark:bg-orange-900/50 dark:text-orange-300">
+                                <Sparkles className="h-3.5 w-3.5 text-orange-500" />
                                 Local Government Unit — Employee Compensation Management System
                             </div>
                             <h1 className="mb-6 text-5xl font-bold tracking-tight text-slate-900 lg:text-7xl dark:text-white">
                                 Streamline Your
                                 <br />
-                                <span className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-transparent">Payroll Operations</span>
+                                <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                                    Payroll Operations
+                                </span>
                             </h1>
-                            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-500 dark:text-slate-400">
+                            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-400">
                                 A comprehensive platform for managing employee compensation, deductions, PERA, RATA, and claims — designed for LGU
                                 payroll accuracy, transparency, and efficiency.
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-4">
                                 <Link
                                     href={auth.user ? route('dashboard') : route('login')}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-slate-900/20 transition-all hover:scale-105 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-sm font-semibold text-white shadow-xl shadow-orange-500/30 transition-all hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/40 dark:bg-orange-600 dark:hover:bg-orange-700"
                                 >
                                     {auth.user ? 'Go to Dashboard' : 'Sign In to Continue'}
                                     <ChevronRight className="h-4 w-4" />
@@ -94,7 +94,7 @@ export default function Welcome() {
                             </div>
 
                             {/* Stats */}
-                            <div className="mt-16 grid grid-cols-2 gap-8 border-t border-slate-200 pt-8 sm:grid-cols-4 dark:border-slate-700">
+                            <div className="mt-16 grid grid-cols-2 gap-8 border-t border-orange-200 pt-8 sm:grid-cols-4 dark:border-orange-700">
                                 {[
                                     { value: '100+', label: 'Employees Managed' },
                                     { value: '50+', label: 'Offices Supported' },
@@ -102,7 +102,7 @@ export default function Welcome() {
                                     { value: '24/7', label: 'System Availability' },
                                 ].map((stat) => (
                                     <div key={stat.label} className="text-center">
-                                        <div className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</div>
+                                        <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{stat.value}</div>
                                         <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
                                     </div>
                                 ))}
@@ -114,7 +114,7 @@ export default function Welcome() {
                 {/* Features Grid */}
                 <section className="mx-auto max-w-7xl px-6 py-20">
                     <div className="mb-12 text-center">
-                        <div className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold">
+                        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-1.5 text-xs font-semibold text-orange-700 dark:bg-orange-900/50 dark:text-orange-300">
                             <Shield className="h-3.5 w-3.5" />
                             Comprehensive Features
                         </div>
@@ -150,8 +150,8 @@ export default function Welcome() {
                                 icon: <Receipt className="h-6 w-6" />,
                                 title: 'Claims & Reimbursements',
                                 desc: 'Process employee claims with purpose documentation, date tracking, type categorization, and approval workflows.',
-                                color: 'from-violet-500 to-violet-600',
-                                bgColor: 'bg-violet-50 dark:bg-violet-950/50',
+                                color: 'from-orange-500 to-orange-600',
+                                bgColor: 'bg-orange-50 dark:bg-orange-950/50',
                             },
                             {
                                 icon: <BarChart3 className="h-6 w-6" />,
@@ -164,13 +164,13 @@ export default function Welcome() {
                                 icon: <Settings className="h-6 w-6" />,
                                 title: 'System Configuration',
                                 desc: 'Configure offices, deduction types, claim categories, employment statuses, and user roles with permissions.',
-                                color: 'from-slate-500 to-slate-600',
-                                bgColor: 'bg-slate-100 dark:bg-slate-800/50',
+                                color: 'from-orange-400 to-orange-500',
+                                bgColor: 'bg-orange-100 dark:bg-orange-900/50',
                             },
                         ].map((feature) => (
                             <div
                                 key={feature.title}
-                                className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-700/50 dark:bg-slate-800/50"
+                                className="group relative overflow-hidden rounded-2xl border border-orange-200/50 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-orange-700/50 dark:bg-slate-800/50"
                             >
                                 <div
                                     className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}
@@ -191,7 +191,7 @@ export default function Welcome() {
                 <section className="mx-auto max-w-7xl px-6 py-20">
                     <div className="grid items-center gap-12 lg:grid-cols-2">
                         <div>
-                            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-1.5 text-xs font-semibold text-orange-700 dark:bg-orange-900/50 dark:text-orange-300">
                                 <CheckCircle className="h-3.5 w-3.5" />
                                 Why Choose ECMS
                             </div>
@@ -220,8 +220,8 @@ export default function Welcome() {
                                     },
                                 ].map((benefit, index) => (
                                     <div key={index} className="flex gap-4">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                                            {benefit.icon}
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/50">
+                                            <div className="text-orange-600 dark:text-orange-400">{benefit.icon}</div>
                                         </div>
                                         <div>
                                             <h4 className="font-semibold text-slate-900 dark:text-white">{benefit.title}</h4>
@@ -232,8 +232,8 @@ export default function Welcome() {
                             </div>
                         </div>
                         <div className="relative">
-                            <div className="from-primary/20 absolute inset-0 bg-gradient-to-r to-emerald-500/20 blur-3xl" />
-                            <div className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-emerald-500/20 blur-3xl" />
+                            <div className="relative rounded-2xl border border-orange-200 bg-white p-6 shadow-xl dark:border-orange-700 dark:bg-slate-800">
                                 <div className="mb-4 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <div className="h-3 w-3 rounded-full bg-red-400" />
@@ -244,9 +244,9 @@ export default function Welcome() {
                                 </div>
                                 <div className="space-y-3">
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
-                                            <div className="mb-1 text-xs text-slate-400">Total Employees</div>
-                                            <div className="text-2xl font-bold text-slate-900 dark:text-white">156</div>
+                                        <div className="rounded-lg bg-orange-50 p-4 dark:bg-orange-900/30">
+                                            <div className="mb-1 text-xs text-orange-500">Total Employees</div>
+                                            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">156</div>
                                         </div>
                                         <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
                                             <div className="mb-1 text-xs text-slate-400">Monthly Deductions</div>
@@ -274,16 +274,16 @@ export default function Welcome() {
 
                 {/* CTA Banner */}
                 <section className="mx-auto max-w-7xl px-6 py-20">
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-10 py-16 text-center dark:from-slate-800 dark:via-slate-700 dark:to-slate-800">
-                        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]" />
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-600 via-orange-500 to-orange-600 px-10 py-16 text-center shadow-xl shadow-orange-500/20">
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]" />
                         <div className="relative">
                             <h2 className="mb-4 text-3xl font-bold text-white">Ready to Transform Your Payroll?</h2>
-                            <p className="mx-auto mb-8 max-w-lg text-slate-300">
+                            <p className="mx-auto mb-8 max-w-lg text-orange-100">
                                 Join hundreds of LGUs using ECMS to streamline their employee compensation management.
                             </p>
                             <Link
                                 href={auth.user ? route('dashboard') : route('login')}
-                                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-slate-900 shadow-xl transition-all hover:scale-105 hover:bg-slate-100"
+                                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-orange-600 shadow-xl transition-all hover:scale-105 hover:bg-orange-50"
                             >
                                 {auth.user ? 'Open Dashboard' : 'Get Started Today'}
                                 <ChevronRight className="h-4 w-4" />
@@ -293,14 +293,12 @@ export default function Welcome() {
                 </section>
 
                 {/* Footer */}
-                <footer className="border-t border-slate-200/80 dark:border-slate-700/50">
+                <footer className="border-t border-orange-200/80 dark:border-orange-700/50">
                     <div className="mx-auto max-w-7xl px-6 py-8">
                         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                             <div className="flex items-center gap-2">
-                                <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                                    <Building2 className="h-4 w-4 text-white" />
-                                </div>
-                                <span className="text-sm font-semibold text-slate-900 dark:text-white">ECMS</span>
+                                <AppLogoIcon className="h-8 w-8 fill-current text-orange-500 dark:text-orange-400" />
+                                <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">ECMS</span>
                             </div>
                             <p className="text-xs text-slate-400">
                                 © {new Date().getFullYear()} Employee Compensation Management System. All rights reserved.

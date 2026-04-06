@@ -8,6 +8,7 @@ import {
     Banknote,
     Building2,
     Calculator,
+    CoinsIcon,
     Database,
     DollarSign,
     Key,
@@ -86,6 +87,17 @@ const mainNavItems: NavGroup[] = [
                 title: 'RATA',
                 href: '/ratas',
                 icon: Calculator,
+            },
+        ],
+    },
+    {
+        title: 'Funds',
+        icon: CoinsIcon,
+        children: [
+            {
+                title: 'General Funds',
+                href: '/general-funds',
+                icon: CoinsIcon,
             },
         ],
     },

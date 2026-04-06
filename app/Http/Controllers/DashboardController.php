@@ -6,6 +6,7 @@ use App\Models\Claim;
 use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
+use App\Models\EmploymentStatus;
 use App\Models\Office;
 use App\Models\Pera;
 use App\Models\Rata;
@@ -198,7 +199,7 @@ class DashboardController extends Controller
             ->map(function ($claim) {
                 return [
                     'id' => $claim->id,
-                    'employee_name' => $claim->employee->last_name . ', ' . $claim->employee->first_name,
+                    'employee_name' => $claim->employee->last_name.', '.$claim->employee->first_name,
                     'office' => $claim->employee->office?->name ?? 'N/A',
                     'amount' => (float) $claim->amount,
                     'claim_date' => $claim->claim_date,
@@ -223,7 +224,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'total_amount' => (float) $item->total_amount,
                     'claim_count' => (int) $item->claim_count,
@@ -249,7 +250,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'travel_count' => (int) $item->travel_count,
                     'total_travel_amount' => (float) $item->total_travel_amount,
@@ -275,7 +276,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'employee_id' => $item->employee_id,
-                    'employee_name' => $item->employee->last_name . ', ' . $item->employee->first_name,
+                    'employee_name' => $item->employee->last_name.', '.$item->employee->first_name,
                     'office' => $item->employee->office?->name ?? 'N/A',
                     'overtime_count' => (int) $item->overtime_count,
                     'total_overtime_amount' => (float) $item->total_overtime_amount,
@@ -310,6 +311,18 @@ class DashboardController extends Controller
             ->sortByDesc('total_amount')
             ->values();
 
+        // Employees by employment status
+        $employeesByEmploymentStatus = EmploymentStatus::withCount('employees')
+            ->orderBy('employees_count', 'desc')
+            ->get()
+            ->map(function ($status) {
+                return [
+                    'id' => $status->id,
+                    'name' => $status->name,
+                    'count' => $status->employees_count,
+                ];
+            });
+
         return Inertia::render('dashboard', [
             'stats' => [
                 'totalEmployees' => $totalEmployees,
@@ -334,6 +347,7 @@ class DashboardController extends Controller
                 'year' => (int) $year,
             ],
             'employeesByOffice' => $employeesByOffice,
+            'employeesByEmploymentStatus' => $employeesByEmploymentStatus,
             'recentEmployeesWithDeductions' => $recentEmployeesWithDeductions,
             'topDeductionTypes' => $topDeductionTypes,
             'currentPeriod' => [

@@ -102,7 +102,10 @@ interface DashboardProps {
         employee_name: string;
         office: string;
         travel_count: number;
-        total_travel_amount: number;
+        travel_total: number;
+        travel_breakdown: Record<string, { name: string; amount: number; count: number }>;
+        overtime_count: number;
+        overtime_total: number;
     }[];
     mostOvertimeClaims: {
         employee_id: number;
@@ -116,6 +119,11 @@ interface DashboardProps {
         office_code: string;
         total_claims: number;
         total_amount: number;
+    }[];
+    employeesByEmploymentStatus: {
+        id: number;
+        name: string;
+        count: number;
     }[];
 }
 
@@ -141,6 +149,7 @@ export default function Dashboard({
     mostTravelClaims,
     mostOvertimeClaims,
     claimsByOffice,
+    employeesByEmploymentStatus,
 }: DashboardProps) {
     const [chartType, setChartType] = React.useState<'bar' | 'pie'>('bar');
 
@@ -320,18 +329,18 @@ export default function Dashboard({
                         <div>
                             <CardTitle className="flex items-center gap-2">
                                 <PieChartIcon className="h-5 w-5" />
-                                Salaries by Source of Fund
+                                Salaries by Funds
                             </CardTitle>
                             <CardDescription>
-                                Total salary amounts grouped by fund code for {months.find((m) => m.value === filterData.month)?.label || 'Current'}{' '}
-                                {filterData.year}
+                                Total salary amounts grouped by general fund for{' '}
+                                {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
                             </CardDescription>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <ChartPieMultiple
                             data={salariesBySourceOfFund}
-                            title="Salary Distribution by Trust Fund"
+                            title="Salary Distribution by Funds"
                             description={`Percentage breakdown for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
                         />
                     </CardContent>
@@ -361,8 +370,8 @@ export default function Dashboard({
                             {mostTravelClaims.length > 0 ? (
                                 <div className="space-y-3">
                                     {mostTravelClaims.map((employee, index) => {
-                                        const maxAmount = mostTravelClaims[0]?.total_travel_amount || 1;
-                                        const percentage = (employee.total_travel_amount / maxAmount) * 100;
+                                        const maxAmount = mostTravelClaims[0]?.travel_total || 1;
+                                        const percentage = (employee.travel_total / maxAmount) * 100;
                                         return (
                                             <div key={employee.employee_id} className="space-y-1">
                                                 <div className="flex items-center justify-between text-sm">
@@ -391,7 +400,7 @@ export default function Dashboard({
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-semibold text-blue-600">{formatCurrency(employee.total_travel_amount)}</p>
+                                                        <p className="font-semibold text-blue-600">{formatCurrency(employee.travel_total)}</p>
                                                         <p className="text-muted-foreground text-xs">{employee.travel_count} trips</p>
                                                     </div>
                                                 </div>
@@ -504,6 +513,51 @@ export default function Dashboard({
                             title="Claims & Overtime by Office"
                             description={`Distribution of claims and overtime for ${months.find((m) => m.value === filterData.month)?.label || currentPeriod.monthName} ${filterData.year}`}
                         />
+                    </CardContent>
+                </Card>
+
+                {/* Employment Type Breakdown */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="h-5 w-5" />
+                            Employees by Employment Type
+                        </CardTitle>
+                        <CardDescription>Total employees grouped by employment status</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {employeesByEmploymentStatus.length > 0 ? (
+                            <div className="space-y-3">
+                                {employeesByEmploymentStatus.map((status) => (
+                                    <button
+                                        key={status.id}
+                                        onClick={() => router.get(route('reports.employment-type', { employment_status_id: status.id }))}
+                                        className="flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
+                                                <Users className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">{status.name}</p>
+                                                <p className="text-muted-foreground text-xs">Click to view employees</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{status.count}</p>
+                                            <p className="text-muted-foreground text-xs">employees</p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-8 text-center">
+                                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                    <Users className="h-6 w-6 text-slate-400" />
+                                </div>
+                                <p className="text-muted-foreground text-sm">No employment types found</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

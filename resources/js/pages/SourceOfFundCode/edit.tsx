@@ -5,30 +5,30 @@ import { Field, FieldGroup } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { SourceOfFundCodeCreate } from '@/types/sourceOfFundCOde';
+import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { useForm } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { ChangeEventHandler, FormEventHandler } from 'react';
 import { toast } from 'sonner';
 
-interface CreateSourceOfFundCodeProps {
+interface EditSourceOfFundCodeDialogProps {
     open: boolean;
     onClose: (open: boolean) => void;
-    defaultGeneralFundId?: number | null;
+    sourceOfFundCode: SourceOfFundCode;
 }
 
-export function CreateSourceOfFundCode({ open, onClose, defaultGeneralFundId }: CreateSourceOfFundCodeProps) {
-    const { data, setData, processing, post, errors, reset } = useForm<SourceOfFundCodeCreate>({
-        code: '',
-        description: '',
-        status: true,
-        parent_id: null,
-        is_category: false,
-        general_fund_id: defaultGeneralFundId || null,
+export function EditSourceOfFundCodeDialog({ open, onClose, sourceOfFundCode }: EditSourceOfFundCodeDialogProps) {
+    const { data, setData, processing, put, errors, reset } = useForm({
+        code: sourceOfFundCode.code,
+        description: sourceOfFundCode.description || '',
+        status: sourceOfFundCode.status,
+        parent_id: sourceOfFundCode.parent_id,
+        is_category: sourceOfFundCode.is_category,
+        general_fund_id: sourceOfFundCode.general_fund_id,
     });
 
     const onChangeInput: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-        setData(e.target.name as keyof SourceOfFundCodeCreate, e.target.value);
+        setData(e.target.name as keyof typeof data, e.target.value);
     };
 
     const onCheckedChangeStatus = (value: boolean | 'indeterminate') => {
@@ -44,14 +44,14 @@ export function CreateSourceOfFundCode({ open, onClose, defaultGeneralFundId }: 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('source-of-fund-codes.store'), {
+        put(route('source-of-fund-codes.update', sourceOfFundCode.id), {
             onSuccess: () => {
-                toast.success('Source of fund code created successfully.');
+                toast.success('Source of fund code updated successfully.');
                 onClose(false);
             },
             onError: (errors) => {
                 const firstError = Object.values(errors)[0];
-                toast.error(firstError || 'Failed to create source of fund code.');
+                toast.error(firstError || 'Failed to update source of fund code.');
             },
         });
     };
@@ -61,8 +61,8 @@ export function CreateSourceOfFundCode({ open, onClose, defaultGeneralFundId }: 
             <DialogContent className="sm:max-w-sm">
                 <form onSubmit={submit}>
                     <DialogHeader>
-                        <DialogTitle>Create Source of Fund Code</DialogTitle>
-                        <DialogDescription>Add a new source of fund code under the selected general fund.</DialogDescription>
+                        <DialogTitle>Edit Source of Fund Code</DialogTitle>
+                        <DialogDescription>Update the source of fund code details.</DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
@@ -95,10 +95,10 @@ export function CreateSourceOfFundCode({ open, onClose, defaultGeneralFundId }: 
                             {processing ? (
                                 <span className="flex items-center gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    Creating...
+                                    Updating...
                                 </span>
                             ) : (
-                                'Create'
+                                'Update'
                             )}
                         </Button>
                     </DialogFooter>
