@@ -1,4 +1,3 @@
-import { ChartBarMultiple } from '@/components/chart-bar-multiple';
 import { ChartOfficeClaims } from '@/components/chart-office-claims';
 import { ChartPieMultiple } from '@/components/chart-pie-multiple';
 import { CustomComboBox } from '@/components/CustomComboBox';
@@ -378,15 +377,25 @@ export default function Dashboard({
 
                 {/* Salary Distribution Chart */}
                 {salaryViewMode === 'byFund' && (
-                    <ChartBarMultiple
-                        data={salaryDistribution.map((fund) => ({
-                            code: fund.code,
-                            description: fund.description,
-                            total_amount: fund.total_amount,
-                        }))}
-                        title="Salaries by General Fund"
-                        description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
-                    />
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Salaries by General Fund</CardTitle>
+                            <CardDescription>
+                                Distribution for {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ChartPieMultiple
+                                data={salaryDistribution.map((fund) => ({
+                                    code: fund.code,
+                                    description: fund.description,
+                                    total_amount: fund.total_amount,
+                                }))}
+                                title="Salaries by General Fund"
+                                description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                            />
+                        </CardContent>
+                    </Card>
                 )}
 
                 {salaryViewMode === 'byCode' && (
