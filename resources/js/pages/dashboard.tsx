@@ -1,3 +1,4 @@
+import { ChartBarMultiple } from '@/components/chart-bar-multiple';
 import { ChartOfficeClaims } from '@/components/chart-office-claims';
 import { ChartPieMultiple } from '@/components/chart-pie-multiple';
 import { CustomComboBox } from '@/components/CustomComboBox';
@@ -373,20 +374,30 @@ export default function Dashboard({
                             </DropdownMenu>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        {salaryViewMode === 'byFund' && (
-                            <ChartPieMultiple
-                                data={salaryDistribution.map((fund) => ({
-                                    code: fund.code,
-                                    description: fund.description,
-                                    total_amount: fund.total_amount,
-                                }))}
-                                title="Salaries by General Fund"
-                                description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
-                            />
-                        )}
+                </Card>
 
-                        {salaryViewMode === 'byCode' && (
+                {/* Salary Distribution Chart */}
+                {salaryViewMode === 'byFund' && (
+                    <ChartBarMultiple
+                        data={salaryDistribution.map((fund) => ({
+                            code: fund.code,
+                            description: fund.description,
+                            total_amount: fund.total_amount,
+                        }))}
+                        title="Salaries by General Fund"
+                        description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
+                    />
+                )}
+
+                {salaryViewMode === 'byCode' && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Salaries by Source of Fund Code</CardTitle>
+                            <CardDescription>
+                                Distribution for {months.find((m) => m.value === filterData.month)?.label || 'Current'} {filterData.year}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
                             <ChartPieMultiple
                                 data={salaryDistribution
                                     .flatMap((fund) =>
@@ -401,9 +412,9 @@ export default function Dashboard({
                                 title="Salaries by Source of Fund Code"
                                 description={`Distribution for ${months.find((m) => m.value === filterData.month)?.label || 'Current'} ${filterData.year}`}
                             />
-                        )}
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Travel & Overtime Claims Charts */}
                 <div className="grid gap-6 lg:grid-cols-2">

@@ -1,10 +1,10 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { type ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
 export interface FundChartData {
     code: string;
@@ -42,75 +42,94 @@ export function ChartBarMultiple({ data, title = 'Salaries by Source of Fund', d
     const chartConfig = {
         amount: {
             label: 'Salary Amount',
-            color: 'var(--chart-1)',
+            color: 'hsl(217.2 91.2% 60%)',
         },
     } satisfies ChartConfig;
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{title}</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    {title}
+                </CardTitle>
                 {description && <CardDescription>{description}</CardDescription>}
-                {period && <CardDescription className="text-xs">{period}</CardDescription>}
             </CardHeader>
             <CardContent>
                 {chartData.length > 0 ? (
-                    <div className="h-[300px] w-full overflow-x-auto">
-                        <div style={{ minWidth: `${calculatedWidth}px` }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={true} />
-                                    <XAxis
-                                        dataKey="name"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={10}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        interval={0}
-                                        tick={{ fontSize: 12 }}
-                                    />
-                                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`} />
-                                    <Tooltip
-                                        cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                                        content={({ active, payload }) => {
-                                            if (active && payload && payload[0]) {
-                                                return (
-                                                    <div className="rounded-lg border bg-white p-3 shadow-md">
-                                                        <p className="font-medium">{payload[0].payload.name}</p>
-                                                        {payload[0].payload.description && (
-                                                            <p className="text-muted-foreground text-xs">{payload[0].payload.description}</p>
-                                                        )}
-                                                        <p className="mt-1 font-semibold text-blue-600">
-                                                            {formatCurrency(payload[0].value as number)}
-                                                        </p>
-                                                    </div>
-                                                );
+                    <div className="w-full overflow-x-auto">
+                        <ChartContainer config={chartConfig} className="min-h-[350px] w-full min-w-[500px]">
+                            <BarChart accessibilityLayer data={chartData}>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="name"
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                    tickFormatter={(value) => value.slice(0, 5)}
+                                />
+                                <YAxis
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                    tickFormatter={(value) => {
+                                        if (value >= 1000) {
+                                            return `₱${(value / 1000).toFixed(0)}k`;
+                                        }
+                                        return `₱${value}`;
+                                    }}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={
+                                        <ChartTooltipContent
+                                            indicator="dashed"
+                                            formatter={(value, name, item) => {
+                                                if (name === 'amount' && typeof value === 'number') {
+                                                    return new Intl.NumberFormat('en-PH', {
+                                                        style: 'currency',
+                                                        currency: 'PHP',
+                                                        minimumFractionDigits: 0,
+                                                    }).format(value);
+                                                }
+                                                return value;
+                                            }}
+                                        />
+                                    }
+                                />
+                                <Bar dataKey="amount" fill="var(--color-amount)" radius={4}>
+                                    <LabelList
+                                        dataKey="amount"
+                                        position="top"
+                                        formatter={(value) => {
+                                            if (typeof value === 'number') {
+                                                return new Intl.NumberFormat('en-PH', {
+                                                    style: 'currency',
+                                                    currency: 'PHP',
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 0,
+                                                }).format(value);
                                             }
-                                            return null;
+                                            return String(value);
+                                        }}
+                                        style={{
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            fill: 'hsl(217.2 91.2% 60%)',
                                         }}
                                     />
-                                    <Legend />
-                                    <Bar dataKey="amount" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]}>
-                                        <LabelList
-                                            dataKey="amount"
-                                            position="top"
-                                            offset={12}
-                                            className="fill-foreground"
-                                            fontSize={12}
-                                            formatter={(value) => formatCurrency(Number(value))}
-                                        />
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                                </Bar>
+                            </BarChart>
+                        </ChartContainer>
                     </div>
                 ) : (
-                    <div className="py-8 text-center">
-                        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                            <TrendingUp className="h-6 w-6 text-slate-400" />
+                    <div className="flex min-h-[350px] items-center justify-center">
+                        <div className="text-center">
+                            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                <TrendingUp className="h-6 w-6 text-slate-400" />
+                            </div>
+                            <p className="text-muted-foreground">No data available for this period</p>
                         </div>
-                        <p className="text-muted-foreground">No data available for this period</p>
                     </div>
                 )}
             </CardContent>
