@@ -20,7 +20,6 @@
 /storage/pail
 /storage/logs
 /vendor
-app/Http/Middleware/TrackUserActivity.php
 auth.json
 Homestead.json
 Homestead.yaml
