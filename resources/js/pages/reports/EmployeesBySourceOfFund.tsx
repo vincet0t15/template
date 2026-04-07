@@ -1,12 +1,15 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { SourceOfFundCode } from '@/types/sourceOfFundCOde';
 import { Head, router, useForm } from '@inertiajs/react';
+import { User } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -47,6 +50,7 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
         source_of_fund_code_id: filters.source_of_fund_code_id || '',
         month: filters.month || '',
         year: filters.year || new Date().getFullYear().toString(),
+        search: '',
     });
 
     const [loading, setLoading] = useState(false);
@@ -57,10 +61,18 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
         if (merged.source_of_fund_code_id) queryString.source_of_fund_code_id = merged.source_of_fund_code_id;
         if (merged.month) queryString.month = merged.month;
         if (merged.year) queryString.year = merged.year;
+        if (merged.search) queryString.search = merged.search;
         router.get(route('reports.employees-by-source-of-fund'), queryString, {
             preserveState: true,
             preserveScroll: true,
         });
+    };
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyFilters();
+        }
     };
 
     const months = [
@@ -188,8 +200,9 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                 </div>
                 {/* Employee List Display */}
                 {employees.data.length > 0 ? (
-                    <div className="bg-card rounded-lg border shadow-sm">
-                        <div className="bg-muted/50 border-b px-6 py-4">
+                    <div className="space-y-4">
+                        {/* Summary Header */}
+                        <div className="bg-card rounded-lg border p-4 shadow-sm">
                             <h3 className="text-lg font-semibold">Filtered Employees ({employees.total})</h3>
                             <p className="text-muted-foreground text-sm">
                                 Source of Fund: {sourceOfFundCodes.find((f) => f.id.toString() === data.source_of_fund_code_id)?.code}
@@ -197,39 +210,53 @@ export default function EmployeesBySourceOfFund({ sourceOfFundCodes, employees, 
                                 {data.year && ` • ${data.year}`}
                             </p>
                         </div>
-                        <div className="max-h-[600px] overflow-auto">
-                            <table className="w-full">
-                                <thead className="bg-muted/50 sticky top-0">
-                                    <tr>
-                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">#</th>
-                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Employee Name</th>
-                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Position</th>
-                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Office</th>
-                                        <th className="border-b px-4 py-2 text-left text-sm font-medium">Status</th>
-                                        <th className="border-b px-4 py-2 text-right text-sm font-medium">Monthly Salary</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+
+                        {/* Table */}
+                        <div className="w-full overflow-hidden rounded-sm border shadow-sm">
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="text-primary w-[60px] font-bold">#</TableHead>
+                                        <TableHead className="text-primary font-bold">Employee</TableHead>
+                                        <TableHead className="text-primary font-bold">Position</TableHead>
+                                        <TableHead className="text-primary font-bold">Office</TableHead>
+                                        <TableHead className="text-primary font-bold">Status</TableHead>
+                                        <TableHead className="text-primary text-right font-bold">Monthly Salary</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-slate-200 dark:divide-slate-700">
                                     {employees.data.map((employee, index) => (
-                                        <tr key={employee.id} className="hover:bg-muted/30 border-b last:border-0">
-                                            <td className="px-4 py-3 text-sm">{index + 1}</td>
-                                            <td className="px-4 py-3 text-sm">
-                                                {[employee.first_name, employee.middle_name, employee.last_name, employee.suffix]
-                                                    .filter(Boolean)
-                                                    .join(' ')}
-                                            </td>
-                                            <td className="px-4 py-3 text-sm">{employee.position || '—'}</td>
-                                            <td className="px-4 py-3 text-sm">{employee.office?.name || '—'}</td>
-                                            <td className="px-4 py-3 text-sm">{employee.employment_status?.name || '—'}</td>
-                                            <td className="px-4 py-3 text-right text-sm font-medium">{formatCurrency(employee.salary_amount)}</td>
-                                        </tr>
+                                        <TableRow key={employee.id} className="hover:bg-muted/30">
+                                            <TableCell className="text-sm">{employees.from + index}</TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm dark:border-slate-700">
+                                                        <AvatarFallback className="bg-slate-100 dark:bg-slate-800">
+                                                            <User className="h-5 w-5 text-slate-400" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold uppercase">
+                                                            {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-sm">{employee.position || '—'}</TableCell>
+                                            <TableCell className="text-sm">{employee.office?.name || '—'}</TableCell>
+                                            <TableCell className="text-sm">{employee.employment_status?.name || '—'}</TableCell>
+                                            <TableCell className="text-right text-sm font-medium">{formatCurrency(employee.salary_amount)}</TableCell>
+                                        </TableRow>
                                     ))}
-                                </tbody>
-                            </table>
+                                </TableBody>
+                            </Table>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-card rounded-lg border p-8 text-center shadow-sm">
+                    <div className="bg-card rounded-lg border p-12 text-center shadow-sm">
+                        <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                            <User className="h-8 w-8 text-slate-400" />
+                        </div>
                         <p className="text-muted-foreground">Please select a source of fund code to view employees</p>
                     </div>
                 )}
