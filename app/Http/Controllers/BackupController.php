@@ -191,10 +191,14 @@ class BackupController extends Controller
         $backups = [];
 
         foreach ($files as $file) {
+            $dateTime = new \DateTime();
+            $dateTime->setTimestamp($file->getMTime());
+            $dateTime->setTimezone(new \DateTimeZone('Asia/Manila'));
+
             $backups[] = [
                 'name' => $file->getFilename(),
                 'size' => $this->formatFileSize($file->getSize()),
-                'date' => date('Y-m-d H:i:s', $file->getMTime()),
+                'date' => $dateTime->format('Y-m-d g:i:s A'),
                 'path' => $file->getPathname(),
             ];
         }
