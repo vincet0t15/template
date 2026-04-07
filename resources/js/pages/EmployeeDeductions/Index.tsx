@@ -1,6 +1,7 @@
 import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -235,8 +236,7 @@ export default function Index({ employees, offices, employmentStatuses, filters 
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary font-bold">Office</TableHead>
-                                <TableHead className="text-primary font-bold">Status</TableHead>
+
                                 <TableHead className="text-primary text-right font-bold">Monthly Salary</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Total Deductions</TableHead>
                             </TableRow>
@@ -252,7 +252,7 @@ export default function Index({ employees, offices, employmentStatuses, filters 
                                                     className="group relative cursor-pointer"
                                                     title={`View details of ${employee.first_name} ${employee.last_name}`}
                                                 >
-                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
+                                                    <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-500">
                                                         {employee.image_path ? (
                                                             <AvatarImage
                                                                 src={employee.image_path ?? undefined}
@@ -264,33 +264,19 @@ export default function Index({ employees, offices, employmentStatuses, filters 
                                                             <User className="h-5 w-5 text-slate-400" />
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    <div className="absolute -right-1 -bottom-1 rounded-full bg-blue-500 p-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                            />
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                            />
-                                                        </svg>
-                                                    </div>
                                                 </Link>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
                                                         {employee.last_name}, {employee.first_name} {employee.middle_name}
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                    <span className="text-muted-foreground text-xs">{employee.office?.name || 'N/A'}</span>
+                                                    <Badge variant="outline" className="bg-teal-800 text-white">
+                                                        {employee.employment_status?.name}
+                                                    </Badge>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{employee.office?.name || 'N/A'}</TableCell>
-                                        <TableCell>{employee.employment_status?.name || 'N/A'}</TableCell>
                                         <TableCell className="text-right font-medium">
                                             ₱
                                             {getLatestSalary(employee.salaries?.[0], employee.monthly_salary).toLocaleString('en-PH', {

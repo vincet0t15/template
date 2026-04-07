@@ -2,6 +2,7 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -294,7 +295,7 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                                             route('payroll.show', employee.id) + `?month=${filters.month}&year=${filters.year}`,
                                                         )
                                                     }
-                                                    className="hover:border-primary h-10 w-10 cursor-pointer border-2 border-slate-200 shadow-sm dark:border-slate-700"
+                                                    className="hover:border-primary h-12 w-12 cursor-pointer border-2 border-slate-200 shadow-sm dark:border-slate-700"
                                                 >
                                                     {employee.image_path ? (
                                                         <AvatarImage
@@ -313,9 +314,13 @@ export default function PayrollIndex({ employees, offices, employmentStatuses, f
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
                                                     <span className="text-muted-foreground text-xs">{employee.office?.name}</span>
+                                                    <Badge variant="outline" className="bg-teal-800 text-white">
+                                                        {employee.employment_status?.name}
+                                                    </Badge>
                                                 </div>
                                             </div>
                                         </TableCell>
+                                        <TableCell className="text-sm">{employee.employment_status?.name || '—'}</TableCell>
                                         <TableCell className="text-right font-medium">{formatCurrency(employee.current_salary)}</TableCell>
                                         <TableCell className="text-right">{formatCurrency(employee.current_pera)}</TableCell>
                                         <TableCell className="text-right">

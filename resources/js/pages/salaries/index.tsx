@@ -2,6 +2,7 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -162,7 +163,7 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm dark:border-slate-700">
+                                                <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm dark:border-slate-700">
                                                     {employee.image_path ? (
                                                         <AvatarImage
                                                             src={employee.image_path ?? undefined}
@@ -180,6 +181,9 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
                                                     <span className="text-muted-foreground text-xs"> {employee.office?.name}</span>
+                                                    <Badge variant="outline" className="bg-teal-800 text-white">
+                                                        {employee.employment_status?.name}
+                                                    </Badge>
                                                 </div>
                                             </div>
                                         </TableCell>
