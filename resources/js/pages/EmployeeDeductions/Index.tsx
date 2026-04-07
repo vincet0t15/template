@@ -7,8 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import type { DeductionType } from '@/types/deductionType';
-import type { Employee } from '@/types/employee';
 import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { Office } from '@/types/office';
 import { Head, Link, router } from '@inertiajs/react';
@@ -35,15 +33,26 @@ const YEARS = Array.from({ length: 10 }, (_, i) => {
     return { value: String(year), label: String(year) };
 });
 
+interface Salary {
+    id: number;
+    basic_salary: number;
+    monthly_salary: number;
+}
+
 interface IndexProps {
-    employees: (Employee & {
+    employees: {
+        id: number;
+        first_name: string;
+        middle_name: string;
+        last_name: string;
+        suffix: string;
+        image_path?: string;
+        position: string;
         employment_status: EmploymentStatus | null;
         office: Office | null;
-        salaries: any[];
-        peras: any[];
-        ratas: any[];
-    })[];
-    deductionTypes: DeductionType[];
+        salaries: Salary[];
+        monthly_salary?: number;
+    }[];
     offices: Office[];
     employmentStatuses: EmploymentStatus[];
     filters: {
@@ -57,7 +66,7 @@ interface IndexProps {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Employee Deductions', href: '/employee-deductions' }];
 
-export default function Index({ employees, deductionTypes, offices, employmentStatuses, filters }: IndexProps) {
+export default function Index({ employees, offices, employmentStatuses, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedMonth, setSelectedMonth] = useState(String(filters.month));
     const [selectedYear, setSelectedYear] = useState(String(filters.year));
@@ -98,12 +107,11 @@ export default function Index({ employees, deductionTypes, offices, employmentSt
         }
     };
 
-    const getLatestSalary = (employee: any) => {
-        const salary = employee.salaries?.[0];
-        return salary?.basic_salary || employee.monthly_salary || 0;
+    const getLatestSalary = (salary: Salary | undefined, monthlySalary?: number) => {
+        return salary?.basic_salary || monthlySalary || 0;
     };
 
-    const getTotalDeductions = (employee: any) => {
+    const getTotalDeductions = () => {
         return 0;
     };
 
@@ -284,10 +292,13 @@ export default function Index({ employees, deductionTypes, offices, employmentSt
                                         <TableCell>{employee.office?.name || 'N/A'}</TableCell>
                                         <TableCell>{employee.employment_status?.name || 'N/A'}</TableCell>
                                         <TableCell className="text-right font-medium">
-                                            ₱{getLatestSalary(employee).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                                            ₱
+                                            {getLatestSalary(employee.salaries?.[0], employee.monthly_salary).toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                            })}
                                         </TableCell>
                                         <TableCell className="text-right font-medium">
-                                            ₱{getTotalDeductions(employee).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                                            ₱{getTotalDeductions().toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                                         </TableCell>
                                     </TableRow>
                                 ))

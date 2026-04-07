@@ -66,7 +66,7 @@ function getEffectiveAmount(history: { amount: number; effective_date: string }[
     return Number(sortedHistory[sortedHistory.length - 1]?.amount ?? 0);
 }
 
-export default function PrintDeductions({ employees, deductionTypes, filters, officeName }: PrintProps) {
+export default function PrintDeductions({ employees, filters, officeName }: PrintProps) {
     const handlePrint = () => {
         window.print();
     };

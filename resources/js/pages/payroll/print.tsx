@@ -78,13 +78,6 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
 
             <div className="mx-auto w-[10in] print:w-full">
                 <table className="w-full border-0">
-                    <thead className="hidden print:table-header-group">
-                        <tr>
-                            <td>
-                                <div className="h-[9mm]"></div>
-                            </td>
-                        </tr>
-                    </thead>
                     <tbody>
                         <tr>
                             <td>

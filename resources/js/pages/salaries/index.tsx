@@ -152,7 +152,6 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary font-bold">Office</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Current Salary</TableHead>
                                 <TableHead className="text-primary w-[150px] text-center font-bold">Actions</TableHead>
                             </TableRow>
@@ -177,13 +176,13 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                                                 </Avatar>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
-                                                        {employee.last_name}, {employee.first_name} {employee.middle_name}
+                                                        {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                    <span className="text-muted-foreground text-xs"> {employee.office?.name}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{employee.office?.name}</TableCell>
                                         <TableCell className="text-right font-medium">
                                             {employee.latest_salary ? formatCurrency(employee.latest_salary.amount) : '-'}
                                         </TableCell>
