@@ -40,7 +40,8 @@ class AuditLogController extends Controller
             })
             ->when($request->date_to, function ($q, $dateTo) {
                 $q->whereDate('created_at', '<=', $dateTo);
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
         $perPage = $request->per_page ?? 20;
         $auditLogs = $query->paginate($perPage)->appends($request->except('page'));
