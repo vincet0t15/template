@@ -189,13 +189,23 @@ export default function SalariesIndex({ employees, offices, employmentStatuses, 
                                         </TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Button variant="outline" onClick={() => router.get(route('salaries.history', employee.id))}>
-                                                    <History className="mr-1 h-4 w-4" />
-                                                    History
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                                    onClick={() => router.get(route('salaries.history', employee.id))}
+                                                    title="View Salary History"
+                                                >
+                                                    <History className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="default" onClick={() => handleOpenAdd(employee)}>
-                                                    <PlusIcon className="mr-1 h-4 w-4" />
-                                                    Add
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-teal-600 hover:bg-teal-50 hover:text-teal-700"
+                                                    onClick={() => handleOpenAdd(employee)}
+                                                    title="Add Salary Record"
+                                                >
+                                                    <PlusIcon className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </TableCell>
