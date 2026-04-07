@@ -76,7 +76,7 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
                 </Button>
             </div>
 
-            <div className="print-wrapper w-full">
+            <div className="print-wrapper mx-auto w-[12in]">
                 <table className="w-full border-0">
                     <tbody>
                         <tr>

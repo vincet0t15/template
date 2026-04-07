@@ -465,22 +465,6 @@ export default function EmployeePrintReport({
                     </tbody>
                 </table>
             </div>
-
-            <style>{`
-                @media print {
-                    @page { margin: 0; size: auto; }
-                    body { margin: 0 10mm; -webkit-print-color-adjust: exact; }
-                    table {
-                        border-collapse: collapse;
-                    }
-
-                    td, th {
-                        padding: 4px 6px !important;
-                        font-size: 11px;
-                        page-break-inside: avoid;
-                    }
-                }
-            `}</style>
         </div>
     );
 }
