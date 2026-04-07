@@ -138,7 +138,7 @@ class ManageEmployeeController extends Controller
         $totalDeductionsAllTime = (float) $allDeductions->sum('amount');
         $totalClaimsAllTime = (float) $allClaims->sum('amount');
 
-        return Inertia::render('Employees/Manage/Manage', [
+        return Inertia::render('employees/Manage/Manage', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
@@ -279,7 +279,7 @@ class ManageEmployeeController extends Controller
 
         $allClaims = $claimsQuery->orderBy('claim_date', 'desc')->get();
 
-        return Inertia::render('Employees/Manage/print', [
+        return Inertia::render('employees/Manage/print', [
             'employee' => $employee,
             'allDeductions' => $allDeductions,
             'allClaims' => $allClaims,

@@ -63,9 +63,9 @@ class EmployeeSourceOfFundController extends Controller
 
             $rata = $employee->is_rata_eligible
                 ? $employee->ratas
-                    ->where('effective_date', '<=', $periodEnd)
-                    ->sortByDesc('effective_date')
-                    ->first()
+                ->where('effective_date', '<=', $periodEnd)
+                ->sortByDesc('effective_date')
+                ->first()
                 : null;
 
             $fundingSources = [];
@@ -136,7 +136,7 @@ class EmployeeSourceOfFundController extends Controller
             }
         }
 
-        return Inertia::render('Employees/SourceOfFund/Index', [
+        return Inertia::render('employees/SourceOfFund/Index', [
             'employees' => $employees,
             'sourceOfFundCodes' => $sourceOfFundCodes,
             'offices' => $offices,

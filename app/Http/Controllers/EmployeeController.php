@@ -40,7 +40,7 @@ class EmployeeController extends Controller
         $offices = Office::orderBy('name')->get();
         $employmentStatuses = EmploymentStatus::orderBy('name')->get();
 
-        return Inertia::render('Employees/Index', [
+        return Inertia::render('employees/Index', [
             'employees' => $employees,
             'offices' => $offices,
             'employmentStatuses' => $employmentStatuses,
@@ -57,7 +57,7 @@ class EmployeeController extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
 
-        return Inertia::render('Employees/create', [
+        return Inertia::render('employees/create', [
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,
         ]);
@@ -101,7 +101,7 @@ class EmployeeController extends Controller
         $employmentStatuses = EmploymentStatus::all();
         $offices = Office::all();
 
-        return Inertia::render('Employee/edit', [
+        return Inertia::render('employees/show', [
             'employee' => $employee,
             'employmentStatuses' => $employmentStatuses,
             'offices' => $offices,

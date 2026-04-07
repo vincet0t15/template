@@ -18,7 +18,7 @@ class EmployeeImportController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Employees/import', [
+        return Inertia::render('employees/import', [
             'sampleHeaders' => ['first_name', 'middle_name', 'last_name', 'suffix', 'position', 'is_rata_eligible', 'employment_status', 'office'],
         ]);
     }
@@ -70,7 +70,7 @@ class EmployeeImportController extends Controller
 
         if ($missingColumns) {
             fclose($handle);
-            throw new \InvalidArgumentException('Missing required columns: '.implode(', ', $missingColumns));
+            throw new \InvalidArgumentException('Missing required columns: ' . implode(', ', $missingColumns));
         }
 
         $employmentStatuses = EmploymentStatus::all()->keyBy('name');
