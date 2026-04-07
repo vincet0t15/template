@@ -10,6 +10,7 @@
 /.phpunit.cache
 /.vscode
 /.zed
+/bootstrap/cache/*.php
 /bootstrap/ssr
 /node_modules
 /public/build
@@ -19,6 +20,7 @@
 /storage/pail
 /storage/logs
 /vendor
+app/Http/Middleware/TrackUserActivity.php
 auth.json
 Homestead.json
 Homestead.yaml
