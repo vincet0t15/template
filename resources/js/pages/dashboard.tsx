@@ -263,7 +263,7 @@ export default function Dashboard({
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
                         <p className="text-muted-foreground">
-                            Welcome back! Here's what's happening with your payroll for{' '}
+                            Welcome back! Here's what's happening with your payroll for1{' '}
                             <span className="font-medium text-slate-900 dark:text-white">
                                 {months.find((m) => m.value === filterData.month)?.label || currentPeriod.monthName} {filterData.year}
                             </span>

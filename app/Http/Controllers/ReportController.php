@@ -29,6 +29,8 @@ class ReportController extends Controller
         // Only show employees when a source of fund code is selected
         $employees = Employee::with(['office', 'employmentStatus'])
             ->orderBy('last_name', 'asc')
+            ->orderBy('first_name', 'asc')
+            ->orderBy('middle_name', 'asc')
             ->when($request->input('source_of_fund_code_id'), function ($query) use ($request) {
                 $query->whereHas('salaries', function ($query) use ($request) {
                     $query->where('source_of_fund_code_id', $request->input('source_of_fund_code_id'));
