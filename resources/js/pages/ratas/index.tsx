@@ -2,6 +2,7 @@ import { CustomComboBox } from '@/components/CustomComboBox';
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import type { EmploymentStatus } from '@/types/employmentStatuses';
 import type { FilterProps } from '@/types/filter';
 import type { Office } from '@/types/office';
 import type { PaginatedDataResponse } from '@/types/pagination';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { History, PlusIcon, Search, User } from 'lucide-react';
 import { useState } from 'react';
 
@@ -167,7 +168,6 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
                         <TableHeader className="bg-muted/50">
                             <TableRow>
                                 <TableHead className="text-primary font-bold">Employee</TableHead>
-                                <TableHead className="text-primary font-bold">Office</TableHead>
                                 <TableHead className="text-primary text-right font-bold">Current RATA</TableHead>
                                 <TableHead className="text-primary w-[150px] text-center font-bold">Actions</TableHead>
                             </TableRow>
@@ -178,8 +178,8 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
                                     <TableRow key={employee.id} className="hover:bg-muted/30">
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                <div className="relative">
-                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 shadow-sm transition-all hover:border-teal-400 hover:shadow-md dark:border-slate-700 dark:hover:border-teal-500">
+                                                <Link href={route('manage.employees.index', employee.id)} className="group relative cursor-pointer">
+                                                    <Avatar className="h-12 w-12 border-2 border-slate-200 shadow-sm transition-all hover:border-teal-400 hover:shadow-md dark:border-slate-700 dark:hover:border-teal-500">
                                                         {employee.image_path ? (
                                                             <AvatarImage
                                                                 src={employee.image_path ?? undefined}
@@ -191,16 +191,19 @@ export default function RatasIndex({ employees, offices, employmentStatuses, fil
                                                             <User className="h-5 w-5 text-slate-400" />
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                </div>
+                                                </Link>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold uppercase">
-                                                        {employee.last_name}, {employee.first_name} {employee.middle_name}
+                                                        {employee.last_name}, {employee.first_name} {employee.middle_name} {employee.suffix}
                                                     </span>
                                                     <span className="text-muted-foreground text-xs">{employee.position}</span>
+                                                    <span className="text-muted-foreground text-xs">{employee.office?.name}</span>
+                                                    <Badge variant="outline" className="bg-teal-800 text-white">
+                                                        {employee.employment_status?.name}
+                                                    </Badge>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{employee.office?.name}</TableCell>
                                         <TableCell className="text-right font-medium">
                                             {employee.latest_rata ? formatCurrency(employee.latest_rata.amount) : '-'}
                                         </TableCell>
