@@ -12,6 +12,7 @@ interface OverviewProps {
     claims: Claim[];
     totalDeductionsAllTime: number;
     totalClaimsAllTime: number;
+    salaryHistory?: Array<{ amount: number; effective_date: string }>;
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -26,7 +27,7 @@ function formatDate(dateStr: string | undefined) {
     return new Date(dateStr).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function Overview({ employee, deductions, claims, totalDeductionsAllTime, totalClaimsAllTime }: OverviewProps) {
+function Overview({ employee, deductions, claims, totalDeductionsAllTime, totalClaimsAllTime, salaryHistory = [] }: OverviewProps) {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     const currentPeriodKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
@@ -44,6 +45,18 @@ function Overview({ employee, deductions, claims, totalDeductionsAllTime, totalC
         Number(employee.latest_pera?.amount ?? 0) +
         (employee.is_rata_eligible ? Number(employee.latest_rata?.amount ?? 0) : 0);
     const netThisMonth = grossPay - currentMonthDeductionTotal;
+
+    // Calculate employment duration
+    const hireDate = employee.salaries?.[0]?.effective_date;
+    const yearsOfService = hireDate ? Math.floor((new Date().getTime() - new Date(hireDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+
+    // Recent claims (last 5)
+    const recentClaims = claims.slice(0, 5);
+
+    // Salary history (last 3 changes)
+
+    // Full name with suffix
+    const fullName = `${employee.last_name}, ${employee.first_name} ${employee.middle_name} ${employee.suffix || ''}`.trim();
 
     return (
         <div className="space-y-6">
@@ -260,6 +273,109 @@ function Overview({ employee, deductions, claims, totalDeductionsAllTime, totalC
                                     </div>
                                 );
                             })()}
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Deduction Breakdown with Percentages */}
+            {currentMonthDeductions.length > 0 && (
+                <div>
+                    <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">Current Month Deduction Breakdown</h3>
+                    <Card>
+                        <CardContent className="pt-4">
+                            <div className="space-y-3">
+                                {currentMonthDeductions.map((deduction) => {
+                                    const amount = Number(deduction.amount);
+                                    const percentage = grossPay > 0 ? (amount / grossPay) * 100 : 0;
+                                    return (
+                                        <div key={deduction.id} className="space-y-1">
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="font-medium">{deduction.deduction_type?.name ?? '—'}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-muted-foreground text-xs">{percentage.toFixed(1)}%</span>
+                                                    <span className="font-semibold text-red-600">{formatCurrency(amount)}</span>
+                                                </div>
+                                            </div>
+                                            <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                                                <div
+                                                    className="h-full bg-red-500 transition-all"
+                                                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                <Separator className="my-2" />
+                                <div className="flex items-center justify-between text-sm font-semibold">
+                                    <span>Total Deductions</span>
+                                    <span className="text-red-600">{formatCurrency(currentMonthDeductionTotal)}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Recent Claims Activity */}
+            {recentClaims.length > 0 && (
+                <div>
+                    <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">Recent Claims Activity</h3>
+                    <Card>
+                        <CardContent className="pt-4">
+                            <div className="space-y-3">
+                                {recentClaims.map((claim) => (
+                                    <div
+                                        key={claim.id}
+                                        className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 dark:border-slate-700"
+                                    >
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <Receipt className="text-muted-foreground h-4 w-4" />
+                                                <span className="text-sm font-medium">{claim.claim_type?.name ?? 'Claim'}</span>
+                                            </div>
+                                            <p className="text-muted-foreground mt-1 text-xs">{claim.purpose}</p>
+                                            <p className="text-muted-foreground mt-1 text-xs">{formatDate(claim.claim_date)}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="font-semibold text-green-600">{formatCurrency(claim.amount)}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Compensation History Trend */}
+            {employee.salaries && employee.salaries.length > 1 && (
+                <div>
+                    <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">Compensation History</h3>
+                    <Card>
+                        <CardContent className="pt-4">
+                            <div className="space-y-3">
+                                {employee.salaries.slice(0, 5).map((salary, index) => {
+                                    const prevSalary = employee.salaries?.[index + 1];
+                                    const increase = prevSalary ? Number(salary.amount) - Number(prevSalary.amount) : 0;
+                                    const increasePercent =
+                                        prevSalary && Number(prevSalary.amount) > 0 ? (increase / Number(prevSalary.amount)) * 100 : 0;
+
+                                    return (
+                                        <div key={salary.id} className="flex items-center justify-between">
+                                            <div>
+                                                <div className="text-sm font-medium">{formatCurrency(salary.amount)}</div>
+                                                <div className="text-muted-foreground text-xs">Effective {formatDate(salary.effective_date)}</div>
+                                            </div>
+                                            {increase > 0 && (
+                                                <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                                                    +{formatCurrency(increase)} ({increasePercent.toFixed(1)}%)
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </CardContent>
                     </Card>
                 </div>

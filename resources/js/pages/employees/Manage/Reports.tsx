@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Claim } from '@/types/claim';
 import type { Employee } from '@/types/employee';
 import type { EmployeeDeduction } from '@/types/employeeDeduction';
-import { FileText, Printer, Receipt, TrendingDown, X } from 'lucide-react';
+import { Printer, Receipt, TrendingDown, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 interface ReportsProps {
@@ -179,23 +179,6 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
 
     return (
         <div className="space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <FileText className="text-muted-foreground h-5 w-5" />
-                    <div>
-                        <h2 className="text-lg font-semibold">Employee Report</h2>
-                        <p className="text-muted-foreground text-sm">
-                            {employee.last_name}, {employee.first_name} {employee.middle_name} — {employee.position}
-                        </p>
-                    </div>
-                </div>
-                <Button onClick={handlePrint}>
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print Report
-                </Button>
-            </div>
-
             {/* Date Filters */}
             <div className="flex flex-wrap items-center gap-3">
                 <CustomComboBox
@@ -216,6 +199,11 @@ function Reports({ employee, allDeductions, allClaims }: ReportsProps) {
                         Clear Filters
                     </Button>
                 )}
+
+                <Button onClick={handlePrint}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print Report
+                </Button>
             </div>
 
             {/* Summary Cards */}
