@@ -132,7 +132,7 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
                                 {/* Monthly Sections */}
                                 <div className="space-y-4">
                                     {monthlyData.map((monthData) => (
-                                        <div key={`${monthData.year}-${monthData.month}`} className="break-inside-avoid">
+                                        <div key={`${monthData.year}-${monthData.month}`} className="avoid-break">
                                             <div className="mb-1 flex items-baseline justify-between gap-3 border-b border-black pb-1">
                                                 <h3 className="m-0 text-[12px] font-bold uppercase">
                                                     {getMonthName(monthData.month)} {monthData.year}
@@ -224,7 +224,7 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
                                 </div>
 
                                 {/* Grand Total */}
-                                <div className="mt-4 break-inside-avoid">
+                                <div className="mt-4 print:mt-2">
                                     <table className="w-full border-collapse border-2 border-black text-[10px]">
                                         <tbody>
                                             <tr className="bg-gray-200 font-bold">
@@ -250,11 +250,12 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
             </div>
 
             <style>{`
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
+            }
+
             @media print {
-                @page {
-                    size: A4 landscape;
-                    margin: 10mm 10mm 10mm 15mm;
-                }
 
                 html, body {
                     margin: 0 !important;
@@ -265,37 +266,85 @@ export default function PrintPayrollReport({ year, monthlyData, office }: Props)
                     print-color-adjust: exact;
                 }
 
-                * {
-                    overflow: visible !important;
-                }
-
                 .print-wrapper {
                     width: 100% !important;
+                    max-width: 100% !important;
                     margin: 0 !important;
                     padding: 0 !important;
                 }
 
+                .print\\:hidden {
+                    display: none !important;
+                }
+
+                /* spacing fix */
+                .space-y-4 > * + * {
+                    margin-top: 6px !important;
+                }
+
+                .print\\:space-y-3 > * + * {
+                    margin-top: 3px !important;
+                }
+
+                /* page control */
+                .avoid-break {
+                    page-break-inside: auto;
+                    break-inside: auto;
+                }
+
+                h3 {
+                    page-break-after: avoid;
+                }
+
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
+                    width: 100% !important;
+                    border-collapse: collapse !important;
+                    page-break-inside: auto;
+                }
+
+                thead {
+                    display: table-header-group;
+                }
+
+                tr {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
                 }
 
                 td, th {
                     padding: 1px 3px !important;
-                    font-size: 9px;
-                    page-break-inside: avoid;
+                    font-size: 9px !important;
+                    line-height: 1.2 !important;
+                    vertical-align: middle;
                 }
 
+                /* remove extra gaps */
+                .mb-4, .mb-2, .mb-1, .mt-4 {
+                    margin-top: 0 !important;
+                    margin-bottom: 4px !important;
+                }
+
+                .pb-1 {
+                    padding-bottom: 2px !important;
+                }
+
+                /* colors */
                 .bg-gray-100 {
                     background-color: #f3f4f6 !important;
                     -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
                 }
 
                 .bg-gray-200 {
                     background-color: #e5e7eb !important;
                     -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
+                }
+
+                .text-red-600 {
+                    color: #dc2626 !important;
+                }
+
+                .text-green-600 {
+                    color: #16a34a !important;
                 }
             }
             `}</style>
