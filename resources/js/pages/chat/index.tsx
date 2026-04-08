@@ -15,7 +15,6 @@ interface ChatUser {
     username: string;
     name: string;
     unread_count: number;
-    total_messages?: number;
     last_message?: string;
     last_message_time?: string;
     is_online?: boolean;
@@ -224,7 +223,6 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                                 ...user,
                                 last_message: data.message,
                                 last_message_time: data.created_at,
-                                total_messages: (user.total_messages || 0) + 1,
                                 unread_count:
                                     data.receiver_id === currentUserId && data.sender_id !== currentUserId
                                         ? user.unread_count + 1
@@ -616,9 +614,6 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                                                         {user.unread_count > 0 && <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />}
                                                     </div>
                                                     <div className="flex items-center gap-1">
-                                                        {user.total_messages && user.total_messages > 0 && (
-                                                            <span className="text-muted-foreground shrink-0 text-[10px]">{user.total_messages}</span>
-                                                        )}
                                                         {user.last_message_time && (
                                                             <span className="text-muted-foreground shrink-0 text-xs">
                                                                 {formatSidebarTime(user.last_message_time)}

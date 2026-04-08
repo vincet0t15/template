@@ -27,13 +27,15 @@ class ChatController extends Controller
             ])
             ->with([
                 'receivedChats' => function ($query) use ($userId) {
-                    $query->where('sender_id', $userId)
-                        ->orderBy('created_at', 'desc')
+                    $query->select('sender_id', 'receiver_id', 'message', 'created_at')
+                        ->where('sender_id', $userId)
+                        ->latest()
                         ->limit(1);
                 },
                 'sentChats' => function ($query) use ($userId) {
-                    $query->where('receiver_id', $userId)
-                        ->orderBy('created_at', 'desc')
+                    $query->select('sender_id', 'receiver_id', 'message', 'created_at')
+                        ->where('receiver_id', $userId)
+                        ->latest()
                         ->limit(1);
                 }
             ])
@@ -58,8 +60,6 @@ class ChatController extends Controller
                     'is_online' => $user->last_seen && $user->last_seen->diffInMinutes(now()) < 5,
                     'last_message' => $latestMessage ? $latestMessage->message : null,
                     'last_message_time' => $latestMessage ? $latestMessage->created_at : null,
-                    'total_messages' => $latestReceived || $latestSent ?
-                        \App\Models\Chat::betweenUsers($user->id, $userId)->count() : 0,
                 ];
             })
             // Sort: Users with latest messages first, then users without chats
