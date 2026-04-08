@@ -101,6 +101,10 @@ class RoleSeeder extends Seeder
             // Audit Logs
             'audit_logs.view',
             'audit_logs.export',
+
+            // Chat permissions
+            'chat.view',
+            'chat.use',
         ];
 
         foreach ($permissions as $permission) {

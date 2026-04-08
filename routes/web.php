@@ -42,8 +42,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // CHAT - Real-time messaging
-    Route::prefix('chat')->group(function () {
+    // CHAT - Real-time messaging (requires chat.use permission)
+    Route::middleware(['permission:chat.use'])->prefix('chat')->group(function () {
         Route::get('/', [ChatController::class, 'index'])->name('chat.index');
         Route::get('/conversations/{userId}', [ChatController::class, 'conversations'])->name('chat.conversations');
         Route::post('/send/{userId}', [ChatController::class, 'send'])->name('chat.send');
