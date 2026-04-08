@@ -53,7 +53,6 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [lastActivityTime, setLastActivityTime] = useState<Date>(new Date());
     const [messageMenuId, setMessageMenuId] = useState<number | null>(null);
-    const [currentTime, setCurrentTime] = useState<Date>(new Date());
     const [displayedUsers, setDisplayedUsers] = useState<ChatUser[]>([]);
     const [loadingMoreUsers, setLoadingMoreUsers] = useState(false);
     const [hasMoreUsers, setHasMoreUsers] = useState(true);
@@ -149,6 +148,15 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
         setHasMoreUsers(users.length > 20);
     }, [users]);
 
+    // Cleanup file preview on unmount
+    useEffect(() => {
+        return () => {
+            if (filePreview) {
+                URL.revokeObjectURL(filePreview);
+            }
+        };
+    }, [filePreview]);
+
     // Load more users when scrolling
     const loadMoreUsers = () => {
         if (loadingMoreUsers || !hasMoreUsers) return;
@@ -197,22 +205,24 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
             container.addEventListener('scroll', handleScroll);
             return () => container.removeEventListener('scroll', handleScroll);
         }
-    }, [loadingMore, hasMore, messages]);
+    }, [loadingMore, hasMore]); // Removed messages dependency
 
     useEffect(() => {
         const channel = window.Echo?.private(`chat.${currentUserId}`);
 
         if (channel) {
             channel.listen('MessageSent', (data: any) => {
+                const messageTime = new Date(data.created_at);
+
                 // Update messages if chatting with this user
                 if (selectedUser && (data.sender_id === selectedUser.id || data.receiver_id === selectedUser.id)) {
                     setMessages((prev) => [...prev, data]);
                     // Always scroll to bottom for new messages
-                    setTimeout(() => {
+                    requestAnimationFrame(() => {
                         messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-                    }, 100);
+                    });
                     // Update last activity time
-                    setLastActivityTime(new Date());
+                    setLastActivityTime(messageTime);
                 }
 
                 // Update sidebar user list with latest message
@@ -255,7 +265,7 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                 channel.stopListening('MessageSent');
             }
         };
-    }, [selectedUser, currentUserId]);
+    }, [selectedUser, currentUserId, userOffset]);
 
     const loadMessages = async (userId: number, loadOlder = false) => {
         if (loadOlder) {
@@ -419,15 +429,6 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
             return () => document.removeEventListener('click', handleClickOutside);
         }
     }, [messageMenuId]);
-
-    // Update sidebar times every minute
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 60000); // Update every minute
-
-        return () => clearInterval(interval);
-    }, []);
 
     const sendMessage = async () => {
         if ((!newMessage.trim() && !selectedFile) || !selectedUser) return;
