@@ -1,5 +1,6 @@
 import Heading from '@/components/heading';
 import Pagination from '@/components/paginationData';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,7 +12,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { PaginatedDataResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Edit, Shield, User, Users } from 'lucide-react';
+import { Edit, MessageSquare, Shield, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface Role {
@@ -88,6 +89,10 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
         roleForm.setData('roles', updated);
     };
 
+    const startChat = (userId: number) => {
+        router.visit(`/chat?user=${userId}`);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Accounts" />
@@ -106,7 +111,6 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                         <TableHeader>
                             <TableRow className="bg-muted/50">
                                 <TableHead className="w-[50px]"></TableHead>
-                                <TableHead>Name</TableHead>
                                 <TableHead>Username</TableHead>
                                 <TableHead>Roles</TableHead>
                                 <TableHead className="text-center">Active</TableHead>
@@ -116,7 +120,7 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                         <TableBody>
                             {users.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
+                                    <TableCell colSpan={5} className="text-muted-foreground h-24 text-center">
                                         No accounts found.
                                     </TableCell>
                                 </TableRow>
@@ -124,21 +128,37 @@ export default function AccountsIndex({ users, roles }: AccountsIndexProps) {
                                 users.data.map((user) => (
                                     <TableRow key={user.id} className={!user.is_active ? 'bg-muted/30' : undefined}>
                                         <TableCell>
-                                            <div className="relative">
-                                                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-                                                    {user.roles.includes('super admin') ? (
-                                                        <Shield className="text-primary h-4 w-4" />
-                                                    ) : (
-                                                        <User className="text-muted-foreground h-4 w-4" />
+                                            <button
+                                                onClick={() => startChat(user.id)}
+                                                className="group flex items-center gap-2 transition-opacity hover:opacity-80"
+                                                title={`Chat with ${user.name}`}
+                                            >
+                                                <div className="relative">
+                                                    <Avatar className="h-10 w-10 border-2 border-slate-200 transition-colors group-hover:border-teal-400">
+                                                        <AvatarFallback className="bg-gradient-to-br from-teal-400 to-teal-600 text-sm font-semibold text-white">
+                                                            {user.name.charAt(0).toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    {user.is_online && (
+                                                        <span className="border-background absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 bg-green-500"></span>
                                                     )}
                                                 </div>
-                                                {user.is_online && (
-                                                    <span className="border-background absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full bg-green-500 ring-2 ring-green-500"></span>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{user.name}</div>
+                                                <div className="text-left">
+                                                    <div className="text-sm font-medium">{user.name}</div>
+                                                    {user.is_online ? (
+                                                        <div className="flex items-center gap-1 text-xs text-green-600">
+                                                            <span className="relative flex h-2 w-2">
+                                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                                                                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                                                            </span>
+                                                            Online
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-muted-foreground text-xs">Offline</div>
+                                                    )}
+                                                </div>
+                                                <MessageSquare className="text-muted-foreground ml-2 h-4 w-4 transition-colors group-hover:text-teal-600" />
+                                            </button>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{user.username}</TableCell>
                                         <TableCell>

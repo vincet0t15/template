@@ -15,6 +15,7 @@ import {
     Key,
     LayoutGrid,
     LucideMoveVertical,
+    MessageSquare,
     MinusSquare,
     Receipt,
     ReceiptCent,
@@ -40,6 +41,11 @@ const mainNavItems: NavGroup[] = [
                 title: 'Employees',
                 href: '/employees',
                 icon: UserRoundPen,
+            },
+            {
+                title: 'Chat',
+                href: '/chat',
+                icon: MessageSquare,
             },
             {
                 title: 'Suppliers',

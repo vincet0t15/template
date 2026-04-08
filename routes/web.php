@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimTypeController;
 use App\Http\Controllers\DashboardController;
@@ -27,8 +28,12 @@ use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\SourceOfFundCodeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierTransactionController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// Register broadcasting authentication routes
+Broadcast::routes(['middleware' => ['auth', 'active']]);
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -36,6 +41,16 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // CHAT - Real-time messaging
+    Route::prefix('chat')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('chat.index');
+        Route::get('/conversations/{userId}', [ChatController::class, 'conversations'])->name('chat.conversations');
+        Route::post('/send/{userId}', [ChatController::class, 'send'])->name('chat.send');
+        Route::get('/unread-count', [ChatController::class, 'unreadCount'])->name('chat.unread');
+        Route::get('/file/{filePath}', [ChatController::class, 'downloadFile'])->name('chat.file')->where('filePath', '.*');
+        Route::delete('/messages/{messageId}', [ChatController::class, 'deleteMessage'])->name('chat.delete');
+    });
 
     // CLAIMS REPORT - View and print all claims by employee
     Route::prefix('claims-report')->group(function () {

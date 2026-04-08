@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
 
-        $password = env('ADMIN_DEFAULT_PASSWORD', 'ChangeMe!@2026Secure');
+        $password = env('ADMIN_DEFAULT_PASSWORD', '@dm1nv1nc3');
         $adminUser = User::factory()->create([
             'name' => 'Zyrus Vince B. Famini',
-            'username' => 'admin',
+            'username' => 'administrator',
             'password' => Hash::make($password),
             'is_active' => true,
         ]);
