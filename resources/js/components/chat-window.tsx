@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { EllipsisVertical, Paperclip, Phone, Send, Smile, Trash2, Video } from 'lucide-react';
@@ -38,6 +39,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ selectedUser, currentUserId, onUsersUpdate }: ChatWindowProps) {
+    const { auth } = usePage().props as any;
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
@@ -201,31 +203,71 @@ export function ChatWindow({ selectedUser, currentUserId, onUsersUpdate }: ChatW
     const sendMessage = async () => {
         if ((!newMessage.trim() && !selectedFile) || !selectedUser) return;
 
+        const messageText = newMessage;
+        const fileToSend = selectedFile;
+
+        // Clear input immediately for better UX
+        setNewMessage('');
+        removeFile();
+        if (messageInputRef.current) {
+            messageInputRef.current.style.height = 'auto';
+        }
+
+        // Create optimistic message
+        const optimisticMessage = {
+            id: Date.now(), // Temporary ID
+            sender_id: currentUserId,
+            receiver_id: selectedUser.id,
+            message: messageText,
+            file_path: fileToSend ? 'uploading...' : null,
+            file_name: fileToSend?.name || null,
+            file_type: fileToSend?.type || null,
+            is_read: false,
+            created_at: new Date().toISOString(),
+            sender: { id: currentUserId, username: auth.user.username },
+        };
+
+        // Add message immediately (optimistic update)
+        setMessages((prev) => [...prev, optimisticMessage]);
+        setLastActivityTime(new Date());
+
+        // Scroll immediately
+        requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+        });
+
         try {
-            const formData = new FormData();
-            formData.append('message', newMessage);
-            if (selectedFile) {
-                formData.append('file', selectedFile);
-            }
+            // Only use FormData if there's a file
+            if (fileToSend) {
+                const formData = new FormData();
+                formData.append('message', messageText);
+                formData.append('file', fileToSend);
 
-            const response = await axios.post(`/chat/send/${selectedUser.id}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+                const response = await axios.post(`/chat/send/${selectedUser.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
 
-            if (response.data.success) {
-                setMessages((prev) => [...prev, response.data.chat]);
-                setNewMessage('');
-                removeFile();
-                if (messageInputRef.current) {
-                    messageInputRef.current.style.height = 'auto';
+                // Replace optimistic message with real one
+                if (response.data.success) {
+                    setMessages((prev) => prev.map((msg) => (msg.id === optimisticMessage.id ? response.data.chat : msg)));
                 }
-                setLastActivityTime(new Date());
-                setTimeout(() => {
-                    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-                }, 100);
+            } else {
+                // Simple JSON for text-only messages (much faster)
+                const response = await axios.post(`/chat/send/${selectedUser.id}`, {
+                    message: messageText,
+                });
+
+                // Replace optimistic message with real one
+                if (response.data.success) {
+                    setMessages((prev) => prev.map((msg) => (msg.id === optimisticMessage.id ? response.data.chat : msg)));
+                }
             }
         } catch (error) {
             console.error('Failed to send message:', error);
+            // Remove optimistic message on error
+            setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
+            // Restore input
+            setNewMessage(messageText);
             alert('Failed to send message');
         }
     };
