@@ -214,14 +214,14 @@ export function ChatWindow({ selectedUser, currentUserId, onUsersUpdate }: ChatW
         }
 
         // Create optimistic message
-        const optimisticMessage = {
+        const optimisticMessage: Message = {
             id: Date.now(), // Temporary ID
             sender_id: currentUserId,
             receiver_id: selectedUser.id,
             message: messageText,
-            file_path: fileToSend ? 'uploading...' : null,
-            file_name: fileToSend?.name || null,
-            file_type: fileToSend?.type || null,
+            file_path: fileToSend ? 'uploading...' : undefined,
+            file_name: fileToSend?.name || undefined,
+            file_type: fileToSend?.type || undefined,
             is_read: false,
             created_at: new Date().toISOString(),
             sender: { id: currentUserId, username: auth.user.username },
