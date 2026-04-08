@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -139,7 +138,14 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
 
     // Initialize displayed users (first 20)
     useEffect(() => {
-        setDisplayedUsers(users.slice(0, 20));
+        // Users are already sorted from backend, just take first 20
+        const sorted = [...users].sort((a, b) => {
+            if (!a.last_message_time && !b.last_message_time) return 0;
+            if (!a.last_message_time) return 1;
+            if (!b.last_message_time) return -1;
+            return new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime();
+        });
+        setDisplayedUsers(sorted.slice(0, 20));
         setUserOffset(20);
         setHasMoreUsers(users.length > 20);
     }, [users]);
@@ -231,12 +237,17 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                     });
 
                     // Re-sort: users with latest messages at top
-                    return updatedUsers.sort((a, b) => {
+                    const sortedUsers = updatedUsers.sort((a, b) => {
                         if (!a.last_message_time && !b.last_message_time) return 0;
                         if (!a.last_message_time) return 1;
                         if (!b.last_message_time) return -1;
                         return new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime();
                     });
+
+                    // Update displayed users as well (for infinite scroll)
+                    setDisplayedUsers(sortedUsers.slice(0, userOffset));
+
+                    return sortedUsers;
                 });
             });
         }
@@ -600,7 +611,10 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <span className="truncate text-sm font-medium">{user.name}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="truncate text-sm font-medium">{user.name}</span>
+                                                        {user.unread_count > 0 && <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />}
+                                                    </div>
                                                     <div className="flex items-center gap-1">
                                                         {user.total_messages && user.total_messages > 0 && (
                                                             <span className="text-muted-foreground shrink-0 text-[10px]">{user.total_messages}</span>
@@ -620,11 +634,6 @@ export default function ChatIndex({ chatUsers, selectedUserId }: { chatUsers: Ch
                                                                 : user.last_message
                                                             : 'Start a conversation'}
                                                     </span>
-                                                    {user.unread_count > 0 && (
-                                                        <Badge className="ml-2 flex h-5 min-w-5 shrink-0 items-center justify-center bg-teal-500 px-1.5 text-[10px]">
-                                                            {user.unread_count > 99 ? '99+' : user.unread_count}
-                                                        </Badge>
-                                                    )}
                                                 </div>
                                             </div>
                                         </button>

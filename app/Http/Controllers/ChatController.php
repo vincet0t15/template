@@ -20,8 +20,8 @@ class ChatController extends Controller
         $chatUsers = User::where('id', '!=', $userId)
             ->select('id', 'name', 'username', 'last_seen')
             ->withCount([
-                'receivedChats as unread_count' => function ($query) use ($userId) {
-                    $query->where('sender_id', $userId)
+                'sentChats as unread_count' => function ($query) use ($userId) {
+                    $query->where('receiver_id', $userId)
                         ->where('is_read', false);
                 }
             ])
@@ -62,17 +62,12 @@ class ChatController extends Controller
                         \App\Models\Chat::betweenUsers($user->id, $userId)->count() : 0,
                 ];
             })
-            // Sort: Users with chats first (by latest message time), then users without chats (alphabetically)
-            ->sortBy(function ($user) {
-                // Users with messages get priority (sort by time descending)
-                // Users without messages go to the end
-                return $user['last_message_time']
-                    ? $user['last_message_time']
-                    : '1970-01-01'; // Old date for users without chats
+            // Sort: Users with latest messages first, then users without chats
+            ->sortByDesc(function ($user) {
+                return $user['last_message_time'] ? 1 : 0;
             })
             ->sortByDesc(function ($user) {
-                // First priority: has any chat activity
-                return $user['last_message_time'] ? 1 : 0;
+                return $user['last_message_time'] ? strtotime($user['last_message_time']) : 0;
             })
             ->values();
 
