@@ -32,8 +32,12 @@ export function AppSidebar() {
     const { auth } = usePage().props as any;
     const userPermissions = auth?.user?.permissions || [];
 
+    console.log('Auth object:', auth);
+    console.log('User permissions:', userPermissions);
+    console.log('Permissions type:', typeof userPermissions, Array.isArray(userPermissions));
+
     const canViewChat = userPermissions.includes('chat.view') || userPermissions.includes('chat.use');
-    console.log(canViewChat);
+    console.log('canViewChat:', canViewChat);
     const mainNavItems: NavGroup[] = [
         {
             title: 'General',
